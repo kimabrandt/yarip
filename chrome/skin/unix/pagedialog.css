@@ -1,0 +1,50 @@
+menuitem#yarip-cut-menuitem {
+  list-style-image: url("chrome://yarip/skin/edit-cut.png");
+/*  list-style-image: url("moz-icon://stock/edit-cut?size=menu");*/
+}
+
+menuitem#yarip-cut-menuitem[disabled="true"] {
+  list-style-image: url("chrome://yarip/skin/edit-cut-disabled.png");
+/*  list-style-image: url("moz-icon://stock/edit-cut?size=menu&state=disabled");*/
+}
+
+menuitem#yarip-copy-menuitem {
+  list-style-image: url("chrome://yarip/skin/edit-copy.png");
+/*  list-style-image: url("moz-icon://stock/edit-copy?size=menu");*/
+}
+
+menuitem#yarip-copy-menuitem[disabled="true"] {
+  list-style-image: url("chrome://yarip/skin/edit-copy-disabled.png");
+/*  list-style-image: url("moz-icon://stock/edit-copy?size=menu&state=disabled");*/
+}
+
+menuitem#yarip-paste-menuitem {
+  list-style-image: url("chrome://yarip/skin/edit-paste.png");
+/*  list-style-image: url("moz-icon://stock/edit-paste?size=menu");*/
+}
+
+menuitem#yarip-paste-menuitem[disabled="true"] {
+  list-style-image: url("chrome://yarip/skin/edit-paste-disabled.png");
+/*  list-style-image: url("moz-icon://stock/edit-paste?size=menu&state=disabled");*/
+}
+
+menuitem#yarip-goto-menuitem {
+  list-style-image: url("chrome://yarip/skin/go-jump.png");
+/*  list-style-image: url("moz-icon://stock/go-jump?size=menu");*/
+}
+
+menuitem#yarip-goto-menuitem[disabled="true"] {
+  list-style-image: url("chrome://yarip/skin/go-jump-disabled.png");
+/*  list-style-image: url("moz-icon://stock/go-jump?size=menu&state=disabled");*/
+}
+
+treechildren::-moz-tree-checkbox {
+  list-style-image: url("chrome://yarip/skin/stock_form-checkbox-disabled.png");
+/*  list-style-image: url("moz-icon://stock/stock_form-checkbox?size=menu&state=disabled");*/
+}
+
+treechildren::-moz-tree-checkbox(checked) {
+  list-style-image: url("chrome://yarip/skin/stock_form-checkbox.png");
+/*  list-style-image: url("moz-icon://stock/stock_form-checkbox?size=menu");*/
+}
+

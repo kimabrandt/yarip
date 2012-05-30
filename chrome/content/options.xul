@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+
+This file is part of yarip.
+
+Yarip is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+Yarip is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with yarip; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE dialog SYSTEM "chrome://yarip/locale/options.dtd">
+<prefwindow id="options-dialog"
+  title="&prefwindow.title.optionsDialog;"
+  buttons="accept,cancel,extra1"
+  buttonlabelextra1="&button.label.reset;"
+  ondialogextra1="options.reset();"
+  persist="screenX screenY width height"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript"><![CDATA[
+    const Cu = Components.utils;
+    var yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
+    Cu.import("resource://yarip/constants.jsm");
+  ]]></script>
+  <script type="application/x-javascript" src="chrome://yarip/content/options.js"/>
+  <script type="application/x-javascript"><![CDATA[
+    var options = new YaripOptionsPrefwindow();
+  ]]></script>
+  <prefpane flex="1">
+    <preferences>
+      <preference id="prefElementsInContext" name="extensions.yarip.elementsInContext.value" type="int"/>
+
+<!--      <preference id="prefAlwaysUseIndex" name="extensions.yarip.alwaysUseIndex.value" type="bool"/> TODO Reset this preference! -->
+      <preference id="prefUseIndex" name="extensions.yarip.useIndex.value" type="int"/>
+
+      <preference id="prefMonitorContentModifiersList" name="extensions.yarip.monitorContentModifiersList.value" type="string"/>
+      <preference id="prefMonitorContentKeyCode" name="extensions.yarip.monitorContentKeyCode.value" type="string"/>
+<!--      <preference id="prefRepeat" name="extensions.yarip.contentRepeatThreshold.value" type="int"/>-->
+<!--      <preference id="prefContentRecurrence" name="extensions.yarip.contentRecurrence.value" type="bool"/>-->
+      <preference id="prefLogWhenClosed" name="extensions.yarip.logWhenClosed.value" type="bool"/>
+
+      <preference id="prefManagePagesModifiersList" name="extensions.yarip.managePagesModifiersList.value" type="string"/>
+      <preference id="prefManagePagesKeyCode" name="extensions.yarip.managePagesKeyCode.value" type="string"/>
+
+      <preference id="prefPrivateBrowsing" name="extensions.yarip.privateBrowsing.value" type="bool"/>
+      <preference id="prefPurgeInnerHTML" name="extensions.yarip.purgeInnerHTML.value" type="bool"/>
+      <preference id="prefSchemesList" name="extensions.yarip.schemesRegExp.value" type="string"/>
+
+      <preference id="prefExclusiveOnCreation" name="extensions.yarip.exclusiveOnCreation.value" type="bool"/>
+      <preference id="prefTemplatesList" name="extensions.yarip.templatesList.value" type="string"/>
+    </preferences>
+
+    <vbox flex="1">
+    <tabbox id="tabbox" flex="1">
+<!--      <tabs onselect="yaripPageDialog.updateTab()">-->
+      <tabs>
+<!--        <tab id="general-tab" label="&tab.label.general;" oncommand="yaripPageDialog.setUserSelect()"/>-->
+<!--        <tab id="manager-tab" label="&tab.label.manager;" oncommand="yaripPageDialog.setUserSelect()"/>-->
+<!--        <tab id="monitor-tab" label="&tab.label.monitor;" oncommand="yaripPageDialog.setUserSelect()"/>-->
+        <tab id="general-tab" label="&tab.label.general;"/>
+        <tab id="manager-tab" label="&tab.label.manager;"/>
+        <tab id="monitor-tab" label="&tab.label.monitor;"/>
+      </tabs>
+      <tabpanels flex="1">
+        <tabpanel id="general-tabpanel" flex="1">
+          <vbox flex="1">
+            <groupbox>
+              <caption label="&caption.label.contextMenu;"/>
+              <hbox align="center">
+                <label value="&label.value.prefixShow;"/>
+                <textbox id="textboxElementsInContext" type="number" size="3" min="1" preference="prefElementsInContext"/>
+                <label value="&label.value.suffixShow;"/>
+              </hbox>
+            </groupbox>
+
+            <groupbox>
+              <caption label="&caption.label.xpath;"/>
+<!--              <checkbox id="checkboxAlwaysUseIndex" label="&checkbox.label.alwaysUseIndex;" preference="prefAlwaysUseIndex"/>-->
+              <label value="&label.value.useIndex;"/>
+              <radiogroup preference="prefUseIndex">
+                <radio id="radioAlwaysUseIndex" label="&radio.label.always;" value="0"/>
+                <radio id="radioWhenNeededUseIndex" label="&radio.label.whenNeeded;" value="1" selected="true"/>
+                <radio id="radioNeverUseIndex" label="&radio.label.never;" value="2"/>
+              </radiogroup>
+            </groupbox>
+
+            <groupbox>
+              <caption label="&caption.label.pageLoad;"/>
+              <checkbox id="checkboxPrivateBrowsing" label="&checkbox.label.privateBrowsing;" preference="prefPrivateBrowsing"/>
+              <checkbox id="checkboxPurgeInnerHTML" label="&checkbox.label.purgeInnerHTML;" preference="prefPurgeInnerHTML"/>
+              <separator class="thin"/>
+              <label value="&label.value.matchScheme;"/>
+              <textbox id="textboxSchemesList" preference="prefSchemesList"/>
+            </groupbox>
+
+            <groupbox>
+              <caption label="&caption.label.pageCreation;"/>
+              <checkbox id="checkboxExclusiveOnCreation" label="&checkbox.label.exclWhitelist;" preference="prefExclusiveOnCreation"/>
+              <separator class="thin"/>
+              <label value="&label.value.inheritFromPages;"/>
+              <textbox id="textboxTemplatesList" preference="prefTemplatesList"/>
+            </groupbox>
+          </vbox>
+        </tabpanel>
+        <tabpanel id="manager-tabpanel" flex="1">
+          <vbox flex="1">
+            <groupbox>
+              <caption label="&caption.label.shortcut;"/>
+  <!--            <label value="&label.value.openPageManager;" class="text-link" href="https://developer.mozilla.org/en/XUL_Tutorial/Keyboard_Shortcuts"/>-->
+              <label value="&label.value.openPageManager;"/>
+              <hbox align="center">
+                <vbox flex="1">
+                  <textbox id="textboxManagePagesModifiersList" preference="prefManagePagesModifiersList"/>
+                </vbox>
+                <label value="+"/>
+                <vbox flex="1">
+                  <textbox id="textboxManagePagesKeyCode" preference="prefManagePagesKeyCode"/>
+                </vbox>
+              </hbox>
+            </groupbox>
+          </vbox>
+        </tabpanel>
+        <tabpanel id="monitor-tabpanel" flex="1">
+          <vbox flex="1">
+<!--            <checkbox id="checkboxContentRecurrence" label="&checkbox.label.contentRecurrence;" preference="prefContentRecurrence"/>-->
+            <checkbox id="checkboxLogWhenClosed" label="&checkbox.label.logWhenClosed;" preference="prefLogWhenClosed"/>
+            <separator class="thin"/>
+            <groupbox>
+              <caption label="&caption.label.shortcut;"/>
+<!--              <label value="&label.value.shortcut;" class="text-link" href="https://developer.mozilla.org/en/XUL_Tutorial/Keyboard_Shortcuts"/>-->
+              <label value="&label.value.openContentMonitor;"/>
+              <hbox align="center">
+                <vbox flex="1">
+                  <textbox id="textboxMonitorContentModifiersList" preference="prefMonitorContentModifiersList"/>
+                </vbox>
+                <label value="+"/>
+                <vbox flex="1">
+                  <textbox id="textboxMonitorContentKeyCode" preference="prefMonitorContentKeyCode"/>
+                </vbox>
+              </hbox>
+            </groupbox>
+          </vbox>
+        </tabpanel>
+      </tabpanels>
+    </tabbox>
+    </vbox>
+  </prefpane>
+</prefwindow>

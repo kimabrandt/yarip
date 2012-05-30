@@ -1,0 +1,106 @@
+<!ENTITY dialog.title.managePages            "Manage pages">
+
+<!ENTITY key.key.cut                         "x">
+<!ENTITY key.key.copy                        "c">
+<!ENTITY key.key.paste                       "v">
+<!ENTITY key.key.goto                        "g">
+<!ENTITY key.key.selectAll                   "a">
+
+<!ENTITY menuitem.label.cut                  "Cut">
+<!ENTITY menuitem.label.copy                 "Copy">
+<!ENTITY menuitem.label.paste                "Paste">
+<!ENTITY menuitem.label.goto                 "Go to">
+
+<!ENTITY listheader.label.pages              "Pages">
+<!ENTITY dialogheader.description.page       "Page">
+<!ENTITY tab.label.element                   "Element">
+<!ENTITY tab.label.content                   "Content">
+<!ENTITY tab.label.page                      "Page">
+<!ENTITY tab.label.stream                    "Stream">
+<!ENTITY tab.label.whitelist                 "Whitelist">
+<!ENTITY tab.label.blacklist                 "Blacklist">
+<!ENTITY tab.label.attribute                 "Attribute">
+<!ENTITY tab.label.script                    "Script">
+<!ENTITY tab.label.placeholder               "Placeholder">
+<!ENTITY tab.label.header                    "Header">
+<!ENTITY tab.label.request                   "Request">
+<!ENTITY tab.label.response                  "Response">
+<!ENTITY tab.label.redirect                  "Redirect">
+<!ENTITY tab.label.style                     "Style">
+<!ENTITY tab.label.link                      "Link">
+<!ENTITY tab.label.extension                 "Extension">
+<!ENTITY tab.label.extendedBy                "Extended by">
+
+<!ENTITY treecol.label.xpath                 "XPath">
+<!ENTITY treecol.label.regExp                "Regular expression">
+<!ENTITY treecol.label.contentRegExp         "Content regex">
+<!ENTITY treecol.label.newsubstr             "New substring">
+<!ENTITY treecol.label.attrName              "Attribute name">
+<!ENTITY treecol.label.attrValue             "Attribute value">
+<!ENTITY treecol.label.headerName            "Header name">
+<!ENTITY treecol.label.headerValue           "Header value">
+<!ENTITY treecol.tooltiptext.merge           "Merge with any existing values.">
+<!ENTITY treecol.label.blacklist             "Blacklist">
+<!ENTITY treecol.label.force                 "Force">
+<!--<!ENTITY treecol.tooltiptext.forceWhitelist  "Force whitelisting (ignore blacklist, even if forced).">-->
+<!ENTITY treecol.tooltiptext.forceWhitelist  "Force whitelisting (ignore blacklist).">
+<!--<!ENTITY treecol.tooltiptext.forceBlacklist  "Force blacklisting (ignore whitelist, only if not forced).">-->
+<!ENTITY treecol.tooltiptext.forceBlacklist  "Force blacklisting (ignore whitelist).">
+<!ENTITY treecol.label.placeholder           "Placeholder">
+<!ENTITY treecol.tooltiptext.placeholder     "Replace with a placeholder.">
+<!ENTITY treecol.label.priority              "Priority">
+<!ENTITY treecol.label.merge                 "Merge">
+<!ENTITY treecol.label.created               "Created">
+<!ENTITY treecol.label.lastFound             "Last found">
+<!ENTITY treecol.label.found                 "Found">
+<!ENTITY treecol.label.notFound              "Not found">
+<!ENTITY treecol.label.ignored               "Ignored">
+<!ENTITY label.value.exclusive               "Exclusive">
+<!ENTITY label.tooltiptext.elementExclusive  "Only allow whitelisted elements.">
+<!ENTITY label.tooltiptext.exclusive         "Only allow whitelisted contents.">
+<!ENTITY label.value.noRedirect              "No redirects">
+<!ENTITY label.tooltiptext.noRedirect        "Prohibit redirects to this page.">
+<!ENTITY treecol.label.page                  "Page">
+<!ENTITY treecol.label.element               "Element">
+<!ENTITY treecol.label.content               "Content">
+<!ENTITY treecol.label.script                "Script">
+<!ENTITY treecol.label.header                "Header">
+<!ENTITY treecol.label.redirect              "Redirect">
+<!ENTITY treecol.label.stream                "Stream">
+<!ENTITY treecol.label.link                  "Link">
+<!ENTITY treecol.tooltiptext.element         "Is using elements from these pages.">
+<!ENTITY treecol.tooltiptext.content         "Is using contents from these pages.">
+<!ENTITY treecol.tooltiptext.script          "Is using scripts from these pages.">
+<!ENTITY treecol.tooltiptext.header          "Is using headers from these pages.">
+<!ENTITY treecol.tooltiptext.redirect        "Is using redirects from these pages.">
+<!ENTITY treecol.tooltiptext.stream          "Is using streams from these pages.">
+<!ENTITY treecol.tooltiptext.link            "Is allowed to link to these pages.">
+<!ENTITY treecol.tooltiptext.element2        "Are using elements from this page.">
+<!ENTITY treecol.tooltiptext.content2        "Are using contents from this page.">
+<!ENTITY treecol.tooltiptext.script2         "Are using scripts from this page.">
+<!ENTITY treecol.tooltiptext.header2         "Are using headers from this page.">
+<!ENTITY treecol.tooltiptext.redirect2       "Are using redirects from this page.">
+<!ENTITY treecol.tooltiptext.stream2         "Are using streams from this page.">
+<!ENTITY treecol.tooltiptext.link2           "Are allowed to link to this page.">
+<!ENTITY button.label.add                    "Add">
+<!ENTITY button.accesskey.add                "A">
+<!ENTITY button.label.remove                 "Remove">
+<!ENTITY button.label.removeAll              "Remove all">
+
+<!ENTITY button.label.copyPage               "Copy page">
+<!ENTITY button.accesskey.copyPage           "C">
+<!ENTITY button.label.renamePage             "Rename page">
+<!ENTITY button.accesskey.renamePage         "R">
+<!ENTITY button.label.removePages            "Remove pages">
+<!ENTITY button.label.import                 "Import">
+<!ENTITY button.accesskey.import             "I">
+<!ENTITY button.label.exportPages            "Export pages">
+<!ENTITY button.accesskey.exportPages        "E">
+<!ENTITY button.label.exportAll              "Export all">
+<!ENTITY button.label.save                   "Save">
+<!ENTITY button.accesskey.save               "S">
+
+<!ENTITY textbox.filter.placeholder          "Regex filter">
+<!ENTITY button.label.apply                  "Apply">
+<!ENTITY button.label.close                  "Close">
+

@@ -1,0 +1,8 @@
+<!ENTITY dialog.title.editAttribute   "Edit XML Path and Element Attribute">
+<!ENTITY label.value.page             "Page">
+<!ENTITY label.value.xpath            "XPath">
+<!ENTITY button.label.highlight       "Highlight">
+<!ENTITY button.label.noIndex         "No index">
+<!ENTITY label.value.attrName         "Attribute name">
+<!ENTITY label.value.attrValue        "Attribute value">
+

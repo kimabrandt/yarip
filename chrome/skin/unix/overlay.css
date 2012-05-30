@@ -1,0 +1,113 @@
+tree#yarip-content-tree treechildren::-moz-tree-image(whitelisted)
+{
+/*  list-style-image: url("moz-icon://stock/face-smile-big?size=menu");*/
+  list-style-image: url("chrome://yarip/skin/faces.png");
+  -moz-image-region: rect(0px 16px 16px 0px);
+}
+
+tree#yarip-content-tree treechildren::-moz-tree-image(blacklisted)
+{
+/*  list-style-image: url("moz-icon://stock/face-angry?size=menu");*/
+  list-style-image: url("chrome://yarip/skin/faces.png");
+  -moz-image-region: rect(0px 32px 16px 16px);
+}
+
+tree#yarip-content-tree treechildren::-moz-tree-image(redirected)
+{
+/*  list-style-image: url("moz-icon://stock/face-smile-big?size=menu");*/
+/*  list-style-image: url("chrome://yarip/skin/faces.png");*/
+/*  -moz-image-region: rect(0px 16px 16px 0px);*/
+  list-style-image: url("chrome://yarip/skin/go-jump.png");
+}
+
+menu#yarip-tools-menu,
+menu#yarip-menu
+{
+  list-style-image: url("chrome://yarip/skin/icons-16.png");
+  -moz-image-region: rect(0px 16px 16px 0px);
+}
+
+menupopup#yarip-monitor-menupopup menuitem[class="openLocation"]
+{
+  list-style-image: url("chrome://yarip/skin/tab-new.png");
+/*  list-style-image: url("moz-icon://stock/tab-new?size=menu");*/
+}
+
+menupopup#yarip-menupopup menuitem[class="copyXPath"],
+menupopup#yarip-monitor-menupopup menuitem[class="copyLocation"],
+menupopup#yarip-monitor-menupopup menuitem[class="copyRegExp"]
+{
+  list-style-image: url("chrome://yarip/skin/edit-copy.png");
+/*  list-style-image: url("moz-icon://stock/edit-copy?size=menu");*/
+}
+
+menupopup#yarip-menupopup menuitem[class="whitelist"],
+menupopup#yarip-monitor-menupopup menuitem[class="whitelist"]
+{
+/*  list-style-image: url("moz-icon://stock/face-smile-big?size=menu");*/
+  list-style-image: url("chrome://yarip/skin/faces.png");
+  -moz-image-region: rect(0px 16px 16px 0px);
+}
+
+menupopup#yarip-menupopup menuitem[class="whitelist temporary"]
+{
+/*  list-style-image: url("moz-icon://stock/face-smile-big?size=menu&state=disabled");*/
+  list-style-image: url("chrome://yarip/skin/faces.png");
+  -moz-image-region: rect(16px 16px 32px 0px);
+}
+
+menupopup#yarip-menupopup menuitem[class="blacklist"],
+menupopup#yarip-monitor-menupopup menuitem[class="blacklist"]
+{
+/*  list-style-image: url("moz-icon://stock/face-angry?size=menu");*/
+  list-style-image: url("chrome://yarip/skin/faces.png");
+  -moz-image-region: rect(0px 32px 16px 16px);
+}
+
+menupopup#yarip-menupopup menuitem[class="blacklist temporary"]
+{
+/*  list-style-image: url("moz-icon://stock/face-angry?size=menu&state=disabled");*/
+  list-style-image: url("chrome://yarip/skin/faces.png");
+  -moz-image-region: rect(16px 32px 32px 16px);
+}
+
+menuitem.goto-menuitem {
+  list-style-image: url("chrome://yarip/skin/go-jump.png");
+/*  list-style-image: url("moz-icon://stock/go-jump?size=menu");*/
+}
+
+menuitem.goto-menuitem[disabled="true"] {
+  list-style-image: url("chrome://yarip/skin/go-jump-disabled.png");
+/*  list-style-image: url("moz-icon://stock/go-jump?size=menu&state=disabled");*/
+}
+
+menupopup#yarip-menupopup menuitem[class="createPage"],
+menupopup#yarip-monitor-menupopup menuitem[class="createPage"]
+{
+  list-style-image: url("chrome://yarip/skin/document-new.png");
+/*  list-style-image: url("moz-icon://stock/document-new?size=menu");*/
+}
+
+menu#yarip-tools-menu menuitem[class="managePreferences"],
+menupopup#yarip-status-menupopup menuitem[class="managePreferences"]
+{
+  list-style-image: url("chrome://yarip/skin/system-run.png");
+/*  list-style-image: url("moz-icon://stock/system-run?size=menu");*/
+}
+
+menu#yarip-tools-menu menuitem[class="monitorContent"],
+menupopup#yarip-status-menupopup menuitem[class="monitorContent"]
+{
+  list-style-image: url("chrome://yarip/skin/system-search.png");
+/*  list-style-image: url("moz-icon://stock/system-search?size=menu");*/
+}
+
+menu#yarip-tools-menu menuitem[class="managePages"],
+menupopup#yarip-menupopup menuitem[class="managePages"],
+menupopup#yarip-status-menupopup menuitem[class="managePages"],
+menupopup#yarip-monitor-menupopup menuitem[class="managePages"]
+{
+  list-style-image: url("chrome://yarip/skin/document-properties.png");
+/*  list-style-image: url("moz-icon://stock/document-properties?size=menu");*/
+}
+

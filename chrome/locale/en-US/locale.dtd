@@ -1,0 +1,52 @@
+<!ENTITY button.add.accesskey           "A">
+<!ENTITY button.add                     "Add">
+<!ENTITY button.apply                   "Apply">
+<!ENTITY button.copyPage.accesskey      "C">
+<!ENTITY button.copyPage                "Copy page">
+<!ENTITY button.exportAll               "Export all">
+<!ENTITY button.exportPages             "Export pages">
+<!ENTITY button.exportPages.import      "E">
+<!ENTITY button.import.accesskey        "I">
+<!ENTITY button.import                  "Import">
+<!ENTITY button.newPage.accesskey       "N">
+<!ENTITY button.newPage                 "New page">
+<!ENTITY button.removeAll               "Remove all">
+<!ENTITY button.removePages             "Remove pages">
+<!ENTITY button.remove                  "Remove">
+<!ENTITY button.renamePage.accesskey    "R">
+<!ENTITY button.renamePage              "Rename page">
+<!ENTITY dialog.editAttribute           "Edit XPath and Attribute">
+<!ENTITY dialog.editRegExpBlacklist     "Edit RegExp for blacklisting">
+<!ENTITY dialog.editRegExpWhitelist     "Edit RegExp for whitelisting">
+<!ENTITY dialog.editUserMode            "Edit User Mode">
+<!ENTITY dialog.editXPathBlacklist      "Edit XPath for blacklisting">
+<!ENTITY dialog.editXPathWhitelist      "Edit XPath for whitelisting">
+<!ENTITY dialogheader.page              "Page">
+<!ENTITY dialog.managePages             "Manage pages">
+<!ENTITY dialog.monitorContent          "Monitor content">
+<!ENTITY label.attrName                 "Attribute name">
+<!ENTITY label.attrValue                "Attribute value">
+<!ENTITY label.contents                 "Contents">
+<!ENTITY label.elements                 "Elements">
+<!ENTITY label.exclusive                "Exclusive">
+<!ENTITY label.force                    "Force">
+<!ENTITY label.found                    "Found">
+<!ENTITY label.highlight                "Highlight">
+<!ENTITY label.ignored                  "Ignored">
+<!ENTITY label.lastFound                "Last found">
+<!ENTITY label.noIndex                  "No index">
+<!ENTITY label.notFound                 "Not found">
+<!ENTITY label.regExp                   "RegExp">
+<!ENTITY label.scripts                  "Scripts">
+<!ENTITY label.type                     "Type">
+<!ENTITY listheader.pages               "Pages">
+<!ENTITY tab.attributes                 "Attributes">
+<!ENTITY tab.contentBlacklist           "Content Blacklist">
+<!ENTITY tab.contentWhitelist           "Content Whitelist">
+<!ENTITY tab.elementBlacklist           "Element Blacklist">
+<!ENTITY tab.elementWhitelist           "Element Whitelist">
+<!ENTITY tab.extension                  "Extensions">
+<!ENTITY tab.script                     "Script">
+<!ENTITY tooltiptext.exclusive          "Only allow whitelisted content.">
+<!ENTITY tooltiptext.force              "Force removal (ignore whitelist).">
+

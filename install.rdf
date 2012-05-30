@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RDF:RDF xmlns:em="http://www.mozilla.org/2004/em-rdf#" xmlns:NC="http://home.netscape.com/NC-rdf#" xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <RDF:Description RDF:about="urn:mozilla:install-manifest"
+      em:id="yarip@mozdev.org"
+      em:version="0.3.2"
+      em:type="2"
+      em:name="Yet Another Remove It Permanently"
+      em:description="Remove elements and content from Web pages."
+      em:creator="Kim A. Brandt &lt;kimabrandt@gmx.de&gt;"
+      em:homepageURL="http://yarip.mozdev.org/"
+      em:optionsURL="chrome://yarip/content/options.xul"
+      em:updateURL="http://yarip.mozdev.org/update.rdf"
+      em:updateKey="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDJ2FXz7ueyFXC8isFgY0Cb/Q+GvY8okZETHKVua9THNIJ/FcNXi1qF6HEXerlnL7nV07JFYDjjP7ewxdgrNQXzSnXmoTgLAlbcCOwQxJ4dNzTXz3S2elSN8m/t86TCiAy7Zrqbrh1qj/AkP8hG/T5X590hrs20aTxOuYe8TZOhyQIDAQAB"
+      em:iconURL="chrome://yarip/skin/icon.png">
+    <em:targetApplication RDF:resource="rdf:#firefox"/>
+    <em:targetApplication RDF:resource="rdf:#thunderbird"/>
+<!--    <em:targetApplication RDF:resource="rdf:#mobile"/>-->
+<!--    <em:targetApplication RDF:resource="rdf:#seamonkey"/>-->
+  </RDF:Description>
+  <RDF:Description RDF:about="rdf:#firefox"
+    em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
+    em:minVersion="3.5"
+    em:maxVersion="15.*"/>
+  <RDF:Description RDF:about="rdf:#thunderbird"
+    em:id="{3550f703-e582-4d05-9a08-453d09bdfdc6}"
+    em:minVersion="4.0"
+    em:maxVersion="15.*"/>
+  <RDF:Description RDF:about="rdf:#mobile"
+    em:id="{a23983c0-fd0e-11dc-95ff-0800200c9a66}"
+    em:optionsURL="chrome://yarip/content/mobileOptions.xul"
+    em:minVersion="4.0"
+    em:maxVersion="11.*"/>
+  <RDF:Description RDF:about="rdf:#seamonkey"
+    em:id="{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}"
+    em:minVersion="2.2"
+    em:maxVersion="2.9a1"/>
+</RDF:RDF>

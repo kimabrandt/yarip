@@ -1,0 +1,11 @@
+<!ENTITY dialog.title.editLocationExtend  "Edit page for extensioning">
+<!ENTITY label.value.page                 "Page">
+<!ENTITY label.value.contentLocation      "Extension page">
+<!ENTITY checkbox.label.element           "Element">
+<!ENTITY checkbox.label.content           "Content">
+<!ENTITY checkbox.label.script            "Script">
+<!ENTITY checkbox.label.header            "Header">
+<!ENTITY checkbox.label.redirect          "Redirect">
+<!ENTITY checkbox.label.stream            "Stream">
+<!ENTITY checkbox.label.link              "Link">
+

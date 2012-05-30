@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+
+This file is part of yarip.
+
+Yarip is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+Yarip is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with yarip; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript"><![CDATA[
+    FBL.ns(function() { with (FBL) {
+      Firebug.MyFirstModule = extend(Firebug.Module, {
+              initialize: function()
+              {
+                  Firebug.Module.initialize.apply(this, arguments);
+
+                  // TODO: Module initialization
+              },
+
+              shutdown: function()
+              {
+                  Firebug.Module.shutdown.apply(this, arguments);
+
+                  // TODO: Module cleanup
+              },
+
+              initializeUI: function()
+              {
+dump("initializeUI\n");
+//dump("HTMLPanel.getContextMenuItem="+Firebug.HTMLPanel.getContextMenuItem()+"\n");
+//                Firebug.HTMLPanel.getContextMenuItems = function() { dump("HTMLPanel.getContextMenuItems\n"); return null; };
+
+                  var fbContextMenu = $("fbContextMenu");
+dump("fbContextMenu="+fbContextMenu+"\n");
+                  var weMenuitem = document.createElement("menuitem");
+                  weMenuitem.setAttribute("label", "yarip");
+//                  weMenuitem.setAttribute("oncommand", "yaripOverlay.whitelistElement(this.node.ownerDocument, this.node)");
+//                  weMenuitem.setAttribute("class", "whitelist");
+                  fbContextMenu.appendChild(weMenuitem);
+              }
+          });
+
+      Firebug.registerModule(Firebug.MyFirstModule);
+    }});
+  ]]></script>
+<!--  <menupopup id="fbContextMenu">-->
+<!--    <menuitem label="Yarip test" accesskey="&copyCmd.accesskey;" command="cmd_copy"/>-->
+<!--    <menuitem label="yarip test"/>-->
+<!--  </menupopup>-->
+
+<!--    <popupset id="mainPopupSet">-->
+<!--        <menupopup id="fbContextMenu" onpopupshowing="return FirebugChrome.onContextShowing(event);">-->
+<!--            <menuitem label="*yarip*" accesskey="&copyCmd.accesskey;" command="cmd_copy"/>-->
+<!--        </menupopup>-->
+<!--        <menupopup id="fbInlineEditorPopup" />-->
+<!--    </popupset>-->
+
+    <!--toolbar id="fbToolbar" align="center">
+        <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1" align="center">
+            <hbox id="myFirstSetOfButtons" insertafter="fbNetButtons">
+                <toolbarseparator/>
+                <toolbarbutton label="My Button" class="toolbar-text-button"
+                    oncommand="Firebug.MyFirstModule.onMyButton(FirebugContext)"/>
+            </hbox>
+        </hbox>
+    </toolbar-->
+</overlay>
+

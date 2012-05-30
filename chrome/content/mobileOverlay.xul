@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+
+This file is part of yarip.
+
+Yarip is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+Yarip is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with yarip; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<?xml-stylesheet href="chrome://browser/content/browser.css" type="text/css"?>
+<?xml-stylesheet href="chrome://yarip-os/skin/overlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://yarip-os/skin/style.css" type="text/css"?>
+<!DOCTYPE window [
+  <!ENTITY % overlayDTD SYSTEM "chrome://yarip/locale/overlay.dtd">
+  %overlayDTD;
+]>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript"><![CDATA[
+    var yarip = Components.utils.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
+    Components.utils.import("resource://yarip/constants.jsm");
+    Components.utils.import("resource://yarip/loader.jsm");
+    Components.utils.import("resource://yarip/map.jsm");
+    Components.utils.import("resource://yarip/page.jsm");
+    Components.utils.import("resource://yarip/list.jsm");
+    Components.utils.import("resource://yarip/item.jsm");
+  ]]></script>
+  <script type="application/x-javascript" src="chrome://yarip/content/observer.js"/>
+  <script type="application/x-javascript" src="chrome://yarip/content/mobileOverlay.js"/>
+  <script type="application/x-javascript" src="chrome://yarip/content/handler.js"/>
+  <script type="application/x-javascript"><![CDATA[
+    var yaripOverlay = new YaripOverlay();
+    window.addEventListener("load", yaripOverlay, false);
+    window.addEventListener("unload", yaripOverlay, false);
+//    window.addEventListener("UIReady", yaripOverlay, false);
+//    window.addEventListener("UIReadyDelayed", yaripOverlay, false);
+//    window.messageManager.loadFrameScript("chrome://yarip/content/mobileFrameScript.js", true);
+  ]]></script>
+
+  <stringbundleset>
+    <stringbundle id="yarip-overlay-stringbundle" src="chrome://yarip/locale/overlay.properties"/>
+  </stringbundleset>
+
+  <hbox id="pageactions-container">
+    <pageaction id="yarip-pageaction" title="Yarip action" onclick="alert('Yarip action')"/>
+  </hbox>
+
+</overlay>

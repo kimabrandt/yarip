@@ -1,0 +1,4 @@
+<!ENTITY dialog.title.editRedirect  "Edit Redirect">
+<!ENTITY label.value.page           "Page">
+<!ENTITY label.value.regExp         "Regex">
+<!ENTITY label.value.newsubstr      "New substring">

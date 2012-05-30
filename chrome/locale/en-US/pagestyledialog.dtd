@@ -1,0 +1,6 @@
+<!ENTITY dialog.title.editXPathStyle  "Edit XML Path and Cascading Style Sheet">
+<!ENTITY label.value.page             "Page">
+<!ENTITY label.value.xpath            "XPath">
+<!ENTITY button.label.highlight       "Highlight">
+<!ENTITY button.label.noIndex         "No index">
+

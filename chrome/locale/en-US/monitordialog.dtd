@@ -1,0 +1,16 @@
+<!ENTITY menuitem.label.openLocation      "Open location">
+<!ENTITY menuitem.label.copyLocation      "Copy location">
+<!ENTITY menuitem.label.whitelistContent  "Whitelist content">
+<!ENTITY menuitem.label.blacklistContent  "Blacklist content">
+<!ENTITY menuitem.label.extendPage        "Extend page">
+<!ENTITY menuitem.label.copyRegExp        "Copy Regex">
+<!ENTITY treecol.label.time               "Time">
+<!ENTITY treecol.label.status             "Status">
+<!ENTITY treecol.label.page               "Page">
+<!ENTITY treecol.label.contentLocation    "Content location">
+<!ENTITY treecol.label.contentType        "Content type">
+<!ENTITY treecol.label.statusCode         "Status code">
+<!ENTITY button.label.states              "States">
+<!ENTITY menuitem.label.whitelisted       "Whitelisted">
+<!ENTITY menuitem.label.blacklisted       "Blacklisted">
+<!ENTITY menuitem.label.other             "Other">

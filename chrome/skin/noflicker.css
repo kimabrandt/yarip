@@ -1,0 +1,16 @@
+@-moz-document url-prefix(http://), url-prefix(https://)
+{
+  html > body:not([status~="whitelisted"]):not([marginwidth="0"]):not([marginheight="0"])
+  {
+    visibility: hidden !important;
+  }
+
+  html > body > embed,
+  html > body > embed,
+  html > body > object,
+  html > body > img
+  {
+    visibility: visible !important;
+  }
+}
+

@@ -1,0 +1,446 @@
+2012-05-28  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.3.2.xpi
+
+2012-05-22  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/item.jsm (createStyle): Using the `:nth-of-type'-pseudo-class for
+    translating XPath-indexes into CSS.
+
+2012-05-19  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/overlay.js (undoMenu): Cropping text of undo-entries.
+
+2012-05-18  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/pagedialog.xul (priority): Added priorities for rules.
+
+    * modules/observer.jsm (yarip.enabled): Allowing updates of the content-type
+    and status-code in the content-monitor when yarip is disabled.
+
+    * chrome/content/monitordialog.js (updateContentType): Not setting the
+    content-type nor status-code on blacklisted or redirected log-entries.
+
+    * modules/yarip.jsm (useWildcardExpr): Not using wildcard regex
+    (e.g. `([^/?#]+\.)?'), if there're more than second-level domains.
+
+2012-04-24  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/observer.jsm (examineResponse): Showing a link-notification if
+    content was not explicitly blacklisted, allowing to white-/blacklist, extend
+    and open the link.
+
+    * modules/yarip.jsm (getRecursiveAddressArray): Also applying rules from
+    sub-domain and sub-path of a given page-address/-path.
+
+    * modules/yarip.jsm (showLinkNotification): Shortening long URLs.
+
+2012-02-12  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/yarip.jsm (getRecursiveAddressArray): Showing extended pages for
+    content-white-/-blacklisting.
+
+    * chrome/content/extendpagedialog.xul (checkbox): Showing available features
+    in the dialog.
+
+    * chrome/content/overlay.xul (manageContent, selectTab): Allowing to go to a
+    rule in the page-manager from the content-monitor.
+
+    * chrome/content/pagedialog.js (Yarip*Item): Changed default-examples for
+    newly added rules.
+
+    * chrome/content/pagedialog.xul (pageStyleList, pageScriptList): Allowing
+    adding of multiple rules to the page-style/-script-list.
+
+    * : Removed the `depends on whitelist (dow)'-feature.
+
+    * chrome/content/pagedialog.js (setExclusive): Allowing to make the element-
+    whitelist exclusive.
+
+    * modules/page.jsm (init, *INDEX): Improved page sorting.
+
+2012-01-29  Kim A. Brandt  <kimabrandt@gmx.de>
+
+		* modules/observer.jsm (YaripResponseStreamListener): Added the `stream-
+		replace'-feature.
+
+    * modules/yarip.jsm (extendPage): Allowing to extend only existing rules on
+    page-extensioning.
+
+2012-01-22  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/*dialog.js (removeQueryFragment): Allowing removal of the
+    query-fragment in regular-expressions.
+
+    * modules/*.jsm: Using JavaScript code-modules.
+
+    * : Removed the `deep'-feature.
+
+2012-01-08  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.3.1.xpi
+
+2012-01-07  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/pagedialog.js (reloadPage): Ignoring reset of the
+      `Manage Page'-filter in certain situations.
+
+    * chrome/content/pagedialog.js (addExtPage): When extending pages in the
+      Page-manager; only extending available features.
+
+    * chrome/content/overlay.js (updateKey): Allowing changing of key(-code)
+      and modifiers for the Content-monitor and Page-manager, via the
+      preferences-dialog.
+
+2011-10-18  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * nsYarip.js (shouldLoad, logContentLocation): Allowing logging of content
+      when yarip is disabled.
+
+2011-07-10  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.2.6.xpi
+
+2011-06-01  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * nsYarip.js (getAddressObjByLocation): Creating a page when set to
+      `Exclusively whitelist' but no content is requested.
+
+    * {nsYarip,item}.js (placeholder): Allow to blacklist and replacing an
+      element with a placeholder.
+
+    * {nsYarip,item}.js (YaripPageExtensionItem.getPageById): Fixed
+      `Components is not defined' error (hopefully).
+
+2011-04-23  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/item.js (merge): Removed the set-functions which caused
+      updating the created-date.
+
+    * chrome/content/overlay.js (handleEvent): Added the
+      `<Ctrl> + <Shift> + <m>' shortcut - additionally to the
+      `<Ctrl> + <Alt> + <m>' shortcut - for opening the `Page Manager'.
+      Probably conflicts with other addons!?
+
+    * chrome/content/pagedialog.{xul,js} (save): Added the save-button, which
+      saves the page-configuration to disk.
+
+    * nsYarip.js (getLocation): Allow a redirected page to actually
+      being recognized as a page.
+
+    * chrome/content/overlay.xul (yarip-tools-menu): Created a yarip-menu in
+      the tools-menu.
+
+2011-04-11  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/list.js (YaripPageExtendedByList): Fixed a problem with the
+      extended-by-tab in the page-manager.
+
+    * nsYarip.js: Added the `contentRepeatThreshold' preference.
+
+2011-04-02  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.2.5.3.xpi
+
+2011-04-01  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/replace.js (YaripStreamListener): Fixed crashing browser.
+
+2011-03-09  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.2.5.2.xpi
+
+    * Sorting the page-map properly.
+
+    * Allowing IP:PORT as page-name.
+
+    * Allowing renaming of pages - in the page-manager - by double-clicking on them.
+
+    * Updated to work with Firefox 4.
+
+    * Removed (complex) CSS-logic which was helping with the noFlicker-feature.
+
+    * Added header- and redirect-features.
+
+2010-05-06  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * xpath.js (createStyle, xpathToStyle): Forbid '/' in the predicates.
+
+2010-04-26  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * Fixed a glitch when running on DOMNodeInserted-events.
+
+2010-02-26  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.2.4.xpi
+
+2010-02-25  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * Improved the extensioning with checkboxes to choose if elements/contents/
+      scripts should get extended.
+
+    * Allow to cut/copy/paste the different list items.
+
+    * Added content-type and status-code to the content-monitor.
+
+    * Removed user-defined mode. Use the page-manager to make changes.
+
+2010-01-09  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * Allowing saving when setting/changing settings in the page-manager.
+
+2009-12-19  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * Updating the number of extensions when removing all.
+
+    * Ignoring an extension when cpied to itself.
+
+2009-09-25  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.2.3.xpi
+
+    * pagedialog.{xul,js}: Made some cosmetic changes. The Page Manager should
+      now be used to make changes and remove rules. Adding rules is done from the
+      yarip-context menu.
+
+2009-08-16  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * nsYarip.js (shouldLoad), overlay.js (DOMContentLoaded): Added `data' to
+      the whitelisted protocols.
+
+2009-08-16  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.2.2.xpi
+
+    * nsYarip.js (monitorDialogues), monitordialog.{xul,js}: Added a content
+      monitor.
+
+    * nsYarip.js (purgeInnerHTML): Removing/purging of the innerHTML of elements
+      is now an option. Set `extensions.yarip.purgeInnerHTML.value' to `true' to
+      let yarip remove/purge the innerHTML.
+
+2009-05-31  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.2.1.xpi
+
+    * xpath.js (generateXml): Always using attributes.
+
+    * nsYarip.js (generateXml, force): Forcing blacklisting of elements and
+      content by default.
+
+    * {page,list,xpath}.js (generateCSS): Generating Cascading Style
+      Sheets (CSS) for forced elements and styles by domain, url and
+      url-prefix.
+
+2009-03-14  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * nsYarip.js (whitelistXPath, blacklistXPath): Prioritised increments.
+
+    * list.js (reduce): Only reducing autogenerated XPaths.
+
+2009-03-14  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * nsYarip.js (blacklistContent): Only regard the exclusive flag of the
+      contentWhitelist from the root page and not those from extended pages.
+
+    * nsYarip.js (doIncrement): Don't increment counts of extended pages.
+
+2009-03-08  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * nsYarip.js (getAddress, SIMPLE), map.js (sortByPage), pagedialog.js
+      (checkPage): Allow "simple" hostnames (e.g. localhost) and also regard
+      ports (e.g. 8080).
+
+2009-02-28  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * xpath.js (CHARACTERS, encode): Encoding the symbols & " ' < and >
+      which are special for XML and resulted in a purged yarip.xml file.
+
+2009-01-08  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * nsYarip.js (loggingEnabled): Allow logging of *good* content (URL).
+      Check out `extensions.yarip.loggingEnabled.value;boolean'.
+
+    * nsYarip.js, overlay.js (elementsInContext): Allow to set the number of
+      elements and ther ancestors in the context menu.
+      Check out `extensions.yarip.elementsInContext.value;integer'.
+
+2009-01-17  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.2.xpi
+
+    * nsYarip.js (createInstance), overlay.js (handleEvent): Remember the
+      previous mode (except for user defined).
+
+    * pagedialog.{xul,js} (listbox, removePages): Allow selection/removal/
+      import/export of pages.
+
+    * pagedialog.{xul,js} (tabbox): Showing number of entries in tabs.
+
+    * pagedialog.{xul,js} (textbox, add, update): Using autocompletesearch
+      for reuse of xpaths, regular expressions and styles.
+
+2008-12-22  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * nsYarip.js (shouldLoad, blacklistContent),
+      pagedialog.{xul,js} (contentWhitelist, contentBlacklist): Introducing
+      the content whitelist and blacklist tabs. Using regular expressions to
+      block/allow certain content.
+
+    * *: Some renaming and cleaning up here and there.
+
+2008-10-05  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * nsYarip.js (blacklist): Using setAttribute instead of removeAttribute.
+      In Firefox v2.0.0.17 removeAttribute causes a segmentation fault!?
+
+2008-09-25  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * pagedialog.{xul,js} (styles, extension): Introducing the styles and
+      extension tab. Now styles (e.g. `width: auto !important;') can be
+      changed/added to modify the look of a website. The extension tab shows
+      all pages that have been previously created and can be added to the
+      current page. This allows on the current page to remove the same content
+      as on the extended page.
+
+    * noflicker.css (panelNode): Whitelisted firebugs panel-node from being
+      hidden when preventing flicker.
+
+2008-09-24  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * {page,list,xpath}.js (clone): Fixed partly-shallow clone functions.
+
+2008-09-14  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * pagedialog.{xul,js}, {xpath,nsYarip}.js (dependsOnWhitelist):
+      Introducing the depends-on-whitelist feature. Blacklist-xpaths that
+      depend on that whitelist-xpaths have been found will only be removed in
+      case that at least one whitelist-xpath was found.
+
+    * loader.js (doBlacklisting): Ignoring blacklist-xpaths that depend on a
+      whitelist finding in case no whitelist-xpaths could be applied.
+
+2008-07-29  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * nsYarip.js (blacklist): Injecting some default styles when the head
+      element is blacklisted.
+
+2008-07-18  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * nsYarip.js (getAddress): Corrected a problem with the USER_MODE.
+
+    * loader.js (doBlacklisting): Don't do `removeAllExceptWhitelisted' if
+      there're only attributes (e.g. `@id') in the blacklist.
+
+2008-07-01  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * {nsYarip,overlay}.js, (toggleDeep): Forgot to also create a
+      deep-observer. Now there's one.
+
+2008-06-26  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.1.8.xpi
+
+    * {nsYarip,overlay}.js, (toggleNoFlicker), noflicker.css: The noFlicker
+      feature can now be enabled or disabled (checkbox). I reccon to meet some
+      problems because some good content could stay hidden. Will fix when
+      encountered.
+
+2008-06-24  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * nsYarip.js: Pooh, just finished the yarip-component. All windows
+      now access the same singleton-component and don't need to reload all the
+      time. Also saving now only happens when a window/dialog is closed.
+
+    * nsYarip.js (save), xpath.js (createStyle, generateCSS): I started an
+      attempt to translate XPaths into css to assist the noFlicker-feature,
+      since CSS doesn't flicker when content is hidden (not displayed).
+      It (I think) even prevents blocked ressources from being downloaded
+      (such as iframes, images, ...). The algorithm just replaces some
+      characters for now.
+
+2008-06-15  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * yarip.js (resetOnAddress): Also allow to undo removal of attributes
+      (need to reload to see undone).
+
+    * yarip.js (blacklist), control.js (injectCSS, savePages, saveToFile),
+      xpath.js (createStyle), {map,page,list,xpath}.js (generateCSS): Moved
+      the injectCSS function to the control. Using css where possible to
+      support the non-flicker feature (CSS => no flicker).
+
+2008-06-07  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.1.7.xpi
+
+    * overlay.js (whitelist): Changed the way elements are whitelisted.
+      That is now all descendants and the element itself will be whitelisted
+      if not edited otherwise.
+
+    * yarip.js (blacklist): Supporting removal of attributes (e.g.
+      //@bgcolor).
+
+    * *: Made some improvements here and there.
+
+2008-06-03  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * {overlay,pagedialog}.{xul,js}: Created a page-manager which replaces
+      the reset menuitem in the context-menu.
+
+    * src/chrome/skin: Using different icons to symbolize the current
+      state.
+
+2008-05-29  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.1.6.xpi
+
+    * defaults.js, yarip.js: Added the preferences
+      `extensions.yarip.alwaysUseIndex;boolean' and
+      `extensions.yarip.neverFlicker;boolean' to later to be used in a
+      settings-dialog.
+
+2008-05-26  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * yarip.js, overlay.js (resetOnAddress, undo): Created a way of undoing
+      changes which are made on a website. The undo will disappear when a
+      site is reloaded.
+
+    * noflicker.css: Removed the `display' rule (prev. inject.css),
+      apparently it breaks JavaScript on some websites.
+
+    * overlay.{xul,js} (yarip-statusbarpanel): Yarip now got icons to
+      symbolize the current state.
+
+2008-05-23  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * yarip.js, loader.js: Setting overlay.changesMade to true if found,
+      notFound or notRemoved have been incremented.
+
+    * yarip.js (noSchemeRegExp): Added a regular expression to check for a
+      scheme-less address.
+
+    * loader.js (equalAddresses): If comparing with a scheme-less address
+      remove the scheme from the page-address before comparing.
+
+    * overlay.js (injectCSS): Introducing the injectCSS-function from the
+      Prefswitch extension.
+
+    * blacklist.css: Using an external css-file for the blacklist style-
+      rules.
+
+2008-05-23  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.1.5.xpi
+
+    * inject.css: Removed the `!important' setting to not overwrite
+      existing author declarations.
+
+2008-05-20  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    *: Started to record changes.
+
+    * overlay.js (stop, setStatus), handler.js (status): Tried to make the
+      User Interface work as expected. That is enable/disable works across
+      multiple window instances. The status of Yarip should always show the
+      right one for each tab. XPaths should be shown in the status-bar while
+      active and hoovering over elements.

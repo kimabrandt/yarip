@@ -1,0 +1,52 @@
+#yarip-toolbarbutton,
+#yarip-toolbarbutton[status="enabled"],
+#yarip-toolbarbutton[status="stopped"]
+{
+  list-style-image: url("chrome://yarip/skin/icons-24.png");
+  -moz-image-region: rect(0px 24px 24px 0px);
+}
+
+#yarip-toolbarbutton[status="disabled"]
+{
+  list-style-image: url("chrome://yarip/skin/icons-24.png");
+  -moz-image-region: rect(24px 24px 48px 0px);
+}
+
+#yarip-toolbarbutton[status="started"]
+{
+  list-style-image: url("chrome://yarip/skin/icons-24.png");
+  -moz-image-region: rect(0px 48px 24px 24px);
+}
+
+#yarip-toolbarbutton[status="found"]
+{
+  list-style-image: url("chrome://yarip/skin/icons-24.png");
+  -moz-image-region: rect(24px 48px 48px 24px);
+}
+
+toolbar[iconsize="small"] #yarip-toolbarbutton,
+toolbar[iconsize="small"] #yarip-toolbarbutton[status="enabled"],
+toolbar[iconsize="small"] #yarip-toolbarbutton[status="stopped"]
+{
+  list-style-image: url("chrome://yarip/skin/icons-16.png");
+  -moz-image-region: rect(0px 16px 16px 0px);
+}
+
+toolbar[iconsize="small"] #yarip-toolbarbutton[status="disabled"]
+{
+  list-style-image: url("chrome://yarip/skin/icons-16.png");
+  -moz-image-region: rect(16px 16px 32px 0px);
+}
+
+toolbar[iconsize="small"] #yarip-toolbarbutton[status="started"]
+{
+  list-style-image: url("chrome://yarip/skin/icons-16.png");
+  -moz-image-region: rect(0px 32px 16px 16px);
+}
+
+toolbar[iconsize="small"] #yarip-toolbarbutton[status="found"]
+{
+  list-style-image: url("chrome://yarip/skin/icons-16.png");
+  -moz-image-region: rect(16px 32px 32px 16px);
+}
+

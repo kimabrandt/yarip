@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+
+This file is part of yarip.
+
+Yarip is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+Yarip is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with yarip; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<?xml-stylesheet href="chrome://browser/content/browser.css" type="text/css"?>
+<?xml-stylesheet href="chrome://yarip-os/skin/overlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://yarip-os/skin/style.css" type="text/css"?>
+<!DOCTYPE window [
+  <!ENTITY % overlayDTD SYSTEM "chrome://yarip/locale/overlay.dtd">
+  %overlayDTD;
+  <!ENTITY % monitordialogDTD SYSTEM "chrome://yarip/locale/monitordialog.dtd">
+  %monitordialogDTD;
+]>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript"><![CDATA[
+    var yarip = Components.utils.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
+    Components.utils.import("resource://yarip/constants.jsm");
+    Components.utils.import("resource://yarip/loader.jsm");
+    Components.utils.import("resource://yarip/map.jsm");
+    Components.utils.import("resource://yarip/page.jsm");
+    Components.utils.import("resource://yarip/list.jsm");
+    Components.utils.import("resource://yarip/item.jsm");
+  ]]></script>
+  <script type="application/x-javascript" src="chrome://yarip/content/observer.js"/>
+  <script type="application/x-javascript" src="chrome://yarip/content/overlay.js"/>
+  <script type="application/x-javascript" src="chrome://yarip/content/monitordialog.js"/>
+  <script type="application/x-javascript" src="chrome://yarip/content/handler.js"/>
+  <script type="application/x-javascript"><![CDATA[
+    var yaripOverlay = new YaripOverlay();
+    window.addEventListener("load", yaripOverlay, false);
+    window.addEventListener("unload", yaripOverlay, false);
+    window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+        .getInterface(Components.interfaces.nsIWebNavigation)
+        .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+        .rootTreeItem
+        .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+        .getInterface(Components.interfaces.nsIDOMWindow).addEventListener("keypress", yaripOverlay, false);
+  ]]></script>
+  <script type="application/x-javascript"><![CDATA[
+    var yaripMonitor = new YaripMonitorDialog();
+  ]]></script>
+
+  <window id="messengerWindow">
+    <box id="yarip"
+        getAppcontent="return document;"
+        getBrowser="return 'getBrowser' in window ? getBrowser() : messageContent;"
+        getContextMenuId="return 'mailContext';"
+        getContextMenu="return document.getElementById('mailContext');"
+        getTabContainer="return document.getElementById('tabmail').tabContainer;"/>
+  </window>
+
+  <menu id="tasksMenu">
+    <menupopup id="taskPopup">
+      <menu id="yarip-tools-menu" class="menu-iconic" label="&menu.label.yarip;" accesskey="&accesskey.yarip;" insertbefore="devToolsSeparator">
+        <menupopup id="yarip-tools-menupopup">
+          <menuitem class="managePreferences" label="&menuitem.label.managePreferences;" accesskey="&accesskey.managePreferences;" command="cmd_yaripManagePreferences"/>
+          <menuitem class="monitorContent" label="&menuitem.label.monitorContent;" accesskey="&accesskey.monitorContent;" key="key_yaripToggleShow" command="cmd_yaripToggleShow"/>
+          <menuitem class="managePages" label="&menuitem.label.managePages;" accesskey="&accesskey.managePages;" key="key_yaripManagePages" command="cmd_yaripManagePages"/>
+        </menupopup>
+      </menu>
+    </menupopup>
+  </menu>
+
+  <commandset id="mailCommands">
+    <command id="cmd_yaripToggleEnabled" oncommand="yaripOverlay.toggleEnabled();"/>
+    <command id="cmd_yaripToggleNoFlicker" oncommand="yaripOverlay.toggleNoFlicker();"/>
+    <command id="cmd_yaripManagePreferences" oncommand="yaripOverlay.managePreferences();"/>
+    <command id="cmd_yaripToggleShow" oncommand="yaripMonitor.toggleShow();"/>
+    <command id="cmd_yaripCreatePage" oncommand="yaripOverlay.createPage();"/>
+    <command id="cmd_yaripManagePages" oncommand="yaripOverlay.managePages();"/>
+    <command id="cmd_yaripLogWhenClosed" oncommand="yaripOverlay.toggleLogWhenClosed();"/>
+  </commandset>
+
+  <keyset id="mailKeys">
+    <key id="key_yaripToggleShow" modifiers="accel" key="&key.yarip;" command="cmd_yaripToggleShow"/>
+    <key id="key_yaripManagePages" modifiers="accel shift" key="&key.yarip;" command="cmd_yaripManagePages"/>
+  </keyset>
+
+  <stringbundleset>
+    <stringbundle id="yarip-overlay-stringbundle" src="chrome://yarip/locale/overlay.properties"/>
+  </stringbundleset>
+
+  <popupset>
+    <menupopup id="yarip-status-menupopup" position="before_start">
+      <menuitem id="yarip-enabled-menuitem" label="&menuitem.label.enabled;" type="checkbox" command="cmd_yaripToggleEnabled"/>
+      <menuitem id="yarip-flicker-menuitem" label="&menuitem.label.flicker;" type="checkbox" command="cmd_yaripToggleNoFlicker"/>
+      <menu label="&menu.label.mode;">
+        <menupopup>
+          <menuitem id="yarip-page-menuitem" name="yarip-mode-radiogroup" label="&menuitem.label.page;" type="radio" oncommand="yaripOverlay.setMode(MODE_PAGE)"/>
+          <menuitem id="yarip-fqdn-menuitem" name="yarip-mode-radiogroup" label="&menuitem.label.fqdn;" type="radio" oncommand="yaripOverlay.setMode(MODE_FQDN)"/>
+          <menuitem id="yarip-sld-menuitem" name="yarip-mode-radiogroup" label="&menuitem.label.sld;" type="radio" oncommand="yaripOverlay.setMode(MODE_SLD)"/>
+        </menupopup>
+      </menu>
+      <menuseparator/>
+      <menuitem class="managePreferences" label="&menuitem.label.managePreferences;" command="cmd_yaripManagePreferences"/>
+      <menuitem class="monitorContent" label="&menuitem.label.monitorContent;" command="cmd_yaripToggleShow"/>
+      <menuitem class="managePages" label="&menuitem.label.managePages;" command="cmd_yaripManagePages"/>
+    </menupopup>
+  </popupset>
+
+  <toolbarpalette id="MailToolbarPalette">
+    <toolbarbutton id="yarip-toolbarbutton" class="toolbarbutton-1" label="Yarip" onclick="yaripOverlay.start(event)" context="yarip-status-menupopup"/>
+  </toolbarpalette>
+
+  <popup id="mailContext">
+    <menu id="yarip-menu" class="menu-iconic" label="&menu.label.yarip;">
+      <menupopup id="yarip-menupopup">
+        <menuseparator id="yarip-undo-menu-sep"/>
+        <menu id="yarip-undo-menu" class="yarip-submenu" label="&menu.label.undo;" hidden="true">
+          <menupopup id="yarip-undo-menupopup">
+            <menuseparator/>
+            <menuitem label="&menuitem.label.all;" oncommand="yaripOverlay.undoAll(document.popupNode.ownerDocument)"/>
+          </menupopup>
+        </menu>
+        <menuitem class="createPage" label="&menuitem.label.createPage;" command="cmd_yaripCreatePage"/>
+        <menuitem class="managePages" label="&menuitem.label.managePages;" command="cmd_yaripManagePages"/>
+      </menupopup>
+    </menu>
+  </popup>
+
+  <vbox id="messagepanebox">
+    <vbox id="yarip-status" hidden="true" minheight="16px" maxheight="16px">
+      <label id="yarip-status-label" class="plain small-margin" value="" crop="end"/>
+    </vbox>
+    <splitter id="yarip-monitor-splitter" hidden="true"/>
+    <vbox id="yarip-monitor" hidden="true" persist="width height">
+      <stringbundleset>
+        <stringbundle id="monitor-dialog-stringbundle" src="chrome://yarip/locale/overlay.properties"/>
+      </stringbundleset>
+      <popupset>
+        <menupopup id="yarip-monitor-menupopup">
+          <menuitem id="yarip-openLocation-menuitem" class="openLocation" label="&menuitem.label.openLocation;" oncommand="yaripMonitor.openLocation();"/>
+          <menuitem id="yarip-copyLocation-menuitem" class="copyLocation" label="&menuitem.label.copyLocation;" oncommand="yaripMonitor.copyLocation();"/>
+          <menuseparator id="yarip-copyLocation-menuseparator"/>
+          <menuitem id="yarip-whitelistContent-menuitem" class="whitelist" label="&menuitem.label.whitelistContent;" oncommand="yaripMonitor.whitelistContent();"/>
+          <menuitem id="yarip-blacklistContent-menuitem" class="blacklist" label="&menuitem.label.blacklistContent;" oncommand="yaripMonitor.blacklistContent();"/>
+          <menuitem id="yarip-extendPage-menuitem" label="&menuitem.label.extendPage;" oncommand="yaripMonitor.extendPage();"/>
+          <menuitem id="yarip-copyRegExp-menuitem" class="copyRegExp" label="&menuitem.label.copyRegExp;" oncommand="yaripMonitor.copyRegExp();"/>
+          <menuseparator id="yarip-copyRegExp-menuseparator"/>
+          <menuitem class="menuitem-iconic goto-menuitem" label="&menuitem.label.goto;" oncommand="yaripOverlay.manageContent(yaripMonitor.getContentPageName(), yaripMonitor.getType(), yaripMonitor.getKey());"/>
+          <menuitem class="createPage" label="&menuitem.label.createPage;" oncommand="yaripMonitor.createPage();"/>
+          <menuitem class="managePages" label="&menuitem.label.managePages;" oncommand="yaripOverlay.managePages(yaripMonitor.getPageName());"/>
+        </menupopup>
+      </popupset>
+      <hbox flex="1">
+        <tree id="yarip-content-tree" flex="1">
+          <treecols>
+            <treecol id="time" label="&treecol.label.time;" persist="width hidden"/>
+            <splitter class="tree-splitter" resizeafter="farthest"/>
+            <treecol id="status" label="&treecol.label.status;" persist="width hidden"/>
+            <splitter class="tree-splitter" resizeafter="farthest"/>
+            <treecol id="page" label="&treecol.label.page;" persist="width hidden" flex="1"/>
+            <splitter class="tree-splitter" resizeafter="farthest"/>
+            <treecol id="contentLocation" label="&treecol.label.contentLocation;" persist="width" primary="true" flex="1"/>
+            <splitter class="tree-splitter" resizeafter="farthest"/>
+            <treecol id="contentType" label="&treecol.label.contentType;" hidden="true" persist="width hidden"/>
+            <splitter class="tree-splitter" resizeafter="farthest"/>
+            <treecol id="statusCode" label="&treecol.label.statusCode;" hidden="true" persist="width hidden"/>
+          </treecols>
+          <treechildren context="yarip-monitor-menupopup" ondblclick="yaripMonitor.openLocation()"/>
+        </tree>
+      </hbox>
+      <hbox align="center">
+        <button icon="clear" label="&button.label.clear;" oncommand="yaripMonitor.clear()" accesskey="&button.accesskey.clear;"/>
+        <button label="&button.label.states;" type="menu">
+          <menupopup>
+            <menuitem label="&menuitem.label.whitelisted;" oncommand="yaripMonitor.filterStatus(1, event)" type="checkbox" checked="true"/>
+            <menuitem label="&menuitem.label.blacklisted;" oncommand="yaripMonitor.filterStatus(2, event)" type="checkbox" checked="true"/>
+            <menuitem label="&menuitem.label.other;" oncommand="yaripMonitor.filterStatus(0, event)" type="checkbox" checked="true"/>
+          </menupopup>
+        </button>
+        <textbox id="yarip-filter-textbox" type="search" searchbutton="true" placeholder="&textbox.filter.placeholder;" oncommand="yaripMonitor.filterContent(event)"/>
+        <checkbox id="yarip-logWhenClosed-checkbox" label="&checkbox.label.logWhenClosed;" checked="false" command="cmd_yaripLogWhenClosed" accesskey="&button.accesskey.log;"/>
+        <spacer flex="1"/>
+        <button icon="close" label="&button.label.close;" oncommand="yaripMonitor.hide()"/>
+      </hbox>
+    </vbox>
+  </vbox>
+</overlay>

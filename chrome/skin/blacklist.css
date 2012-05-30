@@ -1,0 +1,26 @@
+html > body *[status~="blacklisted"]
+{
+  display: none !important;
+}
+
+html > body *[status~="highlighted"]
+{
+  outline: 3px solid #000099 !important;
+}
+
+/*html > body *[status~="placeholder"]*/
+html > body *[status="placeholder"]
+/*html > body *:[status~="placeholder"]:not([status~="whitelisted"]):not([status~="blacklisted"]),*/
+{
+  -moz-binding: url("chrome://yarip/content/binding/placeholder.xbl#replace");
+}
+
+*[status~="placeholder"][status~="blacklisted"] + div[class~="placeholder"][status~="whitelisted"]
+{
+  display: none;
+}
+
+html > body *[status="blacklisted"] + div[class~="placeholder"][status~="whitelisted"]
+{
+  display: none !important;
+}

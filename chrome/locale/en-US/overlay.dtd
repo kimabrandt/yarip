@@ -1,0 +1,31 @@
+<!ENTITY key.yarip                         "m">
+<!ENTITY accesskey.yarip                   "y">
+<!ENTITY accesskey.managePreferences       "f">
+<!ENTITY accesskey.monitorContent          "c">
+<!ENTITY accesskey.managePages             "p">
+
+<!ENTITY menu.label.yarip                  "Yarip">
+<!ENTITY menu.label.undo                   "Undo">
+<!ENTITY menuitem.label.all                "All">
+
+<!ENTITY menuitem.label.enabled            "Enabled">
+<!ENTITY menuitem.label.flicker            "Prevent flicker">
+<!ENTITY menu.label.mode                   "Mode">
+<!ENTITY menuitem.label.page               "Page path">
+<!ENTITY menuitem.label.fqdn               "Fully qualified domain name">
+<!ENTITY menuitem.label.sld                "Second-level domain">
+<!ENTITY menuitem.label.managePreferences  "Preferences">
+<!ENTITY menuitem.label.monitorContent     "Monitor content...">
+<!--<!ENTITY menuitem.label.manageRules        "Manage rules...">-->
+<!ENTITY menuitem.label.goto               "Go to">
+<!ENTITY menuitem.label.createPage         "Create page...">
+<!ENTITY menuitem.label.managePages        "Manage pages...">
+
+<!ENTITY button.label.clear                "Clear">
+<!ENTITY button.accesskey.clear            "c">
+<!ENTITY button.label.currentPage          "Current page">
+<!ENTITY textbox.filter.placeholder        "Regex filter">
+<!ENTITY checkbox.label.logWhenClosed      "Log when closed">
+<!ENTITY button.accesskey.log              "l">
+<!ENTITY button.label.close                "Close">
+
