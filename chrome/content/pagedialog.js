@@ -399,7 +399,7 @@ function YaripPageDialog()
             break;
 
         case "contentWhitelist":
-            var re = yarip.getPageRegExp(page.getName());
+            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
                 item: new YaripContentWhitelistItem(re),
                 pageName: page.getName()
@@ -413,7 +413,7 @@ function YaripPageDialog()
             break;
 
         case "contentBlacklist":
-            var re = yarip.getPageRegExp(page.getName());
+            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
                 item: new YaripContentBlacklistItem(re),
                 pageName: page.getName()
@@ -426,7 +426,7 @@ function YaripPageDialog()
             break;
 
         case "contentRequestHeaderList":
-            var re = yarip.getPageRegExp(page.getName());
+            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
                 item: new YaripHeaderItem(re, "Cookie",
                     "function (value) {\n" +
@@ -441,7 +441,7 @@ function YaripPageDialog()
             break;
 
         case "contentResponseHeaderList":
-            var re = yarip.getPageRegExp(page.getName());
+            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
                 item: new YaripHeaderItem(re, "Set-Cookie",
                     "function (value) {\n" +
@@ -456,7 +456,7 @@ function YaripPageDialog()
             break;
 
         case "contentRedirectList":
-            var reObj = yarip.getPageRegExpObj(page.getName());
+            var reObj = yarip.getPageRegExpObj(page.getName(), null, true /* byUser */);
             obj = {
                 item: new YaripRedirectItem(reObj.regExp, reObj.newSubStr),
                 pageName: page.getName()
@@ -518,7 +518,7 @@ function YaripPageDialog()
             break;
 
         case "pageRequestHeaderList":
-            var re = yarip.getPageRegExp(page.getName());
+            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
                 item: new YaripHeaderItem(re, "Cookie",
                     "function (value) {\n" +
@@ -533,7 +533,7 @@ function YaripPageDialog()
             break;
 
         case "pageResponseHeaderList":
-            var re = yarip.getPageRegExp(page.getName());
+            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
                 item: new YaripHeaderItem(re, "Set-Cookie",
                     "function (value) {\n" +
@@ -548,7 +548,7 @@ function YaripPageDialog()
             break;
 
         case "pageRedirectList":
-            var reObj = yarip.getPageRegExpObj(page.getName());
+            var reObj = yarip.getPageRegExpObj(page.getName(), null, true /* byUser */);
             obj = {
                 item: new YaripRedirectItem(reObj.regExp, reObj.newSubStr),
                 pageName: page.getName()

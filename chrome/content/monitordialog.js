@@ -125,7 +125,7 @@ function YaripMonitorDialog()
             if (!contentAddress) return;
         }
 
-        var pageExt = yarip.createPage(item.content, contentAddress, true /* temporary */);
+        var pageExt = yarip.createPage(item.content, contentAddress, true /* privateBrowsing/temporary */, true /* byUser */);
         var extItem = pageExt.createPageExtensionItem();
 
         var obj = {
@@ -167,7 +167,7 @@ function YaripMonitorDialog()
 
         if (!obj.pageName) return;
 
-        var page = yarip.createPage(obj.pageLocation, obj.pageName);
+        var page = yarip.createPage(obj.pageLocation, obj.pageName, null, true /* byUser */);
         yaripOverlay.managePages(page.getName());
     }
 

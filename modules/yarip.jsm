@@ -411,7 +411,7 @@ Yarip.prototype.toggleLogWhenClosed = function(logWhenClosed)
     return true;
 }
 
-Yarip.prototype.getPageRegExp = function(pageName, protocol)
+Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser)
 {
     if (!pageName) return "^https?://([^/?#]+\\.)?example\\.net[/?#]";
 
@@ -420,8 +420,9 @@ Yarip.prototype.getPageRegExp = function(pageName, protocol)
     var domain = pageName.replace(/^(([^:/?#]+):\/+)?|[/?#].*$/g, "").match(DOMAIN_RE);
     if (domain) {
         var domainNoPort = domain[DOMAIN_RE_INDEX];
+        if (!byUser) domainNoPort = domainNoPort.match(FIND_SLD_RE)[0];
         var useWildcardExpr = !domain[DOMAIN_RE_IP_INDEX]; // notIP
-        if (useWildcardExpr) {
+        if (byUser && useWildcardExpr) {
             var uld = domain[DOMAIN_RE_ULD_INDEX];
             if (uld) {
                 useWildcardExpr = uld.indexOf(".", uld.indexOf(".") + 1) == -1; // no more than one dot
@@ -434,7 +435,7 @@ Yarip.prototype.getPageRegExp = function(pageName, protocol)
     }
 }
 
-Yarip.prototype.getPageRegExpObj = function(pageName, protocol)
+Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
 {
     if (!pageName) {
         return {
@@ -446,8 +447,9 @@ Yarip.prototype.getPageRegExpObj = function(pageName, protocol)
     var domain = pageName.replace(/^(([^:/?#]+):\/+)?|[/?#].*$/g, "").match(DOMAIN_RE);
     if (domain) {
         var domainNoPort = domain[DOMAIN_RE_INDEX];
+        if (!byUser) domainNoPort = domainNoPort.match(FIND_SLD_RE)[0];
         var useWildcardExpr = !domain[DOMAIN_RE_IP_INDEX]; // notIP
-        if (useWildcardExpr) {
+        if (byUser && useWildcardExpr) {
             var uld = domain[DOMAIN_RE_ULD_INDEX];
             if (uld) {
                 var index = uld.indexOf(".");
@@ -467,7 +469,7 @@ Yarip.prototype.getPageRegExpObj = function(pageName, protocol)
     }
 }
 
-Yarip.prototype.createPage = function(location, pageName, privateBrowsing)
+Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUser)
 {
     if (!location) return null;
 
@@ -489,7 +491,7 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing)
 //        var sld = location.asciiHost.match(FIND_SLD_RE);
 //        if (sld) {
 //            var re = this.getPageRegExp(sld[0], location.protocol);
-            var re = this.getPageRegExp(pageName, location.protocol);
+            var re = this.getPageRegExp(pageName, location.protocol, byUser);
             var content = new YaripContentWhitelistItem(re);
             page.contentWhitelist.add(content);
             page.contentWhitelist.setExclusive(true);
@@ -3109,7 +3111,7 @@ Yarip.prototype.showLinkNotification = function(doc, contentLocation)
                             if (!contentAddress) return;
                         }
 
-                        var pageExt = yarip.createPage(content, contentAddress, true /* temporary */);
+                        var pageExt = yarip.createPage(content, contentAddress, true /* privateBrowsing/temporary */);
                         var extItem = pageExt.createPageExtensionItem();
 
                         var obj = {
