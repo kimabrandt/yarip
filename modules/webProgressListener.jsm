@@ -76,10 +76,10 @@ YaripWebProgressListener.prototype = {
         var isPage = (LOAD_DOCUMENT_URI & request.loadFlags) === LOAD_DOCUMENT_URI;
         switch (status) {
         case STATUS_UNKNOWN:
-            if (!isPage) yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation);
+            if (!isPage && (STATE_START & stateFlags) !== STATE_START) yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation);
             break;
         case STATUS_WHITELISTED:
-            if (!isPage) yarip.logContentLocation(STATUS_WHITELISTED, location, contentLocation, null, addressObj);
+            if (!isPage && (STATE_START & stateFlags) !== STATE_START) yarip.logContentLocation(STATUS_WHITELISTED, location, contentLocation, null, addressObj);
             break;
         case STATUS_BLACKLISTED:
             request.cancel(Cr.NS_ERROR_ABORT);

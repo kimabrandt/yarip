@@ -1,3 +1,14 @@
+2012-06-01  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/list.jsm (merge): Retrieving and adding the proper items.
+
+    * modules/webProgressListener.jsm (STATE_START): Ignoring logging on
+    STATE_START.
+
+    * modules/yarip.jsm (getExtensionAddressObj): Recursively getting extensions
+    after the extensions of the current reduce-domain/-path pages have been
+    checked.
+
 2012-05-31  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * modules/yarip.jsm (getPageRegExp): Using a SLD with a regex-wildcard when

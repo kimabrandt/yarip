@@ -1613,8 +1613,14 @@ YaripPageExtendedByList.prototype.merge = function(list)
         var page = o.getPage();
         if (page) {
             if (page.getId() != this.id) { // not same page
-                page.pageExtensionList.add(new YaripExtensionItem(this.id, o.getPriority()));
-                this.add(o.clone());
+//                page.pageExtensionList.add(new YaripExtensionItem(this.id, o.getPriority()));
+                var o2 = page.pageExtensionList.obj[new YaripExtensionItem(list.id, o.getPriority()).getKey()];
+                if (o2) {
+                    var item = o2.clone();
+                    item.setValue(this.id);
+                    page.pageExtensionList.add(item);
+                    this.add(o.clone());
+                }
             }
         }
     }

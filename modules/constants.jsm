@@ -54,6 +54,7 @@ var EXPORTED_SYMBOLS = [
          * nsIWebProgressListener
          */
         "STATE_REDIRECTING",
+        "STATE_START",
         "STATE_STOP",
 
         /*
@@ -186,6 +187,7 @@ const UNORDERED_NODE_SNAPSHOT_TYPE = Ci.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHO
  * nsIWebProgressListener
  */
 const STATE_REDIRECTING = Ci.nsIWebProgressListener.STATE_REDIRECTING;
+const STATE_START = Ci.nsIWebProgressListener.STATE_START;
 const STATE_STOP = Ci.nsIWebProgressListener.STATE_STOP;
 
 /*

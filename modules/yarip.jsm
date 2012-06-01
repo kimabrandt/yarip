@@ -562,15 +562,9 @@ Yarip.prototype.getFirstAddress = function(reduceDomain)
             if (page) return reducePath;
 
             tmpPath = reducePath;
-//            reducePath = reducePath.replace(/((:\d+)?\/|[^/]*)$/, "");
-//            reducePath = reducePath.replace(/(\/|[^/]*)$/, "");
             reducePath = reducePath.replace(/(\/|[^/]+)$/, "");
-//            reducePath = reducePath.replace(/(\/|(?=\/)[^/]+)$/, "");
         }
         tmpDomain = reduceDomain;
-//        reduceDomain = reduceDomain.replace(/^([^:]+:\/\/|[\w-~!$&'()*+,;=:@]+\.)|:\d+$/, "");
-//        reduceDomain = reduceDomain.replace(/^(^\w+:\/\/|[\w-~!$&'()*+,;=:@]+\.)|:\d+$/, "");
-//        reduceDomain = reduceDomain.replace(/^(^\w+:\/\/(?!$)|(?=([\w-~!$&'()*+,;=:@]+\.){2})[\w-~!$&'()*+,;=:@]+\.)|:\d+$/, "");
         reduceDomain = reduceDomain.replace(/^(^[^/?#:]+:\/\/(?!$)|(?=([\w-~!$&'()*+,;=:@]+\.){2})[\w-~!$&'()*+,;=:@]+\.)|(?!^):\d+$/, "");
     }
 
@@ -662,16 +656,20 @@ Yarip.prototype.getExtensionAddressObj = function(addressObj, matchObj)
 {
     if (!addressObj) return false;
 
+    var obj = {};
     for (var pageName in addressObj.obj) {
-        this.getRecursiveAddressArray(pageName, addressObj, matchObj, addressObj.root);
+        obj[pageName] = true;
+    }
+    for (var pageName in obj) {
+        this.getRecursiveAddressArray(pageName, addressObj, matchObj, addressObj.root, addressObj.obj[pageName]);
     }
 }
 
-Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, matchObj, parentItem)
+Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, matchObj, parentItem, mask)
 {
-    var mask = addressObj.obj[pageName];
     if (!mask[1] && !mask[2] && !mask[3] && !mask[4] && !mask[5] && !mask[6] && !mask[7]) return;
 
+    var obj = {};
     var reduceDomain = pageName.replace(/[?&#].*$/, "");
     var tmpDomain = null;
     do
@@ -690,7 +688,8 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, matchO
                     if (extPage)
                     {
                         var extAddress = extPage.getName();
-                        if (extAddress in addressObj.obj) { // already added
+                        if (extAddress in addressObj.obj) // already added
+                        {
                             if (addressObj.obj[extAddress][0]) continue; // ignore self
 
                             var e = extItem.getDoElements();
@@ -700,7 +699,8 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, matchO
                             var r = extItem.getDoRedirects();
                             var st = extItem.getDoStreams();
                             var l = extItem.getDoLinks();
-                            if (e || c || s || h || r || st || l) {
+                            if (e || c || s || h || r || st || l)
+                            {
                                 if (mask[1] && e) addressObj.obj[extAddress][1] = true;
                                 if (mask[2] && c) addressObj.obj[extAddress][2] = true;
                                 if (mask[3] && s) addressObj.obj[extAddress][3] = true;
@@ -709,7 +709,7 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, matchO
                                 if (mask[6] && st) addressObj.obj[extAddress][6] = true;
                                 if (mask[7] && l) addressObj.obj[extAddress][7] = true;
 
-                                if (parentItem) {
+//                                if (parentItem) {
                                     var childItem = addressObj.ext[extAddress];
                                     if (mask[1] && e) childItem.setDoElements(true);
                                     if (mask[2] && c) childItem.setDoContents(true);
@@ -721,27 +721,28 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, matchO
                                     if (parentItem.addTo(childItem)) {
                                         childItem.addFrom(parentItem);
                                     }
-                                }
+//                                }
                             }
-                        } else { // not yet added
-                            var e = mask[1] && extItem.getDoElements();
-                            var c = mask[2] && extItem.getDoContents();
-                            var s = mask[3] && extItem.getDoScripts();
-                            var h = mask[4] && extItem.getDoHeaders();
-                            var r = mask[5] && extItem.getDoRedirects();
-                            var st = mask[6] && extItem.getDoStreams();
-                            var l = mask[7] && extItem.getDoLinks();
-                            if ((e || c || s || h || r || st || l) &&
-                                (!matchObj || matchObj.element && e || matchObj.content && c || matchObj.script && s || matchObj.header && h || matchObj.redirect && r || matchObj.stream && st || matchObj.link && l))
+                        }
+                        else // not yet added
+                        {
+                            var e = mask[1] && extItem.getDoElements() && (!matchObj || matchObj.element);
+                            var c = mask[2] && extItem.getDoContents() && (!matchObj || matchObj.content);
+                            var s = mask[3] && extItem.getDoScripts() && (!matchObj || matchObj.script);
+                            var h = mask[4] && extItem.getDoHeaders() && (!matchObj || matchObj.header);
+                            var r = mask[5] && extItem.getDoRedirects() && (!matchObj || matchObj.redirect);
+                            var st = mask[6] && extItem.getDoStreams() && (!matchObj || matchObj.stream);
+                            var l = mask[7] && extItem.getDoLinks() && (!matchObj || matchObj.link);
+                            if (e || c || s || h || r || st || l)
                             {
                                 addressObj.obj[extAddress] = [false /* extended (not self) */, e, c, s, h, r, st, l];
-                                if (parentItem) {
+//                                if (parentItem) {
                                     var childItem = new YaripExtensionItem(extAddress, null, e, c, s, h, r, st, l);
                                     addressObj.ext[extAddress] = childItem;
                                     if (parentItem.addTo(childItem)) {
                                         childItem.addFrom(parentItem);
                                     }
-                                }
+//                                }
                                 if (!addressObj.elementExclusive && extPage.elementWhitelist.getExclusive()) {
                                     addressObj.elementExclusive = true;
                                 }
@@ -750,7 +751,7 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, matchO
                                     addressObj.exclusivePageName = extPage.getName();
                                 }
                                 if (extPage.pageExtensionList.length > 0) {
-                                    this.getRecursiveAddressArray(extAddress, addressObj, matchObj, childItem);
+                                    obj[extAddress] = true;
                                 }
                             }
                         }
@@ -767,6 +768,11 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, matchO
         tmpDomain = reduceDomain;
         reduceDomain = reduceDomain.replace(/^(^[^/?#:]+:\/\/(?!$)|(?=([\w-~!$&'()*+,;=:@]+\.){2})[\w-~!$&'()*+,;=:@]+\.)|(?!^):\d+$/, "");
     } while (reduceDomain.length !== tmpDomain.length);
+
+    for (var extAddress in obj) {
+        var childItem = addressObj.ext[extAddress];
+        this.getRecursiveAddressArray(extAddress, addressObj, matchObj, childItem, addressObj.obj[extAddress]);
+    }
 }
 
 Yarip.prototype.resetUndo = function()
