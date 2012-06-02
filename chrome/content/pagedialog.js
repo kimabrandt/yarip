@@ -1068,15 +1068,8 @@ function YaripPageDialog()
     {
         if (this.treePages.currentIndex < 0) return;
 
-//        var addressObj = {
-//            obj: {},
-//            exclusive: false,
-//            found: false
-//        }
         var addressObj = {
-            obj: {},
             ext: {},
-            root: new YaripExtensionItem(),
             exclusivePageName: null,
             elementExclusive: false,
             exclusive: false,
@@ -1085,8 +1078,7 @@ function YaripPageDialog()
         var pages = [];
         var selection = this.view.selection;
         var rangeCount = selection.getRangeCount();
-        for (var i = 0; i < rangeCount; i++)
-        {
+        for (var i = 0; i < rangeCount; i++) {
             var start = {};
             var end = {};
             selection.getRangeAt(i, start, end);
@@ -1097,23 +1089,25 @@ function YaripPageDialog()
         }
         if (pages.length <= 0) return;
 
-        // TODO Move this into yarip.jsm!
         for (var i = 0; i < pages.length; i++) {
-            addressObj.obj[pages[i].getName()] = [true, true, true, true, true, true, true, true]; // [isSelf, doElements, doContents, doScripts, doHeaders, doRedirects, doStreams, doLinks]
+            var page = pages[i];
+            addressObj.ext[page.getName()] = new YaripExtensionItem(page.getId(), null, true, true, true, true, true, true, true, null, true);
         }
         var map = new YaripMap();
         yarip.getExtensionAddressObj(addressObj);
-        for (var p in addressObj.obj) map.add(this.getPageByName(p).clone());
+        for (var p in addressObj.ext) map.add(this.getPageByName(p).clone());
         var dateStr = this.getDateString();
         var nsIFilePicker = Components.interfaces.nsIFilePicker;
         var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
         fp.init(window, this.sb.getString("exportPages"), nsIFilePicker.modeSave);
         fp.appendFilters(nsIFilePicker.filterXML);
-        if (pages.length === 1) fp.defaultString = dateStr + "_" + pages[0].getName().replace(/\/+$/, "").replace(/\//g, "_") + ".xml";
-        else fp.defaultString = fp.defaultString = dateStr + "_yarip-pages.xml";
+        if (pages.length === 1) {
+            fp.defaultString = dateStr + "_" + pages[0].getName().replace(/\/+$/, "").replace(/\//g, "_") + ".xml";
+        } else {
+            fp.defaultString = fp.defaultString = dateStr + "_yarip-pages.xml";
+        }
         var res = fp.show();
-        if (res === nsIFilePicker.returnOK || res === nsIFilePicker.returnReplace)
-        {
+        if (res === nsIFilePicker.returnOK || res === nsIFilePicker.returnReplace) {
             map.purge();
             var data = map.generateXml(true);
             yarip.saveToFile(data, fp.file);

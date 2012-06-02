@@ -152,7 +152,15 @@ var EXPORTED_SYMBOLS = [
         "INDEX_PAGE_REDIRECT",
         "INDEX_PAGE_STREAM",
         "INDEX_PAGE_EXTENSION",
-        "INDEX_PAGE_EXTENDED_BY"
+        "INDEX_PAGE_EXTENDED_BY",
+
+        "DO_ELEMENTS",
+        "DO_CONTENTS",
+        "DO_SCRIPTS",
+        "DO_HEADERS",
+        "DO_REDIRECTS",
+        "DO_STREAMS",
+        "DO_LINKS"
     ];
 
 const Cc = Components.classes;
@@ -204,7 +212,7 @@ const FH = Cc["@mozilla.org/satchel/form-history;1"].getService(Ci.nsIFormHistor
  * nsIYarip
  */
 
-const VERSION = "0.3.2";
+const VERSION = "0.3.3";
 const FILE = "yarip.xml";
 const STYLE = "extensions/yarip@mozdev.org/style.css";
 const CHARSET = "UTF-8";
@@ -286,4 +294,12 @@ const INDEX_PAGE_REDIRECT = 3;
 const INDEX_PAGE_STREAM = 4;
 const INDEX_PAGE_EXTENSION = 5;
 const INDEX_PAGE_EXTENDED_BY = 6;
+
+const DO_ELEMENTS = 1;
+const DO_CONTENTS = 2;
+const DO_SCRIPTS = 3;
+const DO_HEADERS = 4;
+const DO_REDIRECTS = 5;
+const DO_STREAMS = 6;
+const DO_LINKS = 7;
 

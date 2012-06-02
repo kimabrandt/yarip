@@ -506,11 +506,6 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUse
         }
     }
 
-    // Subtracting duplicate entries.
-//    for (var a in addressObj.obj) {
-//        page.subtract(this.map.get(a));
-//    }
-
     this.map.add(page);
     this.pageCreated = true;
 //    this.reloadPage(null); // reset known
@@ -576,13 +571,13 @@ Yarip.prototype.getAddressMap = function(reduceDomain, follow, matchObj)
     var map = new YaripMap();
     if (typeof reduceDomain == "string") {
         var addressObj = this.getAddressObj(reduceDomain, follow, matchObj);
-        for (var pageName in addressObj.obj) {
+        for (var pageName in addressObj.ext) {
             map.add(this.map.get(pageName).clone());
         }
     } else { // instanceof Array
         for (var i = 0; i < reduceDomain.length; i++) {
             var addressObj = this.getAddressObj(reduceDomain[i], follow, matchObj);
-            for (var pageName in addressObj.obj) {
+            for (var pageName in addressObj.ext) {
                 map.add(this.map.get(pageName).clone());
             }
         }
@@ -593,7 +588,6 @@ Yarip.prototype.getAddressMap = function(reduceDomain, follow, matchObj)
 Yarip.prototype.getAddressObj = function(origReduceDomain, follow, matchObj)
 {
     var addressObj = {
-        obj: {},
         ext: {},
         root: new YaripExtensionItem(null, null, true, true, true, true, true, true, true, null, true),
         exclusivePageName: null,
@@ -620,7 +614,6 @@ Yarip.prototype.getAddressObj = function(origReduceDomain, follow, matchObj)
                     var knownObj = this.knownAddressObj[key];
                     if (knownObj) return knownObj;
                 }
-                addressObj.obj[pageName] = [true, true, true, true, true, true, true, true]; // [isSelf, doElements, doContents, doScripts, doHeaders, doRedirects, doStreams, doLinks]
                 var childItem = new YaripExtensionItem(pageName, null, true, true, true, true, true, true, true, null, true);
                 addressObj.ext[pageName] = childItem;
                 addressObj.root.addTo(childItem);
@@ -657,17 +650,18 @@ Yarip.prototype.getExtensionAddressObj = function(addressObj, matchObj)
     if (!addressObj) return false;
 
     var obj = {};
-    for (var pageName in addressObj.obj) {
+    for (var pageName in addressObj.ext) {
         obj[pageName] = true;
     }
     for (var pageName in obj) {
-        this.getRecursiveAddressArray(pageName, addressObj, matchObj, addressObj.root, addressObj.obj[pageName]);
+        var parentItem = addressObj.root ? addressObj.root : addressObj.ext[pageName];
+        this.getRecursiveAddressArray(pageName, addressObj, parentItem, matchObj);
     }
 }
 
-Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, matchObj, parentItem, mask)
+Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parentItem, matchObj)
 {
-    if (!mask[1] && !mask[2] && !mask[3] && !mask[4] && !mask[5] && !mask[6] && !mask[7]) return;
+    if (!parentItem.doesSomething()) return;
 
     var obj = {};
     var reduceDomain = pageName.replace(/[?&#].*$/, "");
@@ -681,68 +675,35 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, matchO
             var page = this.map.get(reducePath);
             if (page)
             {
-                var listObj = page.pageExtensionList.obj;
-                for each (var extItem in listObj)
+                var list = page.pageExtensionList;
+                for each (var item in list.obj)
                 {
-                    var extPage = extItem.getPage();
+                    var extPage = item.getPage();
                     if (extPage)
                     {
-                        var extAddress = extPage.getName();
-                        if (extAddress in addressObj.obj) // already added
+                        var extPageName = extPage.getName();
+                        if (extPageName in addressObj.ext) // already added
                         {
-                            if (addressObj.obj[extAddress][0]) continue; // ignore self
+                            var childItem = addressObj.ext[extPageName];
+                            if (childItem.isSelf()) continue; // ignore self
 
-                            var e = extItem.getDoElements();
-                            var c = extItem.getDoContents();
-                            var s = extItem.getDoScripts();
-                            var h = extItem.getDoHeaders();
-                            var r = extItem.getDoRedirects();
-                            var st = extItem.getDoStreams();
-                            var l = extItem.getDoLinks();
-                            if (e || c || s || h || r || st || l)
-                            {
-                                if (mask[1] && e) addressObj.obj[extAddress][1] = true;
-                                if (mask[2] && c) addressObj.obj[extAddress][2] = true;
-                                if (mask[3] && s) addressObj.obj[extAddress][3] = true;
-                                if (mask[4] && h) addressObj.obj[extAddress][4] = true;
-                                if (mask[5] && r) addressObj.obj[extAddress][5] = true;
-                                if (mask[6] && st) addressObj.obj[extAddress][6] = true;
-                                if (mask[7] && l) addressObj.obj[extAddress][7] = true;
-
-//                                if (parentItem) {
-                                    var childItem = addressObj.ext[extAddress];
-                                    if (mask[1] && e) childItem.setDoElements(true);
-                                    if (mask[2] && c) childItem.setDoContents(true);
-                                    if (mask[3] && s) childItem.setDoScripts(true);
-                                    if (mask[4] && h) childItem.setDoHeaders(true);
-                                    if (mask[5] && r) childItem.setDoRedirects(true);
-                                    if (mask[6] && st) childItem.setDoStreams(true);
-                                    if (mask[7] && l) childItem.setDoLinks(true);
-                                    if (parentItem.addTo(childItem)) {
-                                        childItem.addFrom(parentItem);
-                                    }
-//                                }
+                            if (item.doesSomething()) {
+                                childItem.updateDo(parentItem, item);
+                                if (parentItem.addTo(childItem)) {
+                                    childItem.addFrom(parentItem);
+                                }
                             }
                         }
                         else // not yet added
                         {
-                            var e = mask[1] && extItem.getDoElements() && (!matchObj || matchObj.element);
-                            var c = mask[2] && extItem.getDoContents() && (!matchObj || matchObj.content);
-                            var s = mask[3] && extItem.getDoScripts() && (!matchObj || matchObj.script);
-                            var h = mask[4] && extItem.getDoHeaders() && (!matchObj || matchObj.header);
-                            var r = mask[5] && extItem.getDoRedirects() && (!matchObj || matchObj.redirect);
-                            var st = mask[6] && extItem.getDoStreams() && (!matchObj || matchObj.stream);
-                            var l = mask[7] && extItem.getDoLinks() && (!matchObj || matchObj.link);
-                            if (e || c || s || h || r || st || l)
+                            var childItem = new YaripExtensionItem(extPageName);
+                            childItem.updateDo(parentItem, item, matchObj);
+                            if (item.doesSomething())
                             {
-                                addressObj.obj[extAddress] = [false /* extended (not self) */, e, c, s, h, r, st, l];
-//                                if (parentItem) {
-                                    var childItem = new YaripExtensionItem(extAddress, null, e, c, s, h, r, st, l);
-                                    addressObj.ext[extAddress] = childItem;
-                                    if (parentItem.addTo(childItem)) {
-                                        childItem.addFrom(parentItem);
-                                    }
-//                                }
+                                addressObj.ext[extPageName] = childItem;
+                                if (parentItem.addTo(childItem)) {
+                                    childItem.addFrom(parentItem);
+                                }
                                 if (!addressObj.elementExclusive && extPage.elementWhitelist.getExclusive()) {
                                     addressObj.elementExclusive = true;
                                 }
@@ -751,12 +712,12 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, matchO
                                     addressObj.exclusivePageName = extPage.getName();
                                 }
                                 if (extPage.pageExtensionList.length > 0) {
-                                    obj[extAddress] = true;
+                                    obj[extPageName] = true;
                                 }
                             }
                         }
                     } else {
-                        this.map.get(pageName).pageExtensionList.remove(extItem);
+                        this.map.get(pageName).pageExtensionList.remove(item);
                     }
                 }
             }
@@ -769,9 +730,8 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, matchO
         reduceDomain = reduceDomain.replace(/^(^[^/?#:]+:\/\/(?!$)|(?=([\w-~!$&'()*+,;=:@]+\.){2})[\w-~!$&'()*+,;=:@]+\.)|(?!^):\d+$/, "");
     } while (reduceDomain.length !== tmpDomain.length);
 
-    for (var extAddress in obj) {
-        var childItem = addressObj.ext[extAddress];
-        this.getRecursiveAddressArray(extAddress, addressObj, matchObj, childItem, addressObj.obj[extAddress]);
+    for (var extPageName in obj) {
+        this.getRecursiveAddressArray(extPageName, addressObj, addressObj.ext[extPageName], matchObj);
     }
 }
 
@@ -2080,7 +2040,7 @@ Yarip.prototype.load = function(file, imported)
             nPage = iPage.iterateNext();
         }
     }
-    else // if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.2)$/.test(version))
+    else // if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.[1-3])$/.test(version))
     {
         var iPage = doc.evaluate("./page", nYarip, null, ORDERED_NODE_ITERATOR_TYPE, null);
         var nPage = iPage.iterateNext();
@@ -2815,28 +2775,27 @@ Yarip.prototype.updateContentType = function(status, location, contentLocation, 
 
 Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
 {
-    doFlag = doFlag ? doFlag : 2; // 2 = content
+    if (!doFlag) doFlag = DO_CONTENTS;
     var whitelisted = false;
     var result = STATUS_UNKNOWN;
-    var addrObj = addressObj.obj;
 
     // WHITELIST
-    for (var pageName in addrObj)
+    for (var pageName in addressObj.ext)
     {
         if (whitelisted) break;
-        if (!addrObj[pageName][doFlag]) continue; // not doFlag
 
-        var contentWhitelist = this.map.get(pageName).contentWhitelist;
-        if (contentWhitelist.length <= 0) continue;
+        var extPage = addressObj.ext[pageName];
+        if (!extPage.does(doFlag)) continue; // not doFlag
 
-        var isSelf = addrObj[pageName][0];
-        var listObj = contentWhitelist.obj;
-        for each (var content in listObj)
+        var list = this.map.get(pageName).contentWhitelist;
+        if (list.length === 0) continue;
+
+        for each (var item in list.obj)
         {
-            if (!content.getRegExpObj().test(url)) continue;
+            if (!item.getRegExpObj().test(url)) continue;
 
-            if (isSelf) {
-                content.incrementLastFound();
+            if (extPage.isSelf()) {
+                item.incrementLastFound();
             }
             if (defaultView) {
                 defaultView.yaripStatus = "found";
@@ -2844,9 +2803,9 @@ Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
             addressObj.itemObj = {
                 pageName: pageName,
                 ruleType: TYPE_CONTENT_WHITELIST,
-                itemKey: content.getKey()
+                itemKey: item.getKey()
             };
-            if (content.getForce()) {
+            if (item.getForce()) {
                 return STATUS_WHITELISTED;
             } else {
                 whitelisted = true;
@@ -2857,27 +2816,26 @@ Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
     }
 
     // BLACKLIST
-    for (var pageName in addrObj)
+    for (var pageName in addressObj.ext)
     {
-        if (!addrObj[pageName][doFlag]) continue; // not doFlag
+        var extPage = addressObj.ext[pageName];
+        if (!extPage.does(doFlag)) continue; // not doFlag
 
-        var contentBlacklist = this.map.get(pageName).contentBlacklist;
-        if (contentBlacklist.length <= 0) continue;
+        var list = this.map.get(pageName).contentBlacklist;
+        if (list.length === 0) continue;
 
-        var isSelf = addrObj[pageName][0];
-        var listObj = contentBlacklist.obj;
-        for each (var content in listObj)
+        for each (var item in list.obj)
         {
-            if (!content.getRegExpObj().test(url)) continue;
-            if (whitelisted && !content.getForce()) {
-                if (isSelf) {
-                    content.incrementIgnored();
+            if (!item.getRegExpObj().test(url)) continue;
+            if (whitelisted && !item.getForce()) {
+                if (extPage.isSelf()) {
+                    item.incrementIgnored();
                 }
                 continue;
             }
 
-            if (isSelf) {
-                content.incrementLastFound();
+            if (extPage.isSelf()) {
+                item.incrementLastFound();
             }
             if (defaultView) {
                 defaultView.yaripStatus = "found";
@@ -2885,13 +2843,12 @@ Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
             addressObj.itemObj = {
                 pageName: pageName,
                 ruleType: TYPE_CONTENT_BLACKLIST,
-                itemKey: content.getKey()
+                itemKey: item.getKey()
             };
             return STATUS_BLACKLISTED;
         }
     }
 
-//    return !whitelisted && addressObj.exclusive ? STATUS_BLACKLISTED : result;
     if (!whitelisted && addressObj.exclusive) {
         addressObj.itemObj = {
             pageName: addressObj.exclusivePageName,
@@ -3154,5 +3111,4 @@ Yarip.prototype.showLinkNotification = function(doc, contentLocation)
 }
 
 var wrappedJSObject = new Yarip();
-//wrappedJSObject.init();
 

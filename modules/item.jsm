@@ -1134,7 +1134,7 @@ YaripExtensionItem.prototype.getDoLinks = function()
 {
     return this.doLinks;
 }
-YaripExtensionItem.prototype.hasDos = function()
+YaripExtensionItem.prototype.doesSomething = function()
 {
     return this.getDoElements() ||
             this.getDoContents() ||
@@ -1143,6 +1143,38 @@ YaripExtensionItem.prototype.hasDos = function()
             this.getDoRedirects() ||
             this.getDoStreams() ||
             this.getDoLinks();
+}
+YaripExtensionItem.prototype.does = function(flag)
+{
+    switch (flag) {
+    case DO_ELEMENTS: return this.getDoElements();
+    case DO_CONTENTS: return this.getDoContents();
+    case DO_SCRIPTS: return this.getDoScripts();
+    case DO_HEADERS: return this.getDoHeaders();
+    case DO_REDIRECTS: return this.getDoRedirects();
+    case DO_STREAMS: return this.getDoStreams();
+    case DO_LINKS: return this.getDoLinks();
+    }
+}
+YaripExtensionItem.prototype.updateDo = function(maskItem, extItem, matchObj)
+{
+    if (!matchObj) {
+        if (maskItem.getDoElements() && extItem.getDoElements()) this.setDoElements(true);
+        if (maskItem.getDoContents() && extItem.getDoContents()) this.setDoContents(true);
+        if (maskItem.getDoScripts() && extItem.getDoScripts()) this.setDoScripts(true);
+        if (maskItem.getDoHeaders() && extItem.getDoHeaders()) this.setDoHeaders(true);
+        if (maskItem.getDoRedirects() && extItem.getDoRedirects()) this.setDoRedirects(true);
+        if (maskItem.getDoStreams() && extItem.getDoStreams()) this.setDoStreams(true);
+        if (maskItem.getDoLinks() && extItem.getDoLinks()) this.setDoLinks(true);
+    } else {
+        if (matchObj.element && maskItem.getDoElements() && extItem.getDoElements()) this.setDoElements(true);
+        if (matchObj.content && maskItem.getDoContents() && extItem.getDoContents()) this.setDoContents(true);
+        if (matchObj.script && maskItem.getDoScripts() && extItem.getDoScripts()) this.setDoScripts(true);
+        if (matchObj.header && maskItem.getDoHeaders() && extItem.getDoHeaders()) this.setDoHeaders(true);
+        if (matchObj.redirect && maskItem.getDoRedirects() && extItem.getDoRedirects()) this.setDoRedirects(true);
+        if (matchObj.stream && maskItem.getDoStreams() && extItem.getDoStreams()) this.setDoStreams(true);
+        if (matchObj.link && maskItem.getDoLinks() && extItem.getDoLinks()) this.setDoLinks(true);
+    }
 }
 YaripExtensionItem.prototype.setIsSelf = function(value)
 {

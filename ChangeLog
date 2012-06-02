@@ -1,3 +1,12 @@
+2012-06-02  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * install.rdf (version): Increased the version-number.
+
+    * modules/yarip.jsm (addressObj.ext): Replaced the `addressObj.obj'-array
+    with the `addressObj.ext'-object.
+
+    * modules/yarip.jsm (updateDo): Moved the `do'-matching to item.jsm.
+
 2012-06-01  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * modules/list.jsm (merge): Retrieving and adding the proper items.
@@ -8,6 +17,9 @@
     * modules/yarip.jsm (getExtensionAddressObj): Recursively getting extensions
     after the extensions of the current reduce-domain/-path pages have been
     checked.
+
+    * modules/yarip.jsm (getRecursiveAddressArray): Reintroduced the mask-
+    parameter.
 
 2012-05-31  Kim A. Brandt  <kimabrandt@gmx.de>
 

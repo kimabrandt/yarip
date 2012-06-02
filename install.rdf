@@ -2,7 +2,7 @@
 <RDF:RDF xmlns:em="http://www.mozilla.org/2004/em-rdf#" xmlns:NC="http://home.netscape.com/NC-rdf#" xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
       em:id="yarip@mozdev.org"
-      em:version="0.3.2"
+      em:version="0.3.3"
       em:type="2"
       em:name="Yet Another Remove It Permanently"
       em:description="Remove elements and content from Web pages."
