@@ -21,15 +21,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 const EXPORTED_SYMBOLS = ["YaripMap"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
 const Cu = Components.utils;
 
 Cu.import("resource://yarip/constants.jsm");
 Cu.import("resource://yarip/aatree.jsm");
 Cu.import("resource://yarip/object.jsm");
 Cu.import("resource://yarip/page.jsm");
+Cu.import("resource://yarip/item.jsm");
 
 function YaripMap()
 {
@@ -40,19 +38,6 @@ function YaripMap()
 }
 YaripMap.prototype = new YaripObject;
 YaripMap.prototype.constructor = YaripMap;
-YaripMap.prototype.loadFromObject = function(obj)
-{
-    var tree = new YaripAATree();
-    tree.root = obj.tree.root;
-    var ref = this;
-    tree.traverse(function(node) {
-            if (node.value) {
-                var page = new YaripPage();
-                page.loadFromObject(node.value);
-                ref.add(page);
-            }
-        });
-}
 YaripMap.prototype.add = function(page)
 {
     if (!page) return;
@@ -61,6 +46,12 @@ YaripMap.prototype.add = function(page)
     if (oldPage) {
         oldPage.merge(page);
     } else {
+        if (page.getId() in this.objId) {
+            // shouldn't happen
+            CS.logStringMessage("YaripMap.add: A page with the same id already exists! `" + page.getId() + "'!\nnew: `" + page.getName() + "', old: `" + oldPage.getName() + "'");
+            return;
+        }
+
         this.obj[page.getName()] = page;
         this.objId[page.getId()] = page;
         this.tree.add(page);
@@ -72,8 +63,7 @@ YaripMap.prototype.remove = function(page)
 {
     if (!page) return;
 
-    var pageId = page.getId();
-    if (pageId) {
+    if (page.getId()) {
         this.removeById(page.getId());
     } else {
         this.removeByName(page.getName());
@@ -82,34 +72,53 @@ YaripMap.prototype.remove = function(page)
 YaripMap.prototype.get = function(pageName)
 {
     return pageName in this.obj ? this.obj[pageName] : null;
-//    return this.obj[pageName];
 }
-YaripMap.prototype.getById = function(value)
+YaripMap.prototype.getById = function(id)
 {
-    return value in this.objId ? this.objId[value] : null;
-//    return this.objId[value];
+    return id in this.objId ? this.objId[id] : null;
 }
 YaripMap.prototype.removeById = function(id)
 {
     if (!id || !this.objId[id]) return;
+
     var page = this.objId[id];
     this.tree.remove(page);
     delete this.obj[page.getName()];
     delete this.objId[id];
-//    page.destroy();
     this.length--;
     this.resetKnown();
 }
 YaripMap.prototype.removeByName = function(pageName)
 {
     if (!pageName || !this.obj[pageName]) return;
+
     var page = this.obj[pageName];
-    this.tree.remove(page);
-    delete this.objId[page.getId()];
-    delete this.obj[pageName];
-//    page.destroy();
-    this.length--;
-    this.resetKnown();
+//    this.tree.remove(page);
+//    delete this.objId[page.getId()];
+//    delete this.obj[pageName];
+//    this.length--;
+//    this.resetKnown();
+    this.removeById(page.getId());
+}
+YaripMap.prototype.addExtension = function(page, item)
+{
+    if (!page || !item || page.getId() == item.getId()) return;
+
+    var extPage = this.getById(item.getId());
+    if (extPage) {
+        page.pageExtensionList.add(item);
+        extPage.pageExtendedByList.add(new YaripExtensionItem(page.getId(), item.getPriority()));
+    }
+}
+YaripMap.prototype.removeExtension = function(page, item)
+{
+    if (!page || !item) return;
+
+    page.pageExtensionList.remove(item);
+    var extPage = this.getById(item.getId());
+    if (extPage) {
+        extPage.pageExtendedByList.removeById(page.getId());
+    }
 }
 YaripMap.prototype.clone = function()
 {
@@ -117,53 +126,61 @@ YaripMap.prototype.clone = function()
     for each (var page in this.obj) if (page) map.add(page.clone());
     return map;
 }
-//YaripMap.prototype.replaceExtensionIds = function(map, newId, oldId)
-//{
-//    if (!map || !newId || !oldId) return;
-//    var mapObj = map.obj;
-//    for each (var page in mapObj)
-//    {
-//        var list = page.pageExtensionList;
-//        var listObj = list.obj;
-//        for each (var oldItem in listObj)
-//        {
-//            if (oldItem.getValue() == oldId)
-//            {
-//                var newItem = oldItem.clone();
-//                newItem.setValue(newId);
-//                list.remove(oldItem);
-//                list.add(newItem);
-//            }
-//        }
-//    }
-//}
 YaripMap.prototype.replaceExtensionIds = function(map, oldPage, newId)
 {
     if (!map || !oldPage || !newId) return;
 
+    var arr = [];
+    var oldId = oldPage.getId();
+    for each (var page in map.obj)
+    {
+        var list = page.pageExtensionList;
+        for each (var item in list.obj) {
+            if (item.getId() == oldId) {
+                map.removeExtension(page, item);
+                arr.push([page, item.clone(newId)]);
+            }
+        }
+        list = page.pageExtendedByList;
+        for each (var item in list.obj) {
+            if (item.getId() == oldId) {
+                page.pageExtendedByList.remove(item);
+            }
+        }
+    }
+
     map.remove(oldPage);
     var newPage = oldPage.clone(null, null, newId);
     map.add(newPage);
+
+    for (var i = 0; i < arr.length; i++) {
+        map.addExtension(arr[i][0], arr[i][1]);
+    }
 }
 YaripMap.prototype.merge = function(map)
 {
     if (!map) return;
-    var mapObj = map.obj;
-    for (var p in mapObj)
+
+    for (var pageName in map.obj)
     {
-        var page = map.obj[p];
-        if (this.obj[p]) { // same name
-            this.replaceExtensionIds(map, page, this.obj[p].getId()); // use existing id
-        } else if (this.objId[page.getId()]) { // same id
+        var newPage = map.get(pageName);
+        var oldPage = this.get(pageName);
+        if (oldPage && newPage.getId() != oldPage.getId()) { // same name, different id
+            this.replaceExtensionIds(map, newPage, oldPage.getId()); // replace with old id
+            continue;
+        }
+
+        oldPage = this.getById(newPage.getId());
+        if (oldPage && newPage.getName() != oldPage.getName()) { // same id, different name
             var newId = null;
             do {
-                newId = this.newId();
-            } while(this.getById(newId) != undefined && this.getById(newId) != null
-                    && map.getById(newId) != undefined && map.getById(newId) != null);
-            this.replaceExtensionIds(map, page, newId); // use new id
+                newId = this.newId(); // create new id
+            } while (this.getById(newId) && map.getById(newId)); // while id exists
+            this.replaceExtensionIds(map, newPage, newId); // replace with new id
         }
     }
-    for each (var page in mapObj) {
+
+    for each (var page in map.obj) {
         this.add(page);
     }
 }
@@ -182,13 +199,17 @@ YaripMap.prototype.generateXml = function(exporting)
     r += "</yarip>";
     return r;
 }
-//YaripMap.prototype.generateCSS = function()
-//{
-//    var r = "\n/* Do not edit this file.\n *\n * If you make changes to this file while the application is running,\n * the changes will be overwritten when the application exits.\n */\n\n";
-////    for each (var page in this.obj) if (page) r += page.generateCSS();
-//    this.tree.traverse(function(node) { if (node.value) r += node.value.generateCSS(); });
-//    return r;
-//}
-
-//var wrappedJSObject = new YaripMap();
+YaripMap.prototype.loadFromObject = function(obj)
+{
+    var tree = new YaripAATree();
+    tree.root = obj.tree.root;
+    var ref = this;
+    tree.traverse(function(node) {
+            if (node.value) {
+                var page = new YaripPage();
+                page.loadFromObject(node.value);
+                ref.add(page);
+            }
+        });
+}
 

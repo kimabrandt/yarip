@@ -160,7 +160,6 @@ YaripPage.prototype.getTemporary = function()
 {
     return this.temporary;
 }
-//YaripPage.prototype.clone = function(purge, pageName)
 YaripPage.prototype.clone = function(purge, pageName, id)
 {
     var origId = this.id;
@@ -217,34 +216,9 @@ YaripPage.prototype.merge = function(page)
     this.pageRedirectList.merge(page.pageRedirectList);
     this.pageStreamList.merge(page.pageStreamList);
     this.pageExtensionList.merge(page.pageExtensionList);
-//    this.pageExtensionList.removeByKey(this.getId());
     this.pageExtendedByList.merge(page.pageExtendedByList);
-//    this.pageExtendedByList.removeByKey(this.getId());
-//    this.setTemporary(this.getTemporary() || page.getTemporary());
     this.setTemporary(this.getTemporary() && page.getTemporary());
 }
-//YaripPage.prototype.subtract = function(page)
-//{
-//    if (!page) return;
-//    this.elementWhitelist.subtract(page.elementWhitelist);
-//    this.elementBlacklist.subtract(page.elementBlacklist);
-//    this.elementAttributeList.subtract(page.elementAttributeList);
-//    this.elementScriptList.subtract(page.elementScriptList);
-//    this.contentWhitelist.subtract(page.contentWhitelist);
-//    this.contentBlacklist.subtract(page.contentBlacklist);
-//    this.contentRequestHeaderList.subtract(page.contentRequestHeaderList);
-//    this.contentResponseHeaderList.subtract(page.contentResponseHeaderList);
-//    this.contentRedirectList.subtract(page.contentRedirectList);
-//    this.contentStreamList.subtract(page.contentStreamList);
-//    this.pageStyleList.subtract(page.pageStyleList);
-//    this.pageScriptList.subtract(page.pageScriptList);
-//    this.pageRequestHeaderList.subtract(page.pageRequestHeaderList);
-//    this.pageResponseHeaderList.subtract(page.pageResponseHeaderList);
-//    this.pageRedirectList.subtract(page.pageRedirectList);
-//    this.pageStreamList.subtract(page.pageStreamList);
-//    this.pageExtensionList.subtract(page.pageExtensionList);
-//    this.setTemporary(false);
-//}
 YaripPage.prototype.purge = function()
 {
     this.elementWhitelist.purge();
@@ -265,24 +239,8 @@ YaripPage.prototype.purge = function()
     this.pageStreamList.purge();
     this.setTemporary(false);
 }
-//YaripPage.prototype.destroy = function()
-//{
-//    var list = this.pageExtensionList;
-//    for each (var o in list.obj) {
-//        var page = o.getPage();
-//        if (page) page.pageExtendedByList.removeByKey(this.getId());
-//    }
-//    list = this.pageExtendedByList;
-//    for each (var o in list.obj) {
-//        var page = o.getPage();
-//        if (page) page.pageExtensionList.removeByKey(this.getId());
-//    }
-//}
-
 YaripPage.prototype.init = function()
 {
-//    if (!this.getName()) return;
-
     var matches = this.getName().match(URI_SIMPLE_RE);
 //if (/\b(example|localhost|yarip)\b/.test(this.getName())) {
 //    for (var i = 0; i < matches.length; i++) {
@@ -304,13 +262,6 @@ YaripPage.prototype.init = function()
                     tldArr: tld.split('.').reverse()
                 };
             } else { // uri1
-//                this.setType(PAGE_TYPE_DOMAIN);
-//                tld = domain.match(FIND_TLD_RE);
-//                this.obj = {
-//                    scheme: scheme,
-//                    domainArr: domain.split('.').reverse(),
-//                    tldArr: tld ? tld[0].split('.').reverse() : null
-//                };
                 tld = domain.match(FIND_TLD_RE);
                 if (tld) {
                     this.setType(PAGE_TYPE_DOMAIN);
@@ -388,11 +339,6 @@ YaripPage.prototype.compare = function(b, rec)
         var bDomainArr = b.obj.domainArr;
         if (aDomainArr < bDomainArr) return -1;
         if (aDomainArr > bDomainArr) return 1;
-//        // Comparing SCHEMEs
-//        var aScheme = this.obj.scheme;
-//        var bScheme = b.obj.scheme;
-//        if (aScheme < bScheme) return -1;
-//        if (aScheme > bScheme) return 1;
         break;
     }
 
@@ -446,38 +392,6 @@ YaripPage.prototype.generateXml = function()
     var tmp = tmpElement + tmpContent + tmpPage;
     return tmp != "" ? "\t<page id=\"" + this.id + "\" name=\"" + this.name + "\">\n" + tmp + "\t</page>\n" : "";
 }
-//YaripPage.prototype.generateCSS = function()
-//{
-//    if (this.temporary) return "";
-
-//    if (DOMAIN_RE.test(this.name)) {
-//        var tmp = this.elementBlacklist.generateCSS() +
-//            this.pageStyleList.generateCSS();
-//        if (tmp != "") {
-//            return "@-moz-document domain(\"" + this.name + "\")\n{\n" + tmp.replace(/\n$/, "") + "}\n\n";
-//        }
-//    } else if (URL_RE.test(this.name)) {
-//        var res = "";
-//        tmp = this.elementBlacklist.generateCSS() +
-//            this.pageStyleList.generateCSS();
-//        if (tmp != "") res += "@-moz-document url-prefix(\"" + this.name + "\")\n{\n" + tmp.replace(/\n$/, "") + "}\n\n";
-//        if (res != "") return res;
-//    } else if (this.getType() === PAGE_TYPE_IP) {
-//        var res = "";
-//        tmp = this.elementBlacklist.generateCSS() +
-//            this.pageStyleList.generateCSS();
-//        if (tmp != "") res += "@-moz-document regexp(\"^https?://" + this.name.replace(/([.*+?|()\[\]{}\\])/g, "\\\\$1") + "([/?#].*)?\")\n{\n" + tmp.replace(/\n$/, "") + "}\n\n";
-//        if (res != "") return res;
-//    } else {
-//        var res = "";
-//        tmp = this.elementBlacklist.generateCSS() +
-//            this.pageStyleList.generateCSS();
-//        if (tmp != "") res += "@-moz-document regexp(\"^https?://([^/?#]+\\\\.)?" + this.name.replace(/([.*+?|()\[\]{}\\])/g, "\\\\$1") + "([/?#].*)?\")\n{\n" + tmp.replace(/\n$/, "") + "}\n\n";
-//        if (res != "") return res;
-//    }
-
-//    return "";
-//}
 YaripPage.prototype.loadFromObject = function(obj)
 {
     this.id = obj.id;

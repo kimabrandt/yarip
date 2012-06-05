@@ -632,10 +632,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                           <treecol id="pageExtensionList-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
                         </treecols>
 <!--                        <treechildren context="yarip-edit-menupopup" ondblclick="dialog.gotoPage(event);"/>-->
+<!--                        <treechildren class="clickable" context="yarip-edit-menupopup"/>-->
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <hbox>
-<!--                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.removeExtPage()"/>-->
                         <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
                         <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
                         <spacer flex="1"/>
@@ -648,7 +648,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                         <treecols>
                           <treecol id="pageExtendedByList-tree-page" label="&treecol.label.page;" persist="width" primary="true" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
-                          <treecol id="pageExtendedByList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden" flex="1"/>
+                          <treecol id="pageExtendedByList-tree-priority" label="&treecol.label.priority;" hidden="true" persist="width hidden" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="pageExtendedByList-tree-element" label="&treecol.label.element;" type="checkbox" editable="true" persist="width hidden" tooltiptext="&treecol.tooltiptext.element2;"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
@@ -667,14 +667,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                           <treecol id="pageExtendedByList-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
                         </treecols>
 <!--                        <treechildren context="yarip-edit-menupopup" ondblclick="dialog.gotoPage(event);"/>-->
+<!--                        <treechildren class="clickable" context="yarip-edit-menupopup"/>-->
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
-<!--                      <hbox>-->
-<!--                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.removeExtPage()"/>-->
-<!--                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>-->
-<!--                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>-->
-<!--                        <spacer flex="1"/>-->
-<!--                      </hbox>-->
                     </vbox>
                   </tabpanel>
                 </tabpanels>

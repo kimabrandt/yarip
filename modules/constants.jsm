@@ -160,7 +160,9 @@ var EXPORTED_SYMBOLS = [
         "DO_HEADERS",
         "DO_REDIRECTS",
         "DO_STREAMS",
-        "DO_LINKS"
+        "DO_LINKS",
+
+        "LIST_INDEX_KEY"
     ];
 
 const Cc = Components.classes;
@@ -302,4 +304,6 @@ const DO_HEADERS = 4;
 const DO_REDIRECTS = 5;
 const DO_STREAMS = 6;
 const DO_LINKS = 7;
+
+const LIST_INDEX_KEY = -1;
 

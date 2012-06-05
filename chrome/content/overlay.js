@@ -24,7 +24,6 @@ function YaripOverlay()
     this.enabledObserver = null;
     this.flickerObserver = null;
     this.modeObserver = null;
-//    this.alwaysUseIndexObserver = null;
     this.useIndexObserver = null;
     this.elementsInContextObserver = null;
     this.purgeInnerHTMLObserver = null;
@@ -546,12 +545,6 @@ function YaripOverlay()
                 PREF_MODE,
                 function() { yaripOverlay.updateMode(); }
             );
-//            this.alwaysUseIndexObserver = new YaripObserver(
-//                PREF_INDEX,
-//                function() {
-//                    yarip.setAlwaysUseIndex(yarip.getValue(PREF_INDEX, false, DATA_TYPE_BOOLEAN));
-//                }
-//            );
             this.useIndexObserver = new YaripObserver(
                 PREF_INDEX,
                 function() {
@@ -658,7 +651,6 @@ function YaripOverlay()
             this.enabledObserver.unregister();
             this.flickerObserver.unregister();
             this.modeObserver.unregister();
-//            this.alwaysUseIndexObserver.unregister();
             this.useIndexObserver.unregister();
             this.elementsInContextObserver.unregister();
             this.purgeInnerHTMLObserver.unregister();

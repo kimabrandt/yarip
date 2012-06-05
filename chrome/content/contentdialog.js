@@ -26,18 +26,19 @@ function YaripContentDialog()
     this.regexpTextbox = null;
     this.obj = null;
 
+    var tld = TLD.replace(/\\./g, "\\\\\\.");
+//    var subDomainRE = new RegExp("(^\\^http(?:s\\??)?:\\/\\/)(?:(?!\\w+\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?$)\\w+\\\\\\.)+(\\w+\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?)$", "i");
+    var subDomainRE = new RegExp("(^\\^http(?:s\\??)?:\\/\\/)(?:(?!" + SIMPLE + "\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?$)" + SIMPLE + "\\\\\\.)+(" + SIMPLE + "\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?)$", "i");
+    var pathRE = new RegExp("(^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\\\\\.\\)\\?)?(?:[^/?#]+\\\\\\.)*[^/?#]+\\\\\\." + TLD.replace(/\\./g, "\\\\\\.") + ")" + PORT + ")[/?#].*$", "i");
+    var queryFragmentRE = new RegExp("^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\\\\\.\\)\\?)?(?:[^/?#]+\\\\\\.)*[^/?#]+\\\\\\." + TLD.replace(/\\./g, "\\\\\\.") + ")" + PORT + "(?:[/?#].*)?(?!\\b)$", "i");
+
     this.removeSubDomain = function()
     {
         if (!this.obj) return;
-        var tld = TLD.replace(/\\./g, "\\\\\\.");
-//        var re = new RegExp("(^\\^http(?:s\\??)?:\\/\\/)(?:[^/?#]+\\\\\\.)?([^/?#]+\\\\\\." + TLD + PORT + "(?:\\[\\/\\?#\\]|[/?#].*)?)$", "i");
-//ok        var re = new RegExp("(^\\^http(?:s\\??)?:\\/\\/)(?:\\w+?\\\\\\.((?=" + tld + "\\\\\\.)|(?!" + tld + "\\b)))*(\\w+?\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#].*)?)$", "i");
-//ok        var re = new RegExp("(^\\^http(?:s\\??)?:\\/\\/)(?:[^/?#]+?\\\\\\.(?:(?=" + tld + "\\\\\\.)|(?!" + tld + "\\b)))*([^/?#]+?\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#].*)?)$", "i");
-        var re = new RegExp("(^\\^http(?:s\\??)?:\\/\\/)(?:(?!\\w+\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?$)\\w+\\\\\\.)+(\\w+\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?)$", "i");
-//        var re = new RegExp("(^\\^http(?:s\\??)?:\\/\\/)(?:(?!(?:\\(\\[\\^/\\?#\\]\\+\\\\\\.\\)\\?)?[\\w-]+\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?$)[\\w-]+\\\\\\.)+((?:\\(\\[\\^/\\?#\\]\\+\\\\\\.\\)\\?)?[\\w-]+\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?)$", "i");
-        if (!re.test(this.regexpTextbox.value)) return;
-//        var regExp = this.regexpTextbox.value.replace(re, "$1([^/?#]+\\.)?$2");
-        var regExp = this.regexpTextbox.value.replace(re, "$1([^/?#]+\\.)?$4");
+        if (!subDomainRE.test(this.regexpTextbox.value)) return;
+
+//        var regExp = this.regexpTextbox.value.replace(subDomainRE, "$1([^/?#]+\\.)?$4");
+        var regExp = this.regexpTextbox.value.replace(subDomainRE, "$1([^/?#]+\\.)?$6");
         this.regexpTextbox.value = regExp;
         this.obj.item.setRegExp(regExp);
     }
@@ -45,10 +46,9 @@ function YaripContentDialog()
     this.removePath = function()
     {
         if (!this.obj) return;
-//        var re = new RegExp("(^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\\\\\.\\)\\?)?(?:[^/?#]+\\\\\\.)*[^/?#]+\\\\\\." + TLD + ")" + PORT + ")[/?#].*$", "i");
-        var re = new RegExp("(^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\\\\\.\\)\\?)?(?:[^/?#]+\\\\\\.)*[^/?#]+\\\\\\." + TLD.replace(/\\./g, "\\\\\\.") + ")" + PORT + ")[/?#].*$", "i");
-        if (!re.test(this.regexpTextbox.value)) return;
-        var regExp = this.regexpTextbox.value.replace(re, "$1[/?#]");
+        if (!pathRE.test(this.regexpTextbox.value)) return;
+
+        var regExp = this.regexpTextbox.value.replace(pathRE, "$1[/?#]");
         this.regexpTextbox.value = regExp;
         this.obj.item.setRegExp(regExp);
     }
@@ -56,9 +56,8 @@ function YaripContentDialog()
     this.removeQueryFragment = function()
     {
         if (!this.obj) return;
-//        var re = new RegExp("^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\\\\\.\\)\\?)?(?:[^/?#]+\\\\\\.)*[^/?#]+\\\\\\." + TLD + ")" + PORT + "(?:[/?#].*)?(?!\\b)$", "i");
-        var re = new RegExp("^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\\\\\.\\)\\?)?(?:[^/?#]+\\\\\\.)*[^/?#]+\\\\\\." + TLD.replace(/\\./g, "\\\\\\.") + ")" + PORT + "(?:[/?#].*)?(?!\\b)$", "i");
-        if (!re.test(this.regexpTextbox.value)) return;
+        if (!queryFragmentRE.test(this.regexpTextbox.value)) return;
+
         var regExp = this.regexpTextbox.value.replace(/(?:(?:\\\?|#(?!\])).*)?\$?$/, "\\b");
         this.regexpTextbox.value = regExp;
         this.obj.item.setRegExp(regExp);
@@ -81,17 +80,9 @@ function YaripContentDialog()
         this.regexpTextbox.focus();
         this.regexpTextbox.select();
 
-//        if (this.obj.buttonsDisabled) {
-//            this.pageMenulist.disabled = true;
-//            document.getElementById("noSubDomain").disabled = true;
-//            document.getElementById("noQueryFragment").disabled = true;
-//            return;
-//        }
-
         var location = "itemLocation" in this.obj ? yarip.getLocationFromLocation(this.obj.itemLocation) : null;
         if (location) {
             var content = "itemContent" in this.obj ? yarip.getContentLocationFromContentLocation(this.obj.itemContent) : null;
-//            var aMap = yarip.getAddressMap([location.asciiHref, content ? content.asciiSpec : null], true, { content: true });
             var aMap = yarip.getAddressMap(content ? [location.asciiHref, content.asciiSpec] : location.asciiHref, true, { content: true });
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_PAGE)));
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_FQDN)));

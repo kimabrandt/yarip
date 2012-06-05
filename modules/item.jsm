@@ -74,9 +74,13 @@ function YaripItem(xpath, style, script, priority, force, placeholder, created, 
 }
 YaripItem.prototype = new YaripObject;
 YaripItem.prototype.constructor = YaripItem;
+YaripItem.prototype.getId = function()
+{
+    return this.getXPath();
+}
 YaripItem.prototype.getKey = function()
 {
-    return this.getPriorityWithPadding() + " " + this.getXPath();
+    return this.getPriority() + " " + this.getId();
 }
 YaripItem.prototype.setXPath = function(value)
 {
@@ -138,10 +142,6 @@ YaripItem.prototype.setPriority = function(value)
 YaripItem.prototype.getPriority = function()
 {
     return this.priority;
-}
-YaripItem.prototype.getPriorityWithPadding = function()
-{
-    return "" + (90000000000000 + this.getPriority());
 }
 YaripItem.prototype.setForce = function(value)
 {
@@ -246,18 +246,20 @@ YaripItem.prototype.clone = function(purge)
     if (purge) tmp.purge();
     return tmp;
 }
-YaripItem.prototype.merge = function(o)
+YaripItem.prototype.merge = function(item)
 {
-    if (!o) return;
-    if (o.getPriority() > this.getPriority()) this.setPriority(o.getPriority());
-    this.setForce(o.getForce() && this.getForce());
-    this.setPlaceholder(o.getPlaceholder() || this.getPlaceholder());
-    if (this.getCreated() == -1 || o.getCreated() < this.getCreated()) this.setCreated(o.getCreated());
+    if (!item) return;
+    if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    this.setForce(item.getForce() && this.getForce());
+    this.setPlaceholder(item.getPlaceholder() || this.getPlaceholder());
+    if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
-YaripItem.prototype.compare = function(b)
+YaripItem.prototype.compare = function(item)
 {
+    if (this.getPriority() < item.getPriority()) return -1;
+    if (this.getPriority() > item.getPriority()) return 1;
     var aKey = this.getKey();
-    var bKey = b.getKey();
+    var bKey = item.getKey();
     if (aKey < bKey) return -1;
     if (aKey > bKey) return 1;
     return 0;
@@ -354,12 +356,12 @@ YaripElementWhitelistItem.prototype.clone = function(purge)
     if (purge) tmp.purge();
     return tmp;
 }
-YaripElementWhitelistItem.prototype.merge = function(o)
+YaripElementWhitelistItem.prototype.merge = function(item)
 {
-    if (!o) return;
-    if (o.getPriority() > this.getPriority()) this.setPriority(o.getPriority());
-    this.setForce(o.getForce() || this.getForce());
-    if (this.getCreated() == -1 || o.getCreated() < this.getCreated()) this.setCreated(o.getCreated());
+    if (!item) return;
+    if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    this.setForce(item.getForce() || this.getForce());
+    if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripElementWhitelistItem.prototype.generateXml = function()
 {
@@ -419,13 +421,13 @@ YaripElementBlacklistItem.prototype.clone = function(purge)
     if (purge) tmp.purge();
     return tmp;
 }
-YaripElementBlacklistItem.prototype.merge = function(o)
+YaripElementBlacklistItem.prototype.merge = function(item)
 {
-    if (!o) return;
-    if (o.getPriority() > this.getPriority()) this.setPriority(o.getPriority());
-    this.setForce(o.getForce() && this.getForce());
-    this.setPlaceholder(o.getPlaceholder() || this.getPlaceholder());
-    if (this.getCreated() == -1 || o.getCreated() < this.getCreated()) this.setCreated(o.getCreated());
+    if (!item) return;
+    if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    this.setForce(item.getForce() && this.getForce());
+    this.setPlaceholder(item.getPlaceholder() || this.getPlaceholder());
+    if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
     this.createStyle(); // reset style if not forced
 }
 YaripElementBlacklistItem.prototype.generateXml = function()
@@ -469,9 +471,9 @@ function YaripElementAttributeItem(xpath, name, value, priority, created, lastFo
 }
 YaripElementAttributeItem.prototype = new YaripItem;
 YaripElementAttributeItem.prototype.constructor = YaripElementAttributeItem;
-YaripElementAttributeItem.prototype.getKey = function()
+YaripElementAttributeItem.prototype.getId = function()
 {
-    return this.getPriorityWithPadding() + " " + this.getXPath() + " " + this.getName();
+    return this.getXPath() + " " + this.getName();
 }
 YaripElementAttributeItem.prototype.setName = function(value)
 {
@@ -497,12 +499,12 @@ YaripElementAttributeItem.prototype.clone = function(purge)
     if (purge) tmp.purge();
     return tmp;
 }
-YaripElementAttributeItem.prototype.merge = function(o)
+YaripElementAttributeItem.prototype.merge = function(item)
 {
-    if (!o) return;
-    this.setValue(o.getValue() || this.getValue());
-    if (o.getPriority() > this.getPriority()) this.setPriority(o.getPriority());
-    if (this.getCreated() == -1 || o.getCreated() < this.getCreated()) this.setCreated(o.getCreated());
+    if (!item) return;
+    this.setValue(item.getValue() || this.getValue());
+    if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripElementAttributeItem.prototype.generateXml = function()
 {
@@ -559,11 +561,11 @@ YaripScriptItem.prototype.clone = function(purge)
     if (purge) tmp.purge();
     return tmp;
 }
-YaripScriptItem.prototype.merge = function(o)
+YaripScriptItem.prototype.merge = function(item)
 {
-    if (!o) return;
-    if (o.getPriority() > this.getPriority()) this.setPriority(o.getPriority());
-    if (this.getCreated() == -1 || o.getCreated() < this.getCreated()) this.setCreated(o.getCreated());
+    if (!item) return;
+    if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripScriptItem.prototype.generateXml = function()
 {
@@ -601,9 +603,9 @@ function YaripPageScriptItem(xpath, script, priority, created, lastFound, found,
 }
 YaripPageScriptItem.prototype = new YaripScriptItem;
 YaripPageScriptItem.prototype.constructor = YaripPageScriptItem;
-YaripPageScriptItem.prototype.getKey = function()
+YaripPageScriptItem.prototype.getId = function()
 {
-    return this.getPriorityWithPadding() + " " + this.getCreated() + " " + this.getXPath();
+    return this.getCreated() + " " + this.getXPath();
 }
 YaripPageScriptItem.prototype.clone = function(purge)
 {
@@ -611,11 +613,11 @@ YaripPageScriptItem.prototype.clone = function(purge)
     if (purge) tmp.purge();
     return tmp;
 }
-YaripPageScriptItem.prototype.merge = function(o)
+YaripPageScriptItem.prototype.merge = function(item)
 {
-    if (!o) return;
-    if (o.getPriority() > this.getPriority()) this.setPriority(o.getPriority());
-    if (this.getCreated() == -1 || o.getCreated() < this.getCreated()) this.setCreated(o.getCreated());
+    if (!item) return;
+    if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripPageScriptItem.prototype.generateXml = function()
 {
@@ -652,9 +654,9 @@ function YaripContentItem(regExp, priority, force, created, lastFound, ignored)
 }
 YaripContentItem.prototype = new YaripItem;
 YaripContentItem.prototype.constructor = YaripContentItem;
-YaripContentItem.prototype.getKey = function()
+YaripContentItem.prototype.getId = function()
 {
-    return this.getPriorityWithPadding() + " " + this.getRegExp();
+    return this.getRegExp();
 }
 YaripContentItem.prototype.clone = function(purge)
 {
@@ -662,12 +664,12 @@ YaripContentItem.prototype.clone = function(purge)
     if (purge) tmp.purge();
     return tmp;
 }
-YaripContentItem.prototype.merge = function(o)
+YaripContentItem.prototype.merge = function(item)
 {
-    if (!o) return;
-    if (o.getPriority() > this.getPriority()) this.setPriority(o.getPriority());
-    this.setForce(o.getForce() && this.getForce());
-    if (this.getCreated() == -1 || o.getCreated() < this.getCreated()) this.setCreated(o.getCreated());
+    if (!item) return;
+    if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    this.setForce(item.getForce() && this.getForce());
+    if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripContentItem.prototype.generateXml = function()
 {
@@ -772,9 +774,9 @@ function YaripStreamItem(regExp, script, priority, created, lastFound)
 }
 YaripStreamItem.prototype = new YaripItem;
 YaripStreamItem.prototype.constructor = YaripStreamItem;
-YaripStreamItem.prototype.getKey = function()
+YaripStreamItem.prototype.getId = function()
 {
-    return this.getPriorityWithPadding() + " " + this.getRegExp();
+    return this.getRegExp();
 }
 YaripStreamItem.prototype.getRegExpObj = function()
 {
@@ -804,11 +806,11 @@ YaripStreamItem.prototype.clone = function(purge)
     if (purge) tmp.purge();
     return tmp;
 }
-YaripStreamItem.prototype.merge = function(o)
+YaripStreamItem.prototype.merge = function(item)
 {
-    if (!o) return;
-    if (o.getPriority() > this.getPriority()) this.setPriority(o.getPriority());
-    if (this.getCreated() == -1 || o.getCreated() < this.getCreated()) this.setCreated(o.getCreated());
+    if (!item) return;
+    if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripStreamItem.prototype.generateXml = function()
 {
@@ -852,9 +854,9 @@ function YaripStyleItem(xpath, style, priority, created, lastFound, found, notFo
 }
 YaripStyleItem.prototype = new YaripItem;
 YaripStyleItem.prototype.constructor = YaripStyleItem;
-YaripStyleItem.prototype.getKey = function()
+YaripStyleItem.prototype.getId = function()
 {
-    return this.getPriorityWithPadding() + " " + this.getCreated() + " " + this.getXPath();
+    return this.getCreated() + " " + this.getXPath();
 }
 YaripStyleItem.prototype.clone = function(purge)
 {
@@ -862,11 +864,11 @@ YaripStyleItem.prototype.clone = function(purge)
     if (purge) tmp.purge();
     return tmp;
 }
-YaripStyleItem.prototype.merge = function(o)
+YaripStyleItem.prototype.merge = function(item)
 {
-    if (!o) return;
-    if (o.getPriority() > this.getPriority()) this.setPriority(o.getPriority());
-    if (this.getCreated() == -1 || o.getCreated() < this.getCreated()) this.setCreated(o.getCreated());
+    if (!item) return;
+    if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripStyleItem.prototype.generateXml = function()
 {
@@ -905,9 +907,9 @@ function YaripHeaderItem(regExp, headerName, script, priority, merge, created, l
 }
 YaripHeaderItem.prototype = new YaripItem;
 YaripHeaderItem.prototype.constructor = YaripHeaderItem;
-YaripHeaderItem.prototype.getKey = function()
+YaripHeaderItem.prototype.getId = function()
 {
-    return this.getPriorityWithPadding() + " " + this.getRegExp() + " " + this.getHeaderName();
+    return this.getRegExp() + " " + this.getHeaderName();
 }
 YaripHeaderItem.prototype.setHeaderName = function(value)
 {
@@ -934,12 +936,12 @@ YaripHeaderItem.prototype.clone = function(purge)
     if (purge) tmp.purge();
     return tmp;
 }
-YaripHeaderItem.prototype.merge = function(o)
+YaripHeaderItem.prototype.merge = function(item)
 {
-    if (!o) return;
-    if (o.getPriority() > this.getPriority()) this.setPriority(o.getPriority());
-    this.setMerge(o.getMerge() || this.getMerge());
-    if (this.getCreated() == -1 || o.getCreated() < this.getCreated()) this.setCreated(o.getCreated());
+    if (!item) return;
+    if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    this.setMerge(item.getMerge() || this.getMerge());
+    if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripHeaderItem.prototype.generateXml = function()
 {
@@ -984,9 +986,9 @@ function YaripRedirectItem(regExp, newsubstr, priority, created, lastFound)
 }
 YaripRedirectItem.prototype = new YaripItem;
 YaripRedirectItem.prototype.constructor = YaripRedirectItem;
-YaripRedirectItem.prototype.getKey = function()
+YaripRedirectItem.prototype.getId = function()
 {
-    return this.getPriorityWithPadding() + " " + this.getRegExp();
+    return this.getRegExp();
 }
 YaripRedirectItem.prototype.setNewSubStr = function(value)
 {
@@ -1004,12 +1006,12 @@ YaripRedirectItem.prototype.clone = function(purge)
     if (purge) tmp.purge();
     return tmp;
 }
-YaripRedirectItem.prototype.merge = function(o)
+YaripRedirectItem.prototype.merge = function(item)
 {
-    if (!o) return;
-    this.setNewSubStr(o.getNewSubStr() || this.getNewSubStr());
-    if (o.getPriority() > this.getPriority()) this.setPriority(o.getPriority());
-    if (this.getCreated() == -1 || o.getCreated() < this.getCreated()) this.setCreated(o.getCreated());
+    if (!item) return;
+    this.setNewSubStr(item.getNewSubStr() || this.getNewSubStr());
+    if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripRedirectItem.prototype.generateXml = function()
 {
@@ -1033,9 +1035,9 @@ YaripRedirectItem.prototype.loadFromObject = function(obj)
     this.setLastFound(obj.lastFound);
 }
 
-function YaripExtensionItem(value, priority, doElements, doContents, doScripts, doHeaders, doRedirects, doStreams, doLinks, created, isSelf)
+function YaripExtensionItem(id, priority, doElements, doContents, doScripts, doHeaders, doRedirects, doStreams, doLinks, created, isSelf)
 {
-    this.value = "";
+    this.id = "";
     this.priority = 0;
     this.doElements = false;
     this.doContents = false;
@@ -1049,7 +1051,7 @@ function YaripExtensionItem(value, priority, doElements, doContents, doScripts, 
     this.toObj = null;
     this.fromObj = null;
 
-    this.setValue(value);
+    this.setId(id);
     this.setPriority(priority);
     this.setDoElements(doElements);
     this.setDoContents(doContents);
@@ -1063,21 +1065,24 @@ function YaripExtensionItem(value, priority, doElements, doContents, doScripts, 
 }
 YaripExtensionItem.prototype = new YaripItem;
 YaripExtensionItem.prototype.constructor = YaripExtensionItem;
-YaripExtensionItem.prototype.getKey = function()
+YaripExtensionItem.prototype.getId = function()
 {
-    return this.getPriorityWithPadding() + " " + this.value;
+    return this.id;
 }
-YaripExtensionItem.prototype.setValue = function(value)
+YaripExtensionItem.prototype.setId = function(id)
 {
-    if (!value) return;
+    if (!id) return;
 
-    this.value = "" + value;
+    this.id = "" + id;
     this.setCreated(Date.now());
 }
-YaripExtensionItem.prototype.getValue = function()
-{
-    return this.value;
-}
+//YaripExtensionItem.prototype.setValue = function(value)
+//{
+//    if (!value) return;
+
+//    this.id = "" + value;
+//    this.setCreated(Date.now());
+//}
 YaripExtensionItem.prototype.setDoElements = function(value)
 {
     this.doElements = "" + value == "true";
@@ -1188,7 +1193,7 @@ YaripExtensionItem.prototype.addTo = function(childItem)
 {
     if (!this.toObj) this.toObj = {};
     if (!this.isChildOf(childItem)) {
-        this.toObj[childItem.getValue()] = childItem;
+        this.toObj[childItem.getId()] = childItem;
         return true;
     } else {
         return false;
@@ -1197,13 +1202,13 @@ YaripExtensionItem.prototype.addTo = function(childItem)
 YaripExtensionItem.prototype.addFrom = function(parentItem)
 {
     if (!this.fromObj) this.fromObj = {};
-    this.fromObj[parentItem.getValue()] = parentItem;
+    this.fromObj[parentItem.getId()] = parentItem;
 }
 YaripExtensionItem.prototype.isChildOf = function(parentItem)
 {
     if (!this.fromObj) {
         return false;
-    } else if (parentItem.getValue() in this.fromObj) {
+    } else if (parentItem.getId() in this.fromObj) {
         return true;
     } else {
         for each (var item in this.fromObj) {
@@ -1216,16 +1221,16 @@ YaripExtensionItem.prototype.traverse = function(fun)
 {
     var obj = {};
     function inOrder(node) {
-        if (node && !obj[node.getValue()]) {
-            obj[node.getValue()] = true;
+        if (node && !obj[node.getId()]) {
+            obj[node.getId()] = true;
             // adding dependents
             for each (var item in node.fromObj) {
-                if (!obj[item.getValue()]) {
+                if (!obj[item.getId()]) {
                     inOrder(item);
                 }
             }
             // adding self; if not root
-            if (node.getValue()) fun.call(this, node);
+            if (node.getId()) fun.call(this, node);
             // adding dependencies
             for each (var item in node.toObj) {
                 inOrder(item);
@@ -1234,44 +1239,36 @@ YaripExtensionItem.prototype.traverse = function(fun)
     }
     inOrder(this);
 }
-YaripExtensionItem.prototype.clone = function()
+YaripExtensionItem.prototype.clone = function(id)
 {
-    return new this.constructor(this.value, this.priority, this.doElements, this.doContents, this.doScripts, this.doHeaders, this.doRedirects, this.doStreams, this.doLinks, this.created);
+    return new this.constructor(id ? id : this.id, this.priority, this.doElements, this.doContents, this.doScripts, this.doHeaders, this.doRedirects, this.doStreams, this.doLinks, this.created);
 }
-YaripExtensionItem.prototype.merge = function(o)
+YaripExtensionItem.prototype.merge = function(item)
 {
-    if (!o) return;
-    if (o.getPriority() > this.getPriority()) this.setPriority(o.getPriority());
-    this.setDoElements(o.getDoElements() || this.getDoElements());
-    this.setDoContents(o.getDoContents() || this.getDoContents());
-    this.setDoScripts(o.getDoScripts() || this.getDoScripts());
-    this.setDoHeaders(o.getDoHeaders() || this.getDoHeaders());
-    this.setDoRedirects(o.getDoRedirects() || this.getDoRedirects());
-    this.setDoStreams(o.getDoStreams() || this.getDoStreams());
-    this.setDoLinks(o.getDoLinks() || this.getDoLinks());
-    if (this.getCreated() == -1 || o.getCreated() < this.getCreated()) this.setCreated(o.getCreated());
+    if (!item) return;
+    if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    this.setDoElements(item.getDoElements() || this.getDoElements());
+    this.setDoContents(item.getDoContents() || this.getDoContents());
+    this.setDoScripts(item.getDoScripts() || this.getDoScripts());
+    this.setDoHeaders(item.getDoHeaders() || this.getDoHeaders());
+    this.setDoRedirects(item.getDoRedirects() || this.getDoRedirects());
+    this.setDoStreams(item.getDoStreams() || this.getDoStreams());
+    this.setDoLinks(item.getDoLinks() || this.getDoLinks());
+    if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripExtensionItem.prototype.getPage = function()
 {
-    return this.getPageById(this.value);
+    return this.getPageById(this.id);
 }
-YaripExtensionItem.prototype.compare = function(b)
+YaripExtensionItem.prototype.compare = function(item)
 {
-    if (this.getPriority() === b.getPriority()) {
-        var aPage = this.getPage();
-        var bPage = b.getPage();
-        return aPage.compare(bPage);
-    } else {
-        var aKey = this.getKey();
-        var bKey = b.getKey();
-        if (aKey < bKey) return -1;
-        if (aKey > bKey) return 1;
-        return 0;
-    }
+    if (this.getPriority() < item.getPriority()) return -1;
+    if (this.getPriority() > item.getPriority()) return 1;
+    return this.getPage().compare(item.getPage());
 }
 YaripExtensionItem.prototype.generateXml = function()
 {
-    if (!this.value) return "";
+    if (!this.id) return "";
     return "\t\t\t\t" +
         "<item" +
             " priority=\"" + this.priority + "\"" +
@@ -1283,11 +1280,11 @@ YaripExtensionItem.prototype.generateXml = function()
             " doStreams=\"" + this.doStreams + "\"" +
             " doLinks=\"" + this.doLinks + "\"" +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
-        ">" + this.value + "</item>\n";
+        ">" + this.id + "</item>\n";
 }
 YaripExtensionItem.prototype.loadFromObject = function(obj)
 {
-    this.setValue(obj.value);
+    this.setId(obj.value);
     this.setPriority(obj.priority);
     this.setDoElements(obj.doElements);
     this.setDoContents(obj.doContents);

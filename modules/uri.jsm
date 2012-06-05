@@ -26,6 +26,7 @@ const EXPORTED_SYMBOLS = [
         "DOMAIN_RE",
         "FIND_SLD_RE",
         "FIND_TLD_RE",
+        "SIMPLE",
         "TLD",
         "PORT",
         "URI1_SCHEME_INDEX",

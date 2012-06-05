@@ -179,16 +179,16 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
         var idPrefix = "yarip-page-script_" + pageName.replace(/\W/g, "-") + "_";
         var counter = 0;
 
-        for each (var o in list.obj)
+        for each (var item in list.obj)
         {
-            var s = o.getScript();
+            var s = item.getScript();
             if (!s) continue;
 
             var id = idPrefix + counter++;
             var script = doc.getElementById(id);
             if (script) continue;
 
-            var elements = yarip.getElementsByXPath(doc, o.getXPath());
+            var elements = yarip.getElementsByXPath(doc, item.getXPath());
             if (elements && elements.snapshotLength > 0) {
                 var element = elements.snapshotItem(0);
                 obj[id] = {
@@ -196,12 +196,12 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
                     element: element
                 };
                 if (increment && isSelf) {
-                    o.incrementFound();
+                    item.incrementFound();
                 }
                 found = true;
             } else {
                 if (increment && isSelf) {
-                    o.incrementNotFound();
+                    item.incrementNotFound();
                 }
             }
         }
@@ -221,9 +221,9 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
         var idPrefix = "yarip-element-script_" + pageName.replace(/\W/g, "-") + "_";
         var counter = 0;
 
-        for each (var o in list.obj)
+        for each (var item in list.obj)
         {
-            var s = o.getScript();
+            var s = item.getScript();
             if (!s) continue;
 
             var id = idPrefix + counter++;
@@ -232,16 +232,16 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
 
             // TODO How to evaluate the XPath only once!?
             if (increment && isSelf) {
-                var elements = yarip.getElementsByXPath(doc, o.getXPath());
+                var elements = yarip.getElementsByXPath(doc, item.getXPath());
                 if (elements && elements.snapshotLength > 0) {
-                    o.incrementFound();
+                    item.incrementFound();
                 } else {
-                    o.incrementNotFound();
+                    item.incrementNotFound();
                     continue;
                 }
             }
 
-            var x = o.getXPath().replace(/(["])/g, "\\$1"); // TODO Anything else!?
+            var x = item.getXPath().replace(/(["])/g, "\\$1"); // TODO Anything else!?
             obj[id] = {
                 script: "yarip.run(" + s + ",\"" + x + "\");\n",
                 element: null // /html/body

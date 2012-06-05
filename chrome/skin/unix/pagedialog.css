@@ -48,3 +48,6 @@ treechildren::-moz-tree-checkbox(checked) {
 /*  list-style-image: url("moz-icon://stock/stock_form-checkbox?size=menu");*/
 }
 
+treechildren.clickable {
+  -moz-binding: url("chrome://yarip/content/binding/mouse.xbl#click");
+}

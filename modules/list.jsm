@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 const EXPORTED_SYMBOLS = [
         "YaripList",
-//        "YaripElementList",
         "YaripElementWhitelist",
         "YaripElementBlacklist",
         "YaripElementAttributeList",
@@ -50,6 +49,7 @@ function YaripList(name, exclusive)
 {
     this.name = "";
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.exclusive = false;
     this.sorted = true;
@@ -63,13 +63,17 @@ YaripList.prototype.setName = function(value)
 {
     if (value) this.name = "" + value;
 }
+YaripList.prototype.getName = function()
+{
+    return this.name;
+}
 YaripList.prototype.setExclusive = function(value)
 {
     this.exclusive = "" + value == "true";
 }
 YaripList.prototype.getExclusive = function()
 {
-//        return this.listLength > 0 && this.exclusive;
+//    return this.listLength > 0 && this.exclusive;
     return !this.isEmpty() && this.exclusive;
 }
 YaripList.prototype.isEmpty = function()
@@ -80,39 +84,62 @@ YaripList.prototype.isEmpty = function()
 YaripList.prototype.__defineGetter__("length", function() {
         return this.listLength;
     });
-YaripList.prototype.add = function(o, purge)
+YaripList.prototype.getByKey = function(key)
 {
-    if (!o) return;
-    var oldObj = this.obj[o.getKey()];
-    if (oldObj) {
-        oldObj.merge(o);
-        if (purge) oldObj.purge();
+    return key in this.obj ? this.obj[key] : null;
+}
+YaripList.prototype.getById = function(id)
+{
+    return id in this.objId ? this.objId[id] : null;
+}
+YaripList.prototype.add = function(item, purge)
+{
+    if (!item) return false;
+
+    var existItem = this.objId[item.getId()];
+    if (existItem) {
+        existItem.merge(item);
+        if (purge) existItem.purge();
     } else {
-        if (purge) o.purge();
-        this.obj[o.getKey()] = o;
+        if (purge) item.purge();
+        this.obj[item.getKey()] = item;
+        this.objId[item.getId()] = item;
         this.sorted = false;
         this.listLength++;
     }
+
+    return true;
 }
-YaripList.prototype.remove = function(o)
+YaripList.prototype.remove = function(item)
 {
-    if (!o) return;
-    this.removeByKey(o.getKey());
+    if (!item) return;
+
+    this.removeById(item.getId());
 }
-YaripList.prototype.removeByKey = function(value)
+YaripList.prototype.removeById = function(id)
 {
-    if (!value || !value in this.obj) return;
-    delete this.obj[value];
+    if (!id || !(id in this.objId)) return;
+
+    var item = this.objId[id];
+    delete this.obj[item.getKey()];
+    delete this.objId[id];
     this.listLength--;
 }
-YaripList.prototype.contains = function(o)
+YaripList.prototype.removeByKey = function(key)
 {
-    return o.getKey() in this.obj;
+    if (!key || !(key in this.obj)) return;
+
+    this.remove(this.obj[key]);
+}
+YaripList.prototype.contains = function(item)
+{
+    return item.getKey() in this.obj;
+//    return item.getId() in this.objId;
 }
 YaripList.prototype.reset = function()
 {
-//    for each (var o in this.obj) if (o) this.removeByKey(o.getKey());
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.sorted = true;
 }
@@ -120,7 +147,7 @@ YaripList.prototype.sort = function(purge)
 {
     if (this.sorted) return;
     var a = [];
-    for each (var o in this.obj) a.push(o);
+    for each (var item in this.obj) a.push(item);
     a.sort(function(a, b) { return a.compare(b); });
     this.reset();
     for (var i = 0; i < a.length; i++) this.add(a[i], purge);
@@ -128,28 +155,23 @@ YaripList.prototype.sort = function(purge)
 }
 YaripList.prototype.purge = function()
 {
-    for each (var o in this.obj) if (o) o.purge();
+    for each (var item in this.obj) if (item) item.purge();
 }
 YaripList.prototype.clone = function(purge)
 {
     var tmp = new this.constructor(this.name, this.exclusive);
-    for each (var o in this.obj) if (o) tmp.add(o.clone(purge));
+    for each (var item in this.obj) if (item) tmp.add(item.clone(purge));
     return tmp;
 }
 YaripList.prototype.merge = function(list)
 {
     this.setExclusive(this.getExclusive() || list.getExclusive());
-    for each (var o in list.obj) this.add(o.clone());
-}
-YaripList.prototype.subtract = function(list)
-{
-    this.setExclusive(this.getExclusive() && !list.getExclusive());
-    for (var k in this.obj) if (k in list.obj) this.removeByKey(k);
+    for each (var item in list.obj) this.add(item.clone());
 }
 YaripList.prototype.generateXml = function()
 {
     var tmp = "";
-    for each (var o in this.obj) if (o) tmp += o.generateXml();
+    for each (var item in this.obj) if (item) tmp += item.generateXml();
     if (tmp != "") {
         return "\t\t\t" +
             "<" + this.name + (this.exclusive ? " exclusive=\"" + this.exclusive + "\"" : "") + ">\n" +
@@ -162,31 +184,19 @@ YaripList.prototype.generateXml = function()
 YaripList.prototype.generateCSS = function()
 {
     var tmp = "";
-    for each (var o in this.obj) if (o) tmp += o.generateCSS();
+    for each (var item in this.obj) if (item) tmp += item.generateCSS();
     if (tmp != "") {
-//        return tmp.replace(/,\n$/, "") + " {\n\t\tdisplay: none !important;\n\t}\n\n";
         return tmp.replace(/,\n$/, "") + " {\n\tdisplay: none !important;\n}";
     } else {
         return "";
     }
 }
 
-//function YaripElementList(name)
-//{
-//    this.name = "";
-//    this.obj = {};
-//    this.listLength = 0;
-//    this.sorted = true;
-
-//    this.setName(name);
-//}
-//YaripElementList.prototype = new YaripList;
-//YaripElementList.prototype.constructor = YaripElementList;
-
 function YaripElementWhitelist(name, exclusive)
 {
     this.name = "whitelist";
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.exclusive = false;
     this.sorted = true;
@@ -194,13 +204,12 @@ function YaripElementWhitelist(name, exclusive)
     this.setName(name);
     this.setExclusive(exclusive);
 }
-//YaripElementWhitelist.prototype = new YaripElementList;
 YaripElementWhitelist.prototype = new YaripList;
 YaripElementWhitelist.prototype.constructor = YaripElementWhitelist;
 YaripElementWhitelist.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
@@ -208,28 +217,28 @@ YaripElementWhitelist.prototype.set = function(row, col, value)
         case 0:
             if (!this.checkXPath(value)) return false;
 
-            var c = o.clone();
+            var c = item.clone();
             c.setXPath(value);
             if (this.contains(c)) return false;
 
-            FH.removeEntry("xpath", o.getXPath());
-            this.remove(o);
+            FH.removeEntry("xpath", item.getXPath());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("xpath", value);
             return c.getKey();
         case 1:
-            var c = o.clone();
+            var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
-                this.remove(o);
+                this.remove(item);
                 this.add(c);
                 return c.getKey();
             } else {
                 return false;
             }
         case 2:
-            o.setForce(value);
+            item.setForce(value);
             return false;
         default:
             return false;
@@ -241,17 +250,17 @@ YaripElementWhitelist.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
         switch (col) {
-        case -1: return o.getKey();
-        case 0: return o.getXPath();
-        case 1: return o.getPriority();
-        case 2: return o.getForce();
+        case LIST_INDEX_KEY: return item.getKey();
+        case 0: return item.getXPath();
+        case 1: return item.getPriority();
+        case 2: return item.getForce();
         case 3:
-            var ms = o.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -259,16 +268,16 @@ YaripElementWhitelist.prototype.get = function(row, col)
                 return "";
             }
         case 4:
-            var ms = o.getLastFound();
+            var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
             } else {
                 return "";
             }
-        case 5: return o.getFound();
-        case 6: return o.getNotFound();
-        case 7: return o.getIgnored();
+        case 5: return item.getFound();
+        case 6: return item.getNotFound();
+        case 7: return item.getIgnored();
         default: return "";
         }
     }
@@ -289,18 +298,18 @@ function YaripElementBlacklist(name)
 {
     this.name = "blacklist";
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.sorted = true;
 
     this.setName(name);
 }
-//YaripElementBlacklist.prototype = new YaripElementList;
 YaripElementBlacklist.prototype = new YaripList;
 YaripElementBlacklist.prototype.constructor = YaripElementBlacklist;
 YaripElementBlacklist.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
@@ -308,31 +317,31 @@ YaripElementBlacklist.prototype.set = function(row, col, value)
         case 0:
             if (!this.checkXPath(value)) return false;
 
-            var c = o.clone();
+            var c = item.clone();
             c.setXPath(value);
             if (this.contains(c)) return false;
 
-            FH.removeEntry("xpath", o.getXPath());
-            this.remove(o);
+            FH.removeEntry("xpath", item.getXPath());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("xpath", value);
             return c.getKey();
         case 1:
-            var c = o.clone();
+            var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
-                this.remove(o);
+                this.remove(item);
                 this.add(c);
                 return c.getKey();
             } else {
                 return false;
             }
         case 2:
-            o.setForce(value);
+            item.setForce(value);
             return false;
         case 3:
-            o.setPlaceholder(value);
+            item.setPlaceholder(value);
             return false;
         default:
             return false;
@@ -344,18 +353,18 @@ YaripElementBlacklist.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
         switch (col) {
-        case -1: return o.getKey();
-        case 0: return o.getXPath();
-        case 1: return o.getPriority();
-        case 2: return o.getForce();
-        case 3: return o.getPlaceholder();
+        case LIST_INDEX_KEY: return item.getKey();
+        case 0: return item.getXPath();
+        case 1: return item.getPriority();
+        case 2: return item.getForce();
+        case 3: return item.getPlaceholder();
         case 4:
-            var ms = o.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -363,16 +372,16 @@ YaripElementBlacklist.prototype.get = function(row, col)
                 return "";
             }
         case 5:
-            var ms = o.getLastFound();
+            var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
             } else {
                 return "";
             }
-        case 6: return o.getFound();
-        case 7: return o.getNotFound();
-        case 8: return o.getIgnored();
+        case 6: return item.getFound();
+        case 7: return item.getNotFound();
+        case 8: return item.getIgnored();
         default: return "";
         }
     }
@@ -392,6 +401,7 @@ function YaripElementAttributeList(name)
 {
     this.name = "attribute";
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.sorted = true;
 
@@ -402,7 +412,7 @@ YaripElementAttributeList.prototype.constructor = YaripElementAttributeList;
 YaripElementAttributeList.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
@@ -410,38 +420,38 @@ YaripElementAttributeList.prototype.set = function(row, col, value)
         case 0:
             if (!this.checkXPath(value)) return false;
 
-            var c = o.clone();
+            var c = item.clone();
             c.setXPath(value);
             if (this.contains(c)) return false;
 
-            FH.removeEntry("xpath", o.getXPath());
-            this.remove(o);
+            FH.removeEntry("xpath", item.getXPath());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("xpath", value);
             return c.getKey();
         case 1:
-            var c = o.clone();
+            var c = item.clone();
             c.setName(value);
             if (this.contains(c)) return false;
 
-//            FH.removeEntry("attribute_name", o.getName());
-            this.remove(o);
+//            FH.removeEntry("attribute_name", item.getName());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("attribute_name", value);
             return c.getKey();
         case 2:
-//            FH.removeEntry("attribute_value", o.getValue());
+//            FH.removeEntry("attribute_value", item.getValue());
 
-            o.setValue(value);
+            item.setValue(value);
             FH.addEntry("attribute_value", value);
             return false;
         case 3:
-            var c = o.clone();
+            var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
-                this.remove(o);
+                this.remove(item);
                 this.add(c);
                 return c.getKey();
             } else {
@@ -457,18 +467,18 @@ YaripElementAttributeList.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
         switch (col) {
-        case -1: return o.getKey();
-        case 0: return o.getXPath();
-        case 1: return o.getName();
-        case 2: return o.getValue();
-        case 3: return o.getPriority();
+        case LIST_INDEX_KEY: return item.getKey();
+        case 0: return item.getXPath();
+        case 1: return item.getName();
+        case 2: return item.getValue();
+        case 3: return item.getPriority();
         case 4:
-            var ms = o.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -476,15 +486,15 @@ YaripElementAttributeList.prototype.get = function(row, col)
                 return "";
             }
         case 5:
-            var ms = o.getLastFound();
+            var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
             } else {
                 return "";
             }
-        case 6: return o.getFound();
-        case 7: return o.getNotFound();
+        case 6: return item.getFound();
+        case 7: return item.getNotFound();
         default: return "";
         }
     }
@@ -504,18 +514,18 @@ function YaripElementScriptList(name)
 {
     this.name = "script";
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.sorted = true;
 
     this.setName(name);
 }
-//YaripElementScriptList.prototype = new YaripElementList;
 YaripElementScriptList.prototype = new YaripList;
 YaripElementScriptList.prototype.constructor = YaripElementScriptList;
 YaripElementScriptList.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
@@ -523,28 +533,28 @@ YaripElementScriptList.prototype.set = function(row, col, value)
         case 0:
             if (!this.checkXPath(value)) return false;
 
-            var c = o.clone();
+            var c = item.clone();
             c.setXPath(value);
             if (this.contains(c)) return false;
 
-            FH.removeEntry("xpath", o.getXPath());
-            this.remove(o);
+            FH.removeEntry("xpath", item.getXPath());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("xpath", value);
             return c.getKey();
         case 1:
-            var c = o.clone();
+            var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
-                this.remove(o);
+                this.remove(item);
                 this.add(c);
                 return c.getKey();
             } else {
                 return false;
             }
         case 99:
-            o.setScript(value);
+            item.setScript(value);
             return false;
         default:
             return false;
@@ -556,16 +566,16 @@ YaripElementScriptList.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
         switch (col) {
-        case -1: return o.getKey();
-        case 0: return o.getXPath();
-        case 1: return o.getPriority();
+        case LIST_INDEX_KEY: return item.getKey();
+        case 0: return item.getXPath();
+        case 1: return item.getPriority();
         case 2:
-            var ms = o.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -573,16 +583,16 @@ YaripElementScriptList.prototype.get = function(row, col)
                 return "";
             }
         case 3:
-            var ms = o.getLastFound();
+            var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
             } else {
                 return "";
             }
-        case 4: return o.getFound();
-        case 5: return o.getNotFound();
-        case 99: return o.getScript();
+        case 4: return item.getFound();
+        case 5: return item.getNotFound();
+        case 99: return item.getScript();
         default: return "";
         }
     }
@@ -602,6 +612,7 @@ function YaripContentWhitelist(name, exclusive)
 {
     this.name = "whitelist";
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.exclusive = false;
     this.sorted = true;
@@ -614,7 +625,7 @@ YaripContentWhitelist.prototype.constructor = YaripContentWhitelist;
 YaripContentWhitelist.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
@@ -622,28 +633,28 @@ YaripContentWhitelist.prototype.set = function(row, col, value)
         case 0:
             if (!this.checkRegExp(value)) return false;
 
-            var c = o.clone();
+            var c = item.clone();
             c.setRegExp(value);
             if (this.contains(c)) return false;
 
-            FH.removeEntry("regexp", o.getRegExp());
-            this.remove(o);
+            FH.removeEntry("regexp", item.getRegExp());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("regexp", value);
             return c.getKey();
         case 1:
-            var c = o.clone();
+            var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
-                this.remove(o);
+                this.remove(item);
                 this.add(c);
                 return c.getKey();
             } else {
                 return false;
             }
         case 2:
-            o.setForce(value);
+            item.setForce(value);
             return false;
         default:
             return false;
@@ -655,17 +666,17 @@ YaripContentWhitelist.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
         switch (col) {
-        case -1: return o.getKey();
-        case 0: return o.getRegExp();
-        case 1: return o.getPriority();
-        case 2: return o.getForce();
+        case LIST_INDEX_KEY: return item.getKey();
+        case 0: return item.getRegExp();
+        case 1: return item.getPriority();
+        case 2: return item.getForce();
         case 3:
-            var ms = o.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -673,7 +684,7 @@ YaripContentWhitelist.prototype.get = function(row, col)
                 return "";
             }
         case 4:
-            var ms = o.getLastFound();
+            var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -700,6 +711,7 @@ function YaripContentBlacklist(name)
 {
     this.name = "blacklist";
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.sorted = true;
 
@@ -710,7 +722,7 @@ YaripContentBlacklist.prototype.constructor = YaripContentBlacklist;
 YaripContentBlacklist.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
@@ -718,28 +730,28 @@ YaripContentBlacklist.prototype.set = function(row, col, value)
         case 0:
             if (!this.checkRegExp(value)) return false;
 
-            var c = o.clone();
+            var c = item.clone();
             c.setRegExp(value);
             if (this.contains(c)) return false;
 
-            FH.removeEntry("regexp", o.getRegExp());
-            this.remove(o);
+            FH.removeEntry("regexp", item.getRegExp());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("regexp", value);
             return c.getKey();
         case 1:
-            var c = o.clone();
+            var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
-                this.remove(o);
+                this.remove(item);
                 this.add(c);
                 return c.getKey();
             } else {
                 return false;
             }
         case 2:
-            o.setForce(value);
+            item.setForce(value);
             return false;
         default:
             return false;
@@ -751,17 +763,17 @@ YaripContentBlacklist.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
         switch (col) {
-        case -1: return o.getKey();
-        case 0: return o.getRegExp();
-        case 1: return o.getPriority();
-        case 2: return o.getForce();
+        case LIST_INDEX_KEY: return item.getKey();
+        case 0: return item.getRegExp();
+        case 1: return item.getPriority();
+        case 2: return item.getForce();
         case 3:
-            var ms = o.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -769,14 +781,14 @@ YaripContentBlacklist.prototype.get = function(row, col)
                 return "";
             }
         case 4:
-            var ms = o.getLastFound();
+            var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
             } else {
                 return "";
             }
-        case 5: return o.getIgnored();
+        case 5: return item.getIgnored();
         default: return "";
         }
     }
@@ -796,6 +808,7 @@ function YaripStreamReplaceList(name)
 {
     this.name = "replace";
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.sorted = true;
 
@@ -806,7 +819,7 @@ YaripStreamReplaceList.prototype.constructor = YaripStreamReplaceList;
 YaripStreamReplaceList.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
@@ -814,28 +827,28 @@ YaripStreamReplaceList.prototype.set = function(row, col, value)
         case 0:
             if (!this.checkRegExp(value)) return false;
 
-            var c = o.clone();
+            var c = item.clone();
             c.setRegExp(value);
             if (this.contains(c)) return false;
 
-            FH.removeEntry("stream-regexp", o.getRegExp());
-            this.remove(o);
+            FH.removeEntry("stream-regexp", item.getRegExp());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("stream-regexp", value);
             return c.getKey();
         case 1:
-            var c = o.clone();
+            var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
-                this.remove(o);
+                this.remove(item);
                 this.add(c);
                 return c.getKey();
             } else {
                 return false;
             }
         case 99:
-            o.setScript(value);
+            item.setScript(value);
             return false;
         default:
             return false;
@@ -847,16 +860,16 @@ YaripStreamReplaceList.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
         switch (col) {
-        case -1: return o.getKey();
-        case 0: return o.getRegExp();
-        case 1: return o.getPriority();
+        case LIST_INDEX_KEY: return item.getKey();
+        case 0: return item.getRegExp();
+        case 1: return item.getPriority();
         case 2:
-            var ms = o.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -864,14 +877,14 @@ YaripStreamReplaceList.prototype.get = function(row, col)
                 return "";
             }
         case 3:
-            var ms = o.getLastFound();
+            var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
             } else {
                 return "";
             }
-        case 99: return o.getScript();
+        case 99: return item.getScript();
         default: return "";
         }
     }
@@ -891,6 +904,7 @@ function YaripPageStyleList(name)
 {
     this.name = "style";
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.sorted = true;
 
@@ -901,7 +915,7 @@ YaripPageStyleList.prototype.constructor = YaripPageStyleList;
 YaripPageStyleList.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
@@ -909,28 +923,28 @@ YaripPageStyleList.prototype.set = function(row, col, value)
         case 0:
             if (!this.checkXPath(value)) return false;
 
-            var c = o.clone();
+            var c = item.clone();
             c.setXPath(value);
             if (this.contains(c)) return false;
 
-            FH.removeEntry("xpath", o.getXPath());
-            this.remove(o);
+            FH.removeEntry("xpath", item.getXPath());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("xpath", value);
             return c.getKey();
         case 1:
-            var c = o.clone();
+            var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
-                this.remove(o);
+                this.remove(item);
                 this.add(c);
                 return c.getKey();
             } else {
                 return false;
             }
         case 99:
-            o.setStyle(value);
+            item.setStyle(value);
             return false;
         default:
             return false;
@@ -942,16 +956,16 @@ YaripPageStyleList.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
         switch (col) {
-        case -1: return o.getKey();
-        case 0: return o.getXPath();
-        case 1: return o.getPriority();
+        case LIST_INDEX_KEY: return item.getKey();
+        case 0: return item.getXPath();
+        case 1: return item.getPriority();
         case 2:
-            var ms = o.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -959,31 +973,21 @@ YaripPageStyleList.prototype.get = function(row, col)
                 return "";
             }
         case 3:
-            var ms = o.getLastFound();
+            var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
             } else {
                 return "";
             }
-        case 4: return o.getFound();
-        case 5: return o.getNotFound();
-        case 99: return o.getStyle();
+        case 4: return item.getFound();
+        case 5: return item.getNotFound();
+        case 99: return item.getStyle();
         default: return "";
         }
     }
     return "";
 }
-//YaripPageStyleList.prototype.generateCSS = function()
-//{
-//    var tmp = "";
-//    for each (var o in this.obj) if (o) tmp += o.generateCSS();
-//    if (tmp != "") {
-//        return tmp + "\n";
-//    } else {
-//        return "";
-//    }
-//}
 YaripPageStyleList.prototype.loadFromObject = function(obj)
 {
     this.setName(obj.name);
@@ -998,6 +1002,7 @@ function YaripPageScriptList(name)
 {
     this.name = "script";
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.sorted = true;
 
@@ -1008,7 +1013,7 @@ YaripPageScriptList.prototype.constructor = YaripPageScriptList;
 YaripPageScriptList.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
@@ -1016,28 +1021,28 @@ YaripPageScriptList.prototype.set = function(row, col, value)
         case 0:
             if (!this.checkXPath(value)) return false;
 
-            var c = o.clone();
+            var c = item.clone();
             c.setXPath(value);
             if (this.contains(c)) return false;
 
-            FH.removeEntry("xpath", o.getXPath());
-            this.remove(o);
+            FH.removeEntry("xpath", item.getXPath());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("xpath", value);
             return c.getKey();
         case 1:
-            var c = o.clone();
+            var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
-                this.remove(o);
+                this.remove(item);
                 this.add(c);
                 return c.getKey();
             } else {
                 return false;
             }
         case 99:
-            o.setScript(value);
+            item.setScript(value);
             return false;
         default:
             return false;
@@ -1049,16 +1054,16 @@ YaripPageScriptList.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
         switch (col) {
-        case -1: return o.getKey();
-        case 0: return o.getXPath();
-        case 1: return o.getPriority();
+        case LIST_INDEX_KEY: return item.getKey();
+        case 0: return item.getXPath();
+        case 1: return item.getPriority();
         case 2:
-            var ms = o.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -1066,16 +1071,16 @@ YaripPageScriptList.prototype.get = function(row, col)
                 return "";
             }
         case 3:
-            var ms = o.getLastFound();
+            var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
             } else {
                 return "";
             }
-        case 4: return o.getFound();
-        case 5: return o.getNotFound();
-        case 99: return o.getScript();
+        case 4: return item.getFound();
+        case 5: return item.getNotFound();
+        case 99: return item.getScript();
         default: return "";
         }
     }
@@ -1095,6 +1100,7 @@ function YaripHeaderList(name)
 {
     this.name = "header";
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.sorted = true;
 
@@ -1105,7 +1111,7 @@ YaripHeaderList.prototype.constructor = YaripHeaderList;
 YaripHeaderList.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
@@ -1113,42 +1119,42 @@ YaripHeaderList.prototype.set = function(row, col, value)
         case 0:
             if (!this.checkRegExp(value)) return false;
 
-            var c = o.clone();
+            var c = item.clone();
             c.setRegExp(value);
             if (this.contains(c)) return false;
 
-            FH.removeEntry("regexp", o.getRegExp());
-            this.remove(o);
+            FH.removeEntry("regexp", item.getRegExp());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("regexp", value);
             return c.getKey();
         case 1:
-            var c = o.clone();
+            var c = item.clone();
             c.setHeaderName(value);
             if (this.contains(c)) return false;
 
-//            FH.removeEntry("header_name", o.getHeaderName());
-            this.remove(o);
+//            FH.removeEntry("header_name", item.getHeaderName());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("header_name", value);
             return c.getKey();
         case 2:
-            var c = o.clone();
+            var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
-                this.remove(o);
+                this.remove(item);
                 this.add(c);
                 return c.getKey();
             } else {
                 return false;
             }
         case 3:
-            o.setMerge(value);
+            item.setMerge(value);
             return false;
         case 99:
-            o.setScript(value);
+            item.setScript(value);
             return false;
         default:
             return false;
@@ -1160,18 +1166,18 @@ YaripHeaderList.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
         switch (col) {
-        case -1: return o.getKey();
-        case 0: return o.getRegExp();
-        case 1: return o.getHeaderName();
-        case 2: return o.getPriority();
-        case 3: return o.getMerge();
+        case LIST_INDEX_KEY: return item.getKey();
+        case 0: return item.getRegExp();
+        case 1: return item.getHeaderName();
+        case 2: return item.getPriority();
+        case 3: return item.getMerge();
         case 4:
-            var ms = o.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -1179,14 +1185,14 @@ YaripHeaderList.prototype.get = function(row, col)
                 return "";
             }
         case 5:
-            var ms = o.getLastFound();
+            var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
             } else {
                 return "";
             }
-        case 99: return o.getScript();
+        case 99: return item.getScript();
         default: return "";
         }
     }
@@ -1195,7 +1201,7 @@ YaripHeaderList.prototype.get = function(row, col)
 YaripHeaderList.prototype.generateXml = function()
 {
     var tmp = "";
-    for each (var o in this.obj) if (o) tmp += o.generateXml();
+    for each (var item in this.obj) if (item) tmp += item.generateXml();
     if (tmp != "") {
         return "\t\t\t\t" +
             "<" + this.name + ">\n" +
@@ -1219,6 +1225,7 @@ function YaripRedirectList(name)
 {
     this.name = "redirect";
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.sorted = true;
 
@@ -1229,7 +1236,7 @@ YaripRedirectList.prototype.constructor = YaripRedirectList;
 YaripRedirectList.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
@@ -1237,27 +1244,27 @@ YaripRedirectList.prototype.set = function(row, col, value)
         case 0:
             if (!this.checkRegExp(value)) return false;
 
-            var c = o.clone();
+            var c = item.clone();
             c.setRegExp(value);
             if (this.contains(c)) return false;
 
-            FH.removeEntry("regexp", o.getRegExp());
-            this.remove(o);
+            FH.removeEntry("regexp", item.getRegExp());
+            this.remove(item);
 
             this.add(c);
             FH.addEntry("regexp", value);
             return c.getKey();
         case 1:
-            FH.removeEntry("newsubstr", o.getRegExp());
+            FH.removeEntry("newsubstr", item.getRegExp());
 
-            o.setNewSubStr(value);
+            item.setNewSubStr(value);
             FH.addEntry("newsubstr", value);
             return false;
         case 2:
-            var c = o.clone();
+            var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
-                this.remove(o);
+                this.remove(item);
                 this.add(c);
                 return c.getKey();
             } else {
@@ -1273,17 +1280,17 @@ YaripRedirectList.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
         switch (col) {
-        case -1: return o.getKey();
-        case 0: return o.getRegExp();
-        case 1: return o.getNewSubStr();
-        case 2: return o.getPriority();
+        case LIST_INDEX_KEY: return item.getKey();
+        case 0: return item.getRegExp();
+        case 1: return item.getNewSubStr();
+        case 2: return item.getPriority();
         case 3:
-            var ms = o.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -1291,7 +1298,7 @@ YaripRedirectList.prototype.get = function(row, col)
                 return "";
             }
         case 4:
-            var ms = o.getLastFound();
+            var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -1318,6 +1325,7 @@ function YaripPageExtensionList(name)
     this.id = null;
     this.name = "extension";
     this.obj = {};
+    this.objId = {};
 //    this.listLength = 0;
     this.sorted = true;
 
@@ -1328,7 +1336,7 @@ YaripPageExtensionList.prototype.constructor = YaripPageExtensionList;
 YaripPageExtensionList.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
@@ -1336,35 +1344,35 @@ YaripPageExtensionList.prototype.set = function(row, col, value)
 
         switch (col) {
         case 1:
-            var c = o.clone();
+            var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
-                this.remove(o);
+                this.remove(item);
                 this.add(c);
-                return c.getKey();
+                return [item, c];
             } else {
                 return false;
             }
         case 2:
-            o.setDoElements(value);
+            item.setDoElements(value);
             break;
         case 3:
-            o.setDoContents(value);
+            item.setDoContents(value);
             break;
         case 4:
-            o.setDoScripts(value);
+            item.setDoScripts(value);
             break;
         case 5:
-            o.setDoHeaders(value);
+            item.setDoHeaders(value);
             break;
         case 6:
-            o.setDoRedirects(value);
+            item.setDoRedirects(value);
             break;
         case 7:
-            o.setDoStreams(value);
+            item.setDoStreams(value);
             break;
         case 8:
-            o.setDoLinks(value);
+            item.setDoLinks(value);
             break;
         default:
             break;
@@ -1378,23 +1386,23 @@ YaripPageExtensionList.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
         switch (col) {
-        case -1: return o.getKey();
-        case 0: return o.getPage().getName();
-        case 1: return o.getPriority();
-        case 2: return o.getDoElements();
-        case 3: return o.getDoContents();
-        case 4: return o.getDoScripts();
-        case 5: return o.getDoHeaders();
-        case 6: return o.getDoRedirects();
-        case 7: return o.getDoStreams();
-        case 8: return o.getDoLinks();
+        case LIST_INDEX_KEY: return item.getKey();
+        case 0: return item.getPage().getName();
+        case 1: return item.getPriority();
+        case 2: return item.getDoElements();
+        case 3: return item.getDoContents();
+        case 4: return item.getDoScripts();
+        case 5: return item.getDoHeaders();
+        case 6: return item.getDoRedirects();
+        case 7: return item.getDoStreams();
+        case 8: return item.getDoLinks();
         case 9:
-            var ms = o.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -1412,50 +1420,40 @@ YaripPageExtensionList.prototype.__defineGetter__("length", function() {
         for (var k in this.obj) { l++; }
         return l;
     });
-YaripPageExtensionList.prototype.add = function(o, purge, tmp)
+YaripPageExtensionList.prototype.add = function(item, purge)
 {
-    if (!o) return;
+    if (!item) return false;
 
-    var page = o.getPage();
-    if (!page) return;
-
-    var oldObj = this.obj[o.getKey()];
-    if (oldObj) {
-        oldObj.merge(o);
-        if (purge) oldObj.purge();
+    var existItem = this.objId[item.getId()];
+    if (existItem) {
+        existItem.merge(item);
+        if (purge) existItem.purge();
     } else {
-        if (purge) o.purge();
-        this.obj[o.getKey()] = o;
+        if (purge) item.purge();
+        this.obj[item.getKey()] = item;
+        this.objId[item.getId()] = item;
         this.sorted = false;
 //        this.listLength++;
     }
 
-    if (!tmp) page.pageExtendedByList.add(new YaripExtensionItem(this.id, o.getPriority()));
     this.resetKnown();
+    return true;
 }
 YaripPageExtensionList.prototype.setId = function(id)
 {
     this.id = id;
 }
-YaripPageExtensionList.prototype.removeByKey = function(value)
+YaripPageExtensionList.prototype.removeByKey = function(key)
 {
-    if (!value || !value in this.obj) return;
-    var o = this.obj[value];
-    delete this.obj[value];
-    if (o) {
-        var page = o.getPage();
-//        this.listLength--;
-//        var page = this.getPageById(value);
-//        if (page) page.pageExtendedByList.removeByKey(this.id);
-        if (page) {
-            page.pageExtendedByList.remove(new YaripExtensionItem(this.id, o.getPriority()));
-        }
-        this.resetKnown();
-    }
+    if (!key || !(key in this.obj)) return;
+
+    this.remove(this.obj[key]);
+    this.resetKnown();
 }
 YaripPageExtensionList.prototype.reset = function()
 {
     this.obj = {};
+    this.objId = {};
     this.listLength = 0;
     this.sorted = true;
     this.resetKnown();
@@ -1464,19 +1462,13 @@ YaripPageExtensionList.prototype.clone = function(purge)
 {
     var tmp = new this.constructor(this.name);
     tmp.id = this.id;
-    for each (var o in this.obj) if (o) tmp.add(o.clone(purge));
+    for each (var item in this.obj) if (item) tmp.add(item.clone(purge));
     return tmp;
 }
 YaripPageExtensionList.prototype.merge = function(list)
 {
-    for each (var o in list.obj) {
-        var page = o.getPage();
-        if (page) {
-            if (page.getId() != this.id) { // not same page
-                page.pageExtendedByList.add(new YaripExtensionItem(this.id, o.getPriority()));
-                this.add(o.clone());
-            }
-        }
+    for each (var item in list.obj) {
+        if (item.getId() != this.id) this.add(item.clone());
     }
 }
 YaripPageExtensionList.prototype.loadFromObject = function(obj)
@@ -1494,6 +1486,7 @@ function YaripPageExtendedByList()
 {
     this.id = null;
     this.obj = {};
+    this.objId = {};
 //    this.listLength = 0;
     this.sorted = true;
 }
@@ -1502,47 +1495,46 @@ YaripPageExtendedByList.prototype.constructor = YaripPageExtendedByList;
 YaripPageExtendedByList.prototype.set = function(row, col, value)
 {
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
-        var page = o.getPage();
-//        var o2 = page.pageExtensionList.obj[this.id];
-        var o2 = page.pageExtensionList.obj[new YaripExtensionItem(this.id, o.getPriority()).getKey()];
+        var page = item.getPage();
+        var item2 = page.pageExtensionList.obj[new YaripExtensionItem(this.id, item.getPriority()).getKey()];
 
         this.resetKnown();
 
         switch (col) {
-        case 1:
-            var c = o.clone();
-            c.setPriority(value);
-            if (!this.contains(c)) {
-                this.remove(o);
-                this.add(c);
-                return c.getKey();
-            } else {
-                return false;
-            }
+//        case 1:
+//            var c = item.clone();
+//            c.setPriority(value);
+//            if (!this.contains(c)) {
+//                this.remove(item);
+//                this.add(c);
+//                return c.getKey();
+//            } else {
+//                return false;
+//            }
         case 2:
-            o2.setDoElements(value);
+            item2.setDoElements(value);
             break;
         case 3:
-            o2.setDoContents(value);
+            item2.setDoContents(value);
             break;
         case 4:
-            o2.setDoScripts(value);
+            item2.setDoScripts(value);
             break;
         case 5:
-            o2.setDoHeaders(value);
+            item2.setDoHeaders(value);
             break;
         case 6:
-            o2.setDoRedirects(value);
+            item2.setDoRedirects(value);
             break;
         case 7:
-            o2.setDoStreams(value);
+            item2.setDoStreams(value);
             break;
         case 8:
-            o2.setDoLinks(value);
+            item2.setDoLinks(value);
             break;
         default:
             break;
@@ -1556,29 +1548,27 @@ YaripPageExtendedByList.prototype.get = function(row, col)
 {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var o in this.obj)
+    for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
-        var page = o.getPage();
-//        var o2 = page.pageExtensionList.obj[this.id];
-        // FIXME When changing priority o2 is undefined!?
-        var o2 = page.pageExtensionList.obj[new YaripExtensionItem(this.id, o.getPriority()).getKey()];
-        if (!o2) return;
+        var page = item.getPage();
+        var item2 = page.pageExtensionList.obj[new YaripExtensionItem(this.id, item.getPriority()).getKey()];
+//        if (!item2) return;
 
         switch (col) {
-        case -1: return o.getKey();
+        case LIST_INDEX_KEY: return item.getKey();
         case 0: return page.getName();
-        case 1: return o.getPriority();
-        case 2: return o2.getDoElements();
-        case 3: return o2.getDoContents();
-        case 4: return o2.getDoScripts();
-        case 5: return o2.getDoHeaders();
-        case 6: return o2.getDoRedirects();
-        case 7: return o2.getDoStreams();
-        case 8: return o2.getDoLinks();
+        case 1: return item.getPriority();
+        case 2: return item2.getDoElements();
+        case 3: return item2.getDoContents();
+        case 4: return item2.getDoScripts();
+        case 5: return item2.getDoHeaders();
+        case 6: return item2.getDoRedirects();
+        case 7: return item2.getDoStreams();
+        case 8: return item2.getDoLinks();
         case 9:
-            var ms = o2.getCreated();
+            var ms = item2.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -1596,33 +1586,46 @@ YaripPageExtendedByList.prototype.__defineGetter__("length", function() {
         for (var k in this.obj) { l++; }
         return l;
     });
+YaripPageExtendedByList.prototype.add = function(item, purge)
+{
+    if (!item) return false;
+
+    var existItem = this.objId[item.getId()];
+    if (existItem) {
+        existItem.merge(item);
+        if (purge) existItem.purge();
+    } else {
+        if (purge) item.purge();
+        this.obj[item.getKey()] = item;
+        this.objId[item.getId()] = item;
+        this.sorted = false;
+//        this.listLength++;
+    }
+
+    return true;
+}
 YaripPageExtendedByList.prototype.setId = function(id)
 {
     this.id = id;
+}
+YaripPageExtendedByList.prototype.reset = function()
+{
+    this.obj = {};
+    this.objId = {};
+    this.listLength = 0;
+    this.sorted = true;
 }
 YaripPageExtendedByList.prototype.clone = function(purge)
 {
     var tmp = new this.constructor();
     tmp.id = this.id;
-    for each (var o in this.obj) if (o) tmp.add(o.clone(purge));
+    for each (var item in this.obj) if (item) tmp.add(item.clone(purge));
     return tmp;
 }
 YaripPageExtendedByList.prototype.merge = function(list)
 {
-    for each (var o in list.obj) {
-        var page = o.getPage();
-        if (page) {
-            if (page.getId() != this.id) { // not same page
-//                page.pageExtensionList.add(new YaripExtensionItem(this.id, o.getPriority()));
-                var o2 = page.pageExtensionList.obj[new YaripExtensionItem(list.id, o.getPriority()).getKey()];
-                if (o2) {
-                    var item = o2.clone();
-                    item.setValue(this.id);
-                    page.pageExtensionList.add(item);
-                    this.add(o.clone());
-                }
-            }
-        }
+    for each (var item in list.obj) {
+        if (item.getId() != this.id) this.add(item.clone());
     }
 }
 YaripPageExtendedByList.prototype.loadFromObject = function(obj)
