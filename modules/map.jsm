@@ -48,7 +48,7 @@ YaripMap.prototype.add = function(page)
     } else {
         if (page.getId() in this.objId) {
             // shouldn't happen
-            CS.logStringMessage("YaripMap.add: A page with the same id already exists! `" + page.getId() + "'!\nnew: `" + page.getName() + "', old: `" + oldPage.getName() + "'");
+            CS.logStringMessage("YaripMap.add: A page with the same id already exists!\nid=" + page.getId() + ", name=" + page.getName());
             return;
         }
 

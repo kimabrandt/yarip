@@ -689,7 +689,7 @@ function YaripOverlay()
 //            doc.body.addEventListener("DOMAttrModified", this, false);
             if (yarip.noFlicker) {
                 if (!dv.yarip) dv.yarip = {}; // needed!?
-                dv.yarip.whitelistTimeout = setTimeout(this.whitelistElement, 100, doc.body);
+                dv.yarip.whitelistTimeout = setTimeout(this.doWhitelist, 100, doc.body);
             } else {
                 doc.body.setAttribute("status", "whitelisted");
             }
@@ -714,7 +714,7 @@ function YaripOverlay()
                 if (count <= 3) {
                     clearTimeout(dv.yarip.whitelistTimeout);
                     this.doDOMContentLoaded(doc, this, true);
-                    dv.yarip.whitelistTimeout = setTimeout(this.whitelistElement, 100, doc.body);
+                    dv.yarip.whitelistTimeout = setTimeout(this.doWhitelist, 100, doc.body);
                     dv.yarip.count++;
                 } else {
                     dv.yarip.loadTimeout = setTimeout(this.doDOMContentLoaded, 100 * count /* max-default: 1 sec */, doc, this, true);
@@ -860,7 +860,7 @@ function YaripOverlay()
         }
     }
 
-    this.whitelistElement = function (element)
+    this.doWhitelist = function (element)
     {
         if (!element) return;
 

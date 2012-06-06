@@ -66,11 +66,11 @@ YaripPage.prototype.getKey = function()
 {
     return this.getId();
 }
-YaripPage.prototype.setId = function(value)
+YaripPage.prototype.setId = function(id)
 {
-    if (!value) return;
-
-    this.id = "" + value;
+//    if (!id) return;
+    if (!id) id = this.newId();
+    this.id = "" + id;
     this.pageExtensionList.setId(this.id);
     this.pageExtendedByList.setId(this.id);
 }

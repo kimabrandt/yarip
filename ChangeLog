@@ -1,3 +1,16 @@
+2012-06-06  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/overlay.js (doWhitelist): Renamed the `whitelistElement'-
+    function.
+
+    * modules/loader.jsm (doStyling): Looping through both the `pageStyleList'-
+    and `elementAttributeList'-list.
+
+    * modules/page.jsm (setId): Creating a new id if null.
+
+    * modules/yarip.jsm (blacklistElementItem): Getting the `force'-value from
+    the item.
+
 2012-06-05  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/contentdialog.js (removeSubDomain): Allowing more

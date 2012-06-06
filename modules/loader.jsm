@@ -111,42 +111,46 @@ YaripLoader.prototype.doStyling = function(doc, addressObj, increment)
         if (!extItem.getDoElements()) continue;
 
         var page = yarip.map.get(pageName);
-        var list = page.pageStyleList;
-        if (list.length == 0) continue;
-
         var isSelf = extItem.isSelf();
-        var idPrefix = "yarip-page-style_" + pageName.replace(/\W/g, "-") + "_";
-        var counter = 0;
 
-        // page styling
-        for each (var item in list.obj)
+        var list = page.pageStyleList;
+        if (list.length > 0)
         {
-            var s = item.getStyle();
-            if (!s) continue;
+            var idPrefix = "yarip-page-style_" + pageName.replace(/\W/g, "-") + "_";
+            var counter = 0;
 
-            var id = idPrefix + counter++;
-            var style = doc.getElementById(id);
-            if (style) continue;
+            // page styling
+            for each (var item in list.obj)
+            {
+                var s = item.getStyle();
+                if (!s) continue;
 
-            var elements = yarip.getElementsByXPath(doc, item.getXPath());
-            if (elements && elements.snapshotLength > 0) {
-                var element = elements.snapshotItem(0);
-                this.injectCascadingStyleSheet(doc, id, s, element);
-                if (increment && isSelf) {
-                    item.incrementFound();
-                }
-            } else {
-                if (increment && isSelf) {
-                    item.incrementNotFound();
+                var id = idPrefix + counter++;
+                var style = doc.getElementById(id);
+                if (style) continue;
+
+                var elements = yarip.getElementsByXPath(doc, item.getXPath());
+                if (elements && elements.snapshotLength > 0) {
+                    var element = elements.snapshotItem(0);
+                    this.injectCascadingStyleSheet(doc, id, s, element);
+                    if (increment && isSelf) {
+                        item.incrementFound();
+                    }
+                } else {
+                    if (increment && isSelf) {
+                        item.incrementNotFound();
+                    }
                 }
             }
         }
 
-        // element styling
         list = page.elementAttributeList;
-        for each (var item in list.obj) {
-            if (yarip.styleElementItem(doc, pageName, item, null, isSelf && increment)) {
-                this.hasStyles = true;
+        if (list.length > 0) {
+            // element styling
+            for each (var item in list.obj) {
+                if (yarip.styleElementItem(doc, pageName, item, null, isSelf && increment)) {
+                    this.hasStyles = true;
+                }
             }
         }
     }

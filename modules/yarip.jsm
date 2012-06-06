@@ -908,7 +908,7 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
         case 1: // ELEMENT
             switch (element.getAttribute("status")) {
             case "whitelisted":
-                if (force) {
+                if (item.getForce()) {
                   useForce = false; // don't force removal
                   break;
                 } else {
@@ -922,7 +922,7 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
               continue;
 //            case "placeholder blacklisted":
 ////                if (placeholder) continue;
-//                if ((!force || increment) /* not temporary */ && placeholder) continue;
+//                if ((!item.getForce() || increment) /* not temporary */ && placeholder) continue;
 //                break;
             }
 
@@ -1495,7 +1495,7 @@ Yarip.prototype.getId = function()
 Yarip.prototype.addMonitorDialog = function(monitorDialog)
 {
     monitorDialog.id = Date.now();
-    while (this.monitorDialogues["" + monitorDialog.id]) monitorDialog.id++;
+    while ("" + monitorDialog.id in this.monitorDialogues) monitorDialog.id++;
     this.monitorDialogues["" + monitorDialog.id] = monitorDialog;
 }
 
