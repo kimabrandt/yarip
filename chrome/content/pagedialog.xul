@@ -366,8 +366,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                         <treecols>
                           <treecol id="contentRedirectList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
-                          <treecol id="contentRedirectList-tree-newsubstr" label="&treecol.label.newsubstr;" editable="true" persist="width" primary="true" flex="1"/>
-                          <splitter class="tree-splitter" resizeafter="farthest"/>
+<!--                          <treecol id="contentRedirectList-tree-newsubstr" label="&treecol.label.newsubstr;" editable="true" persist="width" primary="true" flex="1"/>-->
+<!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
                           <treecol id="contentRedirectList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="contentRedirectList-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
@@ -376,6 +376,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                         </treecols>
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
+                      <splitter/>
+                      <textbox id="contentRedirectList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
                       <hbox>
                         <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
                         <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
@@ -557,8 +559,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                         <treecols>
                           <treecol id="pageRedirectList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
-                          <treecol id="pageRedirectList-tree-newsubstr" label="&treecol.label.newsubstr;" editable="true" persist="width" primary="true" flex="1"/>
-                          <splitter class="tree-splitter" resizeafter="farthest"/>
+<!--                          <treecol id="pageRedirectList-tree-newsubstr" label="&treecol.label.newsubstr;" editable="true" persist="width" primary="true" flex="1"/>-->
+<!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
                           <treecol id="pageRedirectList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="pageRedirectList-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
@@ -567,6 +569,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                         </treecols>
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
+                      <splitter/>
+                      <textbox id="pageRedirectList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
                       <hbox align="center">
                         <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
                         <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>

@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 <!DOCTYPE vbox SYSTEM "chrome://yarip/locale/mobileOptions.dtd">
 <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <setting type="bool" pref="extensions.yarip.enabled.value" title="&setting.enable;"/>
-<!--  <setting type="bool" pref="extensions.yarip.alwaysUseIndex.value" title="&setting.alwaysUseIndex;"/>-->
 <!--  <setting type="control" pref="extensions.yarip.elementsInContext.value" title="&setting.prefixShow;"/>-->
   <setting type="bool" pref="extensions.yarip.exclusiveOnCreation.value" title="&setting.exclWhitelist;"/>
   <setting type="bool" pref="extensions.yarip.privateBrowsing.value" title="&setting.privateBrowsing;"/>

@@ -44,7 +44,7 @@ function YaripRedirectDialog()
         this.regexpTextbox.value = this.obj.item.getRegExp();
         this.regexpTextbox.focus();
         this.regexpTextbox.select();
-        this.newsubstrTextbox.value = this.obj.item.getNewSubStr();
+        this.newsubstrTextbox.value = this.obj.item.getScript();
 
         var location = "itemLocation" in this.obj ? yarip.getLocationFromLocation(this.obj.itemLocation) : null;
         if (location) {
@@ -97,10 +97,9 @@ function YaripRedirectDialog()
         var newSubStr = this.newsubstrTextbox.value;
 
         this.obj.item.setRegExp(regExp);
-        this.obj.item.setNewSubStr(newSubStr);
+        this.obj.item.setScript(newSubStr);
         this.obj.pageName = pageName;
         FH.addEntry("regexp", regExp);
-        FH.addEntry("newsubstr", newSubStr);
     }
 
     this.cancel = function()

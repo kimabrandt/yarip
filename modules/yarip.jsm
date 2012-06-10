@@ -31,6 +31,28 @@ Cu.import("resource://yarip/constants.jsm");
 Cu.import("resource://yarip/uri.jsm");
 
 function Yarip() {
+    this.mode = null;
+    this.enabled = null;
+    this.noFlicker = null;
+
+    this.monitorDialogues = [];
+    this.pageDialog = null;
+
+    this.useIndex = 1; // when needed
+    this.elementsInContext = 4;
+    this.exclusiveOnCreation = false;
+    this.templates = [];
+    this.privateBrowsing = false;
+    this.purgeInnerHTML = false;
+    this.schemesRegExp = null;
+    this.contentRecurrence = false;
+    this.logWhenClosed = false;
+    this.isMobile = false;
+
+    this.map = null;
+    this.undoObj = {};
+    this.pageCreated = false;
+    this.knownAddressObj = {};
 }
 Yarip.prototype = {
     classDescription: "Yet Another Remove It Permanently",
@@ -38,264 +60,224 @@ Yarip.prototype = {
     contractID: "@yarip.mozdev.org;1",
     _xpcom_categories: [],
     QueryInterface: XPCOMUtils.generateQI([
-        Ci.nsISupports,
-        Ci.nsIObserver,
-        Ci.nsIWebProgressListener,
-        Ci.nsISupportsWeakReference
-    ]),
+            Ci.nsIObserver,
+            Ci.nsIWebProgressListener,
+            Ci.nsISupportsWeakReference])
+}
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIObserver#observe%28%29
+Yarip.prototype.observe = function(subject, topic, data)
+{
+    switch (topic) {
+    case "quit-application":
+        this.save();
+        break;
+    }
+}
+Yarip.prototype.getLocationFromLocation = function(location)
+{
+    if (!location) return null;
+    if (location.isLocation) return location;
 
-    mode: null,
-    enabled: null,
-    noFlicker: null,
-
-    monitorDialogues: [],
-    pageDialog: null,
-
-//    alwaysUseIndex: false,
-    useIndex: 1, // when needed
-    elementsInContext: 4,
-    exclusiveOnCreation: false,
-    templates: [],
-    privateBrowsing: false,
-    purgeInnerHTML: false,
-    schemesRegExp: null,
-//    contentRepeatThreshold: 10000,
-    contentRecurrence: false,
-    logWhenClosed: false,
-    isMobile: false,
-
-    map: null,
-    undoObj: {},
-    pageCreated: false,
-    knownAddressObj: {},
-
-    /*
-     * nsIObserver
-     */
-
-    observe: function(subject, topic, data)
-    {
-        switch (topic) {
-        case "quit-application":
-            this.save();
-            break;
-        }
-    },
-
-    getLocationFromLocation: function(location)
-    {
-        if (!location) return null;
-        if (location.isLocation) return location;
-
-        // https://developer.mozilla.org/en/DOM/window.location
-        var host = "";
-        var asciiHost = "";
+    // https://developer.mozilla.org/en/DOM/window.location
+    var host = "";
+    var asciiHost = "";
 //        var hostname = "";
-        var port = location.port;
-        var asciiHref = "";
-        var pageName = "";
-        try {
-            host = location.host.replace(/\.+(:\d+)?$/, "$1");
-            asciiHost = IDNS.convertUTF8toACE(host).replace(/\.+(:\d+)?$/, "$1");
+    var port = location.port;
+    var asciiHref = "";
+    var pageName = "";
+    try {
+        host = location.host.replace(/\.+(:\d+)?$/, "$1");
+        asciiHost = IDNS.convertUTF8toACE(host).replace(/\.+(:\d+)?$/, "$1");
 //            hostname = IDNS.convertUTF8toACE(location.hostname);
 //            asciiHref = location.protocol + "//" + asciiHost + location.pathname;
-            pageName = location.protocol + "//" + asciiHost + location.pathname;
+        pageName = location.protocol + "//" + asciiHost + location.pathname;
 //            asciiHref = location.protocol + "//" + asciiHost + location.pathname + location.search + location.hash;
-            asciiHref = pageName + location.search + location.hash;
+        asciiHref = pageName + location.search + location.hash;
 //            asciiHref = IDNS.convertUTF8toACE(location.href);
-        } catch(e) {
-        }
-        return {
+    } catch(e) {
+    }
+    return {
 //            hash: null,
-            host: host,
+        host: host,
 //            hostname: null,
 //            href: protocol + "//" + host + pathname, // no need for search nor hash!
 //            href: location.href,
-            href: location.protocol + "//" + host + location.pathname + location.search + location.hash,
-            pathname: location.pathname,
-            port: port,
-            protocol: location.protocol,
+        href: location.protocol + "//" + host + location.pathname + location.search + location.hash,
+        pathname: location.pathname,
+        port: port,
+        protocol: location.protocol,
 //            search: null,
-            asciiHost: asciiHost,
-            asciiHref: asciiHref,
-            pageName: pageName.replace(/[/]*$/, ""),
-            isLocation: true
-        }
-    },
+        asciiHost: asciiHost,
+        asciiHref: asciiHref,
+        pageName: pageName.replace(/[/]*$/, ""),
+        isLocation: true
+    }
+}
+Yarip.prototype.getLocationFromContentLocation = function(contentLocation)
+{
+    if (!contentLocation) return null;
+    if (contentLocation.isLocation) return contentLocation;
 
-    getLocationFromContentLocation: function(contentLocation)
-    {
-        if (!contentLocation) return null;
-        if (contentLocation.isLocation) return contentLocation;
-
-        // https://developer.mozilla.org/en/nsIURI
-        // https://developer.mozilla.org/en/DOM/window.location
-        var host = "";
-        try { host = contentLocation.hostPort.replace(/\.+(:\d+)?$/, "$1"); } catch (e) {}
+    // https://developer.mozilla.org/en/nsIURI
+    // https://developer.mozilla.org/en/DOM/window.location
+    var host = "";
+    try { host = contentLocation.hostPort.replace(/\.+(:\d+)?$/, "$1"); } catch (e) {}
 //        try { host = contentLocation.host; } catch (e) {}
-        var pathname = contentLocation.path.replace(/[?&#].*$/, "");
-        var port = -1;
-        try { port = contentLocation.port; } catch (e) {}
-        var protocol = contentLocation.scheme + ":";
-        var asciiHost = "";
-        try { asciiHost = contentLocation.asciiHost.replace(/\.+$/, "") + (port > -1 && port != 80 ? ":" + port : ""); } catch (e) {}
-        var pageName = "";
-        return {
+    var pathname = contentLocation.path.replace(/[?&#].*$/, "");
+    var port = -1;
+    try { port = contentLocation.port; } catch (e) {}
+    var protocol = contentLocation.scheme + ":";
+    var asciiHost = "";
+    try { asciiHost = contentLocation.asciiHost.replace(/\.+$/, "") + (port > -1 && port != 80 ? ":" + port : ""); } catch (e) {}
+    var pageName = "";
+    return {
 //            hash: null,
-            host: host,
+        host: host,
 //            hostname: null,
-            href: contentLocation.spec,
-            pathname: pathname,
-            port: port,
-            protocol: protocol,
+        href: contentLocation.spec,
+        pathname: pathname,
+        port: port,
+        protocol: protocol,
 //            search: null,
 //            asciiHost: IDNS.convertUTF8toACE(host),
-            asciiHost: asciiHost,
-            asciiHref: contentLocation.asciiSpec,
-            pageName: protocol + "//" + asciiHost + pathname.replace(/[/]*$/, ""),
-            isLocation: true
-        }
-    },
+        asciiHost: asciiHost,
+        asciiHref: contentLocation.asciiSpec,
+        pageName: protocol + "//" + asciiHost + pathname.replace(/[/]*$/, ""),
+        isLocation: true
+    }
+}
+Yarip.prototype.getContentLocationFromContentLocation = function(contentLocation)
+{
+    if (!contentLocation) return null;
+    if (contentLocation.isContentLocation) return contentLocation;
 
-    getContentLocationFromContentLocation: function(contentLocation)
-    {
-        if (!contentLocation) return null;
-        if (contentLocation.isContentLocation) return contentLocation;
-
-        // https://developer.mozilla.org/en/nsIURI
-        var port = -1;
-        var host = "";
-        var asciiHost = "";
-        var hostPort = "";
-        try { port = contentLocation.port; } catch (e) {}
-        var userPass = contentLocation.userPass;
-        try { host = contentLocation.host.replace(/\.+$/, ""); } catch (e) {}
-        try { asciiHost = contentLocation.asciiHost.replace(/\.+$/, ""); } catch (e) {}
-        try { hostPort = contentLocation.hostPort.replace(/\.+(:\d+)?$/, "$1"); } catch (e) {}
-        return {
-            scheme: contentLocation.scheme,
-            port: port,
-            userPass: userPass,
-            host: host,
-            asciiHost: asciiHost,
-            hostPort: hostPort,
-            path: contentLocation.path,
+    // https://developer.mozilla.org/en/nsIURI
+    var port = -1;
+    var host = "";
+    var asciiHost = "";
+    var hostPort = "";
+    try { port = contentLocation.port; } catch (e) {}
+    var userPass = contentLocation.userPass;
+    try { host = contentLocation.host.replace(/\.+$/, ""); } catch (e) {}
+    try { asciiHost = contentLocation.asciiHost.replace(/\.+$/, ""); } catch (e) {}
+    try { hostPort = contentLocation.hostPort.replace(/\.+(:\d+)?$/, "$1"); } catch (e) {}
+    return {
+        scheme: contentLocation.scheme,
+        port: port,
+        userPass: userPass,
+        host: host,
+        asciiHost: asciiHost,
+        hostPort: hostPort,
+        path: contentLocation.path,
 //            spec: contentLocation.spec,
-            spec: contentLocation.scheme + "://" + (userPass ? userPass + "@" : "") + host + (port > -1 && port != 80 ? ":" + port : "") + contentLocation.path,
+        spec: contentLocation.scheme + "://" + (userPass ? userPass + "@" : "") + host + (port > -1 && port != 80 ? ":" + port : "") + contentLocation.path,
 //            asciiSpec: contentLocation.asciiSpec,
-            asciiSpec: contentLocation.scheme + "://" + (userPass ? userPass + "@" : "") + asciiHost + (port > -1 && port != 80 ? ":" + port : "") + contentLocation.path,
-            isContentLocation: true
-        }
-    },
-
-    getPageName: function(location, mode)
-    {
+        asciiSpec: contentLocation.scheme + "://" + (userPass ? userPass + "@" : "") + asciiHost + (port > -1 && port != 80 ? ":" + port : "") + contentLocation.path,
+        isContentLocation: true
+    }
+}
+Yarip.prototype.getPageName = function(location, mode)
+{
 //        if (!location || !/^https?:$/.test(location.protocol)) return null;
-        if (!location || !this.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return null;
+    if (!location || !this.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return null;
 
-        var mode = Number(mode);
-        if (typeof mode != "number" || mode + "" == "NaN") {
-            mode = this.mode;
-        }
+    var mode = Number(mode);
+    if (typeof mode != "number" || mode + "" == "NaN") {
+        mode = this.mode;
+    }
 
-        location = this.getLocationFromLocation(location);
-        var pageName = null;
-        try
-        {
-            switch (mode) {
-            case MODE_PAGE:
-//                pageName = location.protocol + "//" + location.host + location.pathname.replace(/[/]*$/, "");
-                pageName = location.protocol + "//" + location.asciiHost + location.pathname.replace(/[/]*$/, "");
-//                pageName = location.asciiHref.replace(/[/]*$/, "");
-                break;
-            case MODE_FQDN:
-                pageName = location.asciiHost;
-                break;
-            case MODE_SLD:
-                var sld = null;
-                sld = location.asciiHost.match(FIND_SLD_RE);
-                if (sld) pageName = sld[0];
-                break;
-            }
-            if (!pageName) return null;
-        } catch (e) {
-        }
-        return pageName;
-    },
-
-    init: function()
+    location = this.getLocationFromLocation(location);
+    var pageName = null;
+    try
     {
-        Cu.import("resource://yarip/map.jsm");
-        Cu.import("resource://yarip/page.jsm");
-        Cu.import("resource://yarip/list.jsm");
-        Cu.import("resource://yarip/item.jsm");
-        Cu.import("resource://yarip/replace.jsm");
+        switch (mode) {
+        case MODE_PAGE:
+//                pageName = location.protocol + "//" + location.host + location.pathname.replace(/[/]*$/, "");
+            pageName = location.protocol + "//" + location.asciiHost + location.pathname.replace(/[/]*$/, "");
+//                pageName = location.asciiHref.replace(/[/]*$/, "");
+            break;
+        case MODE_FQDN:
+            pageName = location.asciiHost;
+            break;
+        case MODE_SLD:
+            var sld = null;
+            sld = location.asciiHost.match(FIND_SLD_RE);
+            if (sld) pageName = sld[0];
+            break;
+        }
+        if (!pageName) return null;
+    } catch (e) {
+    }
+    return pageName;
+}
+Yarip.prototype.init = function()
+{
+    Cu.import("resource://yarip/map.jsm");
+    Cu.import("resource://yarip/page.jsm");
+    Cu.import("resource://yarip/list.jsm");
+    Cu.import("resource://yarip/item.jsm");
+    Cu.import("resource://yarip/replace.jsm");
 
-        this.map = new YaripMap();
-        var file = this.getFile(FILE);
-        this.load(file);
-        this.check();
+    this.map = new YaripMap();
+    var file = this.getFile(FILE);
+    this.load(file);
+    this.check();
 
-        this.initPreferences();
-        if (!this.isMobile) this.initContentPolicy();
+    this.initPreferences();
+    if (!this.isMobile) this.initContentPolicy();
 
-        // DEBUG Profile functions.
+    // DEBUG Profile functions.
 //        this.profile("this.getAddressObj", this, "getAddressObj");
 //        for (var f in this) {
 //            if (typeof this[f] == "function") {
 //                this.profile("yarip." + f, this, f);
 //            }
 //        }
-    },
+}
+Yarip.prototype.initMobile = function()
+{
+    this.isMobile = true;
 
-    initMobile: function()
-    {
-        this.isMobile = true;
-
-        Cu.import("resource://yarip/map.jsm");
-        Cu.import("resource://yarip/page.jsm");
-        Cu.import("resource://yarip/list.jsm");
-        Cu.import("resource://yarip/item.jsm");
-        Cu.import("resource://yarip/replace.jsm");
+    Cu.import("resource://yarip/map.jsm");
+    Cu.import("resource://yarip/page.jsm");
+    Cu.import("resource://yarip/list.jsm");
+    Cu.import("resource://yarip/item.jsm");
+    Cu.import("resource://yarip/replace.jsm");
 //        Cu.import("resource://yarip/stream.jsm");
 
-        this.map = new YaripMap();
+    this.map = new YaripMap();
 
-        this.initPreferences();
-        this.initContentPolicy();
-    },
-
-    initPreferences: function()
-    {
-        this.toggleEnabled(this.getValue(PREF_ENABLED, true, DATA_TYPE_BOOLEAN));
-        this.setMode(this.getValue(PREF_MODE, MODE_FQDN, DATA_TYPE_INTEGER));
-        this.setUseIndex(this.getValue(PREF_INDEX, 1, DATA_TYPE_INTEGER));
-        this.setElementsInContext(this.getValue(PREF_ELEMENTS, 4, DATA_TYPE_INTEGER));
-        this.setPurgeInnerHTML(this.getValue(PREF_PURGE, false, DATA_TYPE_BOOLEAN));
-        this.setExclusiveOnCreation(this.getValue(PREF_EXCLUSIVE, false, DATA_TYPE_BOOLEAN));
-        this.setTemplates(this.getValue(PREF_TEMPLATES, "", DATA_TYPE_STRING));
-        this.setSchemes(this.getValue(PREF_SCHEMES, "^https?$", DATA_TYPE_STRING));
-        this.setPrivateBrowsing(this.getValue(PREF_PRIVATE, false, DATA_TYPE_BOOLEAN));
-        this.setContentRecurrence(this.getValue(PREF_RECURRENCE, false, DATA_TYPE_BOOLEAN));
-        this.toggleLogWhenClosed(this.getValue(PREF_LOG_WHEN_CLOSED, false, DATA_TYPE_BOOLEAN));
-    },
-
-    initContentPolicy: function()
-    {
-        const yaripContentPolicy = Cu.import("resource://yarip/contentPolicy.jsm", null).wrappedJSObject;
-        const componentRegistrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-        if (componentRegistrar.isContractIDRegistered(yaripContentPolicy.contractID)) return;
-
-        try {
-            componentRegistrar.registerFactory(yaripContentPolicy.classID, yaripContentPolicy.classDescription, yaripContentPolicy.contractID, yaripContentPolicy);
-        } catch (e) {
-            Cu.reportError(e);
-        }
-        const categoryManager = XPCOMUtils.categoryManager;
-        categoryManager.addCategoryEntry("content-policy", yaripContentPolicy.classDescription, yaripContentPolicy.contractID, false, true);
-    }
+    this.initPreferences();
+    this.initContentPolicy();
 }
+Yarip.prototype.initPreferences = function()
+{
+    this.toggleEnabled(this.getValue(PREF_ENABLED, true, DATA_TYPE_BOOLEAN));
+    this.setMode(this.getValue(PREF_MODE, MODE_FQDN, DATA_TYPE_INTEGER));
+    this.setUseIndex(this.getValue(PREF_INDEX, 1, DATA_TYPE_INTEGER));
+    this.setElementsInContext(this.getValue(PREF_ELEMENTS, 4, DATA_TYPE_INTEGER));
+    this.setPurgeInnerHTML(this.getValue(PREF_PURGE, false, DATA_TYPE_BOOLEAN));
+    this.setExclusiveOnCreation(this.getValue(PREF_EXCLUSIVE, false, DATA_TYPE_BOOLEAN));
+    this.setTemplates(this.getValue(PREF_TEMPLATES, "", DATA_TYPE_STRING));
+    this.setSchemes(this.getValue(PREF_SCHEMES, "^https?$", DATA_TYPE_STRING));
+    this.setPrivateBrowsing(this.getValue(PREF_PRIVATE, false, DATA_TYPE_BOOLEAN));
+    this.setContentRecurrence(this.getValue(PREF_RECURRENCE, false, DATA_TYPE_BOOLEAN));
+    this.toggleLogWhenClosed(this.getValue(PREF_LOG_WHEN_CLOSED, false, DATA_TYPE_BOOLEAN));
+}
+Yarip.prototype.initContentPolicy = function()
+{
+    const yaripContentPolicy = Cu.import("resource://yarip/contentPolicy.jsm", null).wrappedJSObject;
+    const componentRegistrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+    if (componentRegistrar.isContractIDRegistered(yaripContentPolicy.contractID)) return;
 
+    try {
+        componentRegistrar.registerFactory(yaripContentPolicy.classID, yaripContentPolicy.classDescription, yaripContentPolicy.contractID, yaripContentPolicy);
+    } catch (e) {
+        Cu.reportError(e);
+    }
+    const categoryManager = XPCOMUtils.categoryManager;
+    categoryManager.addCategoryEntry("content-policy", yaripContentPolicy.classDescription, yaripContentPolicy.contractID, false, true);
+}
 Yarip.prototype.toggleEnabled = function(enabled)
 {
     if (enabled == this.enabled) return false;
@@ -309,7 +291,6 @@ Yarip.prototype.toggleEnabled = function(enabled)
     this.setValue(PREF_ENABLED, enabled, DATA_TYPE_BOOLEAN); // notify
     return true;
 }
-
 Yarip.prototype.toggleNoFlicker = function(noFlicker, dontNotify, force)
 {
     if (noFlicker == this.noFlicker && !force) return false;
@@ -321,7 +302,6 @@ Yarip.prototype.toggleNoFlicker = function(noFlicker, dontNotify, force)
     if (!dontNotify) this.setValue(PREF_FLICKER, this.noFlicker, DATA_TYPE_BOOLEAN); // notify
     return true;
 }
-
 Yarip.prototype.setMode = function(mode)
 {
     var mode = Number(mode);
@@ -330,31 +310,26 @@ Yarip.prototype.setMode = function(mode)
     this.setValue(PREF_MODE, mode, DATA_TYPE_INTEGER); // notify
     return true;
 }
-
 Yarip.prototype.setUseIndex = function(value)
 {
     var value = Number(value);
     if (typeof value != "number" || value + "" == "NaN") return;
     if ([0, 1, 2].indexOf(value) > -1) this.useIndex = value;
 }
-
 Yarip.prototype.setElementsInContext = function(value)
 {
     var value = Number(value);
     if (typeof value != "number" || value + "" == "NaN") return;
     if (value > 0 && value <= 20) this.elementsInContext = value;
 }
-
 Yarip.prototype.setPurgeInnerHTML = function(value)
 {
     if (value == true || value == false) this.purgeInnerHTML = value;
 }
-
 Yarip.prototype.setExclusiveOnCreation = function(value)
 {
     if (value == true || value == false) this.exclusiveOnCreation = value;
 }
-
 Yarip.prototype.setTemplates = function(value)
 {
     this.templates = [];
@@ -362,31 +337,20 @@ Yarip.prototype.setTemplates = function(value)
 
     this.templates = value.split(" ", 50); // 50 = max templates
 }
-
 Yarip.prototype.setSchemes = function(value)
 {
     try {
         this.schemesRegExp = new RegExp(value);
     } catch (e) {}
 }
-
 Yarip.prototype.setPrivateBrowsing = function(value)
 {
     if (value == true || value == false) this.privateBrowsing = value;
 }
-
-//yarip.setContentRepeatThreshold = function(value)
-//{
-//    var value = Number(value);
-//    if (typeof value != "number" || value + "" == "NaN") return;
-//    this.contentRepeatThreshold = value > 0 ? value : 0;
-//}
-
 Yarip.prototype.setContentRecurrence = function(value)
 {
     if (value == true || value == false) this.contentRecurrence = value;
 }
-
 Yarip.prototype.toggleLogWhenClosed = function(logWhenClosed)
 {
     if (logWhenClosed == this.logWhenClosed) return false;
@@ -398,7 +362,6 @@ Yarip.prototype.toggleLogWhenClosed = function(logWhenClosed)
     /*if (!dontNotify)*/ this.setValue(PREF_LOG_WHEN_CLOSED, this.logWhenClosed, DATA_TYPE_BOOLEAN); // notify
     return true;
 }
-
 Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser)
 {
     if (!pageName) return "^https?://([^/?#]+\\.)?example\\.net[/?#]";
@@ -422,7 +385,6 @@ Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser)
         return "^https?://([^/?#]+\\.)?example\\.net[/?#]";
     }
 }
-
 Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
 {
     if (!pageName) {
@@ -456,7 +418,6 @@ Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
         };
     }
 }
-
 Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUser)
 {
     if (!location) return null;
@@ -498,12 +459,10 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUse
     this.pageCreated = true;
     return page;
 }
-
 Yarip.prototype.hasAddress = function(reduceDomain)
 {
     return this.getFirstAddress(reduceDomain) != null;
 }
-
 Yarip.prototype.getAddressObjByLocation = function(location, follow)
 {
     var pageName = location ? location.pageName : null;
@@ -527,7 +486,6 @@ Yarip.prototype.getAddressObjByLocation = function(location, follow)
     addressObj.pageName = pageName;
     return addressObj;
 }
-
 Yarip.prototype.getFirstAddress = function(reduceDomain)
 {
     if (!reduceDomain) return null;
@@ -552,7 +510,6 @@ Yarip.prototype.getFirstAddress = function(reduceDomain)
 
     return null;
 }
-
 Yarip.prototype.getAddressMap = function(reduceDomain, follow, matchObj)
 {
     var map = new YaripMap();
@@ -571,7 +528,6 @@ Yarip.prototype.getAddressMap = function(reduceDomain, follow, matchObj)
     }
     return map;
 }
-
 Yarip.prototype.getAddressObj = function(origReduceDomain, follow, matchObj)
 {
     var addressObj = {
@@ -631,7 +587,6 @@ Yarip.prototype.getAddressObj = function(origReduceDomain, follow, matchObj)
 
     return addressObj;
 }
-
 Yarip.prototype.getExtensionAddressObj = function(addressObj, matchObj)
 {
     if (!addressObj) return false;
@@ -645,7 +600,6 @@ Yarip.prototype.getExtensionAddressObj = function(addressObj, matchObj)
         this.getRecursiveAddressArray(pageName, addressObj, parentItem, matchObj);
     }
 }
-
 Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parentItem, matchObj)
 {
     if (!parentItem.doesSomething()) return;
@@ -721,12 +675,10 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parent
         this.getRecursiveAddressArray(extPageName, addressObj, addressObj.ext[extPageName], matchObj);
     }
 }
-
 Yarip.prototype.resetUndo = function()
 {
     this.undoObj = {};
 }
-
 Yarip.prototype.resetOnAddress = function(obj)
 {
     if (!obj) return false;
@@ -777,17 +729,14 @@ Yarip.prototype.resetOnAddress = function(obj)
     delete this.undoObj[obj.type + " " + obj.key];
     return true;
 }
-
 Yarip.prototype.getIncrement = function(newIncrement, oldIncrement)
 {
     return newIncrement > oldIncrement ? newIncrement : oldIncrement;
 }
-
 Yarip.prototype.resetKnown = function()
 {
     this.knownAddressObj = {};
 }
-
 Yarip.prototype.reloadPage = function(pageName, selectItem, selectTab, resetFilter, type, key)
 {
     if (this.pageDialog && pageName) {
@@ -798,13 +747,11 @@ Yarip.prototype.reloadPage = function(pageName, selectItem, selectTab, resetFilt
         return false;
     }
 }
-
 Yarip.prototype.removeAllExceptWhitelisted = function(doc)
 {
     this.whitelistElementItem(doc, null, new YaripElementWhitelistItem("/html/head/descendant-or-self::*[not(@status='blacklisted')]")); // whitelist head and descendants
     this.blacklistElementItem(doc, null, new YaripElementBlacklistItem("//*[not(@status='whitelisted') and not(@status='whitelisted forced')]")); // all except whitelisted
 }
-
 Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, increment)
 {
     if (!doc || !item) return false;
@@ -889,7 +836,6 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
 
     return found;
 }
-
 Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, increment)
 {
     if (!doc || !item) return false;
@@ -1047,7 +993,6 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
 
     return found;
 }
-
 Yarip.prototype.whitelistContentItem = function(location, pageName, item)
 {
     if (!pageName || !item) return false;
@@ -1062,7 +1007,6 @@ Yarip.prototype.whitelistContentItem = function(location, pageName, item)
     this.reloadPage(pageName, false, true);
     return true;
 }
-
 Yarip.prototype.blacklistContentItem = function(location, pageName, item)
 {
     if (!pageName || !item) return false;
@@ -1077,7 +1021,6 @@ Yarip.prototype.blacklistContentItem = function(location, pageName, item)
     this.reloadPage(pageName, false, true);
     return true;
 }
-
 Yarip.prototype.extendPage = function(pageLocation, pageName, contentLocation, contentAddress, item)
 {
     if (!pageName || !contentAddress) return false;
@@ -1095,7 +1038,6 @@ Yarip.prototype.extendPage = function(pageLocation, pageName, contentLocation, c
     this.reloadPage(pageOwn.getName());
     return true;
 }
-
 Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, increment)
 {
     if (!doc || !pageName) return false;
@@ -1171,7 +1113,6 @@ Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, incremen
 
     return found;
 }
-
 Yarip.prototype.scriptElementItem = function(doc, pageName, item, isNew)
 {
     if (!doc || !pageName) return false;
@@ -1193,7 +1134,6 @@ Yarip.prototype.scriptElementItem = function(doc, pageName, item, isNew)
 
     return true;
 }
-
 Yarip.prototype.createXPath = function(element, fullPath)
 {
     if (!element || !element.localName) return null;
@@ -1248,7 +1188,6 @@ Yarip.prototype.createXPath = function(element, fullPath)
 
     return xValue != "" ? xValue : null;
 }
-
 Yarip.prototype.getElementsByXPath = function(doc, xValue)
 {
     var elements = null;
@@ -1266,19 +1205,16 @@ Yarip.prototype.getElementsByXPath = function(doc, xValue)
 //    if (!elements || elements.snapshotLength == 0) return null;
     return elements;
 }
-
 Yarip.prototype.generateRegExp = function(value)
 {
     if (!value) return null;
 //    return "^" + value.replace(/([/.*+?|()\[\]{}\\])/g, "\\$1") + "$";
     return "^" + value.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + "$";
 }
-
 Yarip.prototype.checkPageName = function(value)
 {
     return URI_SIMPLE_RE.test(value);
 }
-
 Yarip.prototype.checkXPath = function(xValue)
 {
     if (!xValue) return false;
@@ -1291,7 +1227,6 @@ Yarip.prototype.checkXPath = function(xValue)
     }
     return true;
 }
-
 Yarip.prototype.checkRegExp = function(reValue)
 {
     if (!reValue) return false;
@@ -1302,7 +1237,6 @@ Yarip.prototype.checkRegExp = function(reValue)
     }
     return true;
 }
-
 Yarip.prototype.getElements = function(doc, xValue)
 {
     var elements = null;
@@ -1312,7 +1246,6 @@ Yarip.prototype.getElements = function(doc, xValue)
     }
     return elements;
 }
-
 Yarip.prototype.highlight = function(doc, xValue)
 {
     if (!doc || !xValue) return false;
@@ -1334,7 +1267,6 @@ Yarip.prototype.highlight = function(doc, xValue)
     }
     return true;
 }
-
 Yarip.prototype.unHighlight = function(doc, xValue)
 {
     if (!doc || !xValue) return;
@@ -1359,14 +1291,12 @@ Yarip.prototype.unHighlight = function(doc, xValue)
         }
     }
 }
-
 Yarip.prototype.save = function()
 {
     var file = this.getFile(FILE);
     var data = this.map.generateXml();
     this.saveToFile(data, file);
 }
-
 Yarip.prototype.getValue = function(preference, defaultValue, type)
 {
     try {
@@ -1386,7 +1316,6 @@ Yarip.prototype.getValue = function(preference, defaultValue, type)
     }
     return this.getValue(preference, null, type);
 }
-
 Yarip.prototype.setValue = function(preference, value, type)
 {
     try {
@@ -1407,14 +1336,12 @@ Yarip.prototype.setValue = function(preference, value, type)
     } catch (e) {
     }
 }
-
 Yarip.prototype.deleteBranch = function(branch)
 {
     if (!branch) return;
 
     PB.deleteBranch(branch);
 }
-
 Yarip.prototype.injectCSS = function(uri, value)
 {
     if (!uri) return;
@@ -1425,7 +1352,6 @@ Yarip.prototype.injectCSS = function(uri, value)
     if (value) { if (!sss.sheetRegistered(uri, sss.USER_SHEET)) sss.loadAndRegisterSheet(uri, sss.USER_SHEET); }
     else { if (sss.sheetRegistered(uri, sss.USER_SHEET)) sss.unregisterSheet(uri, sss.USER_SHEET); }
 }
-
 Yarip.prototype.check = function()
 {
     var previous = this.getValue(PREF_VERSION, "", DATA_TYPE_STRING);
@@ -1484,27 +1410,23 @@ Yarip.prototype.check = function()
         this.deleteBranch("extensions.yarip.contentRepeatThreshold"); // deleted in v0.3.2
     }
 }
-
 Yarip.prototype.getId = function()
 {
     var id = Date.now();
     while (this.map.getById(id)) id++;
     return "" + id;
 }
-
 Yarip.prototype.addMonitorDialog = function(monitorDialog)
 {
     monitorDialog.id = Date.now();
     while ("" + monitorDialog.id in this.monitorDialogues) monitorDialog.id++;
     this.monitorDialogues["" + monitorDialog.id] = monitorDialog;
 }
-
 Yarip.prototype.removeMonitorDialog = function(monitorDialog)
 {
     delete this.monitorDialogues["" + monitorDialog.id];
     monitorDialog.id = -1;
 }
-
 Yarip.prototype.load = function(file, imported)
 {
     var doc = this.getDoc(file);
@@ -2588,7 +2510,6 @@ else // if (/^0\.3\.2$/.test(version))
 
     return pageName;
 }
-
 Yarip.prototype.getDoc = function(file)
 {
     if (!file) return null;
@@ -2599,7 +2520,6 @@ Yarip.prototype.getDoc = function(file)
     var dp = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
     return dp.parseFromString(data, "text/xml");
 }
-
 Yarip.prototype.getData = function(file)
 {
     if (!file) return "";
@@ -2624,7 +2544,6 @@ Yarip.prototype.getData = function(file)
     }
     return data ? data : "";
 }
-
 Yarip.prototype.getFile = function(path)
 {
     if (!path) return null;
@@ -2645,7 +2564,6 @@ Yarip.prototype.getFile = function(path)
         return null;
     }
 }
-
 Yarip.prototype.saveToFile = function(data, file)
 {
     if (data != "" && !data || !file) return;
@@ -2664,15 +2582,14 @@ Yarip.prototype.saveToFile = function(data, file)
         if (os) try { os.close(); } catch (e) {}
     }
 }
-
-Yarip.prototype.logContentLocation = function(status, location, contentLocation, mimeTypeGuess, addressObj)
+Yarip.prototype.logContentLocation = function(status, location, contentLocation, mimeTypeGuess, itemObj)
 {
     var date = new Date();
     location = this.getLocationFromLocation(location);
     contentLocation = this.getContentLocationFromContentLocation(contentLocation);
     if (!this.isMobile) {
         for each (var monitor in this.monitorDialogues) {
-            monitor.logContentLocation(status, location, contentLocation, date, mimeTypeGuess, addressObj ? addressObj.itemObj : null);
+            monitor.logContentLocation(status, location, contentLocation, date, mimeTypeGuess, itemObj);
         }
     } else {
         var hours = date.getHours();
@@ -2693,14 +2610,12 @@ Yarip.prototype.logContentLocation = function(status, location, contentLocation,
         dump("yarip: " + time + " " + state + " " + page + " " + content + "\n");
     }
 }
-
 Yarip.prototype.updateContentType = function(status, location, contentLocation, contentType, responseStatus)
 {
     for each (var monitor in this.monitorDialogues) {
         monitor.updateContentType(status, location, contentLocation, contentType, responseStatus);
     }
 }
-
 Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
 {
     if (!doFlag) doFlag = DO_CONTENTS;
@@ -2787,7 +2702,6 @@ Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
         return result;
     }
 }
-
 Yarip.prototype.openLocation = function(url)
 {
     try {
@@ -2823,7 +2737,6 @@ Yarip.prototype.openLocation = function(url)
 //        return result;
 //    };
 //}
-
 Yarip.prototype.getInterface = function(channel, iid)
 {
     if (!channel) return null;
@@ -2852,7 +2765,6 @@ Yarip.prototype.getInterface = function(channel, iid)
 
     return null;
 }
-
 Yarip.prototype.getLocation = function(channel, doc)
 {
     var isPage = (LOAD_DOCUMENT_URI & channel.loadFlags) !== 0;
@@ -2883,7 +2795,6 @@ Yarip.prototype.getLocation = function(channel, doc)
         return null;
     }
 }
-
 Yarip.prototype.getYaripScript = function()
 {
     return "" +
@@ -2899,7 +2810,6 @@ Yarip.prototype.getYaripScript = function()
         "    }\n" +
         "}";
 }
-
 Yarip.prototype.showLinkNotification = function(doc, contentLocation)
 {
     var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);

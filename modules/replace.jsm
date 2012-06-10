@@ -33,9 +33,8 @@ Cu.import("resource://yarip/stream.jsm");
 
 function YaripChannelReplace(oldChannel, newURI, callback)
 {
-    if (!(oldChannel instanceof Ci.nsITraceableChannel)) {
-        return;
-    }
+    if (!(oldChannel instanceof Ci.nsITraceableChannel)) return;
+
     this.oldChannel = oldChannel;
     this.newChannel = IOS.newChannelFromURI(newURI);
     this.callback = callback;
@@ -71,18 +70,21 @@ function YaripChannelReplace(oldChannel, newURI, callback)
     // nsIHttpChannel
     if (this.oldChannel instanceof Ci.nsIHttpChannel && this.newChannel instanceof Ci.nsIHttpChannel) {
         this.newChannel.allowPipelining = this.oldChannel.allowPipelining;
-        this.newChannel.redirectionLimit = this.oldChannel.redirectionLimit;
+//        this.newChannel.redirectionLimit = this.oldChannel.redirectionLimit;
+        this.newChannel.redirectionLimit = this.oldChannel.redirectionLimit - 1;
         if (this.oldChannel.referrer) {
             this.newChannel.referrer = this.oldChannel.referrer;
         }
         this.newChannel.requestMethod = this.oldChannel.requestMethod;
-        this.oldChannel.visitRequestHeaders({
-            visitHeader: function(key, value) {
-                if (!/^(Authorization|Cookie|Host)$|Cache|^If-/.test(key)) {
-                    ref.newChannel.setRequestHeader(key, value, false);
+        if (this.newChannel.URI.host == this.oldChannel.URI.host) {
+            this.oldChannel.visitRequestHeaders({
+                visitHeader: function(key, value) {
+//                    if (!/^(Authorization|Cookie|Host)$|Cache|^If-/.test(key)) {
+                        ref.newChannel.setRequestHeader(key, value, false);
+//                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     // nsIHttpChannelInternal
@@ -113,50 +115,34 @@ function YaripChannelReplace(oldChannel, newURI, callback)
         while (enumerator.hasMoreElements()) {
             var property = enumerator.getNext();
             this.newChannel.setProperty(property.name, property.value);
-//            if (property.name) this.newChannel.setProperty(property.name, property.value);
+//            if (property.name) {
+//                this.newChannel.setProperty(property.name, property.value);
+//            }
         }
     }
 
-//    this.oldChannel.cancel(Cr.NS_BINDING_REDIRECTED);
-
     this.runWhenPending(this.oldChannel, function() {
-//        ref.oldChannel.cancel(Cr.NS_BINDING_REDIRECTED);
         new YaripRedirectStreamListener(ref.oldChannel, function() {
-            var success = true;
             try {
                 var flags = Ci.nsIChannelEventSink.REDIRECT_INTERNAL;
 
                 var ces = Cc["@mozilla.org/netwerk/global-channel-event-sink;1"].getService(Ci.nsIChannelEventSink);
                 ref.redirectChannel(ces, ref.oldChannel, ref.newChannel, flags);
 
-//                var enumerator = Cc['@mozilla.org/categorymanager;1'].getService(Ci.nsICategoryManager).enumerateCategory("net-channel-event-sinks");
-//                while (enumerator.hasMoreElements()) {
-//                    ces = enumerator.getNext();
-//                    if (ces instanceof Ci.nsIChannelEventSink) {
-//                        ref.redirectChannel(ces, ref.oldChannel, ref.newChannel, flags);
-//                    }
-//                }
-
                 ces = yarip.getInterface(ref.oldChannel, Ci.nsIChannelEventSink);
                 if (ces) {
                     ref.redirectChannel(ces, ref.oldChannel, ref.newChannel, flags);
                 }
 
-//                ces = yarip.getInterface(ref.oldChannel, Ci.nsIHttpEventSink);
-//                if (ces) {
-//                    ces.onRedirect(ref.oldChannel, ref.newChannel);
-//                }
-
                 ref.newChannel.asyncOpen(this.listener, null);
-                if (ref.callback) ref.callback(ref.oldChannel, ref.newChannel);
+                if (ref.callback) {
+                    ref.callback(ref.oldChannel, ref.newChannel);
+                }
+
+                return true;
             } catch (e) {
-                success = false;
-//            } finally {
-//                if (ref.loadGroup) {
-//                    ref.loadGroup.removeRequest(ref.oldChannel, null, Cr.NS_BINDING_REDIRECTED);
-//                }
+                return false;
             }
-            return success;
         });
     });
 }
@@ -176,8 +162,10 @@ YaripChannelReplace.prototype.redirectChannel = function(channelEventSink, oldCh
     channelEventSink.asyncOnChannelRedirect(oldChannel, newChannel, flags, this.verifyRedirectCallback);
 }
 YaripChannelReplace.prototype.verifyRedirectCallback = {
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsISupports, Ci.nsIAsyncVerifyRedirectCallback]),
-    onRedirectVerifyCallback: function(result) {}
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsIAsyncVerifyRedirectCallback]),
+    // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIAsyncVerifyRedirectCallback#onRedirectVerifyCallback%28%29
+    onRedirectVerifyCallback: function(result) {
+    }
 }
 
 function YaripLoadGroup(request, callback)
@@ -188,8 +176,9 @@ function YaripLoadGroup(request, callback)
     request.loadGroup = this;
 }
 YaripLoadGroup.prototype = {
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsISupports, Ci.nsILoadGroup]),
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsILoadGroup]),
 
+    // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsILoadGroup#Attributes
     get activeCount() { return this.loadGroup ? this.loadGroup.activeCount : 0; },
     set defaultLoadRequest(value) { return this.loadGroup ? this.loadGroup.defaultLoadRequest = value : value; },
     get defaultLoadRequest() { return this.loadGroup ? this.loadGroup.defaultLoadRequest : null; },
@@ -198,26 +187,36 @@ YaripLoadGroup.prototype = {
     set notificationCallbacks(value) { return this.loadGroup ? this.loadGroup.notificationCallbacks = value : value; },
     get notificationCallbacks() { return this.loadGroup ? this.loadGroup.notificationCallbacks : null; },
     get requests() { return this.loadGroup ? this.loadGroup.requests : {
-            QueryInterface: XPCOMUtils.generateQI([Ci.nsISupports, Ci.nsISimpleEnumerator]),
-            getNext: function() { return null; },
-            hasMoreElements: function() { return false; }
-        }
-    },
-
-    addRequest: function(request, context)
-    {
-        if (this.callback) {
-            try {
-                this.callback();
-            } catch (e) {
+            QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator]),
+            // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsISimpleEnumerator#getNext%28%29
+            getNext: function() {
+                return null;
+            },
+            // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsISimpleEnumerator#hasMoreElements%28%29
+            hasMoreElements: function() {
+                return false;
             }
         }
-        if (this.loadGroup) this.loadGroup.addRequest(request, context);
-    },
-
-    removeRequest: function(request, context, status)
-    {
-        if (this.loadGroup) this.loadGroup.removeRequest(request, context, status);
+    }
+}
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsILoadGroup#addRequest%28%29
+YaripLoadGroup.prototype.addRequest = function(request, context)
+{
+    if (this.callback) {
+        try {
+            this.callback();
+        } catch (e) {
+        }
+    }
+    if (this.loadGroup) {
+        this.loadGroup.addRequest(request, context);
+    }
+}
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsILoadGroup#removeRequest%28%29
+YaripLoadGroup.prototype.removeRequest = function(request, context, status)
+{
+    if (this.loadGroup) {
+        this.loadGroup.removeRequest(request, context, status);
     }
 }
 

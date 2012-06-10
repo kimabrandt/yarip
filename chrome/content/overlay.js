@@ -349,7 +349,6 @@ function YaripOverlay()
             pageName = yarip.getFirstAddress(location.asciiHref);
         }
 
-//        if (!yarip.reloadPage(pageName, true /* selectItem */, true /* selectTab */, true /* resetFilter */)) {
         if (!yarip.reloadPage(pageName, true /* selectItem */, true /* selectTab */, true /* resetFilter */, type, key)) {
             window.openDialog("chrome://yarip/content/pagedialog.xul", "pagedialog", "chrome,resizable", pageName, type, key);
         }
@@ -533,67 +532,67 @@ function YaripOverlay()
             this.loader = new YaripLoader();
             this.handler = new YaripHandler(null, function() { yaripOverlay.stop(); }, function(status) { yaripOverlay.setStatus(status); });
 
-            this.enabledObserver = new YaripObserver(
+            this.enabledObserver = new YaripPreferenceObserver(
                 PREF_ENABLED,
                 function() { yaripOverlay.updateEnabled(); }
             );
-            this.flickerObserver = new YaripObserver(
+            this.flickerObserver = new YaripPreferenceObserver(
                 PREF_FLICKER,
                 function() { yaripOverlay.updateNoFlicker(); }
             );
-            this.modeObserver = new YaripObserver(
+            this.modeObserver = new YaripPreferenceObserver(
                 PREF_MODE,
                 function() { yaripOverlay.updateMode(); }
             );
-            this.useIndexObserver = new YaripObserver(
+            this.useIndexObserver = new YaripPreferenceObserver(
                 PREF_INDEX,
                 function() {
                     yarip.setUseIndex(yarip.getValue(PREF_INDEX, 1, DATA_TYPE_INTEGER));
                 }
             );
-            this.elementsInContextObserver = new YaripObserver(
+            this.elementsInContextObserver = new YaripPreferenceObserver(
                 PREF_ELEMENTS,
                 function() {
                     yarip.setElementsInContext(yarip.getValue(PREF_ELEMENTS, 4, DATA_TYPE_INTEGER));
                 }
             );
-            this.purgeInnerHTMLObserver = new YaripObserver(
+            this.purgeInnerHTMLObserver = new YaripPreferenceObserver(
                 PREF_PURGE,
                 function() {
                     yarip.setPurgeInnerHTML(yarip.getValue(PREF_PURGE, false, DATA_TYPE_BOOLEAN));
                 }
             );
-            this.exclusiveOnCreationObserver = new YaripObserver(
+            this.exclusiveOnCreationObserver = new YaripPreferenceObserver(
                 PREF_EXCLUSIVE,
                 function() {
                     yarip.setExclusiveOnCreation(yarip.getValue(PREF_EXCLUSIVE, false, DATA_TYPE_BOOLEAN));
                 }
             );
-            this.templatesObserver = new YaripObserver(
+            this.templatesObserver = new YaripPreferenceObserver(
                 PREF_TEMPLATES,
                 function() {
                     yarip.setTemplates(yarip.getValue(PREF_TEMPLATES, "", DATA_TYPE_STRING));
                 }
             );
-            this.schemesObserver = new YaripObserver(
+            this.schemesObserver = new YaripPreferenceObserver(
                 PREF_SCHEMES,
                 function() {
                     yarip.setSchemes(yarip.getValue(PREF_SCHEMES, "", DATA_TYPE_STRING));
                 }
             );
-            this.privateObserver = new YaripObserver(
+            this.privateObserver = new YaripPreferenceObserver(
                 PREF_PRIVATE,
                 function() {
                     yarip.setPrivateBrowsing(yarip.getValue(PREF_PRIVATE, false, DATA_TYPE_BOOLEAN));
                 }
             );
-            this.recurrenceObserver = new YaripObserver(
+            this.recurrenceObserver = new YaripPreferenceObserver(
                 PREF_RECURRENCE,
                 function() {
                     yarip.setContentRecurrence(yarip.getValue(PREF_RECURRENCE, false, DATA_TYPE_BOOLEAN));
                 }
             );
-            this.monitorObserver = new YaripObserver(
+            this.monitorObserver = new YaripPreferenceObserver(
                 [PREF_MONITOR_MODIFIERS, PREF_MONITOR_KEY_CODE],
                 function() {
                     var modifiers = yarip.getValue(PREF_MONITOR_MODIFIERS, "accel", DATA_TYPE_STRING);
@@ -602,7 +601,7 @@ function YaripOverlay()
                 }
             );
             this.monitorObserver.observe(null, null, "value"); // trigger once
-            this.pagesObserver = new YaripObserver(
+            this.pagesObserver = new YaripPreferenceObserver(
                 [PREF_PAGES_MODIFIERS, PREF_PAGES_KEY_CODE],
                 function() {
                     var modifiers = yarip.getValue(PREF_PAGES_MODIFIERS, "accel shift", DATA_TYPE_STRING);
@@ -611,7 +610,7 @@ function YaripOverlay()
                 }
             );
             this.pagesObserver.observe(null, null, "value"); // trigger once
-            this.logWhenClosedObserver = new YaripObserver(
+            this.logWhenClosedObserver = new YaripPreferenceObserver(
                 PREF_LOG_WHEN_CLOSED,
                 function() { yaripOverlay.updateLogWhenClosed(); }
             );

@@ -35,28 +35,18 @@ Cu.import("resource://yarip/constants.jsm");
 
 function YaripRedirectStreamListener(channel, callback)
 {
+    if (!(channel instanceof Ci.nsITraceableChannel)) return;
+
     channel.QueryInterface(Ci.nsITraceableChannel);
 
     this.listener = channel.setNewListener(this);
     this.callback = callback;
     this.isCanceled = false;
 }
-YaripRedirectStreamListener.prototype.QueryInterface = XPCOMUtils.generateQI([
-        Ci.nsISupports,
-        Ci.nsIStreamListener
-    ]);
-YaripRedirectStreamListener.prototype.onDataAvailable = function(request, context, inputStream, offset, count)
-{
-    var bis = Cc["@mozilla.org/binaryinputstream;1"].createInstance(Ci.nsIBinaryInputStream);
-    bis.setInputStream(inputStream);
-    var data = bis.readBytes(count);
-    var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
-    var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
-    ss.init(8192, count, null);
-    bos.setOutputStream(ss.getOutputStream(0));
-    bos.writeBytes(data, count);
-    this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
+YaripRedirectStreamListener.prototype = {
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener])
 }
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIRequestObserver#onStartRequest%28%29
 YaripRedirectStreamListener.prototype.onStartRequest = function(request, context)
 {
     try {
@@ -69,31 +59,41 @@ YaripRedirectStreamListener.prototype.onStartRequest = function(request, context
     } catch (e) {
     }
 }
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIRequestObserver#onStopRequest%28%29
 YaripRedirectStreamListener.prototype.onStopRequest = function(request, context, statusCode)
 {
     if (!this.isCanceled) {
         this.listener.onStopRequest(request, context, statusCode);
     }
 }
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIStreamListener#onDataAvailable%28%29
+YaripRedirectStreamListener.prototype.onDataAvailable = function(request, context, inputStream, offset, count)
+{
+    var bis = Cc["@mozilla.org/binaryinputstream;1"].createInstance(Ci.nsIBinaryInputStream);
+    bis.setInputStream(inputStream);
+    var data = bis.readBytes(count);
+    var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
+    var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
+    ss.init(8192, count, null);
+    bos.setOutputStream(ss.getOutputStream(0));
+    bos.writeBytes(data, count);
+    this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
+}
 
 function YaripResponseStreamListener(channel, addressObj)
 {
+    if (!(channel instanceof Ci.nsITraceableChannel)) return;
+
     channel.QueryInterface(Ci.nsITraceableChannel);
 
     this.listener = channel.setNewListener(this);
     this.addressObj = addressObj;
     this.receivedData = [];
 }
-YaripResponseStreamListener.prototype.QueryInterface = XPCOMUtils.generateQI([
-        Ci.nsISupports,
-        Ci.nsIStreamListener
-    ]);
-YaripResponseStreamListener.prototype.onDataAvailable = function(request, context, inputStream, offset, count)
-{
-    var bis = Cc["@mozilla.org/binaryinputstream;1"].createInstance(Ci.nsIBinaryInputStream);
-    bis.setInputStream(inputStream);
-    this.receivedData.push(bis.readBytes(count));
+YaripResponseStreamListener.prototype = {
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener])
 }
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIRequestObserver#onStartRequest%28%29
 YaripResponseStreamListener.prototype.onStartRequest = function(request, context)
 {
     try {
@@ -101,6 +101,7 @@ YaripResponseStreamListener.prototype.onStartRequest = function(request, context
     } catch (e) {
     }
 }
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIRequestObserver#onStopRequest%28%29
 YaripResponseStreamListener.prototype.onStopRequest = function(request, context, statusCode)
 {
     var responseSource = this.receivedData.join("");
@@ -333,6 +334,13 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
 
     this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
     this.listener.onStopRequest(request, context, statusCode);
+}
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIStreamListener#onDataAvailable%28%29
+YaripResponseStreamListener.prototype.onDataAvailable = function(request, context, inputStream, offset, count)
+{
+    var bis = Cc["@mozilla.org/binaryinputstream;1"].createInstance(Ci.nsIBinaryInputStream);
+    bis.setInputStream(inputStream);
+    this.receivedData.push(bis.readBytes(count));
 }
 YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count)
 {

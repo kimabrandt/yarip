@@ -1255,12 +1255,6 @@ YaripRedirectList.prototype.set = function(row, col, value)
             FH.addEntry("regexp", value);
             return c.getKey();
         case 1:
-            FH.removeEntry("newsubstr", item.getRegExp());
-
-            item.setNewSubStr(value);
-            FH.addEntry("newsubstr", value);
-            return false;
-        case 2:
             var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
@@ -1270,6 +1264,9 @@ YaripRedirectList.prototype.set = function(row, col, value)
             } else {
                 return false;
             }
+        case 99:
+            item.setScript(value);
+            return false;
         default:
             return false;
         }
@@ -1287,9 +1284,8 @@ YaripRedirectList.prototype.get = function(row, col)
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
         case 0: return item.getRegExp();
-        case 1: return item.getNewSubStr();
-        case 2: return item.getPriority();
-        case 3:
+        case 1: return item.getPriority();
+        case 2:
             var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -1297,7 +1293,7 @@ YaripRedirectList.prototype.get = function(row, col)
             } else {
                 return "";
             }
-        case 4:
+        case 3:
             var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -1305,6 +1301,7 @@ YaripRedirectList.prototype.get = function(row, col)
             } else {
                 return "";
             }
+        case 99: return item.getScript();
         default: return "";
         }
     }

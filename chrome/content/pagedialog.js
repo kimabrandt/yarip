@@ -117,10 +117,13 @@ function YaripPageDialog()
         case "elementScriptList":
         case "contentRequestHeaderList":
         case "contentResponseHeaderList":
+        case "contentRedirectList":
 //        case "contentStreamList":
         case "pageRequestHeaderList":
         case "pageResponseHeaderList":
         case "pageScriptList":
+        case "contentRedirectList":
+        case "pageRedirectList":
         case "pageStreamList":
             this.tabs[this.tab].item.setScript(value);
             this.tabs[this.tab].list.set(this.tabs[this.tab].tree.currentIndex, 99, value);
@@ -381,13 +384,13 @@ function YaripPageDialog()
         case "elementScriptList":
             obj = {
                 item: new YaripScriptItem("//input[translate(@autocomplete,'FO','fo')='off']",
-                    "function (array) {\n" +
-                    "    for (var i = 0; i < array.length; i++) {\n" +
-                    "        var element = array[i];\n" +
-                    "        element.setAttribute(\"autocomplete\", \"on\");\n" +
-                    "        console.debug(\"Found element:\", element);\n" +
-                    "    }\n" +
-                    "}"),
+                        "function (array) {\n" +
+                        "    for (var i = 0; i < array.length; i++) {\n" +
+                        "        var element = array[i];\n" +
+                        "        element.setAttribute(\"autocomplete\", \"on\");\n" +
+                        "        console.debug(\"Found element:\", element);\n" +
+                        "    }\n" +
+                        "}"),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/scriptdialog.xul", "scriptdialog", "chrome,modal,resizable", null, obj);
@@ -401,7 +404,6 @@ function YaripPageDialog()
             obj = {
                 item: new YaripContentWhitelistItem(re),
                 pageName: page.getName()
-//                buttonsDisabled: true
             }
             window.openDialog("chrome://yarip/content/whitelistcontentdialog.xul", "whitelistcontentdialog", "chrome,modal,resizable", obj);
             if (!obj.item) return;
@@ -415,7 +417,6 @@ function YaripPageDialog()
             obj = {
                 item: new YaripContentBlacklistItem(re),
                 pageName: page.getName()
-//                buttonsDisabled: true
             }
             window.openDialog("chrome://yarip/content/blacklistcontentdialog.xul", "blacklistcontentdialog", "chrome,modal,resizable", obj);
             if (!obj.item) return;
@@ -427,9 +428,9 @@ function YaripPageDialog()
             var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
                 item: new YaripHeaderItem(re, "Cookie",
-                    "function (value) {\n" +
-                    "    return \"\";\n" +
-                    "}", false),
+                        "function (value) {\n" +
+                        "    return \"\";\n" +
+                        "}", false),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/headerdialog.xul", "headerdialog", "chrome,modal,resizable", obj);
@@ -442,9 +443,9 @@ function YaripPageDialog()
             var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
                 item: new YaripHeaderItem(re, "Set-Cookie",
-                    "function (value) {\n" +
-                    "    return \"\";\n" +
-                    "}", false),
+                        "function (value) {\n" +
+                        "    return \"\";\n" +
+                        "}", false),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/headerdialog.xul", "headerdialog", "chrome,modal,resizable", obj);
@@ -456,7 +457,13 @@ function YaripPageDialog()
         case "contentRedirectList":
             var reObj = yarip.getPageRegExpObj(page.getName(), null, true /* byUser */);
             obj = {
-                item: new YaripRedirectItem(reObj.regExp, reObj.newSubStr),
+//                item: new YaripRedirectItem(reObj.regExp, reObj.newSubStr),
+                item: new YaripRedirectItem(reObj.regExp,
+                        "function (url) {\n" +
+                        "    return unescape(url.replace(/.*?\\?du=([^&#]+).*/, \"$1\"));\n" +
+                        "}\n" +
+                        "// Or just a new substring:\n" +
+                        "//" + reObj.newSubStr),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/redirectdialog.xul", "redirectdialog", "chrome,modal,resizable", obj);
@@ -484,18 +491,18 @@ function YaripPageDialog()
         case "pageStyleList":
             obj = {
                 item: new YaripStyleItem("/html/head",
-                    "a:visited,\n" +
-                    "a:visited span {\n" +
-                    "    color: -moz-visitedhyperlinktext !important;\n" +
-                    "}\n" +
-                    "\n" +
-                    "a:link img {\n" +
-                    "    outline: 4px solid -moz-nativehyperlinktext !important;\n" +
-                    "}\n" +
-                    "\n" +
-                    "a:visited img {\n" +
-                    "    outline-color: -moz-visitedhyperlinktext !important;\n" +
-                    "}"),
+                        "a:visited,\n" +
+                        "a:visited span {\n" +
+                        "    color: -moz-visitedhyperlinktext !important;\n" +
+                        "}\n" +
+                        "\n" +
+                        "a:link img {\n" +
+                        "    outline: 4px solid -moz-nativehyperlinktext !important;\n" +
+                        "}\n" +
+                        "\n" +
+                        "a:visited img {\n" +
+                        "    outline-color: -moz-visitedhyperlinktext !important;\n" +
+                        "}"),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/pagestyledialog.xul", "pagestyledialog", "chrome,modal,resizable", null, obj);
@@ -519,9 +526,9 @@ function YaripPageDialog()
             var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
                 item: new YaripHeaderItem(re, "Cookie",
-                    "function (value) {\n" +
-                    "    return \"\";\n" +
-                    "}", false),
+                        "function (value) {\n" +
+                        "    return \"\";\n" +
+                        "}", false),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/headerdialog.xul", "headerdialog", "chrome,modal,resizable", obj);
@@ -534,9 +541,9 @@ function YaripPageDialog()
             var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
                 item: new YaripHeaderItem(re, "Set-Cookie",
-                    "function (value) {\n" +
-                    "    return \"\";\n" +
-                    "}", false),
+                        "function (value) {\n" +
+                        "    return \"\";\n" +
+                        "}", false),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/headerdialog.xul", "headerdialog", "chrome,modal,resizable", obj);
@@ -548,7 +555,13 @@ function YaripPageDialog()
         case "pageRedirectList":
             var reObj = yarip.getPageRegExpObj(page.getName(), null, true /* byUser */);
             obj = {
-                item: new YaripRedirectItem(reObj.regExp, reObj.newSubStr),
+//                item: new YaripRedirectItem(reObj.regExp, reObj.newSubStr),
+                item: new YaripRedirectItem(reObj.regExp,
+                        "function (spec) {\n" +
+                        "    return unescape(spec.replace(/.*?\\?du=([^&#]+).*/, \"$1\"));\n" +
+                        "}\n" +
+                        "// Or alternatively a new substring:\n" +
+                        "//" + reObj.newSubStr),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/redirectdialog.xul", "redirectdialog", "chrome,modal,resizable", obj);
@@ -560,11 +573,11 @@ function YaripPageDialog()
         case "pageStreamList":
             obj = {
                 item: new YaripStreamItem("<script\\b[^>]*>(.|\\s)*?</script>",
-                    "function (matches) {\n" +
-                    "    for (var i = 0; i < matches.length; i++) {\n" +
-                    "        matches[i] = matches[i].replace(/foo/g, \"bar\");\n" +
-                    "    }\n" +
-                    "}"),
+                        "function (matches) {\n" +
+                        "    for (var i = 0; i < matches.length; i++) {\n" +
+                        "        matches[i] = matches[i].replace(/foo/g, \"bar\");\n" +
+                        "    }\n" +
+                        "}"),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/replacedialog.xul", "replacedialog", "chrome,modal,resizable", obj);
@@ -1268,11 +1281,13 @@ function YaripPageDialog()
             case "elementScriptList":
             case "contentRequestHeaderList":
             case "contentResponseHeaderList":
+            case "contentRedirectList":
 //            case "contentStreamList":
             case "pageStyleList":
             case "pageScriptList":
             case "pageRequestHeaderList":
             case "pageResponseHeaderList":
+            case "pageRedirectList":
             case "pageStreamList":
                 if (load || update) {
                     this.tabs[tab].textbox.value = list.get(tree.currentIndex, 99);
@@ -1379,8 +1394,8 @@ function YaripPageDialog()
         case "elementAttributeList-tree":
         case "contentWhitelist-tree":
         case "contentBlacklist-tree":
-        case "contentRedirectList-tree":
-        case "pageRedirectList-tree":
+//        case "contentRedirectList-tree":
+//        case "pageRedirectList-tree":
         case "pageExtensionList-tree":
         case "pageExtendedByList-tree":
             this.refreshTab(this.tab);
@@ -1389,11 +1404,13 @@ function YaripPageDialog()
         case "elementScriptList-tree":
         case "contentRequestHeaderList-tree":
         case "contentResponseHeaderList-tree":
+        case "contentRedirectList-tree":
 //        case "contentStreamList-tree":
         case "pageStyleList-tree":
         case "pageScriptList-tree":
         case "pageRequestHeaderList-tree":
         case "pageResponseHeaderList-tree":
+        case "pageRedirectList-tree":
         case "pageStreamList-tree":
             this.refreshTab(this.tab, null, true);
             break;
@@ -1440,11 +1457,13 @@ function YaripPageDialog()
         case "elementScriptList":
         case "contentRequestHeaderList":
         case "contentResponseHeaderList":
+        case "contentRedirectList":
 //        case "contentStreamList":
         case "pageStyleList":
         case "pageScriptList":
         case "pageRequestHeaderList":
         case "pageResponseHeaderList":
+        case "pageRedirectList":
         case "pageStreamList":
             this.tabs[tab].textbox = document.getElementById(tab + "-textbox");
             break;

@@ -979,7 +979,7 @@ function YaripRedirectItem(regExp, newsubstr, priority, created, lastFound)
     this.lastFound = -1;
 
     this.setRegExp(regExp);
-    this.setNewSubStr(newsubstr);
+    this.setScript(newsubstr);
     this.setPriority(priority);
     this.setCreated(created ? created : Date.now());
     this.setLastFound(lastFound);
@@ -990,13 +990,13 @@ YaripRedirectItem.prototype.getId = function()
 {
     return this.getRegExp();
 }
-YaripRedirectItem.prototype.setNewSubStr = function(value)
+YaripRedirectItem.prototype.setScript = function(value)
 {
     if (!value && value != "") return;
 
     this.newsubstr = value;
 }
-YaripRedirectItem.prototype.getNewSubStr = function()
+YaripRedirectItem.prototype.getScript = function()
 {
     return this.newsubstr;
 }
@@ -1009,7 +1009,6 @@ YaripRedirectItem.prototype.clone = function(purge)
 YaripRedirectItem.prototype.merge = function(item)
 {
     if (!item) return;
-    this.setNewSubStr(item.getNewSubStr() || this.getNewSubStr());
     if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
     if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
@@ -1029,7 +1028,7 @@ YaripRedirectItem.prototype.generateXml = function()
 YaripRedirectItem.prototype.loadFromObject = function(obj)
 {
     this.setRegExp(obj.regExp);
-    this.setNewSubStr(obj.newsubstr);
+    this.setScript(obj.newsubstr);
     this.setPriority(obj.priority);
     this.setCreated(obj.created);
     this.setLastFound(obj.lastFound);

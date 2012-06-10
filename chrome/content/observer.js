@@ -19,58 +19,52 @@ along with yarip; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-function YaripObserver(prefs, callback)
+function YaripPreferenceObserver(prefs, callback)
 {
+    this.observables = [];
+    this.enabled = true;
+    this.values = {};
+
     this.register(prefs, callback);
 }
-YaripObserver.prototype = {
-    observables: [],
-    enabled: true,
-    values: {},
+YaripPreferenceObserver.prototype.register = function(prefs, callback)
+{
+    if (!prefs || !callback || prefs.length === 0) return;
 
-    register: function(prefs, callback)
-    {
-        if (!prefs || prefs.length === 0 || !callback) return;
-
-        this.callback = callback;
-        if (typeof prefs === "string") prefs = [prefs];
-        for (var i = 0; i < prefs.length; i++) {
-            var index = prefs[i].lastIndexOf(".");
-            var root = prefs[i].substring(0, index + 1);
-            this.values[prefs[i].substring(index + 1)] = true;
-
-            var prefService = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
-            var observable = prefService.getBranch(root);
-            observable.QueryInterface(Components.interfaces.nsIPrefBranch2);
-            observable.addObserver("", this, false);
-            this.observables.push(observable);
-        }
-    },
-
-    unregister: function()
-    {
-        var observable = null;
-        while (observable = this.observables.pop()) {
-            if (observable) observable.removeObserver("", this);
-        }
-    },
-
-    observe: function(subject, topic, data)
-    {
-        if (!this.enabled || !this.values[data]) return;
-
-        this.disable();
-        this.callback();
-        this.enable();
-    },
-
-    enable: function()
-    {
-        this.enabled = true;
-    },
-
-    disable: function()
-    {
-        this.enabled = false;
+    this.callback = callback;
+    if (typeof prefs === "string") prefs = [prefs];
+    for (var i = 0; i < prefs.length; i++) {
+        var index = prefs[i].lastIndexOf(".");
+        var root = prefs[i].substring(0, index + 1);
+        this.values[prefs[i].substring(index + 1)] = true;
+        var prefService = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
+        var observable = prefService.getBranch(root);
+        observable.QueryInterface(Components.interfaces.nsIPrefBranch2);
+        observable.addObserver("", this, false);
+        this.observables.push(observable);
     }
 }
+YaripPreferenceObserver.prototype.unregister = function()
+{
+    var observable = null;
+    while (observable = this.observables.pop()) {
+        if (observable) observable.removeObserver("", this);
+    }
+}
+YaripPreferenceObserver.prototype.observe = function(subject, topic, data)
+{
+    if (!this.enabled || !this.values[data]) return;
+
+    this.disable();
+    this.callback();
+    this.enable();
+}
+YaripPreferenceObserver.prototype.enable = function()
+{
+    this.enabled = true;
+}
+YaripPreferenceObserver.prototype.disable = function()
+{
+    this.enabled = false;
+}
+

@@ -40,13 +40,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     <preferences>
       <preference id="prefElementsInContext" name="extensions.yarip.elementsInContext.value" type="int"/>
 
-<!--      <preference id="prefAlwaysUseIndex" name="extensions.yarip.alwaysUseIndex.value" type="bool"/> TODO Reset this preference! -->
       <preference id="prefUseIndex" name="extensions.yarip.useIndex.value" type="int"/>
 
       <preference id="prefMonitorContentModifiersList" name="extensions.yarip.monitorContentModifiersList.value" type="string"/>
       <preference id="prefMonitorContentKeyCode" name="extensions.yarip.monitorContentKeyCode.value" type="string"/>
-<!--      <preference id="prefRepeat" name="extensions.yarip.contentRepeatThreshold.value" type="int"/>-->
-<!--      <preference id="prefContentRecurrence" name="extensions.yarip.contentRecurrence.value" type="bool"/>-->
       <preference id="prefLogWhenClosed" name="extensions.yarip.logWhenClosed.value" type="bool"/>
 
       <preference id="prefManagePagesModifiersList" name="extensions.yarip.managePagesModifiersList.value" type="string"/>
@@ -85,7 +82,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
             <groupbox>
               <caption label="&caption.label.xpath;"/>
-<!--              <checkbox id="checkboxAlwaysUseIndex" label="&checkbox.label.alwaysUseIndex;" preference="prefAlwaysUseIndex"/>-->
               <label value="&label.value.useIndex;"/>
               <radiogroup preference="prefUseIndex">
                 <radio id="radioAlwaysUseIndex" label="&radio.label.always;" value="0"/>
@@ -132,7 +128,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
         </tabpanel>
         <tabpanel id="monitor-tabpanel" flex="1">
           <vbox flex="1">
-<!--            <checkbox id="checkboxContentRecurrence" label="&checkbox.label.contentRecurrence;" preference="prefContentRecurrence"/>-->
             <checkbox id="checkboxLogWhenClosed" label="&checkbox.label.logWhenClosed;" preference="prefLogWhenClosed"/>
             <separator class="thin"/>
             <groupbox>

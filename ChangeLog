@@ -1,3 +1,20 @@
+2012-06-10  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/observer.js (YaripPreferenceObserver): Renamed
+    `YaripObserver' into `YaripPreferenceObserver' to not conflict with
+    `YaripObserver' in the `module'-directory.
+
+    * chrome/content/pagedialog.js (*RedirectList): Allow use of functions or a
+    string-value for redirect-lists, similar to other lists.
+
+    * modules/observer.jsm (examineResponse): Allowing redirect and blacklist of
+    the `Location'-header.
+
+    * modules/replace.jsm (URI.host): Only copying headers if the host of the
+    old and new URIs is the same.
+
+    * : Made some minor code changes/restructuring.
+
 2012-06-06  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/overlay.js (doWhitelist): Renamed the `whitelistElement'-

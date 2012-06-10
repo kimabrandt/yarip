@@ -93,11 +93,6 @@ YaripMap.prototype.removeByName = function(pageName)
     if (!pageName || !this.obj[pageName]) return;
 
     var page = this.obj[pageName];
-//    this.tree.remove(page);
-//    delete this.objId[page.getId()];
-//    delete this.obj[pageName];
-//    this.length--;
-//    this.resetKnown();
     this.removeById(page.getId());
 }
 YaripMap.prototype.addExtension = function(page, item)

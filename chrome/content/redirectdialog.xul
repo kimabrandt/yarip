@@ -47,18 +47,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   <stringbundleset>
     <stringbundle id="stringbundle" src="chrome://yarip/locale/overlay.properties"/>
   </stringbundleset>
-  <hbox align="center">
-    <label value="&label.value.page;:"/>
-    <menulist id="page" editable="true" flex="1">
-      <menupopup id="page-menupopup"/>
-    </menulist>
-  </hbox>
-  <hbox align="center">
-    <label value="&label.value.regExp;:"/>
-    <textbox id="regExp" type="autocomplete" autocompletesearch="form-history" autocompletesearchparam="regexp" enablehistory="true" completedefaultindex="true" flex="1"/>
-  </hbox>
-  <hbox align="center">
-    <label value="&label.value.newsubstr;:"/>
-    <textbox id="newsubstr" type="autocomplete" autocompletesearch="form-history" autocompletesearchparam="newsubstr" enablehistory="true" completedefaultindex="true" flex="1"/>
-  </hbox>
+  <vbox flex="1">
+    <hbox align="center">
+      <label value="&label.value.page;:"/>
+      <menulist id="page" editable="true" flex="1">
+        <menupopup id="page-menupopup"/>
+      </menulist>
+    </hbox>
+    <hbox align="center">
+      <label value="&label.value.regExp;:"/>
+      <textbox id="regExp" type="autocomplete" autocompletesearch="form-history" autocompletesearchparam="regexp" enablehistory="true" completedefaultindex="true" flex="1"/>
+    </hbox>
+    <textbox id="newsubstr" multiline="true" persist="height" flex="1"/>
+  </vbox>
 </dialog>

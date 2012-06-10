@@ -1,5 +1,4 @@
 <!ENTITY setting.enable           "Enable">
-<!--ENTITY setting.alwaysUseIndex   "Always use indexes"-->
 <!--ENTITY setting.prefixShow       "Show"-->
 <!ENTITY setting.exclWhitelist    "Exclusively whitelist">
 <!ENTITY setting.privateBrowsing  "Private browsing">

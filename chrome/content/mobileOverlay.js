@@ -39,11 +39,11 @@ function YaripOverlay()
     {
         switch(event.type) {
         case "load":
-            this.enabledObserver = new YaripObserver(
+            this.enabledObserver = new YaripPreferenceObserver(
                 PREF_ENABLED,
                 function() { yaripOverlay.updateEnabled(); }
             );
-            this.schemesObserver = new YaripObserver(
+            this.schemesObserver = new YaripPreferenceObserver(
                 PREF_SCHEMES,
                 function() {
                     yarip.setSchemes(yarip.getValue(PREF_SCHEMES, "", DATA_TYPE_STRING));
