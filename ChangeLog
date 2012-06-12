@@ -1,3 +1,10 @@
+2012-06-12  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/yarip.jsm (shouldBlacklist): Returning a status-object.
+
+    * modules/observer.jsm (Pragma): Prevent caching when the Location-header is
+    present and the location blacklisted.
+
 2012-06-10  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/observer.js (YaripPreferenceObserver): Renamed

@@ -76,23 +76,25 @@ YaripObserver.prototype.modifyRequest = function(channel)
     var addressObj = yarip.getAddressObjByLocation(location, true);
     if (!addressObj.found) return;
 
-    var isPage = (LOAD_DOCUMENT_URI & channel.loadFlags) !== 0;
+    var isPage = locObj.isPage;
+    var isLinking = locObj.isLinking;
+    var defaultView = doc ? doc.defaultView : null;
     var contentLocation = yarip.getContentLocationFromContentLocation(channel.URI);
-    var redObj = this.shouldRedirect(addressObj, location, contentLocation, doc ? doc.defaultView : null, isPage);
-    switch (redObj.status) {
+    var statusObj = this.shouldRedirect(addressObj, location, contentLocation, defaultView, isPage, isLinking ? DO_LINKS : DO_CONTENTS);
+    var itemObj = statusObj.itemObj;
+    switch (statusObj.status) {
     case STATUS_UNKNOWN:
-        if (!isPage) yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation, null, addressObj.itemObj);
+        if (!isPage) yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation, null, itemObj);
         break;
     case STATUS_WHITELISTED:
-        if (!isPage) yarip.logContentLocation(STATUS_WHITELISTED, location, contentLocation, null, addressObj.itemObj);
+        if (!isPage) yarip.logContentLocation(STATUS_WHITELISTED, location, contentLocation, null, itemObj);
         break;
     case STATUS_BLACKLISTED:
         channel.cancel(Cr.NS_ERROR_ABORT);
-        yarip.logContentLocation(STATUS_BLACKLISTED, location, contentLocation, null, addressObj.itemObj);
+        yarip.logContentLocation(STATUS_BLACKLISTED, location, contentLocation, null, itemObj);
         return;
     case STATUS_REDIRECTED:
-        var itemObj = addressObj.itemObj;
-        new YaripChannelReplace(channel, redObj.newURI, function(oldChannel, newChannel) {
+        new YaripChannelReplace(channel, statusObj.newURI, function(oldChannel, newChannel) {
                 yarip.logContentLocation(STATUS_REDIRECTED, location, newChannel.URI, null, itemObj);
             });
         return;
@@ -184,35 +186,43 @@ YaripObserver.prototype.examineResponse = function(channel)
     {
         if (!isLinking || yarip.privateBrowsing)
         {
+            var locationHeader = null;
+            try { locationHeader = channel.getResponseHeader("Location"); } catch (error) {}
             try
             {
-                var locationHeader = channel.getResponseHeader("Location");
                 if (locationHeader)
                 {
                     var newURI = IOS.newURI(locationHeader, contentLocation.originCharset, null);
                     var newContentLocation = yarip.getContentLocationFromContentLocation(newURI);
-                    var redObj = this.shouldRedirect(addressObj, location, newContentLocation, doc ? doc.defaultView : win, isPage);
-                    switch (redObj.status) {
+                    var statusObj = this.shouldRedirect(addressObj, location, newContentLocation, defaultView ? defaultView : win, isPage, DO_LINKS);
+                    var itemObj = statusObj.itemObj;
+                    switch (statusObj.status) {
                     case STATUS_UNKNOWN:
-                        yarip.logContentLocation(STATUS_UNKNOWN, location, newContentLocation, null, addressObj.itemObj);
+                        yarip.logContentLocation(STATUS_UNKNOWN, location, newContentLocation, null, itemObj);
                         break;
                     case STATUS_WHITELISTED:
-                        yarip.logContentLocation(STATUS_WHITELISTED, location, newContentLocation, null, addressObj.itemObj);
+                        yarip.logContentLocation(STATUS_WHITELISTED, location, newContentLocation, null, itemObj);
                         break;
                     case STATUS_BLACKLISTED:
                         channel.setResponseHeader("Location", "", false);
-                        yarip.logContentLocation(STATUS_BLACKLISTED, location, newContentLocation, null, addressObj.itemObj);
-                        if (addressObj.itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
-                            yarip.showLinkNotification(doc, newContentLocation);
+                        channel.setResponseHeader("Pragma", "no-cache", false); // prevent caching
+                        channel.setResponseHeader("Cache-Control", "no-cache, no-store, must-revalidate", false);
+                        channel.setResponseHeader("Expires", "0", false);
+                        if (itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
+                            // TODO How to deal with multi-redirects (disappearing notification)!?
+                            yarip.showLinkNotification(doc, newContentLocation, win);
                         }
+                        yarip.logContentLocation(STATUS_BLACKLISTED, location, newContentLocation, null, itemObj);
                         return;
                     case STATUS_REDIRECTED:
-                        channel.setResponseHeader("Location", redObj.newURI.spec, false);
-                        yarip.logContentLocation(STATUS_REDIRECTED, location, redObj.newURI, null, addressObj.itemObj);
+                        channel.setResponseHeader("Location", statusObj.newURI.spec, false);
+                        yarip.logContentLocation(STATUS_REDIRECTED, location, statusObj.newURI, null, itemObj);
                         return;
                     }
                 }
-            } catch (e) {
+            } catch (error) {
+                Cu.reportError("YaripObserver.examineResponse: Couldn't redirect!\nerror=" + error);
+//                Cu.reportError("YaripObserver.examineResponse: Couldn't redirect!\npageName: " + pageName + "\nregex=" + item.getRegExp() + "\nasciiSpec=" + asciiSpec + "\nnewSpec=" + newSpec + "\nerror=" + error);
             }
         }
     }
@@ -280,7 +290,7 @@ YaripObserver.prototype.examineResponse = function(channel)
         }
     }
 }
-YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentLocation, defaultView, isPage)
+YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentLocation, defaultView, isPage, doFlag)
 {
     var statusObj = {
         status: STATUS_UNKNOWN,
@@ -326,11 +336,12 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentL
 
                     if (defaultView) defaultView.yaripStatus = "found";
 
-                    addressObj.itemObj = {
+                    statusObj.itemObj = {
                         pageName: pageName,
                         ruleType: isPage ? TYPE_PAGE_REDIRECT : TYPE_CONTENT_REDIRECT,
                         itemKey: item.getKey()
                     };
+
                     statusObj.status = STATUS_REDIRECTED;
                     statusObj.newURI = newURI;
                     return statusObj;
@@ -341,14 +352,8 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentL
         }
     }
 
-    statusObj.status = yarip.shouldBlacklist(addressObj, asciiSpec, defaultView);
-
-//    if (isPage) {
-//        statusObj.status = STATUS_WHITELISTED;
-//        return statusObj;
-//    } else {
-        return statusObj;
-//    }
+    statusObj = yarip.shouldBlacklist(addressObj, asciiSpec, defaultView, doFlag);
+    return statusObj;
 }
 YaripObserver.prototype.init = function()
 {

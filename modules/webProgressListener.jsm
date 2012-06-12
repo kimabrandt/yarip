@@ -53,33 +53,35 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
     if (!yarip.schemesRegExp.test(request.URI.scheme)) return;
 
     var doc = webProgress.DOMWindow.document;
-    if (!yarip.schemesRegExp.test(doc.location.protocol.replace(/:$/, ""))) return;
+    var locObj = yarip.getLocation(request, doc);
+    if (!locObj) return;
 
-    var isLinking = (LOAD_INITIAL_DOCUMENT_URI & request.loadFlags) === LOAD_INITIAL_DOCUMENT_URI || (STATE_REDIRECTING & stateFlags) === STATE_REDIRECTING;
+    var location = locObj.location;
+    if (!yarip.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return;
+
+    var isPage = locObj.isPage;
+    var isLinking = locObj.isLinking;
     if (isLinking && !yarip.privateBrowsing) return;
 
-    var location = yarip.getLocationFromLocation(doc.location);
     var contentLocation = yarip.getContentLocationFromContentLocation(request.URI);
-
     var addressObj = yarip.getAddressObjByLocation(location, true);
     if (!addressObj.found) {
         yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation);
         return;
     }
 
-    var status = yarip.shouldBlacklist(addressObj, contentLocation.asciiSpec, doc.defaultView, isLinking ? 7 : 2 /* link or content */);
-    var isPage = (LOAD_DOCUMENT_URI & request.loadFlags) === LOAD_DOCUMENT_URI;
-    switch (status) {
+    var statusObj = yarip.shouldBlacklist(addressObj, contentLocation.asciiSpec, doc.defaultView, isLinking ? DO_LINKS : DO_CONTENTS);
+    switch (statusObj.status) {
     case STATUS_UNKNOWN:
         if (!isPage && (STATE_START & stateFlags) !== STATE_START) yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation);
         break;
     case STATUS_WHITELISTED:
-        if (!isPage && (STATE_START & stateFlags) !== STATE_START) yarip.logContentLocation(STATUS_WHITELISTED, location, contentLocation, null, addressObj.itemObj);
+        if (!isPage && (STATE_START & stateFlags) !== STATE_START) yarip.logContentLocation(STATUS_WHITELISTED, location, contentLocation, null, statusObj.itemObj);
         break;
     case STATUS_BLACKLISTED:
         request.cancel(Cr.NS_ERROR_ABORT);
-        yarip.logContentLocation(STATUS_BLACKLISTED, location, contentLocation, null, addressObj.itemObj);
-        if (addressObj.itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
+        yarip.logContentLocation(STATUS_BLACKLISTED, location, contentLocation, null, statusObj.itemObj);
+        if (statusObj.itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
             yarip.showLinkNotification(doc, contentLocation);
         }
         break;

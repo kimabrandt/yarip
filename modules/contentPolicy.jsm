@@ -88,9 +88,9 @@ YaripContentPolicy.prototype.shouldLoad = function(contentType, contentLocation,
 //        yarip.profileTime = Date.now();
 //    }
 
-    var status = yarip.shouldBlacklist(addressObj, contentLocation.asciiSpec, defaultView);
-    yarip.logContentLocation(status, location, contentLocation, mimeTypeGuess, addressObj.itemObj);
-    switch (status) {
+    var statusObj = yarip.shouldBlacklist(addressObj, contentLocation.asciiSpec, defaultView);
+    yarip.logContentLocation(statusObj.status, location, contentLocation, mimeTypeGuess, statusObj.itemObj);
+    switch (statusObj.status) {
     case STATUS_UNKNOWN:
         return ACCEPT;
     case STATUS_WHITELISTED:

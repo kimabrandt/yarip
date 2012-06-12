@@ -2620,7 +2620,10 @@ Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
 {
     if (!doFlag) doFlag = DO_CONTENTS;
     var whitelisted = false;
-    var result = STATUS_UNKNOWN;
+    var statusObj = {
+        status: STATUS_UNKNOWN,
+        newURI: null
+    };
 
     // WHITELIST
     for (var pageName in addressObj.ext)
@@ -2643,16 +2646,16 @@ Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
             if (defaultView) {
                 defaultView.yaripStatus = "found";
             }
-            addressObj.itemObj = {
+            statusObj.itemObj = {
                 pageName: pageName,
                 ruleType: TYPE_CONTENT_WHITELIST,
                 itemKey: item.getKey()
             };
+            statusObj.status = STATUS_WHITELISTED;
             if (item.getForce()) {
-                return STATUS_WHITELISTED;
+                return statusObj;
             } else {
                 whitelisted = true;
-                result = STATUS_WHITELISTED;
                 break;
             }
         }
@@ -2683,24 +2686,25 @@ Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
             if (defaultView) {
                 defaultView.yaripStatus = "found";
             }
-            addressObj.itemObj = {
+            statusObj.itemObj = {
                 pageName: pageName,
                 ruleType: TYPE_CONTENT_BLACKLIST,
                 itemKey: item.getKey()
             };
-            return STATUS_BLACKLISTED;
+            statusObj.status = STATUS_BLACKLISTED;
+            return statusObj;
         }
     }
 
     if (!whitelisted && addressObj.exclusive) {
-        addressObj.itemObj = {
+        statusObj.itemObj = {
             pageName: addressObj.exclusivePageName,
             ruleType: TYPE_CONTENT_WHITELIST // `exclusive'-checkbox
         };
-        return STATUS_BLACKLISTED;
-    } else {
-        return result;
+        statusObj.status = STATUS_BLACKLISTED;
     }
+
+    return statusObj;
 }
 Yarip.prototype.openLocation = function(url)
 {
@@ -2767,17 +2771,17 @@ Yarip.prototype.getInterface = function(channel, iid)
 }
 Yarip.prototype.getLocation = function(channel, doc)
 {
-    var isPage = (LOAD_DOCUMENT_URI & channel.loadFlags) !== 0;
-    var fromCache = (LOAD_FROM_CACHE & channel.loadFlags) !== 0;
-    var isLinking = isPage || (LOAD_INITIAL_DOCUMENT_URI & channel.loadFlags) !== 0;
+    var isPage = (LOAD_DOCUMENT_URI & channel.loadFlags) === LOAD_DOCUMENT_URI;
+//    var fromCache = (LOAD_FROM_CACHE & channel.loadFlags) === LOAD_FROM_CACHE;
+    var isLinking = isPage || (LOAD_INITIAL_DOCUMENT_URI & channel.loadFlags) === LOAD_INITIAL_DOCUMENT_URI;
     var obj = {
         location: null,
         isPage: isPage,
-        fromCache: fromCache,
+//        fromCache: fromCache,
         isLinking: isLinking
     };
 
-    if (!(LOAD_REPLACE & channel.loadFlags)) {
+    if ((LOAD_REPLACE & channel.loadFlags) === LOAD_REPLACE) {
         try {
             var newURI = IOS.newURI(channel.loadGroup.defaultLoadRequest.name, channel.URI.originCharset, null);
             obj.location = this.getLocationFromContentLocation(newURI);
@@ -2810,7 +2814,7 @@ Yarip.prototype.getYaripScript = function()
         "    }\n" +
         "}";
 }
-Yarip.prototype.showLinkNotification = function(doc, contentLocation)
+Yarip.prototype.showLinkNotification = function(doc, contentLocation, win)
 {
     var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
     var browserEnum = wm.getEnumerator("navigator:browser");
