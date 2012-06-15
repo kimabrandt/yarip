@@ -1,3 +1,9 @@
+2012-06-15  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/page.jsm (init): Making sure the `obj' is always initialized.
+
+    * modules/page.jsm (compare): Checking the schemes before comparing.
+
 2012-06-12  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * modules/webProgressListener.jsm (getLocation): Not creating the

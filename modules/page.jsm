@@ -290,6 +290,13 @@ YaripPage.prototype.init = function()
                 scheme: scheme,
                 domainArr: simple.split('.').reverse()
             };
+        } else {
+            this.obj = {
+                scheme: scheme,
+                domainArr: domain ? domain.split('.').reverse() : simple ? simple.split('.').reverse() : null,
+                ipArr: ip ? ip.split('.') : null,
+                tldArr: tld ? tld.split('.').reverse() : null
+            };
         }
     }
 //if (/\b(example|localhost|yarip)\b/.test(this.getName())) {
@@ -345,8 +352,10 @@ YaripPage.prototype.compare = function(b, rec)
     // Comparing SCHEMEs
     var aScheme = this.obj.scheme;
     var bScheme = b.obj.scheme;
-    if (aScheme < bScheme) return -1;
-    if (aScheme > bScheme) return 1;
+    if (aScheme && bScheme) {
+        if (aScheme < bScheme) return -1;
+        if (aScheme > bScheme) return 1;
+    }
 
     var aName = this.getName();
     var bName = b.getName();
