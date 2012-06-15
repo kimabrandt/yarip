@@ -47,36 +47,45 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
     if (!yarip.enabled) return;
     if (!webProgress.isLoadingDocument) return;
     if (!(request instanceof Ci.nsIHttpChannel)) return;
-    if ((STATE_STOP & stateFlags) === STATE_STOP) return;
+//    if ((STATE_STOP & stateFlags) === STATE_STOP) return;
+    if ((STATE_START & stateFlags) !== STATE_START && (STATE_REDIRECTING & stateFlags) !== STATE_REDIRECTING) return;
 
     request.QueryInterface(Ci.nsIHttpChannel);
+
     if (!yarip.schemesRegExp.test(request.URI.scheme)) return;
 
     var doc = webProgress.DOMWindow.document;
-    var locObj = yarip.getLocation(request, doc);
+    if (!yarip.schemesRegExp.test(doc.location.protocol.replace(/:$/, ""))) return;
+
+    var locObj = yarip.getLocation(request, doc, true /* notLocation */);
     if (!locObj) return;
 
-    var location = locObj.location;
-    if (!yarip.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return;
-
-    var isPage = locObj.isPage;
     var isLinking = locObj.isLinking;
+//    var isLinking = locObj.isLinking || (STATE_REDIRECTING & stateFlags) === STATE_REDIRECTING;
     if (isLinking && !yarip.privateBrowsing) return;
 
+//    var location = locObj.location;
+//    if (!yarip.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return;
+
+    var location = yarip.getLocationFromLocation(doc.location);
     var contentLocation = yarip.getContentLocationFromContentLocation(request.URI);
     var addressObj = yarip.getAddressObjByLocation(location, true);
     if (!addressObj.found) {
-        yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation);
-        return;
+       yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation);
+       return;
     }
 
     var statusObj = yarip.shouldBlacklist(addressObj, contentLocation.asciiSpec, doc.defaultView, isLinking ? DO_LINKS : DO_CONTENTS);
     switch (statusObj.status) {
     case STATUS_UNKNOWN:
-        if (!isPage && (STATE_START & stateFlags) !== STATE_START) yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation);
+        if (!locObj.isPage && (STATE_START & stateFlags) !== STATE_START) {
+            yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation);
+        }
         break;
     case STATUS_WHITELISTED:
-        if (!isPage && (STATE_START & stateFlags) !== STATE_START) yarip.logContentLocation(STATUS_WHITELISTED, location, contentLocation, null, statusObj.itemObj);
+        if (!locObj.isPage && (STATE_START & stateFlags) !== STATE_START) {
+            yarip.logContentLocation(STATUS_WHITELISTED, location, contentLocation, null, statusObj.itemObj);
+        }
         break;
     case STATUS_BLACKLISTED:
         request.cancel(Cr.NS_ERROR_ABORT);

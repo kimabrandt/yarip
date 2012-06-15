@@ -204,15 +204,14 @@ YaripObserver.prototype.examineResponse = function(channel)
                         yarip.logContentLocation(STATUS_WHITELISTED, location, newContentLocation, null, itemObj);
                         break;
                     case STATUS_BLACKLISTED:
-                        channel.setResponseHeader("Location", "", false);
-                        channel.setResponseHeader("Pragma", "no-cache", false); // prevent caching
-                        channel.setResponseHeader("Cache-Control", "no-cache, no-store, must-revalidate", false);
-                        channel.setResponseHeader("Expires", "0", false);
-                        if (itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
-                            // TODO How to deal with multi-redirects (disappearing notification)!?
-                            yarip.showLinkNotification(doc, newContentLocation, win);
-                        }
+                        channel.setResponseHeader("Pragma", "no-cache", true); // prevent caching
+                        channel.setResponseHeader("Cache-Control", "no-cache, no-store, must-revalidate", true);
+                        channel.setResponseHeader("Expires", "0", true);
+                        channel.cancel(Cr.NS_ERROR_ABORT);
                         yarip.logContentLocation(STATUS_BLACKLISTED, location, newContentLocation, null, itemObj);
+                        if (itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
+                            yarip.showLinkNotification(doc, newContentLocation);
+                        }
                         return;
                     case STATUS_REDIRECTED:
                         channel.setResponseHeader("Location", statusObj.newURI.spec, false);

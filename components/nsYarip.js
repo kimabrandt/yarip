@@ -64,11 +64,11 @@ YaripAppStartupService.prototype.observe = function(subject, topic, data)
     }
 }
 
-if (XPCOMUtils.generateNSGetFactory) {
+//if (XPCOMUtils.generateNSGetFactory) {
     // https://developer.mozilla.org/en/JavaScript_code_modules/XPCOMUtils.jsm#generateNSGetFactory%28%29
     const NSGetFactory = XPCOMUtils.generateNSGetFactory([YaripAppStartupService]);
-} else {
-    // https://developer.mozilla.org/en/JavaScript_code_modules/XPCOMUtils.jsm#generateNSGetModule%28%29
-    const NSGetModule = XPCOMUtils.generateNSGetModule([YaripAppStartupService]);
-}
+//} else {
+//    // https://developer.mozilla.org/en/JavaScript_code_modules/XPCOMUtils.jsm#generateNSGetModule%28%29
+//    const NSGetModule = XPCOMUtils.generateNSGetModule([YaripAppStartupService]);
+//}
 

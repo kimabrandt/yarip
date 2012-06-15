@@ -1,5 +1,16 @@
 2012-06-12  Kim A. Brandt  <kimabrandt@gmx.de>
 
+    * modules/webProgressListener.jsm (getLocation): Not creating the
+    `location'-object.
+
+    * modules/webProgressListener.jsm (STATE_*): Ignoring any but
+    `STATE_START' and `STATE_REDIRECTING'.
+
+    * modules/observer.jsm (cancel): Cancelling the request when
+    blacklisting.
+
+    * install.rdf (minVersion): Changed supported versions.
+
     * modules/yarip.jsm (shouldBlacklist): Returning a status-object.
 
     * modules/observer.jsm (Pragma): Prevent caching when the Location-header is

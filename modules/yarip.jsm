@@ -2769,19 +2769,19 @@ Yarip.prototype.getInterface = function(channel, iid)
 
     return null;
 }
-Yarip.prototype.getLocation = function(channel, doc)
+Yarip.prototype.getLocation = function(channel, doc, notLocation)
 {
     var isPage = (LOAD_DOCUMENT_URI & channel.loadFlags) === LOAD_DOCUMENT_URI;
-//    var fromCache = (LOAD_FROM_CACHE & channel.loadFlags) === LOAD_FROM_CACHE;
     var isLinking = isPage || (LOAD_INITIAL_DOCUMENT_URI & channel.loadFlags) === LOAD_INITIAL_DOCUMENT_URI;
     var obj = {
         location: null,
         isPage: isPage,
-//        fromCache: fromCache,
         isLinking: isLinking
     };
 
-    if ((LOAD_REPLACE & channel.loadFlags) === LOAD_REPLACE) {
+    if (notLocation) {
+        return obj;
+    } else if ((LOAD_REPLACE & channel.loadFlags) === LOAD_REPLACE) {
         try {
             var newURI = IOS.newURI(channel.loadGroup.defaultLoadRequest.name, channel.URI.originCharset, null);
             obj.location = this.getLocationFromContentLocation(newURI);
@@ -2789,6 +2789,7 @@ Yarip.prototype.getLocation = function(channel, doc)
         } catch (e) {
         }
     }
+
     if (isPage) {
         obj.location = this.getLocationFromContentLocation(channel.URI);
         return obj;
@@ -2814,7 +2815,7 @@ Yarip.prototype.getYaripScript = function()
         "    }\n" +
         "}";
 }
-Yarip.prototype.showLinkNotification = function(doc, contentLocation, win)
+Yarip.prototype.showLinkNotification = function(doc, contentLocation)
 {
     var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
     var browserEnum = wm.getEnumerator("navigator:browser");
