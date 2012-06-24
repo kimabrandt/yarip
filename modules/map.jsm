@@ -23,6 +23,7 @@ const EXPORTED_SYMBOLS = ["YaripMap"];
 
 const Cu = Components.utils;
 
+const yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
 Cu.import("resource://yarip/constants.jsm");
 Cu.import("resource://yarip/aatree.jsm");
 Cu.import("resource://yarip/object.jsm");
@@ -38,6 +39,7 @@ function YaripMap()
 }
 YaripMap.prototype = new YaripObject;
 YaripMap.prototype.constructor = YaripMap;
+YaripMap.prototype.sb = SB.createBundle("chrome://yarip/locale/map.properties");
 YaripMap.prototype.add = function(page)
 {
     if (!page) return;
@@ -47,8 +49,7 @@ YaripMap.prototype.add = function(page)
         oldPage.merge(page);
     } else {
         if (page.getId() in this.objId) {
-            // shouldn't happen
-            CS.logStringMessage("YaripMap.add: A page with the same id already exists!\nid=" + page.getId() + ", name=" + page.getName());
+            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_PAGE_EXISTS2", [page.getId(), page.getName()], 2)));
             return;
         }
 

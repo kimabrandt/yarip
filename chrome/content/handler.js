@@ -28,7 +28,7 @@ function YaripHandler(doc, stopCallback, statusCallback)
     this.element = null;
     this.timeout = null;
     this.outline = null;
-    this.xValue = null;
+    this.xpath = null;
     this.pageName = null;
     this.handlers = [];
     this.active = false;
@@ -204,15 +204,15 @@ function YaripHandler(doc, stopCallback, statusCallback)
     {
         if (!/^(abbr|acronym|b|basefont|bdo|big|br|button|cite|code|del|dfn|em|font|i|img|ins|kbd|label|map|q|samp|select|small|span|strong|sub|sup|textarea|tt|u|var)$/i.test(this.element.localName)) return; // lagal children of anchors
 
-        var xValue = yarip.createXPath(this.element, true);
-        var expr = xValue.match(/^.*?\/a\b[^/]*/);
+        var xpath = yarip.createXPath(this.element, true);
+        var expr = xpath.match(/^.*?\/a\b[^/]*/);
         if (!expr) return;
 
         var elements = yarip.getElementsByXPath(this.doc, expr[0]);
         if (!elements) return;
 
         this.element = elements.snapshotItem(0);
-        this.xValue = yarip.createXPath(this.element);
+        this.xpath = yarip.createXPath(this.element);
     }
 
     this.select = function(handler, noBackup)
@@ -226,16 +226,16 @@ function YaripHandler(doc, stopCallback, statusCallback)
             else handler.element.style.outline = "3px solid #000099";
         }
 
-        if (!handler.xValue) handler.xValue = yarip.createXPath(handler.element);
-        handler.statusCallback(handler.xValue);
+        if (!handler.xpath) handler.xpath = yarip.createXPath(handler.element);
+        handler.statusCallback(handler.xpath);
     }
 
     this.doWhitelisting = function(temporarily)
     {
         if (!this.element) return;
 
-        if (!this.xValue) this.xValue = yarip.createXPath(this.element);
-        var item = new YaripElementWhitelistItem(this.xValue + "/descendant-or-self::*");
+        if (!this.xpath) this.xpath = yarip.createXPath(this.element);
+        var item = new YaripElementWhitelistItem(this.xpath + "/descendant-or-self::*");
         if (temporarily) {
             if (yarip.whitelistElementItem(this.doc, this.pageName, item)) {
                 this.hasWhitelist = true;
@@ -252,8 +252,8 @@ function YaripHandler(doc, stopCallback, statusCallback)
     {
         if (!this.element) return;
 
-        if (!this.xValue) this.xValue = yarip.createXPath(this.element);
-        var item = new YaripElementBlacklistItem(this.xValue);
+        if (!this.xpath) this.xpath = yarip.createXPath(this.element);
+        var item = new YaripElementBlacklistItem(this.xpath);
         if (temporarily) {
 //            item.setForce(true);
             this.hasBlacklist = yarip.blacklistElementItem(this.doc, this.pageName, item);
@@ -275,7 +275,7 @@ function YaripHandler(doc, stopCallback, statusCallback)
         }
 
         this.element = null;
-        this.xValue = null;
+        this.xpath = null;
         this.outline = null;
     }
 }

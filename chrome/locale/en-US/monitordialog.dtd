@@ -3,7 +3,7 @@
 <!ENTITY menuitem.label.whitelistContent  "Whitelist content">
 <!ENTITY menuitem.label.blacklistContent  "Blacklist content">
 <!ENTITY menuitem.label.extendPage        "Extend page">
-<!ENTITY menuitem.label.copyRegExp        "Copy Regex">
+<!ENTITY menuitem.label.copyRegExp        "Copy regex">
 <!ENTITY treecol.label.time               "Time">
 <!ENTITY treecol.label.status             "Status">
 <!ENTITY treecol.label.page               "Page">

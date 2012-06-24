@@ -133,7 +133,7 @@ var TLD = "(" +
     "|(?:(?:(?:co|org)\\.)?bw)" +
     "|(?:(?:(?:com|gov|mil|of)\\.)?by)" +
     "|(?:(?:(?:com|edu|gov|net|org)\\.)?bz)" +
-    "|(?:(?:(?:ab|bc|gc|mb|nb|nf|nl|ns|nt|nu|on|pe|qc|sk|yk)\\.)?ca)" +
+    "|(?:(?:(?:ab|bc|co|gc|mb|nb|nf|nl|ns|nt|nu|on|pe|qc|sk|yk)\\.)?ca)" +
     "|(?:(?:(?:ftpaccess|game-server|myphotos|scrapping)\\.)?cc)" +
     "|(?:(?:(?:gov)\\.)?cd)" +
     "|(?:(?:(?:ac|asso|aroport-bya|co|com|ed|edu|go|gouv|int|md|net|or|org|presse)\\.)?ci)" +
@@ -145,7 +145,7 @@ var TLD = "(" +
     "|(?:(?:(?:ac|co|ed|fi|go|or|sa)\\.)?cr)" +
     "|(?:(?:(?:com|edu|gov|inf|net|org)\\.)?cu)" +
     "|(?:(?:(?:ath|gov)\\.)?cx)" +
-    "|(?:(?:(?:fuettertdasnetz|isteingeek|istmein|lebtimnetz|leitungsen|traeumtgerade)\\.)?de)" +
+    "|(?:(?:(?:com|fuettertdasnetz|isteingeek|istmein|lebtimnetz|leitungsen|traeumtgerade)\\.)?de)" +
     "|(?:(?:(?:com|edu|gov|net|org)\\.)?dm)" +
     "|(?:(?:(?:art|com|edu|gob|gov|mil|net|org|sld|web)\\.)?do)" +
     "|(?:(?:(?:art|asso|com|edu|gov|net|org|pol)\\.)?dz)" +
@@ -170,6 +170,7 @@ var TLD = "(" +
     "|(?:(?:(?:2000|agrar|bolt|casino|city|co|erotica|erotika|film|forum|games|hotel|info|ingatlan|jogasz|konyvelo|lakas|media|news|org|priv|reklam|sex|shop|sport|suli|szex|tm|tozsde|utazas|video)\\.)?hu)" +
     "|(?:(?:(?:ac|co|go|mil|net|or|sch|web)\\.)?id)" +
     "|(?:(?:(?:gov)\\.)?ie)" +
+    "|(?:(?:(?:ac|co|gov|idf|k12|muni|net|org)\\.)?il)" +
     "|(?:(?:(?:ac|co|gov|ltd\\.co|net|nic|org|plc\\.co)\\.)?im)" +
     "|(?:(?:(?:barrel-of-knowledge|barrell-of-knowledge|dyndns|for-our|groks-the|groks-this|here-for-more|knowsitall|selfip|webhop)\\.)?info)" +
     "|(?:(?:(?:eu)\\.)?int)" +
@@ -247,18 +248,20 @@ var TLD = "(" +
     "|(?:(?:(?:com|edu|gov|med|net|org|pub|sch)\\.)?sa)" +
     "|(?:(?:(?:com|edu|gov|net|org)\\.)?sb)" +
     "|(?:(?:(?:com|edu|gov|net|org)\\.)?sc)" +
-    "|(?:(?:(?:com|edu|gov|info|med|net|org)\\.)?sd)" +
+    "|(?:(?:(?:com|edu|gov|info|med|net|org|tv)\\.)?sd)" +
     "|(?:(?:(?:[a-ik-pr-uw-z]|ac|bd|brand|fh|fhsk|fhv|komforb|kommunalforbund|komvux|lanbib|naturbruksgymn|org|parti|pp|press|sshn|tm)\\.)?se)" +
     "|(?:(?:(?:com|edu|gov|net|org|per)\\.)?sg)" +
     "|(?:(?:(?:com|edu|gov|net|org)\\.)?sl)" +
     "|(?:(?:(?:art|com|edu|gouv|org|perso|univ)\\.)?sn)" +
     "|(?:(?:(?:com|net|org)\\.)?so)" +
     "|(?:(?:(?:co|com|consulado|edu|embaixada|gov|mil|net|org|principe|saotome|store)\\.)?st)" +
+    "|(?:(?:(?:gov)\\.)?sx)" +
     "|(?:(?:(?:com|edu|gov|mil|net|org)\\.)?sy)" +
     "|(?:(?:(?:ac|co|org)\\.)?sz)" +
     "|(?:(?:(?:ac|co|go|in|mi|net|or)\\.)?th)" +
     "|(?:(?:(?:ac|biz|co|com|edu|go|gov|int|mil|name|net|nic|org|test|web)\\.)?tj)" +
     "|(?:(?:(?:gov)\\.)?tl)" +
+    "|(?:(?:(?:co|com|edu|gov|mil|net|nom|org)\\.)?tm)" +
     "|(?:(?:(?:agrinet|com|defense|edunet|ens|fin|gov|ind|info|intl|mincom|nat|net|org|perso|rnrt|rns|rnu|tourism|turen)\\.)?tn)" +
     "|(?:(?:(?:com|edu|gov|mil|net|org)\\.)?to)" +
     "|(?:(?:(?:av|bbs|bel|biz|com|dr|edu|gen|gov(?:\\.nc)?|info|k12|mil|name|net|org|pol|tel|tsk|tv|web)\\.)?tr)" +
@@ -267,15 +270,15 @@ var TLD = "(" +
     "|(?:(?:(?:club|com|ebiz|edu|game|gov|idv|mil|net|org|czrw28b|uc0atv|zf0ao64a)\\.)?tw)" +
     "|(?:(?:(?:ac|co|go|mil|ne|or|sc)\\.)?tz)" +
     "|(?:(?:(?:cherkassy|chernigov|chernovtsy|ck|cn|co|com|crimea|cv|dn|dnepropetrovsk|donetsk|dp|edu|gov|if|in|ivano-frankivsk|kh|kharkov|kherson|khmelnitskiy|kiev|kirovograd|km|kr|ks|kv|lg|lugansk|lutsk|lviv|mk|net|nikolaev|od|odessa|org|pl|poltava|pp|rovno|rv|sebastopol|sumy|te|ternopil|uzhgorod|vinnica|vn|zaporizhzhe|zhitomir|zp|zt)\\.)?ua)" +
-    "|(?:(?:(?:ac|co|go|ne|or|sc)\\.)?ug)" +
+    "|(?:(?:(?:ac|co|com|go|ne|or|org|sc)\\.)?ug)" +
     "|(?:(?:(?:ac|co|ltd|me|mil|net|org|plc|sch)\\.)?uk)" +
     "|(?:(?:(?:ak|al|ar|as|az|ca|cc\\.(?:ak|al|ar|as|az|ca|co|ct|dc|de|fl|ga|gu|hi|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|pr|ri|sc|sd|tn|tx|ut|va|vi|vt|wa|wi|wv|wy)|chtr\\.k12\\.ma|co|ct|dc|de|dni|fed|fl|ga|gu|hi|ia|id|il|in|is-by|isa|k12\\.(?:ak|al|ar|as|az|ca|co|ct|dc|de|fl|ga|gu|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|pr|ri|sc|sd|tn|tx|ut|va|vi|vt|wa|wi|wv|wy)|kids|ks|ky|la|land-4-sale|lib\\.(?:ak|al|ar|as|az|ca|co|ct|dc|de|fl|ga|gu|hi|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|pr|ri|sc|sd|tn|tx|ut|va|vi|vt|wa|wi|wv|wy)|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nsn|nv|ny|oh|ok|or|pa|paroch\\.k12\\.ma|pr|pvt\\.k12\\.ma|ri|sc|sd|stuff-4-sale|tn|tx|ut|va|vi|vt|wa|wi|wv|wy)\\.)?us)" +
-    "|(?:(?:(?:co|com)\\.)?uz)" +
+    "|(?:(?:(?:co|com|net|org)\\.)?uz)" +
     "|(?:(?:(?:com|edu|gov|mil|net|org)\\.)?vc)" +
     "|(?:(?:(?:co|com|k12|net|org)\\.)?vi)" +
     "|(?:(?:(?:ac|biz|com|edu|gov|health|info|int|name|net|org|pro)\\.)?vn)" +
     "|(?:(?:(?:com|dyndns|edu|gov|mypets|net|org)\\.)?ws)" +
-    "|(?:am|aq|asia|ax|bd|bn|bv|cat|cf|cg|ch|coop|cv|cy|cz|dj|dk|edu|er|et|eu|fj|fk|fm|fo|ga|gb|gd|gf|gl|gm|gov|gq|gs|gu|gw|hm|il|jm|jobs|ke|kh|kw|li|local|lu|md|mh|mil|mm|mobi|mp|mq|ms|mt|mz|ne|ni|np|nz|pg|pm|py|sh|si|sj|sk|sm|sr|su|sv|tc|td|tel|tf|tg|tk|tm|tp|travel|uy|va|ve|vg|vu|wf|xn--0zwm56d|xn--11b5bs3a9aj6g|xn--3e0b707e|xn--45brj9c|xn--54b7fta0cc|xn--80akhbyknj4f|xn--90a3ac|xn--9t4b11yi5a|xn--clchc0ea0b2g2a9gcd|xn--deba0ad|xn--fiqs8s|xn--fiqz9s|xn--fpcrj9c3d|xn--fzc2c9e2c|xn--g6w251d|xn--gecrj9c|xn--h2brj9c|xn--hgbk6aj7f53bba|xn--hlcj6aya9esc7a|xn--j1amh|xn--j6w193g|xn--jxalpdlp|xn--kgbechtv|xn--kprw13d|xn--kpry57d|xn--lgbbat1ad8j|xn--mgb2ddes|xn--mgb9awbf|xn--mgba3a4f16a|xn--mgba3a4f16a.ir|xn--mgba3a4fra|xn--mgba3a4fra.ir|xn--mgbaam7a8h|xn--mgbayh7gpa|xn--mgbbh1a71e|xn--mgbc0a9azcg|xn--mgberp4a5d4a87g|xn--mgberp4a5d4ar|xn--mgbqly7c0a67fbc|xn--mgbqly7cvafr|xn--mgbtf8fl|xn--nnx388a|xn--node|xn--o3cw4h|xn--ogbpf8fl|xn--p1ai|xn--pgbs0dh|xn--s9brj9c|xn--wgbh1c|xn--wgbl6a|xn--xkc2al3hye2a|xn--xkc2dl3a5ee0h|xn--yfro4i67o|xn--yfro4i67o Singapore|xn--ygbi2ammx|xn--zckzah|xxx|ye|yt|za|zm|zw)" +
+    "|(?:am|aq|asia|ax|bd|bn|bv|cat|cf|cg|ch|coop|cv|cy|cz|dj|dk|edu|er|et|eu|fj|fk|fm|fo|ga|gb|gd|gf|gl|gm|gov|gq|gs|gu|gw|hm|jm|jobs|ke|kh|kw|li|local|lu|md|mh|mil|mm|mobi|mp|mq|ms|mt|mz|ne|ni|np|nz|pg|pm|py|sh|si|sj|sk|sm|sr|su|sv|tc|td|tel|tf|tg|tk|tp|travel|uy|va|ve|vg|vu|wf|xn--0zwm56d|xn--11b5bs3a9aj6g|xn--3e0b707e|xn--45brj9c|xn--54b7fta0cc|xn--80akhbyknj4f|xn--90a3ac|xn--9t4b11yi5a|xn--clchc0ea0b2g2a9gcd|xn--deba0ad|xn--fiqs8s|xn--fiqz9s|xn--fpcrj9c3d|xn--fzc2c9e2c|xn--g6w251d|xn--gecrj9c|xn--h2brj9c|xn--hgbk6aj7f53bba|xn--hlcj6aya9esc7a|xn--j1amh|xn--j6w193g|xn--jxalpdlp|xn--kgbechtv|xn--kprw13d|xn--kpry57d|xn--lgbbat1ad8j|xn--mgb2ddes|xn--mgb9awbf|xn--mgba3a4f16a|xn--mgba3a4f16a.ir|xn--mgba3a4fra|xn--mgba3a4fra.ir|xn--mgbaam7a8h|xn--mgbayh7gpa|xn--mgbbh1a71e|xn--mgbc0a9azcg|xn--mgberp4a5d4a87g|xn--mgberp4a5d4ar|xn--mgbqly7c0a67fbc|xn--mgbqly7cvafr|xn--mgbtf8fl|xn--nnx388a|xn--node|xn--o3cw4h|xn--ogbpf8fl|xn--p1ai|xn--pgbs0dh|xn--s9brj9c|xn--wgbh1c|xn--wgbl6a|xn--xkc2al3hye2a|xn--xkc2dl3a5ee0h|xn--yfro4i67o|xn--yfro4i67o Singapore|xn--ygbi2ammx|xn--zckzah|xxx|ye|yt|za|zm|zw)" +
     ")";
 var PORT = "(?::(\\d+))?";
 var HIER_PART = "((?:(?:\\/\\/)?(?:(?:(?:[\\w-.~!$&'()*+,;=:]|%[a-f\\d]{2})*@)?(?:" + IP + "|((?:[\\w-.~!$&'()*+,;=]|%[a-f\\d]{2})*))" + PORT + "))(?:[\\w-.~!$&'()*+,;=:@/]|%[a-f\\d]{2})*)";
@@ -301,7 +304,7 @@ try { // with complex tld
         "|(?:(?:(?:6bone|agro|aid|art|atm|augustow|auto|babia-gora|bedzin|beskidy|bialowieza|bialystok|bielawa|bieszczady|biz|boleslawiec|bydgoszcz|bytom|cieszyn|co|com|czeladz|czest|dlugoleka|edu|elblag|elk|gda|gdansk|gdynia|gliwice|glogow|gmina|gniezno|gorlice|gov|grajewo|gsm|ilawa|info|irc|jaworzno|jelenia-gora|jgora|kalisz|karpacz|kartuzy|kaszuby|katowice|kazimierz-dolny|kepno|ketrzyn|klodzko|kobierzyce|kolobrzeg|konin|konskowola|krakow|kutno|lapy|lebork|legnica|lezajsk|limanowa|lomza|lowicz|lubin|lukow|mail|malbork|malopolska|mazowsze|mazury|mbone|med|media|miasta|mielec|mielno|mil|mragowo|naklo|net|ngo|nieruchomosci|nom|nowaruda|nysa|olawa|olecko|olkusz|olsztyn|opoczno|opole|org|ostroda|ostroleka|ostrowiec|ostrowwlkp|pa\\.gov|pc|pila|pisz|podhale|podlasie|po\\.gov|polkowice|pomorskie|pomorze|powiat|poznan|priv|prochowice|pruszkow|przeworsk|pulawy|radom|rawa-maz|realestate|rel|rybnik|rzeszow|sanok|sejny|sex|shop|siedlce|sklep|skoczow|slask|slupsk|so\\.gov|sopot|sos|sosnowiec|sr\\.gov|stalowa-wola|starachowice|stargard|starostwo\\.gov|suwalki|swidnica|swiebodzin|swinoujscie|szczecin|szczytno|szkola|targi|tarnobrzeg|tgory|tm|tourism|travel|turek|turystyka|tychy|ug\\.gov|um\\.gov|upow\\.gov|usenet|ustka|uw\\.gov|walbrzych|warmia|warszawa|waw|wegrow|wielun|wlocl|wloclawek|wodzislaw|wolomin|wroc|wroclaw|zachpomor|zagan|zakopane|zarow|zgora|zgorzelec)\\.)?pl)" +
         "|(?:(?:(?:ac|adygeya|altai|amur|amursk|arkhangelsk|astrakhan|baikal|bashkiria|belgorod|bir|bryansk|buryatia|cap|cbg|chel|chelyabinsk|chita|chukotka|chuvashia|cmw|com|dagestan|dudinka|e-burg|edu|fareast|gov|grozny|int|irkutsk|ivanovo|izhevsk|jamal|jar|joshkar-ola|kalmykia|kaluga|kamchatka|karelia|kazan|kchr|kemerovo|khabarovsk|khakassia|khv|kirov|kms|koenig|komi|kostroma|kranoyarsk|krasnoyarsk|kuban|k-uralsk|kurgan|kursk|kustanai|kuzbass|lipetsk|magadan|magnitka|mari|mari-el|marine|mil|mordovia|mosreg|msk|murmansk|mytis|nakhodka|nalchik|net|nkz|nnov|norilsk|nov|novosibirsk|nsk|omsk|orenburg|org|oryol|oskol|palana|penza|perm|pp|pskov|ptz|pyatigorsk|rnd|rubtsovsk|ryazan|sakhalin|samara|saratov|simbirsk|smolensk|snz|spb|stavropol|stv|surgut|syzran|tambov|tatarstan|test|tlt|tom|tomsk|tsaritsyn|tsk|tula|tuva|tver|tyumen|udm|udmurtia|ulan-ude|vdonsk|vladikavkaz|vladimir|vladivostok|volgograd|vologda|voronezh|vrn|vyatka|yakutia|yamal|yaroslavl|yekaterinburg|yuzhno-sakhalinsk|zgrad)\\.)?ru)" +
         "|(?:(?:(?:ac|co|ltd|me|mil|net|org|plc|sch)\\.)?uk)" +
-        "|(?:ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|arpa|as|asia|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|co|com|coop|cr|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|local|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|travel|tt|tv|tw|tz|ua|ug|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xn--0zwm56d|xn--11b5bs3a9aj6g|xn--3e0b707e|xn--45brj9c|xn--54b7fta0cc|xn--80akhbyknj4f|xn--90a3ac|xn--9t4b11yi5a|xn--clchc0ea0b2g2a9gcd|xn--deba0ad|xn--fiqs8s|xn--fiqz9s|xn--fpcrj9c3d|xn--fzc2c9e2c|xn--g6w251d|xn--gecrj9c|xn--h2brj9c|xn--hgbk6aj7f53bba|xn--hlcj6aya9esc7a|xn--j1amh|xn--j6w193g|xn--jxalpdlp|xn--kgbechtv|xn--kprw13d|xn--kpry57d|xn--lgbbat1ad8j|xn--mgb2ddes|xn--mgb9awbf|xn--mgba3a4f16a|xn--mgba3a4f16a.ir|xn--mgba3a4fra|xn--mgba3a4fra.ir|xn--mgbaam7a8h|xn--mgbayh7gpa|xn--mgbbh1a71e|xn--mgbc0a9azcg|xn--mgberp4a5d4a87g|xn--mgberp4a5d4ar|xn--mgbqly7c0a67fbc|xn--mgbqly7cvafr|xn--mgbtf8fl|xn--nnx388a|xn--node|xn--o3cw4h|xn--ogbpf8fl|xn--p1ai|xn--pgbs0dh|xn--s9brj9c|xn--wgbh1c|xn--wgbl6a|xn--xkc2al3hye2a|xn--xkc2dl3a5ee0h|xn--yfro4i67o|xn--yfro4i67o Singapore|xn--ygbi2ammx|xn--zckzah|xxx|ye|yt|za|zm|zw)" +
+        "|(?:ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|arpa|as|asia|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|co|com|coop|cr|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|local|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sx|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|travel|tt|tv|tw|tz|ua|ug|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xn--0zwm56d|xn--11b5bs3a9aj6g|xn--3e0b707e|xn--45brj9c|xn--54b7fta0cc|xn--80akhbyknj4f|xn--90a3ac|xn--9t4b11yi5a|xn--clchc0ea0b2g2a9gcd|xn--deba0ad|xn--fiqs8s|xn--fiqz9s|xn--fpcrj9c3d|xn--fzc2c9e2c|xn--g6w251d|xn--gecrj9c|xn--h2brj9c|xn--hgbk6aj7f53bba|xn--hlcj6aya9esc7a|xn--j1amh|xn--j6w193g|xn--jxalpdlp|xn--kgbechtv|xn--kprw13d|xn--kpry57d|xn--lgbbat1ad8j|xn--mgb2ddes|xn--mgb9awbf|xn--mgba3a4f16a|xn--mgba3a4f16a.ir|xn--mgba3a4fra|xn--mgba3a4fra.ir|xn--mgbaam7a8h|xn--mgbayh7gpa|xn--mgbbh1a71e|xn--mgbc0a9azcg|xn--mgberp4a5d4a87g|xn--mgberp4a5d4ar|xn--mgbqly7c0a67fbc|xn--mgbqly7cvafr|xn--mgbtf8fl|xn--nnx388a|xn--node|xn--o3cw4h|xn--ogbpf8fl|xn--p1ai|xn--pgbs0dh|xn--s9brj9c|xn--wgbh1c|xn--wgbl6a|xn--xkc2al3hye2a|xn--xkc2dl3a5ee0h|xn--yfro4i67o|xn--yfro4i67o Singapore|xn--ygbi2ammx|xn--zckzah|xxx|ye|yt|za|zm|zw)" +
         ")";
     var URI1 = "(" + SCHEME + HIER_PART + QUERY_FRAGMENT + ")";
     var URI2 = "(" + AUTHORITY + "(?:" + IP + "|(?:" + REG_NAME + "\\b" + TLD + "))" + PORT + PATH + QUERY_FRAGMENT + ")";

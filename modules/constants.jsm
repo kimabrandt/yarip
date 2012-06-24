@@ -61,6 +61,7 @@ var EXPORTED_SYMBOLS = [
         "PB",
         "CH",
         "FH",
+        "SB",
 
         /*
          * nsIYarip
@@ -157,7 +158,10 @@ var EXPORTED_SYMBOLS = [
         "DO_STREAMS",
         "DO_LINKS",
 
-        "LIST_INDEX_KEY"
+        "LIST_INDEX_KEY",
+
+        "LOG_ERROR",
+        "LOG_WARNING"
     ];
 
 const Cc = Components.classes;
@@ -204,6 +208,7 @@ const IOS = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
 const PB = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
 const CH = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
 const FH = Cc["@mozilla.org/satchel/form-history;1"].getService(Ci.nsIFormHistory2);
+const SB = Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService);
 
 /*
  * nsIYarip
@@ -301,4 +306,7 @@ const DO_STREAMS = 6;
 const DO_LINKS = 7;
 
 const LIST_INDEX_KEY = -1;
+
+const LOG_ERROR = Ci.nsIScriptError.errorFlag;
+const LOG_WARNING = Ci.nsIScriptError.warningFlag;
 

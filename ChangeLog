@@ -1,3 +1,28 @@
+2012-06-22  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/*dialog.js (Error): Using Error and string-bundle for
+    error-reporting.
+
+    * chrome/content/contentdialog.js, modules/yarip.jsm (@): Allowing
+    user-name/password in the wild-card regexes.
+
+    * modules/yarip.jsm (getLocation): Merged `getLocation*'-functions with
+    `getContentLocation*'-function.
+
+    * chrome/content/pagedialog.js (Yarip*Item): Modified `add'-examples.
+
+    * chrome/content/pagedialog.xul (*-tree): Persisting the hights.
+
+    * modules/observer.jsm (showLinkNotification): Showing a notification
+    when blacklisting content.
+
+    * modules/uri.jsm (TLD): Made some updates (effective_tld_names.dat).
+
+    * modules/webProgressListener.jsm (onStateChange): Only allowing
+    STATE_START and STATE_REDIRECTING.
+
+    * modules/yarip.jsm (newLog): Signaling if a log was appended.
+
 2012-06-15  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * modules/page.jsm (init): Making sure the `obj' is always initialized.

@@ -27,20 +27,18 @@ function YaripContentDialog()
     this.obj = null;
 
     var tld = TLD.replace(/\\./g, "\\\\\\.");
-//    var subDomainRE = new RegExp("(^\\^http(?:s\\??)?:\\/\\/)(?:(?!\\w+\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?$)\\w+\\\\\\.)+(\\w+\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?)$", "i");
     var subDomainRE = new RegExp("(^\\^http(?:s\\??)?:\\/\\/)(?:(?!" + SIMPLE + "\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?$)" + SIMPLE + "\\\\\\.)+(" + SIMPLE + "\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?)$", "i");
-    var pathRE = new RegExp("(^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\\\\\.\\)\\?)?(?:[^/?#]+\\\\\\.)*[^/?#]+\\\\\\." + TLD.replace(/\\./g, "\\\\\\.") + ")" + PORT + ")[/?#].*$", "i");
-    var queryFragmentRE = new RegExp("^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\\\\\.\\)\\?)?(?:[^/?#]+\\\\\\.)*[^/?#]+\\\\\\." + TLD.replace(/\\./g, "\\\\\\.") + ")" + PORT + "(?:[/?#].*)?(?!\\b)$", "i");
+    var pathRE = new RegExp("(^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\[@\\\\\\.\\]\\)\\?)?(?:[^/?#]+[@.])*[^/?#]+\\\\\\." + TLD.replace(/\\./g, "\\\\\\.") + ")" + PORT + ")[/?#].*$", "i");
+    var queryFragmentRE = new RegExp("^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\[@\\\\\\.\\]\\)\\?)?(?:[^/?#]+[@.])*[^/?#]+\\\\\\." + TLD.replace(/\\./g, "\\\\\\.") + ")" + PORT + "(?:[/?#].*)?(?!\\b)$", "i");
 
     this.removeSubDomain = function()
     {
         if (!this.obj) return;
         if (!subDomainRE.test(this.regexpTextbox.value)) return;
 
-//        var regExp = this.regexpTextbox.value.replace(subDomainRE, "$1([^/?#]+\\.)?$4");
-        var regExp = this.regexpTextbox.value.replace(subDomainRE, "$1([^/?#]+\\.)?$6");
-        this.regexpTextbox.value = regExp;
-        this.obj.item.setRegExp(regExp);
+        var regexp = this.regexpTextbox.value.replace(subDomainRE, "$1([^/?#]+[@.])?$6");
+        this.regexpTextbox.value = regexp;
+        this.obj.item.setRegExp(regexp);
     }
 
     this.removePath = function()
@@ -48,9 +46,9 @@ function YaripContentDialog()
         if (!this.obj) return;
         if (!pathRE.test(this.regexpTextbox.value)) return;
 
-        var regExp = this.regexpTextbox.value.replace(pathRE, "$1[/?#]");
-        this.regexpTextbox.value = regExp;
-        this.obj.item.setRegExp(regExp);
+        var regexp = this.regexpTextbox.value.replace(pathRE, "$1[/?#]");
+        this.regexpTextbox.value = regexp;
+        this.obj.item.setRegExp(regexp);
     }
 
     this.removeQueryFragment = function()
@@ -58,9 +56,9 @@ function YaripContentDialog()
         if (!this.obj) return;
         if (!queryFragmentRE.test(this.regexpTextbox.value)) return;
 
-        var regExp = this.regexpTextbox.value.replace(/(?:(?:\\\?|#(?!\])).*)?\$?$/, "\\b");
-        this.regexpTextbox.value = regExp;
-        this.obj.item.setRegExp(regExp);
+        var regexp = this.regexpTextbox.value.replace(/(?:(?:\\\?|#(?!\])).*)?\$?$/, "\\b");
+        this.regexpTextbox.value = regexp;
+        this.obj.item.setRegExp(regexp);
     }
 
     this.load = function()
@@ -80,10 +78,10 @@ function YaripContentDialog()
         this.regexpTextbox.focus();
         this.regexpTextbox.select();
 
-        var location = "itemLocation" in this.obj ? yarip.getLocationFromLocation(this.obj.itemLocation) : null;
+        var location = "itemLocation" in this.obj ? yarip.getLocation(this.obj.itemLocation) : null;
         if (location) {
-            var content = "itemContent" in this.obj ? yarip.getContentLocationFromContentLocation(this.obj.itemContent) : null;
-            var aMap = yarip.getAddressMap(content ? [location.asciiHref, content.asciiSpec] : location.asciiHref, true, { content: true });
+            var contentLocation = "itemContent" in this.obj ? yarip.getLocation(this.obj.itemContent) : null;
+            var aMap = yarip.getAddressMap(contentLocation ? [location.asciiHref, contentLocation.asciiHref] : location.asciiHref, true, { content: true });
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_PAGE)));
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_FQDN)));
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_SLD)));
@@ -110,28 +108,25 @@ function YaripContentDialog()
     {
         if (!this.obj) return;
 
-        var msg = null;
         var pageName = this.pageMenulist.value;
         if (!yarip.checkPageName(pageName)) {
             this.pageMenulist.focus();
             this.pageMenulist.select();
-            msg = this.sb.getString("ERR_INVALID_PAGE_NAME");
-            alert(msg);
-            throw new YaripException(msg);
+            alert(this.sb.getString("ERR_INVALID_PAGE_NAME"));
+            throw new Error(this.sb.getFormattedString("ERR_INVALID_PAGE_NAME1", [pageName]));
         }
 
-        var regExp = this.regexpTextbox.value;
-        if (!yarip.checkRegExp(regExp)) {
+        var regexp = this.regexpTextbox.value;
+        if (!yarip.checkRegExp(regexp)) {
             this.regexpTextbox.focus();
             this.regexpTextbox.select();
-            msg = this.sb.getString("ERR_INVALID_REGEXP");
-            alert(msg);
-            throw new YaripException(msg);
+            alert(this.sb.getString("ERR_INVALID_REGEXP"));
+            throw new Error(this.sb.getFormattedString("ERR_INVALID_REGEXP1", [regexp]));
         }
 
-        this.obj.item.setRegExp(regExp);
+        this.obj.item.setRegExp(regexp);
         this.obj.pageName = pageName;
-        FH.addEntry("regexp", regExp);
+        FH.addEntry("regexp", regexp);
     }
 
     this.cancel = function()

@@ -98,8 +98,9 @@ function YaripOverlay()
         doc = doc ? doc : this.doc;
         if (this.handler.stop()) {
             if (doc) {
-                var location = yarip.getLocationFromLocation(doc.location);
-                yarip.reloadPage(yarip.getPageName(location));
+                var location = yarip.getLocation(doc.location);
+                var pageName = yarip.getPageName(location);
+                yarip.reloadPage(pageName);
             }
         }
         this.active = false;
@@ -118,19 +119,19 @@ function YaripOverlay()
 
         if (!doc || !node) return;
 
-        var location = yarip.getLocationFromLocation(doc.location);
+        var location = yarip.getLocation(doc.location);
         var pageName = yarip.getFirstAddress(location.asciiHref);
         if (!pageName) {
             pageName = yarip.getPageName(location);
             if (!pageName) return;
         }
 
-        var xValue = yarip.createXPath(node);
-        if (!xValue) return;
+        var xpath = yarip.createXPath(node);
+        if (!xpath) return;
 
         var obj = {
             pageName: pageName,
-            item: new YaripElementWhitelistItem(xValue + "/descendant-or-self::*")
+            item: new YaripElementWhitelistItem(xpath + "/descendant-or-self::*")
         }
 
         window.openDialog("chrome://yarip/content/whitelistelementdialog.xul", "whitelistelementdialog", "chrome,modal,resizable", doc, obj);
@@ -147,19 +148,19 @@ function YaripOverlay()
 
         if (!doc || !node) return;
 
-        var location = yarip.getLocationFromLocation(doc.location);
+        var location = yarip.getLocation(doc.location);
         var pageName = yarip.getFirstAddress(location.asciiHref);
         if (!pageName) {
             pageName = yarip.getPageName(location);
             if (!pageName) return;
         }
 
-        var xValue = yarip.createXPath(node);
-        if (!xValue) return;
+        var xpath = yarip.createXPath(node);
+        if (!xpath) return;
 
         var obj = {
             pageName: pageName,
-            item: new YaripElementBlacklistItem(xValue)
+            item: new YaripElementBlacklistItem(xpath)
         }
 
         window.openDialog("chrome://yarip/content/blacklistelementdialog.xul", "blacklistelementdialog", "chrome,modal,resizable", doc, obj);
@@ -176,10 +177,10 @@ function YaripOverlay()
 
         if (!doc || !node) return;
 
-        var xValue = yarip.createXPath(node);
-        if (!xValue) return;
+        var xpath = yarip.createXPath(node);
+        if (!xpath) return;
 
-        yarip.whitelistElementItem(doc, null, new YaripElementWhitelistItem(xValue));
+        yarip.whitelistElementItem(doc, null, new YaripElementWhitelistItem(xpath));
         yarip.removeAllExceptWhitelisted(doc);
     }
 
@@ -189,10 +190,10 @@ function YaripOverlay()
 
         if (!doc || !node) return;
 
-        var xValue = yarip.createXPath(node);
-        if (!xValue) return;
+        var xpath = yarip.createXPath(node);
+        if (!xpath) return;
 
-        yarip.blacklistElementItem(doc, null, new YaripElementBlacklistItem(xValue, null, null, true));
+        yarip.blacklistElementItem(doc, null, new YaripElementBlacklistItem(xpath, null, null, true));
     }
 
     this.styleElement = function(doc, node, attrName)
@@ -201,15 +202,15 @@ function YaripOverlay()
 
         if (!doc || !node) return;
 
-        var location = yarip.getLocationFromLocation(doc.location);
+        var location = yarip.getLocation(doc.location);
         var pageName = yarip.getFirstAddress(location.asciiHref);
         if (!pageName) {
             pageName = yarip.getPageName(location);
             if (!pageName) return;
         }
 
-        var xValue = yarip.createXPath(node);
-        if (!xValue) return;
+        var xpath = yarip.createXPath(node);
+        if (!xpath) return;
 
         var attrValue = "";
         if (attrName)
@@ -220,7 +221,7 @@ function YaripOverlay()
 
         var obj = {
             pageName: pageName,
-            item: new YaripElementAttributeItem(xValue),
+            item: new YaripElementAttributeItem(xpath),
             attrName: attrName ? attrName : "",
             attrValue: attrValue,
             node: node
@@ -244,18 +245,18 @@ function YaripOverlay()
 
         if (!doc || !node) return;
 
-        var location = yarip.getLocationFromLocation(doc.location);
+        var location = yarip.getLocation(doc.location);
         var pageName = yarip.getFirstAddress(location.asciiHref);
         if (!pageName) {
             pageName = yarip.getPageName(location);
             if (!pageName) return;
         }
 
-        var xValue = yarip.createXPath(node);
-        if (!xValue) return;
+        var xpath = yarip.createXPath(node);
+        if (!xpath) return;
 
         var obj = {
-            item: new YaripScriptItem(xValue,
+            item: new YaripScriptItem(xpath,
                 "function (array) {\n" +
 //                "    // Do something useful with the elements in the array!\n" +
                 "    for (var i = 0; i < array.length; i++) {\n" +
@@ -278,8 +279,8 @@ function YaripOverlay()
     {
         if (!node) return;
 
-        var xValue = yarip.createXPath(node);
-        if (xValue) CH.copyString(xValue);
+        var xpath = yarip.createXPath(node);
+        if (xpath) CH.copyString(xpath);
     }
 
     this.startHighlighting = function(node)
@@ -304,7 +305,7 @@ function YaripOverlay()
 
         yarip.resetUndo();
 
-        location = yarip.getLocationFromLocation(location ? location : content.document.location);
+        location = yarip.getLocation(location ? location : content.document.location);
         var pageName = yarip.getFirstAddress(location.asciiHref);
         if (!pageName) {
             pageName = yarip.getPageName(location);
@@ -345,7 +346,7 @@ function YaripOverlay()
         yarip.resetUndo();
 
         if (!pageName) {
-            var location = yarip.getLocationFromLocation(content.document.location);
+            var location = yarip.getLocation(content.document.location);
             pageName = yarip.getFirstAddress(location.asciiHref);
         }
 
@@ -361,7 +362,7 @@ function YaripOverlay()
         yarip.resetUndo();
 
         if (!pageName) {
-            var location = yarip.getLocationFromLocation(content.document.location);
+            var location = yarip.getLocation(content.document.location);
             pageName = yarip.getFirstAddress(location.asciiHref);
         }
 
@@ -765,7 +766,7 @@ function YaripOverlay()
             var node = document.popupNode;
             var doc = node.ownerDocument;
             var hasMenus = false;
-            var location = yarip.getLocationFromLocation(doc.location);
+            var location = yarip.getLocation(doc.location);
             if (yarip.getPageName(location))
             {
                 var undoMenuSep = document.getElementById("yarip-undo-menu-sep");

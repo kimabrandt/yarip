@@ -41,7 +41,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     Cu.import("resource://yarip/item.jsm");
   ]]></script>
   <script type="application/x-javascript" src="chrome://yarip/content/observer.js"/>
-  <script type="application/x-javascript" src="chrome://yarip/content/exception.js"/>
   <script type="application/x-javascript" src="chrome://yarip/content/pagedialog.js"/>
   <script type="application/x-javascript"><![CDATA[
     var dialog = new YaripPageDialog();
@@ -302,7 +301,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                         <tabpanels flex="1">
                           <tabpanel id="contentRequestHeaderList" flex="1">
                             <vbox flex="1">
-                              <tree id="contentRequestHeaderList-tree" editable="true" flex="1">
+                              <tree id="contentRequestHeaderList-tree" editable="true" persist="height" flex="1">
                                 <treecols>
                                   <treecol id="contentRequestHeaderList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                                   <splitter class="tree-splitter" resizeafter="farthest"/>
@@ -330,7 +329,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                           </tabpanel>
                           <tabpanel id="contentResponseHeaderList" flex="1">
                             <vbox flex="1">
-                              <tree id="contentResponseHeaderList-tree" editable="true" flex="1">
+                              <tree id="contentResponseHeaderList-tree" editable="true" persist="height" flex="1">
                                 <treecols>
                                   <treecol id="contentResponseHeaderList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                                   <splitter class="tree-splitter" resizeafter="farthest"/>
@@ -362,7 +361,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                   </tabpanel>
                   <tabpanel id="contentRedirectList" flex="1">
                     <vbox flex="1">
-                      <tree id="contentRedirectList-tree" editable="true" flex="1">
+                      <tree id="contentRedirectList-tree" editable="true" persist="height" flex="1">
                         <treecols>
                           <treecol id="contentRedirectList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
@@ -388,7 +387,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                   </tabpanel>
 <!--                  <tabpanel id="contentStreamList" flex="1">-->
 <!--                    <vbox flex="1">-->
-<!--                      <tree id="contentStreamList-tree" editable="true" flex="1">-->
+<!--                      <tree id="contentStreamList-tree" editable="true" persist="height" flex="1">-->
 <!--                        <treecols>-->
 <!--                          <treecol id="contentStreamList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>-->
 <!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
@@ -495,7 +494,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                         <tabpanels flex="1">
                           <tabpanel id="pageRequestHeaderList" flex="1">
                             <vbox flex="1">
-                              <tree id="pageRequestHeaderList-tree" editable="true" flex="1">
+                              <tree id="pageRequestHeaderList-tree" editable="true" persist="height" flex="1">
                                 <treecols>
                                   <treecol id="pageRequestHeaderList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                                   <splitter class="tree-splitter" resizeafter="farthest"/>
@@ -523,7 +522,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                           </tabpanel>
                           <tabpanel id="pageResponseHeaderList" flex="1">
                             <vbox flex="1">
-                              <tree id="pageResponseHeaderList-tree" editable="true" flex="1">
+                              <tree id="pageResponseHeaderList-tree" editable="true" persist="height" flex="1">
                                 <treecols>
                                   <treecol id="pageResponseHeaderList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                                   <splitter class="tree-splitter" resizeafter="farthest"/>
@@ -555,7 +554,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                   </tabpanel>
                   <tabpanel id="pageRedirectList" flex="1">
                     <vbox flex="1">
-                      <tree id="pageRedirectList-tree" editable="true" flex="1">
+                      <tree id="pageRedirectList-tree" editable="true" persist="height" flex="1">
                         <treecols>
                           <treecol id="pageRedirectList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
@@ -581,7 +580,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                   </tabpanel>
                   <tabpanel id="pageStreamList" flex="1">
                     <vbox flex="1">
-                      <tree id="pageStreamList-tree" editable="true" flex="1">
+                      <tree id="pageStreamList-tree" editable="true" persist="height" flex="1">
                         <treecols>
                           <treecol id="pageStreamList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>

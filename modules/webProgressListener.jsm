@@ -47,7 +47,6 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
     if (!yarip.enabled) return;
     if (!webProgress.isLoadingDocument) return;
     if (!(request instanceof Ci.nsIHttpChannel)) return;
-//    if ((STATE_STOP & stateFlags) === STATE_STOP) return;
     if ((STATE_START & stateFlags) !== STATE_START && (STATE_REDIRECTING & stateFlags) !== STATE_REDIRECTING) return;
 
     request.QueryInterface(Ci.nsIHttpChannel);
@@ -57,41 +56,38 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
     var doc = webProgress.DOMWindow.document;
     if (!yarip.schemesRegExp.test(doc.location.protocol.replace(/:$/, ""))) return;
 
-    var locObj = yarip.getLocation(request, doc, true /* notLocation */);
-    if (!locObj) return;
+    var location = yarip.getLocation(doc.location, request, doc);
+    if (!location) return;
 
-    var isLinking = locObj.isLinking;
-//    var isLinking = locObj.isLinking || (STATE_REDIRECTING & stateFlags) === STATE_REDIRECTING;
-    if (isLinking && !yarip.privateBrowsing) return;
+    var isPage = location.isPage;
+    var isLink = location.isLink;
+//    var isLink = location.isLink || (STATE_REDIRECTING & stateFlags) === STATE_REDIRECTING;
+    if (isLink && !yarip.privateBrowsing) return;
 
-//    var location = locObj.location;
-//    if (!yarip.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return;
-
-    var location = yarip.getLocationFromLocation(doc.location);
-    var contentLocation = yarip.getContentLocationFromContentLocation(request.URI);
+    var contentLocation = yarip.getLocation(request.URI);
     var addressObj = yarip.getAddressObjByLocation(location, true);
     if (!addressObj.found) {
        yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation);
        return;
     }
 
-    var statusObj = yarip.shouldBlacklist(addressObj, contentLocation.asciiSpec, doc.defaultView, isLinking ? DO_LINKS : DO_CONTENTS);
+    var statusObj = yarip.shouldBlacklist(addressObj, contentLocation.asciiHref, doc.defaultView, isLink ? DO_LINKS : DO_CONTENTS);
     switch (statusObj.status) {
     case STATUS_UNKNOWN:
-        if (!locObj.isPage && (STATE_START & stateFlags) !== STATE_START) {
+        if (!isPage && (STATE_REDIRECTING & stateFlags) === STATE_REDIRECTING) {
             yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation);
         }
         break;
     case STATUS_WHITELISTED:
-        if (!locObj.isPage && (STATE_START & stateFlags) !== STATE_START) {
+        if (!isPage && (STATE_REDIRECTING & stateFlags) === STATE_REDIRECTING) {
             yarip.logContentLocation(STATUS_WHITELISTED, location, contentLocation, null, statusObj.itemObj);
         }
         break;
     case STATUS_BLACKLISTED:
         request.cancel(Cr.NS_ERROR_ABORT);
-        yarip.logContentLocation(STATUS_BLACKLISTED, location, contentLocation, null, statusObj.itemObj);
-        if (statusObj.itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
-            yarip.showLinkNotification(doc, contentLocation);
+        var newLog = yarip.logContentLocation(STATUS_BLACKLISTED, location, contentLocation, null, statusObj.itemObj);
+        if (newLog && statusObj.itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
+            yarip.showLinkNotification(doc, location, contentLocation);
         }
         break;
     }

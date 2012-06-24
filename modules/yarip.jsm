@@ -73,142 +73,94 @@ Yarip.prototype.observe = function(subject, topic, data)
         break;
     }
 }
-Yarip.prototype.getLocationFromLocation = function(location)
+Yarip.prototype.getLocation = function(obj, channel, doc)
 {
-    if (!location) return null;
-    if (location.isLocation) return location;
+    if (!obj && !channel && !doc) return null;
+    if (obj && obj.isLocation) return obj;
 
-    // https://developer.mozilla.org/en/DOM/window.location
+    var isPage = null;
+    var isLink = null;
+    if (channel) {
+        isPage = (LOAD_DOCUMENT_URI & channel.loadFlags) === LOAD_DOCUMENT_URI;
+        isLink = isPage || (LOAD_INITIAL_DOCUMENT_URI & channel.loadFlags) === LOAD_INITIAL_DOCUMENT_URI;
+
+        if (!obj) {
+            try {
+                obj = IOS.newURI(channel.loadGroup.defaultLoadRequest.name, channel.URI.originCharset, null);
+            } catch (e) {
+                obj = doc && !isPage ? doc.location : channel.URI;
+            }
+        }
+    }
+
+    var scheme = "";
+    var protocol = "";
     var host = "";
+    var port = -1;
+    var href = "";
+    var pathname = "";
     var asciiHost = "";
-//        var hostname = "";
-    var port = location.port;
     var asciiHref = "";
     var pageName = "";
-    try {
-        host = location.host.replace(/\.+(:\d+)?$/, "$1");
-        asciiHost = IDNS.convertUTF8toACE(host).replace(/\.+(:\d+)?$/, "$1");
-//            hostname = IDNS.convertUTF8toACE(location.hostname);
-//            asciiHref = location.protocol + "//" + asciiHost + location.pathname;
-        pageName = location.protocol + "//" + asciiHost + location.pathname;
-//            asciiHref = location.protocol + "//" + asciiHost + location.pathname + location.search + location.hash;
-        asciiHref = pageName + location.search + location.hash;
-//            asciiHref = IDNS.convertUTF8toACE(location.href);
-    } catch(e) {
+
+    if ("assign" in obj) { // https://developer.mozilla.org/en/DOM/window.location
+        try { host = obj.host.replace(/\.+(:\d+)?$/, "$1"); } catch(e) {}
+        try { pathname = obj.pathname; } catch(e) {}
+        try { port = obj.port; } catch(e) {}
+        try { protocol = obj.protocol; } catch(e) {}
+        try { scheme = obj.protocol.replace(/:$/, ""); } catch(e) {}
+        try { href = protocol + "//" + host + pathname + obj.search + obj.hash; } catch(e) {}
+        try { asciiHost = IDNS.convertUTF8toACE(host).replace(/\.+(:\d+)?$/, "$1"); } catch(e) {}
+        try { pageName = protocol + "//" + asciiHost + pathname; } catch(e) {}
+        try { asciiHref = pageName + obj.search + obj.hash; } catch(e) {}
+    } else { // https://developer.mozilla.org/en/nsIURI
+        try { scheme = obj.scheme; } catch (e) {}
+        try { host = obj.hostPort.replace(/\.+(:\d+)?$/, "$1"); } catch (e) {}
+//        try { host = obj.host.replace(/\.+$/, ""); } catch (e) {}
+        try { href = obj.spec; } catch (e) {}
+        try { pathname = obj.path.replace(/[?&#].*$/, ""); } catch(e) {}
+        try { port = obj.port; } catch (e) {}
+        try { protocol = obj.scheme + ":"; } catch(e) {}
+        try { asciiHost = obj.asciiHost.replace(/\.+$/, "") + (port > -1 && port != 80 ? ":" + port : ""); } catch (e) {}
+//        try { asciiHost = obj.asciiHost.replace(/\.+$/, ""); } catch (e) {}
+        try { asciiHref = obj.asciiSpec; } catch (e) {}
+        try { pageName = protocol + "//" + asciiHost + pathname; } catch (e) {}
     }
+
     return {
-//            hash: null,
+        scheme: scheme,
+        protocol: protocol,
         host: host,
-//            hostname: null,
-//            href: protocol + "//" + host + pathname, // no need for search nor hash!
-//            href: location.href,
-        href: location.protocol + "//" + host + location.pathname + location.search + location.hash,
-        pathname: location.pathname,
         port: port,
-        protocol: location.protocol,
-//            search: null,
+        href: href,
+        pathname: pathname,
         asciiHost: asciiHost,
         asciiHref: asciiHref,
         pageName: pageName.replace(/[/]*$/, ""),
+        isPage: isPage,
+        isLink: isLink,
         isLocation: true
-    }
-}
-Yarip.prototype.getLocationFromContentLocation = function(contentLocation)
-{
-    if (!contentLocation) return null;
-    if (contentLocation.isLocation) return contentLocation;
-
-    // https://developer.mozilla.org/en/nsIURI
-    // https://developer.mozilla.org/en/DOM/window.location
-    var host = "";
-    try { host = contentLocation.hostPort.replace(/\.+(:\d+)?$/, "$1"); } catch (e) {}
-//        try { host = contentLocation.host; } catch (e) {}
-    var pathname = contentLocation.path.replace(/[?&#].*$/, "");
-    var port = -1;
-    try { port = contentLocation.port; } catch (e) {}
-    var protocol = contentLocation.scheme + ":";
-    var asciiHost = "";
-    try { asciiHost = contentLocation.asciiHost.replace(/\.+$/, "") + (port > -1 && port != 80 ? ":" + port : ""); } catch (e) {}
-    var pageName = "";
-    return {
-//            hash: null,
-        host: host,
-//            hostname: null,
-        href: contentLocation.spec,
-        pathname: pathname,
-        port: port,
-        protocol: protocol,
-//            search: null,
-//            asciiHost: IDNS.convertUTF8toACE(host),
-        asciiHost: asciiHost,
-        asciiHref: contentLocation.asciiSpec,
-        pageName: protocol + "//" + asciiHost + pathname.replace(/[/]*$/, ""),
-        isLocation: true
-    }
-}
-Yarip.prototype.getContentLocationFromContentLocation = function(contentLocation)
-{
-    if (!contentLocation) return null;
-    if (contentLocation.isContentLocation) return contentLocation;
-
-    // https://developer.mozilla.org/en/nsIURI
-    var port = -1;
-    var host = "";
-    var asciiHost = "";
-    var hostPort = "";
-    try { port = contentLocation.port; } catch (e) {}
-    var userPass = contentLocation.userPass;
-    try { host = contentLocation.host.replace(/\.+$/, ""); } catch (e) {}
-    try { asciiHost = contentLocation.asciiHost.replace(/\.+$/, ""); } catch (e) {}
-    try { hostPort = contentLocation.hostPort.replace(/\.+(:\d+)?$/, "$1"); } catch (e) {}
-    return {
-        scheme: contentLocation.scheme,
-        port: port,
-        userPass: userPass,
-        host: host,
-        asciiHost: asciiHost,
-        hostPort: hostPort,
-        path: contentLocation.path,
-//            spec: contentLocation.spec,
-        spec: contentLocation.scheme + "://" + (userPass ? userPass + "@" : "") + host + (port > -1 && port != 80 ? ":" + port : "") + contentLocation.path,
-//            asciiSpec: contentLocation.asciiSpec,
-        asciiSpec: contentLocation.scheme + "://" + (userPass ? userPass + "@" : "") + asciiHost + (port > -1 && port != 80 ? ":" + port : "") + contentLocation.path,
-        isContentLocation: true
     }
 }
 Yarip.prototype.getPageName = function(location, mode)
 {
-//        if (!location || !/^https?:$/.test(location.protocol)) return null;
     if (!location || !this.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return null;
 
     var mode = Number(mode);
-    if (typeof mode != "number" || mode + "" == "NaN") {
-        mode = this.mode;
-    }
+    if (isNaN(mode)) mode = this.mode;
 
-    location = this.getLocationFromLocation(location);
-    var pageName = null;
-    try
-    {
+    location = this.getLocation(location);
+    try {
         switch (mode) {
-        case MODE_PAGE:
-//                pageName = location.protocol + "//" + location.host + location.pathname.replace(/[/]*$/, "");
-            pageName = location.protocol + "//" + location.asciiHost + location.pathname.replace(/[/]*$/, "");
-//                pageName = location.asciiHref.replace(/[/]*$/, "");
-            break;
-        case MODE_FQDN:
-            pageName = location.asciiHost;
-            break;
+        case MODE_PAGE: return location.pageName;
+        case MODE_FQDN: return location.asciiHost;
         case MODE_SLD:
-            var sld = null;
-            sld = location.asciiHost.match(FIND_SLD_RE);
-            if (sld) pageName = sld[0];
-            break;
+            var sld = location.asciiHost.match(FIND_SLD_RE);
+            return sld ? sld[0] : null;
         }
-        if (!pageName) return null;
     } catch (e) {
+        return null;
     }
-    return pageName;
 }
 Yarip.prototype.init = function()
 {
@@ -225,14 +177,6 @@ Yarip.prototype.init = function()
 
     this.initPreferences();
     if (!this.isMobile) this.initContentPolicy();
-
-    // DEBUG Profile functions.
-//        this.profile("this.getAddressObj", this, "getAddressObj");
-//        for (var f in this) {
-//            if (typeof this[f] == "function") {
-//                this.profile("yarip." + f, this, f);
-//            }
-//        }
 }
 Yarip.prototype.initMobile = function()
 {
@@ -304,23 +248,28 @@ Yarip.prototype.toggleNoFlicker = function(noFlicker, dontNotify, force)
 }
 Yarip.prototype.setMode = function(mode)
 {
-    var mode = Number(mode);
-    if (typeof mode != "number" || mode + "" == "NaN") return false;
-    this.mode = mode;
-    this.setValue(PREF_MODE, mode, DATA_TYPE_INTEGER); // notify
-    return true;
+    mode = Number(mode);
+    if (!isNaN(mode)) {
+        this.mode = mode;
+        this.setValue(PREF_MODE, mode, DATA_TYPE_INTEGER); // notify
+        return true;
+    } else {
+        return false;
+    }
 }
 Yarip.prototype.setUseIndex = function(value)
 {
-    var value = Number(value);
-    if (typeof value != "number" || value + "" == "NaN") return;
-    if ([0, 1, 2].indexOf(value) > -1) this.useIndex = value;
+    value = Number(value);
+    if (!isNaN(value) && [0, 1, 2].indexOf(value) > -1) {
+        this.useIndex = value;
+    }
 }
 Yarip.prototype.setElementsInContext = function(value)
 {
     var value = Number(value);
-    if (typeof value != "number" || value + "" == "NaN") return;
-    if (value > 0 && value <= 20) this.elementsInContext = value;
+    if (!isNaN(value) && value > 0 && value <= 20) {
+        this.elementsInContext = value;
+    }
 }
 Yarip.prototype.setPurgeInnerHTML = function(value)
 {
@@ -364,7 +313,7 @@ Yarip.prototype.toggleLogWhenClosed = function(logWhenClosed)
 }
 Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser)
 {
-    if (!pageName) return "^https?://([^/?#]+\\.)?example\\.net[/?#]";
+    if (!pageName) return "^https?://([^/?#]+[@.])?example\\.net[/?#]";
 
     // TODO Use the protocol from the pageName!
     protocol = !protocol || /^https?:$/.test(protocol) ? "https?:" : protocol;
@@ -380,16 +329,16 @@ Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser)
             }
         }
         var port = domain[DOMAIN_RE_PORT_INDEX] ? ":" + domain[DOMAIN_RE_PORT_INDEX] : "";
-        return "^" + protocol + "//" + (useWildcardExpr ? "([^/?#]+\\.)?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + port + "[/?#]";
+        return "^" + protocol + "//" + (useWildcardExpr ? "([^/?#]+[@.])?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + port + "[/?#]";
     } else {
-        return "^https?://([^/?#]+\\.)?example\\.net[/?#]";
+        return "^https?://([^/?#]+[@.])?example\\.net[/?#]";
     }
 }
 Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
 {
     if (!pageName) {
         return {
-            regExp: "^http://([^/?#]+\\.)?example.net([/?#].*)",
+            regExp: "^http://([^/?#]+[@.])?example.net([/?#].*)",
             newSubStr: "https://$1example.net$2"
         };
     }
@@ -408,12 +357,12 @@ Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
         }
         var port = domain[DOMAIN_RE_PORT_INDEX] ? ":" + domain[DOMAIN_RE_PORT_INDEX] : "";
         return {
-            regExp: "^http://" + (useWildcardExpr ? "([^/?#]+\\.)?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + port + "([/?#].*)",
+            regExp: "^http://" + (useWildcardExpr ? "([^/?#]+[@.])?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + port + "([/?#].*)",
             newSubStr: "https://" + (useWildcardExpr ? "$1" : "") + domainNoPort + port + (useWildcardExpr ? "$2" : "$1")
         };
     } else {
         return {
-            regExp: "^http://([^/?#]+\\.)?example.net([/?#].*)",
+            regExp: "^http://([^/?#]+[@.])?example.net([/?#].*)",
             newSubStr: "https://$1example.net$2"
         };
     }
@@ -422,7 +371,7 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUse
 {
     if (!location) return null;
 
-    location = this.getLocationFromLocation(location);
+    location = this.getLocation(location);
     if (!pageName) pageName = this.getPageName(location, this.mode);
 
     // Creating the page.
@@ -437,14 +386,10 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUse
 
     // Adding the default WhitelistContent.
     if (this.exclusiveOnCreation || privateBrowsing) {
-//        var sld = location.asciiHost.match(FIND_SLD_RE);
-//        if (sld) {
-//            var re = this.getPageRegExp(sld[0], location.protocol);
-            var re = this.getPageRegExp(pageName, location.protocol, byUser);
-            var content = new YaripContentWhitelistItem(re);
-            page.contentWhitelist.add(content);
-            page.contentWhitelist.setExclusive(true);
-//        }
+        var re = this.getPageRegExp(pageName, location.protocol, byUser);
+        var content = new YaripContentWhitelistItem(re);
+        page.contentWhitelist.add(content);
+        page.contentWhitelist.setExclusive(true);
     }
 
     // Merging with templates.
@@ -700,7 +645,7 @@ Yarip.prototype.resetOnAddress = function(obj)
     switch (obj.type) {
     case TYPE_WHITELIST:
     case TYPE_BLACKLIST:
-        var elements = this.getElementsByXPath(obj.document, obj.xValue);
+        var elements = this.getElementsByXPath(obj.document, obj.xpath);
         if (elements)
         {
             for (var i = 0; i < elements.snapshotLength; i++)
@@ -827,7 +772,7 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
         var obj = {};
         obj.document = doc;
         obj.pageName = pageName;
-        obj.xValue = item.getXPath();
+        obj.xpath = item.getXPath();
         obj.key = item.getKey();
         obj.type = TYPE_WHITELIST;
         obj.text = item.getXPath();
@@ -984,7 +929,7 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
         var obj = {};
         obj.document = doc;
         obj.pageName = pageName;
-        obj.xValue = item.getXPath();
+        obj.xpath = item.getXPath();
         obj.key = item.getKey();
         obj.type = TYPE_BLACKLIST;
         obj.text = item.getXPath();
@@ -1142,7 +1087,7 @@ Yarip.prototype.createXPath = function(element, fullPath)
         return this.createXPath(element.ownerElement, fullPath) + "/@" + element.localName; // attribute
     }
 
-    var xValue = "";
+    var xpath = "";
     do
     {
         var attributes = "";
@@ -1151,7 +1096,7 @@ Yarip.prototype.createXPath = function(element, fullPath)
             // ID
             attributes += "[@id='" + element.getAttribute("id") + "']";
             if (!fullPath) {
-                return "//" + element.localName + attributes + xValue; // shortest xpath
+                return "//" + element.localName + attributes + xpath; // shortest xpath
             }
         }
         else
@@ -1182,28 +1127,20 @@ Yarip.prototype.createXPath = function(element, fullPath)
                 }
             }
         }
-        xValue = "/" + element.localName + attributes + xValue;
+        xpath = "/" + element.localName + attributes + xpath;
         element = element.parentNode;
     } while (element && element.nodeType == 1);
 
-    return xValue != "" ? xValue : null;
+    return xpath != "" ? xpath : null;
 }
-Yarip.prototype.getElementsByXPath = function(doc, xValue)
+Yarip.prototype.getElementsByXPath = function(doc, xpath)
 {
-    var elements = null;
     try {
-        elements = doc.evaluate(xValue, doc.body, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        return doc.evaluate(xpath, doc.body, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
     } catch (e) {
-        var scriptError = Cc["@mozilla.org/scripterror;1"].createInstance(Ci.nsIScriptError);
-//        var message = doc.getElementById("yarip-overlay-stringbundle").getFormattedString("malformedXPath", [xValue]);
-        var message = "[xpath=" + xValue + "] ";
-//        var sourceName = "chrome://yarip/content/yarip.js";
-        var sourceName = "";
-        scriptError.init(message + e.message, sourceName, null, e.lineNumber, e.columnNumber, scriptError.errorFlag, "content javascript");
-        CS.logMessage(scriptError);
+        this.logMessage(LOG_ERROR, e);
+        return null;
     }
-//    if (!elements || elements.snapshotLength == 0) return null;
-    return elements;
 }
 Yarip.prototype.generateRegExp = function(value)
 {
@@ -1215,13 +1152,13 @@ Yarip.prototype.checkPageName = function(value)
 {
     return URI_SIMPLE_RE.test(value);
 }
-Yarip.prototype.checkXPath = function(xValue)
+Yarip.prototype.checkXPath = function(xpath)
 {
-    if (!xValue) return false;
+    if (!xpath) return false;
     try {
         var dp = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
         var doc = dp.parseFromString("<yarip></yarip>", "text/xml");
-        doc.evaluate(xValue, doc, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        doc.evaluate(xpath, doc, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
     } catch (e) {
         return false;
     }
@@ -1237,19 +1174,19 @@ Yarip.prototype.checkRegExp = function(reValue)
     }
     return true;
 }
-Yarip.prototype.getElements = function(doc, xValue)
+Yarip.prototype.getElements = function(doc, xpath)
 {
     var elements = null;
     try {
-        elements = doc.evaluate(xValue, doc, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        elements = doc.evaluate(xpath, doc, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
     } catch (e) {
     }
     return elements;
 }
-Yarip.prototype.highlight = function(doc, xValue)
+Yarip.prototype.highlight = function(doc, xpath)
 {
-    if (!doc || !xValue) return false;
-    var elements = this.getElements(doc, xValue);
+    if (!doc || !xpath) return false;
+    var elements = this.getElements(doc, xpath);
     if (!elements) return false;
     if (elements.snapshotLength > 0) {
         for (var i = 0; i < elements.snapshotLength; i++) {
@@ -1267,10 +1204,10 @@ Yarip.prototype.highlight = function(doc, xValue)
     }
     return true;
 }
-Yarip.prototype.unHighlight = function(doc, xValue)
+Yarip.prototype.unHighlight = function(doc, xpath)
 {
-    if (!doc || !xValue) return;
-    var elements = this.getElements(doc, xValue);
+    if (!doc || !xpath) return;
+    var elements = this.getElements(doc, xpath);
     if (elements && elements.snapshotLength > 0) {
         for (var i = 0; i < elements.snapshotLength; i++) {
             var element = elements.snapshotItem(i);
@@ -1309,7 +1246,7 @@ Yarip.prototype.getValue = function(preference, defaultValue, type)
             return PB.getCharPref(preference);
         }
     } catch (e) {
-        if (defaultValue != false && (typeof defaultValue != "number" || defaultValue + "" == "NaN") && !defaultValue) {
+        if (defaultValue !== false && (typeof defaultValue != "number" || isNaN(defaultValue)) && !defaultValue) {
             return null;
         }
         this.setValue(preference, defaultValue, type);
@@ -2582,15 +2519,27 @@ Yarip.prototype.saveToFile = function(data, file)
         if (os) try { os.close(); } catch (e) {}
     }
 }
+Yarip.prototype.logMessage = function(flags, e)
+{
+    if (!e) return;
+
+    var scriptError = Cc["@mozilla.org/scripterror;1"].createInstance(Ci.nsIScriptError);
+    scriptError.init("Yarip: " + e.message, e.fileName, e.lineNumber, e.lineNumber, e.columnNumber, flags, "chrome javascript");
+    CS.logMessage(scriptError);
+}
 Yarip.prototype.logContentLocation = function(status, location, contentLocation, mimeTypeGuess, itemObj)
 {
     var date = new Date();
-    location = this.getLocationFromLocation(location);
-    contentLocation = this.getContentLocationFromContentLocation(contentLocation);
+    location = this.getLocation(location);
+    contentLocation = this.getLocation(contentLocation);
     if (!this.isMobile) {
+        var newLog = false;
         for each (var monitor in this.monitorDialogues) {
-            monitor.logContentLocation(status, location, contentLocation, date, mimeTypeGuess, itemObj);
+            if (monitor.logContentLocation(status, location, contentLocation, date, mimeTypeGuess, itemObj)) {
+                newLog = true;
+            }
         }
+        return newLog;
     } else {
         var hours = date.getHours();
         var minutes = date.getMinutes();
@@ -2606,8 +2555,9 @@ Yarip.prototype.logContentLocation = function(status, location, contentLocation,
         default: state = status + " "; break;
         }
         var page = location.href;
-        var content = contentLocation.spec;
+        var content = contentLocation.href;
         dump("yarip: " + time + " " + state + " " + page + " " + content + "\n");
+        return true;
     }
 }
 Yarip.prototype.updateContentType = function(status, location, contentLocation, contentType, responseStatus)
@@ -2721,26 +2671,6 @@ Yarip.prototype.openLocation = function(url)
     }
 }
 
-// DEBUG
-//yarip.profileObj = {};
-//yarip.profileTime = 0;
-//yarip.profile = function(key, object, name)
-//{
-//    var obj = this.profileObj[key] = {
-//        name: name,
-//        count: 0,
-//        totalTime: 0
-//    };
-//    var fun = object[name];
-//    object[name] = function() {
-//        obj.count++;
-//        var then = Date.now();
-//        var result = fun.apply(object, arguments);
-//        var time = Date.now() - then;
-//        obj.totalTime += time;
-//        return result;
-//    };
-//}
 Yarip.prototype.getInterface = function(channel, iid)
 {
     if (!channel) return null;
@@ -2769,37 +2699,6 @@ Yarip.prototype.getInterface = function(channel, iid)
 
     return null;
 }
-Yarip.prototype.getLocation = function(channel, doc, notLocation)
-{
-    var isPage = (LOAD_DOCUMENT_URI & channel.loadFlags) === LOAD_DOCUMENT_URI;
-    var isLinking = isPage || (LOAD_INITIAL_DOCUMENT_URI & channel.loadFlags) === LOAD_INITIAL_DOCUMENT_URI;
-    var obj = {
-        location: null,
-        isPage: isPage,
-        isLinking: isLinking
-    };
-
-    if (notLocation) {
-        return obj;
-    } else if ((LOAD_REPLACE & channel.loadFlags) === LOAD_REPLACE) {
-        try {
-            var newURI = IOS.newURI(channel.loadGroup.defaultLoadRequest.name, channel.URI.originCharset, null);
-            obj.location = this.getLocationFromContentLocation(newURI);
-            return obj;
-        } catch (e) {
-        }
-    }
-
-    if (isPage) {
-        obj.location = this.getLocationFromContentLocation(channel.URI);
-        return obj;
-    } else if (doc) {
-        obj.location = this.getLocationFromLocation(doc.location);
-        return obj;
-    } else {
-        return null;
-    }
-}
 Yarip.prototype.getYaripScript = function()
 {
     return "" +
@@ -2815,7 +2714,7 @@ Yarip.prototype.getYaripScript = function()
         "    }\n" +
         "}";
 }
-Yarip.prototype.showLinkNotification = function(doc, contentLocation)
+Yarip.prototype.showLinkNotification = function(doc, location, contentLocation)
 {
     var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
     var browserEnum = wm.getEnumerator("navigator:browser");
@@ -2827,9 +2726,9 @@ Yarip.prototype.showLinkNotification = function(doc, contentLocation)
         if (index >= 0)
         {
             var browser = tabBrowser.getBrowserAtIndex(index);
-            var location = this.getLocationFromLocation(doc.location);
-            var content = this.getContentLocationFromContentLocation(contentLocation);
-            var message = "Open link `" + (content.spec.length <= 100 ? content.spec : content.spec.substring(0, 97) + "...") + "'?";
+            location = this.getLocation(location ? location : doc.location);
+            contentLocation = this.getLocation(contentLocation);
+            var message = "Open link `" + (contentLocation.href.length <= 100 ? contentLocation.href : contentLocation.href.substring(0, 97) + "...") + "'?";
             var nb = tabBrowser.getNotificationBox(browser);
             var openLocation = this.openLocation;
             var yarip = this;
@@ -2842,14 +2741,14 @@ Yarip.prototype.showLinkNotification = function(doc, contentLocation)
                             if (!pageName) return;
                         }
 
-                        var regExp = yarip.generateRegExp(content.asciiSpec);
+                        var regExp = yarip.generateRegExp(contentLocation.asciiHref);
                         if (!regExp) return;
 
                         var obj = {
                             pageName: pageName,
                             itemLocation: location,
                             item: new YaripContentWhitelistItem(regExp),
-                            itemContent: content
+                            itemContent: contentLocation
                         }
 
                         browserWin.openDialog("chrome://yarip/content/whitelistcontentdialog.xul", "whitelistcontentdialog", "chrome,modal,resizable", obj);
@@ -2872,14 +2771,14 @@ Yarip.prototype.showLinkNotification = function(doc, contentLocation)
                             if (!pageName) return;
                         }
 
-                        var regExp = yarip.generateRegExp(content.asciiSpec);
+                        var regExp = yarip.generateRegExp(contentLocation.asciiHref);
                         if (!regExp) return;
 
                         var obj = {
                             pageName: pageName,
                             itemLocation: location,
                             item: new YaripContentBlacklistItem(regExp),
-                            itemContent: content
+                            itemContent: contentLocation
                         }
 
                         browserWin.openDialog("chrome://yarip/content/blacklistcontentdialog.xul", "blacklistcontentdialog", "chrome,modal,resizable", obj);
@@ -2901,30 +2800,30 @@ Yarip.prototype.showLinkNotification = function(doc, contentLocation)
                             if (!pageName) return;
                         }
 
-//                        var regExp = yarip.generateRegExp(content.asciiSpec);
+//                        var regExp = yarip.generateRegExp(contentLocation.asciiHref);
 //                        if (!regExp) return;
 
 //                        var obj = {
 //                            pageName: pageName,
 //                            itemLocation: location,
 //                            item: new YaripContentBlacklistItem(regExp),
-//                            itemContent: content
+//                            itemContent: contentLocation
 //                        }
 
-                        var contentAddress = yarip.getFirstAddress(content.asciiSpec);
+                        var contentAddress = yarip.getFirstAddress(contentLocation.asciiHref);
                         if (!contentAddress) {
-                            contentAddress = yarip.getPageName(yarip.getLocationFromContentLocation(content));
+                            contentAddress = yarip.getPageName(contentLocation);
                             if (!contentAddress) return;
                         }
 
-                        var pageExt = yarip.createPage(content, contentAddress, true /* privateBrowsing/temporary */);
+                        var pageExt = yarip.createPage(contentLocation, contentAddress, true /* privateBrowsing/temporary */);
                         var extItem = pageExt.createPageExtensionItem();
 
                         var obj = {
                             pageName: pageName,
                             pageLocation: location,
                             contentAddress: contentAddress,
-                            contentLocation: content,
+                            contentLocation: contentLocation,
                             extItem: extItem
                         }
 
@@ -2941,8 +2840,8 @@ Yarip.prototype.showLinkNotification = function(doc, contentLocation)
                 },
                 {
                     accessKey: "o",
-                    callback: function() { openLocation(content.spec); },
-//                    callback: function() { doc.location = content.spec; },
+                    callback: function() { openLocation(contentLocation.href); },
+//                    callback: function() { doc.location = contentLocation.href; },
                     label: "Open",
                     popup: null
                 }];

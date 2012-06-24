@@ -27,7 +27,7 @@ function YaripAttributeDialog()
     this.attrValueTextbox = null;
     this.doc = null;
     this.obj = null;
-    this.xValue = null;
+    this.xpath = null;
 
     this.setXPath = function(value)
     {
@@ -53,28 +53,26 @@ function YaripAttributeDialog()
     {
         if (!this.doc) return;
 
-        if (this.xValue) this.unHighlight(this.doc, this.xValue);
-        this.xValue = null;
-        var xValue = this.obj.item.getXPath();
-        if (!yarip.highlight(this.doc, xValue))
-        {
-            var msg = this.stringbundle.getString("ERR_INVALID_XPATH");
-            alert(msg);
-            throw new YaripException(msg);
+        if (this.xpath) this.unHighlight(this.doc, this.xpath);
+        this.xpath = null;
+        var xpath = this.obj.item.getXPath();
+        if (!yarip.highlight(this.doc, xpath)) {
+            alert(this.sb.getString("ERR_INVALID_XPATH"));
+            throw new Error(this.sb.getFormattedString("ERR_INVALID_XPATH1", [xpath]));
         }
-        this.xValue = xValue;
+        this.xpath = xpath;
     }
 
-    this.unHighlight = function(doc, xValue)
+    this.unHighlight = function(doc, xpath)
     {
-        yarip.unHighlight(doc, xValue);
+        yarip.unHighlight(doc, xpath);
     }
 
     this.removeIndexes = function()
     {
-        var xValue = this.xpathTextbox.value.replace(/\[\d+\]/g, "");
-        this.xpathTextbox.value = xValue;
-        this.setXPath(xValue);
+        var xpath = this.xpathTextbox.value.replace(/\[\d+\]/g, "");
+        this.xpathTextbox.value = xpath;
+        this.setXPath(xpath);
     }
 
     this.load = function()
@@ -104,7 +102,7 @@ function YaripAttributeDialog()
             return;
         }
 
-        var location = yarip.getLocationFromLocation(this.doc.location);
+        var location = yarip.getLocation(this.doc.location);
         if (location) {
             var aMap = yarip.getAddressMap(location.asciiHref, true, { content: true });
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_PAGE)));
@@ -132,25 +130,21 @@ function YaripAttributeDialog()
     this.accept = function()
     {
         if (this.doc) {
-            this.unHighlight(this.doc, this.xValue);
+            this.unHighlight(this.doc, this.xpath);
             if (!this.obj || !this.obj.attrName || this.obj.attrName === "") return;
 
             this.obj.pageName = this.pageMenulist.value;
 
             var elements = yarip.getElements(this.doc, this.obj.item.getXPath());
-            if (!elements)
-            {
-                var msg = this.stringbundle.getString("ERR_INVALID_XPATH");
-                alert(msg);
-                throw new YaripException(msg);
+            if (!elements) {
+                alert(this.sb.getString("ERR_INVALID_XPATH"));
+                throw new Error(this.sb.getFormattedString("ERR_INVALID_XPATH1", [xpath]));
             }
         } else {
             if (!this.obj) return;
-            if (!yarip.checkXPath(this.obj.item.getXPath()))
-            {
-                var msg = this.stringbundle.getString("ERR_INVALID_XPATH");
-                alert(msg);
-                throw new YaripException(msg);
+            if (!yarip.checkXPath(this.obj.item.getXPath())) {
+                alert(this.sb.getString("ERR_INVALID_XPATH"));
+                throw new Error(this.sb.getFormattedString("ERR_INVALID_XPATH1", [xpath]));
             }
         }
 
@@ -163,7 +157,7 @@ function YaripAttributeDialog()
 
     this.cancel = function()
     {
-        if (this.doc) this.unHighlight(this.doc, this.xValue);
+        if (this.doc) this.unHighlight(this.doc, this.xpath);
         if (this.obj) this.obj.item = null;
     }
 }

@@ -38,17 +38,17 @@ function YaripCreatePageDialog()
         var pageName = this.obj.pageName;
         this.pageMenulist.value = pageName;
 
-        var location = "pageLocation" in this.obj ? yarip.getLocationFromLocation(this.obj.pageLocation) : null;
+        var location = "pageLocation" in this.obj ? yarip.getLocation(this.obj.pageLocation) : null;
         if (location) {
-            var content = "contentLocation" in this.obj ? yarip.getLocationFromContentLocation(this.obj.contentLocation) : null;
-            var aMap = yarip.getAddressMap([location.asciiHref, content ? content.asciiHref : null]);
+            var contentLocation = "contentLocation" in this.obj ? yarip.getLocation(this.obj.contentLocation) : null;
+            var aMap = yarip.getAddressMap([location.asciiHref, contentLocation ? contentLocation.asciiHref : null]);
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_PAGE)));
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_FQDN)));
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_SLD)));
-            if (content) {
-                aMap.add(new YaripPage(null, yarip.getPageName(content, MODE_PAGE)));
-                aMap.add(new YaripPage(null, yarip.getPageName(content, MODE_FQDN)));
-                aMap.add(new YaripPage(null, yarip.getPageName(content, MODE_SLD)));
+            if (contentLocation) {
+                aMap.add(new YaripPage(null, yarip.getPageName(contentLocation, MODE_PAGE)));
+                aMap.add(new YaripPage(null, yarip.getPageName(contentLocation, MODE_FQDN)));
+                aMap.add(new YaripPage(null, yarip.getPageName(contentLocation, MODE_SLD)));
             }
             var menupopup = document.getElementById("page-menupopup");
             var createMenuitem = this.createMenuitem;
@@ -73,14 +73,12 @@ function YaripCreatePageDialog()
     {
         if (!this.obj) return;
 
-        var msg = null;
         var pageName = this.pageMenulist.value;
         if (!yarip.checkPageName(pageName)) {
             this.pageMenulist.focus();
             this.pageMenulist.select();
-            msg = this.sb.getString("ERR_INVALID_PAGE_NAME");
-            alert(msg);
-            throw new YaripException(msg);
+            alert(this.sb.getString("ERR_INVALID_PAGE_NAME"));
+            throw new Error(this.sb.getFormattedString("ERR_INVALID_PAGE_NAME1", [pageName]));
         }
         this.obj.pageName = pageName;
     }

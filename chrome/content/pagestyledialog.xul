@@ -39,7 +39,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     Cu.import("resource://yarip/list.jsm");
     Cu.import("resource://yarip/item.jsm");
   ]]></script>
-  <script type="application/x-javascript" src="chrome://yarip/content/exception.js"/>
   <script type="application/x-javascript" src="chrome://yarip/content/pagestyledialog.js"/>
   <script type="application/x-javascript"><![CDATA[
     var dialog = new YaripPageStyleDialog();

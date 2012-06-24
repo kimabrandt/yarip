@@ -54,12 +54,12 @@ YaripContentPolicy.prototype.shouldLoad = function(contentType, contentLocation,
     var defaultView = context && context.nodeType == DOCUMENT_NODE ? context.defaultView : null;
     var doc = defaultView ? defaultView.document : null;
     var location = doc ? doc.location : null;
-//    if (!location && requestOrigin) location = yarip.getLocationFromContentLocation(requestOrigin);
+//    if (!location && requestOrigin) location = yarip.getLocation(requestOrigin);
     if (!location || !yarip.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return ACCEPT;
 
     // Getting the location.
-    location = yarip.getLocationFromLocation(location);
-    contentLocation = yarip.getContentLocationFromContentLocation(contentLocation);
+    location = yarip.getLocation(location);
+    contentLocation = yarip.getLocation(contentLocation);
 
     // Checking if yarip is enabled.
     if (!yarip.enabled) {
@@ -88,7 +88,7 @@ YaripContentPolicy.prototype.shouldLoad = function(contentType, contentLocation,
 //        yarip.profileTime = Date.now();
 //    }
 
-    var statusObj = yarip.shouldBlacklist(addressObj, contentLocation.asciiSpec, defaultView);
+    var statusObj = yarip.shouldBlacklist(addressObj, contentLocation.asciiHref, defaultView);
     yarip.logContentLocation(statusObj.status, location, contentLocation, mimeTypeGuess, statusObj.itemObj);
     switch (statusObj.status) {
     case STATUS_UNKNOWN:

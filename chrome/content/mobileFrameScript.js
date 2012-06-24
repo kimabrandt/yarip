@@ -43,7 +43,7 @@ var needMap = true;
 ////        switch(event.type) {
 ////        case "DOMContentLoaded":
 ////dump("mobileFrameScript.js:handleDOMContentLoaded:`" + event.type + "'\n");
-//            var location = yarip.getLocationFromLocation(content.document.location);
+//            var location = yarip.getLocation(content.document.location);
 //            sendAsyncMessage("Yarip:Loader:Request", {
 //                    "location": location,
 //                    "needMap": needMap
@@ -85,7 +85,7 @@ function handleDOMContentLoaded(event) {
 //    switch(event.type) {
 //    case "DOMContentLoaded":
 //dump("mobileFrameScript.js:handleDOMContentLoaded:`" + event.type + "'\n");
-        var location = yarip.getLocationFromLocation(content.document.location);
+        var location = yarip.getLocation(content.document.location);
         sendAsyncMessage("Yarip:Loader:Request", {
                 "location": location,
                 "needMap": needMap

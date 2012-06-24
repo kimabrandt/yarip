@@ -69,6 +69,10 @@ function YaripChannelReplace(oldChannel, newURI, callback)
 
     // nsIHttpChannel
     if (this.oldChannel instanceof Ci.nsIHttpChannel && this.newChannel instanceof Ci.nsIHttpChannel) {
+        if (this.oldChannel.redirectionLimit === 0) {
+            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_REDIRECTION_LIMIT2", [this.oldChannel.URI.spec, this.newChannel.URI.spec], 2)));
+            return;
+        }
         this.newChannel.allowPipelining = this.oldChannel.allowPipelining;
 //        this.newChannel.redirectionLimit = this.oldChannel.redirectionLimit;
         this.newChannel.redirectionLimit = this.oldChannel.redirectionLimit - 1;
@@ -146,6 +150,7 @@ function YaripChannelReplace(oldChannel, newURI, callback)
         });
     });
 }
+YaripChannelReplace.prototype.sb = SB.createBundle("chrome://yarip/locale/replace.properties");
 YaripChannelReplace.prototype.runWhenPending = function(request, callback)
 {
     if (request.isPending()) {

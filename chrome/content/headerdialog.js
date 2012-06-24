@@ -55,7 +55,7 @@ function YaripHeaderDialog()
         this.headerNameTextbox.value = this.obj.item.getHeaderName();
         this.scriptTextbox.value = this.obj.item.getScript();
 
-        var location = "itemLocation" in this.obj ? yarip.getLocationFromLocation(this.obj.itemLocation) : null;
+        var location = "itemLocation" in this.obj ? yarip.getLocation(this.obj.itemLocation) : null;
         if (location) {
             var aMap = yarip.getAddressMap(location.asciiHref, true, { content: true });
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_PAGE)));
@@ -84,31 +84,28 @@ function YaripHeaderDialog()
     {
         if (!this.obj) return;
 
-        var msg = null;
         var pageName = this.pageMenulist.value;
         if (!yarip.checkPageName(pageName)) {
             this.pageMenulist.focus();
             this.pageMenulist.select();
-            msg = this.sb.getString("ERR_INVALID_PAGE_NAME");
-            alert(msg);
-            throw new YaripException(msg);
+            alert(this.sb.getString("ERR_INVALID_PAGE_NAME"));
+            throw new Error(this.sb.getFormattedString("ERR_INVALID_PAGE_NAME1", [pageName]));
         }
 
-        var regExp = this.regexpTextbox.value;
-        if (!yarip.checkRegExp(regExp)) {
+        var regexp = this.regexpTextbox.value;
+        if (!yarip.checkRegExp(regexp)) {
             this.regexpTextbox.focus();
             this.regexpTextbox.select();
-            msg = this.sb.getString("ERR_INVALID_REGEXP");
-            alert(msg);
-            throw new YaripException(msg);
+            alert(this.sb.getString("ERR_INVALID_REGEXP"));
+            throw new Error(this.sb.getFormattedString("ERR_INVALID_REGEXP1", [regexp]));
         }
 
         var headerName = this.headerNameTextbox.value;
 
-        this.obj.item.setRegExp(regExp);
+        this.obj.item.setRegExp(regexp);
         this.obj.item.setHeaderName(headerName);
         this.obj.pageName = pageName;
-        FH.addEntry("regexp", regExp);
+        FH.addEntry("regexp", regexp);
         FH.addEntry("header_name", headerName);
     }
 

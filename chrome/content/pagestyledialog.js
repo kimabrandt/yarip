@@ -27,7 +27,7 @@ function YaripPageStyleDialog()
     this.styleTextbox = null;
     this.doc = null;
     this.obj = null;
-    this.xValue = null;
+    this.xpath = null;
 
     this.setXPath = function(value)
     {
@@ -45,28 +45,26 @@ function YaripPageStyleDialog()
     {
         if (!this.doc) return;
 
-        if (this.xValue) this.unHighlight(this.doc, this.xValue);
-        this.xValue = null;
-        var xValue = this.obj.item.getXPath();
-        if (!yarip.highlight(this.doc, xValue))
-        {
-            var msg = this.sb.getString("ERR_INVALID_XPATH");
-            alert(msg);
-            throw new YaripException(msg);
+        if (this.xpath) this.unHighlight(this.doc, this.xpath);
+        this.xpath = null;
+        var xpath = this.obj.item.getXPath();
+        if (!yarip.highlight(this.doc, xpath)) {
+            alert(this.sb.getString("ERR_INVALID_XPATH"));
+            throw new Error(this.sb.getFormattedString("ERR_INVALID_XPATH1", [xpath]));
         }
-        this.xValue = xValue;
+        this.xpath = xpath;
     }
 
-    this.unHighlight = function(doc, xValue)
+    this.unHighlight = function(doc, xpath)
     {
-        yarip.unHighlight(doc, xValue);
+        yarip.unHighlight(doc, xpath);
     }
 
     this.removeIndexes = function()
     {
-        var xValue = this.xpathTextbox.value.replace(/\[\d+\]/g, "");
-        this.xpathTextbox.value = xValue;
-        this.setXPath(xValue);
+        var xpath = this.xpathTextbox.value.replace(/\[\d+\]/g, "");
+        this.xpathTextbox.value = xpath;
+        this.setXPath(xpath);
     }
 
     this.load = function()
@@ -95,7 +93,7 @@ function YaripPageStyleDialog()
             return;
         }
 
-        var location = yarip.getLocationFromLocation(this.doc.location);
+        var location = yarip.getLocation(this.doc.location);
         if (location) {
             var aMap = yarip.getAddressMap(location.asciiHref);
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_PAGE)));
@@ -122,62 +120,54 @@ function YaripPageStyleDialog()
 
     this.accept = function()
     {
-        var xPath = null;
+        var xpath = null;
         if (this.doc) {
-            this.unHighlight(this.doc, this.xValue);
+            this.unHighlight(this.doc, this.xpath);
             if (!this.obj) return;
 
-            var msg = null;
             var pageName = this.pageMenulist.value;
             if (!yarip.checkPageName(pageName)) {
                 this.pageMenulist.focus();
                 this.pageMenulist.select();
-                msg = this.sb.getString("ERR_INVALID_PAGE_NAME");
-                alert(msg);
-                throw new YaripException(msg);
+                alert(this.sb.getString("ERR_INVALID_PAGE_NAME"));
+                throw new Error(this.sb.getFormattedString("ERR_INVALID_PAGE_NAME2", [this.doc.location, xpath]));
             }
 
-            xPath = this.obj.item.getXPath();
-            if (!yarip.checkXPath(xPath))
-            {
+            xpath = this.obj.item.getXPath();
+            if (!yarip.checkXPath(xpath)) {
                 this.xpathTextbox.focus();
                 this.xpathTextbox.select();
-                msg = this.sb.getString("ERR_INVALID_XPATH");
-                alert(msg);
-                throw new YaripException(msg);
+                alert(this.sb.getString("ERR_INVALID_XPATH"));
+                throw new Error(this.sb.getFormattedString("ERR_INVALID_XPATH1", [xpath]));
             }
 
-            var elements = yarip.getElements(this.doc, xPath);
-            if (!elements || elements.snapshotLength === 0)
-            {
+            var elements = yarip.getElements(this.doc, xpath);
+            if (!elements || elements.snapshotLength === 0) {
                 this.xpathTextbox.focus();
                 this.xpathTextbox.select();
-                msg = this.sb.getString("ERR_NO_ELEMENTS_FOUND");
-                alert(msg);
-                throw new YaripException(msg);
+                alert(this.sb.getString("ERR_NO_ELEMENTS_FOUND"));
+                throw new Error(this.sb.getFormattedString("ERR_NO_ELEMENTS_FOUND2", [this.doc.location, xpath]));
             }
 
             this.obj.pageName = pageName;
         } else {
             if (!this.obj) return;
 
-            xPath = this.obj.item.getXPath();
-            if (!yarip.checkXPath(xPath))
-            {
-                var msg = this.sb.getString("ERR_INVALID_XPATH");
+            xpath = this.obj.item.getXPath();
+            if (!yarip.checkXPath(xpath)) {
                 this.xpathTextbox.focus();
                 this.xpathTextbox.select();
-                alert(msg);
-                throw new YaripException(msg);
+                alert(this.sb.getString("ERR_INVALID_XPATH"));
+                throw new Error(this.sb.getFormattedString("ERR_INVALID_XPATH1", [xpath]));
             }
         }
 
-        FH.addEntry("xpath", xPath);
+        FH.addEntry("xpath", xpath);
     }
 
     this.cancel = function()
     {
-        if (this.doc) this.unHighlight(this.doc, this.xValue);
+        if (this.doc) this.unHighlight(this.doc, this.xpath);
         if (this.obj) this.obj.item = null;
     }
 }

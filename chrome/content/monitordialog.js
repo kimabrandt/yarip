@@ -34,7 +34,7 @@ function YaripMonitorDialog()
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
         if (item.content) {
-            yarip.openLocation(item.content.spec);
+            yarip.openLocation(item.content.href);
         }
     }
 
@@ -43,7 +43,7 @@ function YaripMonitorDialog()
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
-        if (item.content) CH.copyString(item.content.spec);
+        if (item.content) CH.copyString(item.content.href);
     }
 
     this.whitelistContent = function()
@@ -58,7 +58,7 @@ function YaripMonitorDialog()
             if (!pageName) return;
         }
 
-        var regExp = yarip.generateRegExp(item.content.asciiSpec);
+        var regExp = yarip.generateRegExp(item.content.asciiHref);
         if (!regExp) return;
 
         var obj = {
@@ -88,7 +88,7 @@ function YaripMonitorDialog()
             if (!pageName) return;
         }
 
-        var regExp = yarip.generateRegExp(item.content.asciiSpec);
+        var regExp = yarip.generateRegExp(item.content.asciiHref);
         if (!regExp) return;
 
         var obj = {
@@ -118,9 +118,10 @@ function YaripMonitorDialog()
             if (!pageName) return;
         }
 
-        var contentAddress = yarip.getFirstAddress(item.content.asciiSpec);
+        var contentAddress = yarip.getFirstAddress(item.content.asciiHref);
         if (!contentAddress) {
-            contentAddress = yarip.getPageName(yarip.getLocationFromContentLocation(item.content));
+            var contentLocation = yarip.getLocation(item.content);
+            contentAddress = yarip.getPageName(contentLocation);
 //            contentAddress = yarip.getPageName(item.content);
             if (!contentAddress) return;
         }
@@ -216,24 +217,24 @@ function YaripMonitorDialog()
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
-        var regExp = yarip.generateRegExp(item.content.asciiSpec);
+        var regExp = yarip.generateRegExp(item.content.asciiHref);
         if (regExp) CH.copyString(regExp);
     }
 
     this.logContentLocation = function(status, location, contentLocation, date, contentType, itemObj)
     {
-        if (!location || !contentLocation) return;
-        if (this.hidden && !yarip.logWhenClosed) return;
+        if (!location || !contentLocation) return false;
+        if (this.hidden && !yarip.logWhenClosed) return true;
 
         var item = {
-            location: yarip.getLocationFromLocation(location),
-            content: yarip.getContentLocationFromContentLocation(contentLocation)
+            location: yarip.getLocation(location),
+            content: yarip.getLocation(contentLocation)
         };
-        var knownKey = item.location.pageName + " " + item.content.asciiSpec;
+        var knownKey = item.location.pageName + " " + item.content.asciiHref;
         var logObj = this.known[knownKey];
         if (logObj) {
             if (!yarip.contentRecurrence && status === logObj[0]) {
-                return;
+                return false;
             }
         }
 
@@ -248,11 +249,12 @@ function YaripMonitorDialog()
         item.status = status;
         item.page = item.location.href;
         item.asciiPage = item.location.asciiHref;
-        item.contentLocation = item.content.spec;
-        item.asciiContentLocation = item.content.asciiSpec;
+        item.contentLocation = item.content.href;
+        item.asciiContentLocation = item.content.asciiHref;
         item.contentType = contentType ? "(guess) " + contentType : null;
         yaripMonitorTreeView.appendItem(item, this.doScroll, this.hidden);
         this.known[knownKey] = [status];
+        return true;
     }
 
     this.updateContentType = function(_status, location, contentLocation, contentType, statusCode)
@@ -451,7 +453,7 @@ var yaripMonitorTreeView = {
 
     updateContentType: function(location, contentLocation, contentType, statusCode, hidden)
     {
-        var knownKey = location.pageName + " " + contentLocation.asciiSpec;
+        var knownKey = location.pageName + " " + contentLocation.asciiHref;
         var items = this.childDataObj[knownKey];
         if (!items) return;
 

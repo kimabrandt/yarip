@@ -31,7 +31,6 @@ function YaripPageDialog()
     this.tabbox = null;
     this.elementTabbox = null;
     this.contentTabbox = null;
-//    this.streamTabbox = null;
     this.pageTabbox = null;
     this.editMenupopup = null;
     this.filterString = null;
@@ -366,6 +365,7 @@ function YaripPageDialog()
             page.elementBlacklist.add(obj.item);
             break;
 
+        // TODO Create a better example, since this can be done with styles!
         case "elementAttributeList":
             obj = {
                 item: new YaripElementAttributeItem("//div[@class='narrow']", "style", "width: auto;"),
@@ -460,10 +460,8 @@ function YaripPageDialog()
 //                item: new YaripRedirectItem(reObj.regExp, reObj.newSubStr),
                 item: new YaripRedirectItem(reObj.regExp,
                         "function (url) {\n" +
-                        "    return unescape(url.replace(/.*?\\?du=([^&#]+).*/, \"$1\"));\n" +
-                        "}\n" +
-                        "// Or just a new substring:\n" +
-                        "//" + reObj.newSubStr),
+                        "    return unescape(url.replace(/.*?\\?url=(http[^&#]+).*/, \"$1\"));\n" +
+                        "}"),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/redirectdialog.xul", "redirectdialog", "chrome,modal,resizable", obj);
@@ -474,12 +472,7 @@ function YaripPageDialog()
 
 //        case "contentStreamList":
 //            obj = {
-////                item: new YaripStreamItem("<script\\b[^>]*>(.|\\s)*?</script>",
-//                    "function (matches) {\n" +
-//                    "    for (var i = 0; i < matches.length; i++) {\n" +
-//                    "        matches[i] = matches[i].replace(/foo/g, \"bar\");\n" +
-//                    "    }\n" +
-//                    "}"),
+//                item: new YaripStreamItem("", ""),
 //                pageName: page.getName()
 //            }
 //            window.openDialog("chrome://yarip/content/replacedialog.xul", "replacedialog", "chrome,modal,resizable", obj);
@@ -557,11 +550,9 @@ function YaripPageDialog()
             obj = {
 //                item: new YaripRedirectItem(reObj.regExp, reObj.newSubStr),
                 item: new YaripRedirectItem(reObj.regExp,
-                        "function (spec) {\n" +
-                        "    return unescape(spec.replace(/.*?\\?du=([^&#]+).*/, \"$1\"));\n" +
-                        "}\n" +
-                        "// Or alternatively a new substring:\n" +
-                        "//" + reObj.newSubStr),
+                        "function (url) {\n" +
+                        "    return unescape(url.replace(/.*?\\?url=(http[^&#]+).*/, \"$1\"));\n" +
+                        "}"),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/redirectdialog.xul", "redirectdialog", "chrome,modal,resizable", obj);
@@ -752,7 +743,6 @@ function YaripPageDialog()
                                 selectedIndex = INDEX_TABBOX_PAGE;
                             }
                         } else {
-//                            this.streamTabbox.selectedIndex = INDEX_PAGE_STREAM;
                             this.pageTabbox.selectedIndex = INDEX_PAGE_STREAM;
                             selectedIndex = INDEX_TABBOX_PAGE;
                         }
@@ -1524,7 +1514,6 @@ function YaripPageDialog()
         this.elementTabbox = document.getElementById("element-tabbox");
         this.contentTabbox = document.getElementById("content-tabbox");
         this.contentHeaderTabbox = document.getElementById("content-header-tabbox");
-//        this.streamTabbox = document.getElementById("stream-tabbox");
         this.pageTabbox = document.getElementById("page-tabbox");
         this.pageHeaderTabbox = document.getElementById("page-header-tabbox");
         this.editMenupopup = document.getElementById("yarip-edit-menupopup");

@@ -41,6 +41,7 @@ const Ci = Components.interfaces;
 const Cr = Components.results;
 const Cu = Components.utils;
 
+const yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
 Cu.import("resource://yarip/constants.jsm");
 Cu.import("resource://yarip/object.jsm");
 
@@ -74,6 +75,7 @@ function YaripItem(xpath, style, script, priority, force, placeholder, created, 
 }
 YaripItem.prototype = new YaripObject;
 YaripItem.prototype.constructor = YaripItem;
+YaripItem.prototype.sb = SB.createBundle("chrome://yarip/locale/item.properties");
 YaripItem.prototype.getId = function()
 {
     return this.getXPath();
@@ -109,7 +111,7 @@ YaripItem.prototype.getRegExpObj = function()
             this.regexpobj = new RegExp(this.regExp);
         } catch (e) {
             this.regexpobj = null;
-            CS.logStringMessage("YaripItem.getRegExpObj: Couldn't create regex `" + this.regExp + "'!\n" + e);
+            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_CREATE_REGEXP1", [this.regExp], 1)));
         }
     }
     return this.regexpobj;
@@ -135,9 +137,11 @@ YaripItem.prototype.getScript = function()
 YaripItem.prototype.setPriority = function(value)
 {
     if (!value && value !== 0 || ("" + value).length > 13) return;
+
     value = Number(value);
-    if (typeof value != "number" || value + "" == "NaN") return;
-    this.priority = value;
+    if (!isNaN(value)) {
+        this.priority = value;
+    }
 }
 YaripItem.prototype.getPriority = function()
 {
@@ -163,9 +167,11 @@ YaripItem.prototype.getPlaceholder = function()
 YaripItem.prototype.setCreated = function(value)
 {
     if (!value) return;
+
     value = Number(value);
-    if (typeof value != "number" || value + "" == "NaN") return;
-    this.created = value;
+    if (!isNaN(value)) {
+        this.created = value;
+    }
 }
 YaripItem.prototype.getCreated = function()
 {
@@ -174,9 +180,11 @@ YaripItem.prototype.getCreated = function()
 YaripItem.prototype.setLastFound = function(value)
 {
     if (!value) return;
+
     value = Number(value);
-    if (typeof value != "number" || value + "" == "NaN") return;
-    this.lastFound = value;
+    if (!isNaN(value)) {
+        this.lastFound = value;
+    }
 }
 YaripItem.prototype.getLastFound = function()
 {
@@ -189,9 +197,11 @@ YaripItem.prototype.incrementLastFound = function()
 YaripItem.prototype.setFound = function(value)
 {
     if (!value) return;
+
     value = Number(value);
-    if (typeof value != "number" || value + "" == "NaN") return;
-    this.found = value;
+    if (!isNaN(value)) {
+        this.found = value;
+    }
 }
 YaripItem.prototype.getFound = function()
 {
@@ -205,9 +215,11 @@ YaripItem.prototype.incrementFound = function()
 YaripItem.prototype.setNotFound = function(value)
 {
     if (!value) return;
+
     value = Number(value);
-    if (typeof value != "number" || value + "" == "NaN") return;
-    this.notFound = value;
+    if (!isNaN(value)) {
+        this.notFound = value;
+    }
 }
 YaripItem.prototype.getNotFound = function()
 {
@@ -220,9 +232,11 @@ YaripItem.prototype.incrementNotFound = function()
 YaripItem.prototype.setIgnored = function(value)
 {
     if (!value) return;
+
     value = Number(value);
-    if (typeof value != "number" || value + "" == "NaN") return;
-    this.ignored = value;
+    if (!isNaN(value)) {
+        this.ignored = value;
+    }
 }
 YaripItem.prototype.getIgnored = function()
 {
@@ -784,7 +798,7 @@ YaripStreamItem.prototype.getRegExpObj = function()
         try {
             this.regexpobj = new RegExp(this.regExp, "gm");
         } catch (e) {
-            CS.logStringMessage("YaripStreamItem.getRegExpObj: Couldn't create regex `" + this.regExp + "'!\n" + e);
+            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_CREATE_REGEXP1", [this.regExp], 1)));
         }
     }
     return this.regexpobj;
@@ -795,7 +809,7 @@ YaripStreamItem.prototype.getFirstRegExpObj = function()
         try {
             this.firstRegExpObj = new RegExp(this.regExp, "m");
         } catch (e) {
-            CS.logStringMessage("YaripStreamItem.firstRegExpObj: Couldn't create regex `" + this.firstRegExpObj + "'!\n" + e);
+            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_CREATE_REGEXP1", [this.firstRegExpObj], 1)));
         }
     }
     return this.firstRegExpObj;
