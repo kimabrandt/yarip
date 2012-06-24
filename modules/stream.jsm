@@ -161,7 +161,6 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
                             }
                         }
                     } catch (e) {
-                        yarip.logMessage(LOG_ERROR, new Error(this.sb.formatStringFromName("ERR_REPLACE4", [page.getName(), item.getRegExp()], 2)));
                         yarip.logMessage(LOG_ERROR, e);
                     }
                 }

@@ -1,5 +1,17 @@
 2012-06-22  Kim A. Brandt  <kimabrandt@gmx.de>
 
+    * chrome/content/options.xul (textboxElementsInContext): Defined a
+    `max'-value.
+
+    * chrome/content/overlay.js (keypress): Allowing to clear the
+    notifications by pressing escape.
+
+    * install.rdf (description): Changed the description.
+
+    * install.rdf (maxVersion): Updated supported versions.
+
+2012-06-22  Kim A. Brandt  <kimabrandt@gmx.de>
+
     * chrome/content/*dialog.js (Error): Using Error and string-bundle for
     error-reporting.
 

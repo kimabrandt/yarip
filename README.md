@@ -21,11 +21,11 @@
 Yet Another Remove It Permanently
 ======
 
-[Yarip][1] is a Mozilla-addon, which allows users to modify Web pages in a
+[Yarip][1] is a Mozilla addon, which allows users to modify Web pages in a
 number of different ways. It works by injecting and applying user created
 code-snippets onto a Web page in order to change the look and feel and by
 using rule-based matching in order to remove elements ([DOM][5]) and block
-or redirect page-content (URLs).
+or redirect content (URLs).
 
 
 

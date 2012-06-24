@@ -229,7 +229,6 @@ YaripObserver.prototype.examineResponse = function(channel)
                         }
                     }
                 } catch (e) {
-                    yarip.logMessage(LOG_ERROR, new Error(this.sb.formatStringFromName("ERR_REDIRECT4", [pageName, item.getRegExp(), asciiHref, newSpec], 4)));
                     yarip.logMessage(LOG_ERROR, e);
                 }
             }

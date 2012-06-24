@@ -835,28 +835,24 @@ function YaripOverlay()
 //            yaripMonitor.tabSelect(browser);
 //            break;
 
-//        case "keypress":
-////            javascript:alert('y'.charCodeAt())
-//            if (event.ctrlKey && event.keyCode === 0) {
-////            if (event.ctrlKey) {
-////                if (event.altKey || event.shiftKey) {
-////                    switch (event.charCode) {
-////                    case 109: // <Ctrl> + <Alt> + <m> or <Ctrl> + <Shift> + <m>
-////                        this.managePages();
-////                        event.stopPropagation();
-////                        break;
-////                    }
-////                } else {
-//                    switch (event.charCode) {
-//                    case 121: // <Ctrl> + <y>
-//                        yaripMonitor.toggleShow();
-////                        event.stopPropagation();
-//                        event.preventDefault();
-//                        break;
-//                    }
-////                }
-//            }
-//            break;
+        case "keypress":
+            if (event.keyCode === KeyEvent.DOM_VK_ESCAPE)
+            {
+                var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+                var browserEnum = wm.getEnumerator("navigator:browser");
+                while (browserEnum.hasMoreElements()) {
+                    var browserWin = browserEnum.getNext();
+                    var tabBrowser = browserWin.gBrowser;
+                    var index = tabBrowser.getBrowserIndexForDocument(this.gBrowser.contentWindow.document);
+                    if (index >= 0) {
+                        var browser = tabBrowser.getBrowserAtIndex(index);
+                        var nb = tabBrowser.getNotificationBox(browser);
+                        nb.removeAllNotifications(true);
+                        break;
+                    }
+                }
+            }
+            break;
         }
     }
 

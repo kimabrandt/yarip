@@ -49,44 +49,25 @@ YaripContentPolicy.prototype.shouldLoad = function(contentType, contentLocation,
     if (!yarip.schemesRegExp.test(contentLocation.scheme)) return ACCEPT;
     if (!yarip.schemesRegExp.test(requestOrigin.scheme)) return ACCEPT;
 
-    // Getting the document.location.
     if (context.nodeType != DOCUMENT_NODE) context = context.ownerDocument;
     var defaultView = context && context.nodeType == DOCUMENT_NODE ? context.defaultView : null;
     var doc = defaultView ? defaultView.document : null;
     var location = doc ? doc.location : null;
-//    if (!location && requestOrigin) location = yarip.getLocation(requestOrigin);
     if (!location || !yarip.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return ACCEPT;
 
-    // Getting the location.
     location = yarip.getLocation(location);
     contentLocation = yarip.getLocation(contentLocation);
 
-    // Checking if yarip is enabled.
     if (!yarip.enabled) {
         yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation, mimeTypeGuess);
         return ACCEPT;
     }
 
-    // Getting the address-obj and checking if we found some rules.
     var addressObj = yarip.getAddressObjByLocation(location, true);
     if (!addressObj.found) {
         yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation, mimeTypeGuess);
         return ACCEPT;
     }
-
-    // DEBUG Dump the profiling data.
-//    if (Date.now() - yarip.profileTime > 5000) {
-//        dump("key,count,totalTime,avgTime\n");
-//        for (var key in yarip.profileObj) {
-//            var p = yarip.profileObj[key];
-//            var avgTime = p.totalTime / p.count;
-//            if (p.count > 10 && avgTime > 0.5) {
-//                dump(key + "," + p.count + "," + p.totalTime + "," + (Math.round(avgTime * 1000) / 1000) + "\n");
-//            }
-//        }
-//        dump("---\n");
-//        yarip.profileTime = Date.now();
-//    }
 
     var statusObj = yarip.shouldBlacklist(addressObj, contentLocation.asciiHref, defaultView);
     yarip.logContentLocation(statusObj.status, location, contentLocation, mimeTypeGuess, statusObj.itemObj);
