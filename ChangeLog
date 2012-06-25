@@ -1,3 +1,8 @@
+2012-06-25  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/contentdialog.js (pathRE, queryFragmentRE): Fixed the
+    path- and query-fragment-regexes.
+
 2012-06-22  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/options.xul (textboxElementsInContext): Defined a
