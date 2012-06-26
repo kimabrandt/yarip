@@ -1,3 +1,7 @@
+2012-06-26  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * *: Updated to the GNU General Public License version 3.
+
 2012-06-25  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/contentdialog.js (pathRE, queryFragmentRE): Fixed the
