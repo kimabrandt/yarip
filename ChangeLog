@@ -1,3 +1,7 @@
+2012-06-27  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/observer.jsm (locationHeader): Ensuring to have a valid URL.
+
 2012-06-26  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * *: Updated to the GNU General Public License version 3.

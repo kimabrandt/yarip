@@ -195,7 +195,7 @@ YaripObserver.prototype.examineResponse = function(channel)
             if (!isLink || yarip.privateBrowsing)
             {
                 var locationHeader = null;
-                try { locationHeader = channel.getResponseHeader("Location"); } catch (e) {}
+                try { locationHeader = channel.getResponseHeader("Location").replace(/^\s+|\s+$/g, "").match(URL_RE)[0]; } catch (e) {}
                 try
                 {
                     if (locationHeader)
