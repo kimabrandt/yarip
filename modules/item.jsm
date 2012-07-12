@@ -247,7 +247,6 @@ YaripItem.prototype.incrementIgnored = function()
 }
 YaripItem.prototype.purge = function()
 {
-    this.created = Date.now();
     this.lastFound = -1;
     this.found = 0;
     this.notFound = 0;
@@ -267,6 +266,9 @@ YaripItem.prototype.merge = function(item)
     this.setPlaceholder(item.getPlaceholder() || this.getPlaceholder());
     if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
+YaripItem.prototype.update = function(item)
+{
+}
 YaripItem.prototype.compare = function(item)
 {
     if (this.getPriority() < item.getPriority()) return -1;
@@ -282,9 +284,9 @@ YaripItem.prototype.generateXml = function()
     if (!this.xpath) return "";
     return "\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             " force=\"" + this.force + "\"" +
-            " placeholder=\"" + this.placeholder + "\"" +
+            (this.placeholder ? " placeholder=\"" + this.placeholder + "\"" : "") +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
@@ -381,7 +383,7 @@ YaripElementWhitelistItem.prototype.generateXml = function()
     if (!this.xpath) return "";
     return "\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             " force=\"" + this.force + "\"" +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
@@ -448,9 +450,9 @@ YaripElementBlacklistItem.prototype.generateXml = function()
     if (!this.xpath) return "";
     return "\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             " force=\"" + this.force + "\"" +
-            " placeholder=\"" + this.placeholder + "\"" +
+            (this.placeholder ? " placeholder=\"" + this.placeholder + "\"" : "") +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
@@ -524,7 +526,7 @@ YaripElementAttributeItem.prototype.generateXml = function()
     if (!this.xpath || !this.name || !this.value) return "";
     var tmp = "\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
@@ -585,7 +587,7 @@ YaripScriptItem.prototype.generateXml = function()
     if (!this.xpath) return "";
     return "\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
@@ -637,7 +639,7 @@ YaripPageScriptItem.prototype.generateXml = function()
     if (!this.xpath) return "";
     return "\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
@@ -689,7 +691,7 @@ YaripContentItem.prototype.generateXml = function()
     if (!this.regExp) return "";
     return "\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             " force=\"" + this.force + "\"" +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
@@ -740,7 +742,7 @@ YaripContentWhitelistItem.prototype.generateXml = function()
     if (!this.regExp) return "";
     return "\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             " force=\"" + this.force + "\"" +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
@@ -795,7 +797,8 @@ YaripStreamItem.prototype.getRegExpObj = function()
 {
     if (!this.regexpobj) {
         try {
-            this.regexpobj = new RegExp(this.regExp, "gm");
+//            this.regexpobj = new RegExp(this.regExp, "gm");
+            this.regexpobj = new RegExp(this.regExp, "gim"); // TODO Make user option!?
         } catch (e) {
             yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_CREATE_REGEXP1", [this.regExp], 1)));
         }
@@ -806,7 +809,8 @@ YaripStreamItem.prototype.getFirstRegExpObj = function()
 {
     if (!this.firstRegExpObj) {
         try {
-            this.firstRegExpObj = new RegExp(this.regExp, "m");
+//            this.firstRegExpObj = new RegExp(this.regExp, "m");
+            this.firstRegExpObj = new RegExp(this.regExp, "im"); // TODO Make user option!?
         } catch (e) {
             yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_CREATE_REGEXP1", [this.firstRegExpObj], 1)));
         }
@@ -830,7 +834,7 @@ YaripStreamItem.prototype.generateXml = function()
     if (!this.regExp) return "";
     return "\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
         ">\n" +
@@ -888,7 +892,7 @@ YaripStyleItem.prototype.generateXml = function()
     if (!this.xpath) return "";
     return "\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
@@ -961,7 +965,7 @@ YaripHeaderItem.prototype.generateXml = function()
     if (!this.regExp || !this.getHeaderName()) return "";
     return "\t\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             (this._merge ? " merge=\"" + this._merge + "\"" : "") +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
@@ -1030,7 +1034,7 @@ YaripRedirectItem.prototype.generateXml = function()
     if (!this.regExp) return "";
     return "\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
         ">\n" +
@@ -1268,6 +1272,18 @@ YaripExtensionItem.prototype.merge = function(item)
     this.setDoLinks(item.getDoLinks() || this.getDoLinks());
     if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
+YaripExtensionItem.prototype.update = function(item)
+{
+    this.setPriority(item.getPriority());
+    this.setDoElements(item.getDoElements());
+    this.setDoContents(item.getDoContents());
+    this.setDoScripts(item.getDoScripts());
+    this.setDoHeaders(item.getDoHeaders());
+    this.setDoRedirects(item.getDoRedirects());
+    this.setDoStreams(item.getDoStreams());
+    this.setDoLinks(item.getDoLinks());
+//    this.setCreated(item.getCreated());
+}
 YaripExtensionItem.prototype.getPage = function()
 {
     return this.getPageById(this.id);
@@ -1283,7 +1299,7 @@ YaripExtensionItem.prototype.generateXml = function()
     if (!this.id) return "";
     return "\t\t\t\t" +
         "<item" +
-            " priority=\"" + this.priority + "\"" +
+            (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
             " doElements=\"" + this.doElements + "\"" +
             " doContents=\"" + this.doContents + "\"" +
             " doScripts=\"" + this.doScripts + "\"" +

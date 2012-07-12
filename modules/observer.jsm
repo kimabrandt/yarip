@@ -120,21 +120,24 @@ YaripObserver.prototype.modifyRequest = function(channel)
 
                     var headerValue = null;
                     try {
-                        var sandbox = new Cu.Sandbox(defaultView ? defaultView : asciiHref);
                         try { headerValue = channel.getRequestHeader(item.getHeaderName()) } catch (e) {}
-                        if (typeof headerValue === "string") {
-                            if (/^\s*function\b/.test(item.getScript())) {
+                        if (/^\s*function\b/.test(item.getScript())) {
+                            var sandbox = new Cu.Sandbox(defaultView ? defaultView : asciiHref);
+//                            var sandbox = new Cu.Sandbox(defaultView);
+//                            var safeView = new XPCNativeWrapper(defaultView);
+//                            var sandbox = Cu.Sandbox(safeView);
+//                            sandbox.window = safeView;
+//                            if (safeView) sandbox.document = safeView.document;
+//                            sandbox.XPathResult = Ci.nsIDOMXPathResult;
+//                            if (safeView) sandbox.__proto__ = safeView;
+                            if (typeof headerValue === "string") {
                                 sandbox.headerValue = headerValue;
                                 headerValue = Cu.evalInSandbox("(" + item.getScript() + ")(headerValue);", sandbox);
                             } else {
-                                headerValue = item.getScript();
+                                headerValue = Cu.evalInSandbox("(" + item.getScript() + ")();", sandbox);
                             }
                         } else {
-                            if (/^\s*function\b/.test(item.getScript())) {
-                                headerValue = Cu.evalInSandbox("(" + item.getScript() + ")();", sandbox);
-                            } else {
-                                headerValue = item.getScript();
-                            }
+                            headerValue = item.getScript();
                         }
 
                         if (typeof headerValue != "string") {
@@ -166,13 +169,11 @@ YaripObserver.prototype.examineResponse = function(channel)
 
     try
     {
-        var win = null;
-        var doc = null;
         var defaultView = null;
+        var doc = null;
         try {
-            win = yarip.getInterface(channel, Ci.nsIDOMWindow);
-            doc = win.document;
-            defaultView = doc.defaultView;
+            defaultView = yarip.getInterface(channel, Ci.nsIDOMWindow);
+            doc = defaultView.document;
         } catch(e) {
         }
         var location = yarip.getLocation(null, channel, doc);
@@ -202,7 +203,7 @@ YaripObserver.prototype.examineResponse = function(channel)
                     {
                         var newURI = IOS.newURI(locationHeader, contentLocation.originCharset, null);
                         var newContentLocation = yarip.getLocation(newURI);
-                        var statusObj = this.shouldRedirect(addressObj, location, newContentLocation, defaultView ? defaultView : win, isPage, DO_LINKS);
+                        var statusObj = this.shouldRedirect(addressObj, location, newContentLocation, defaultView, isPage, DO_LINKS);
                         var itemObj = statusObj.itemObj;
                         switch (statusObj.status) {
                         case STATUS_UNKNOWN:
@@ -259,23 +260,26 @@ YaripObserver.prototype.examineResponse = function(channel)
                     {
                         if (!item.getRegExpObj().test(contentLocation.asciiHref)) continue;
 
-                        var sandbox = new Cu.Sandbox(win ? win : location.asciiHref);
                         var headerValue = null; // object
                         try { headerValue = channel.getResponseHeader(item.getHeaderName()); } catch (e) {}
                         try {
-                            if (typeof headerValue === "string") {
-                                if (/^\s*function\b/.test(item.getScript())) {
+                            if (/^\s*function\b/.test(item.getScript())) {
+                                var sandbox = new Cu.Sandbox(defaultView ? defaultView : location.asciiHref);
+//                                var sandbox = new Cu.Sandbox(defaultView);
+//                                var safeView = new XPCNativeWrapper(defaultView);
+//                                var sandbox = Cu.Sandbox(safeView);
+//                                sandbox.window = safeView;
+//                                if (safeView) sandbox.document = safeView.document;
+//                                sandbox.XPathResult = Ci.nsIDOMXPathResult;
+//                                if (safeView) sandbox.__proto__ = safeView;
+                                if (typeof headerValue === "string") {
                                     sandbox.headerValue = headerValue;
                                     headerValue = Cu.evalInSandbox("(" + item.getScript() + ")(headerValue);", sandbox);
                                 } else {
-                                    headerValue = item.getScript();
+                                    headerValue = Cu.evalInSandbox("(" + item.getScript() + ")();", sandbox);
                                 }
                             } else {
-                                if (/^\s*function\b/.test(item.getScript())) {
-                                    headerValue = Cu.evalInSandbox("(" + item.getScript() + ")();", sandbox);
-                                } else {
-                                    headerValue = item.getScript();
-                                }
+                                headerValue = item.getScript();
                             }
 
                             if (typeof headerValue != "string") {
@@ -325,6 +329,13 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentL
                 {
                     if (/^\s*function\b/.test(item.getScript())) {
                         var sandbox = new Cu.Sandbox(defaultView ? defaultView : asciiHref);
+//                        var sandbox = new Cu.Sandbox(defaultView);
+//                        var safeView = new XPCNativeWrapper(defaultView);
+//                        var sandbox = Cu.Sandbox(safeView);
+//                        sandbox.window = safeView;
+//                        if (safeView) sandbox.document = safeView.document;
+//                        sandbox.XPathResult = Ci.nsIDOMXPathResult;
+//                        if (safeView) sandbox.__proto__ = safeView;
                         sandbox.asciiHref = asciiHref;
                         newSpec = Cu.evalInSandbox("(" + item.getScript() + ")(asciiHref);", sandbox);
                     } else {
@@ -338,7 +349,7 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentL
 
                     if (newSpec == asciiHref) continue; // prevent loop
 
-                    var newURI = IOS.newURI(newSpec, contentLocation.originCharset, null);
+                    var newURI = IOS.newURI(newSpec, "originCharset" in contentLocation ? contentLocation.originCharset : "UTF-8", null);
 
                     if (extItem.isSelf()) {
                         item.incrementLastFound();

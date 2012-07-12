@@ -244,9 +244,8 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
                 }
             }
 
-            var x = item.getXPath().replace(/(["])/g, "\\$1"); // TODO Anything else!?
             obj[id] = {
-                script: "yarip.run(" + s + ",\"" + x + "\");\n",
+                script: "yarip.run(" + s + ", " + JSON.stringify(item.getXPath()) + ");\n",
                 element: null // /html/body
             };
             found = true;

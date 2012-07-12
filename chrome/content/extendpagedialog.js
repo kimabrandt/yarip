@@ -59,7 +59,7 @@ function YaripPageExtendDialog()
         }
         var contentLocation = yarip.getLocation(this.obj.contentLocation);
         if (contentLocation) {
-            var aMap = yarip.getAddressMap(contentLocation.asciiHref);
+            var aMap = yarip.getAddressMap(contentLocation.asciiHref, true, { content: true }, true /* reverse */);
             aMap.add(new YaripPage(null, yarip.getPageName(contentLocation, MODE_PAGE)));
             aMap.add(new YaripPage(null, yarip.getPageName(contentLocation, MODE_FQDN)));
             aMap.add(new YaripPage(null, yarip.getPageName(contentLocation, MODE_SLD)));

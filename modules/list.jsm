@@ -130,6 +130,9 @@ YaripList.prototype.removeByKey = function(key)
 
     this.remove(this.obj[key]);
 }
+YaripList.prototype.update = function(item)
+{
+}
 YaripList.prototype.contains = function(item)
 {
     return item.getKey() in this.obj;
@@ -1318,7 +1321,6 @@ YaripRedirectList.prototype.loadFromObject = function(obj)
 
 function YaripPageExtensionList(name)
 {
-    this.id = null;
     this.name = "extension";
     this.obj = {};
     this.objId = {};
@@ -1332,6 +1334,9 @@ YaripPageExtensionList.prototype.constructor = YaripPageExtensionList;
 YaripPageExtensionList.prototype.set = function(row, col, value)
 {
     var i = 0;
+    var obj = {
+        isNew: false
+    };
     for each (var item in this.obj)
     {
         if (i++ != row) continue;
@@ -1345,38 +1350,46 @@ YaripPageExtensionList.prototype.set = function(row, col, value)
             if (!this.contains(c)) {
                 this.remove(item);
                 this.add(c);
-                return [item, c];
-            } else {
-                return false;
+                obj.isNew = true;
+                obj.oldItem = item;
+                obj.newItem = c;
             }
+            return obj; // no item => no change
         case 2:
             item.setDoElements(value);
-            break;
+            obj.item = item;
+            return obj;
         case 3:
             item.setDoContents(value);
-            break;
+            obj.item = item;
+            return obj;
         case 4:
             item.setDoScripts(value);
-            break;
+            obj.item = item;
+            return obj;
         case 5:
             item.setDoHeaders(value);
-            break;
+            obj.item = item;
+            return obj;
         case 6:
             item.setDoRedirects(value);
-            break;
+            obj.item = item;
+            return obj;
         case 7:
             item.setDoStreams(value);
-            break;
+            obj.item = item;
+            return obj;
         case 8:
             item.setDoLinks(value);
-            break;
+            obj.item = item;
+            return obj;
         default:
             break;
         }
 
         break;
     }
-    return false;
+    return obj;
 }
 YaripPageExtensionList.prototype.get = function(row, col)
 {
@@ -1435,15 +1448,20 @@ YaripPageExtensionList.prototype.add = function(item, purge)
     this.resetKnown();
     return true;
 }
-YaripPageExtensionList.prototype.setId = function(id)
-{
-    this.id = id;
-}
 YaripPageExtensionList.prototype.removeByKey = function(key)
 {
     if (!key || !(key in this.obj)) return;
 
     this.remove(this.obj[key]);
+    this.resetKnown();
+}
+YaripPageExtensionList.prototype.update = function(item)
+{
+    if (!item) return;
+
+    var existItem = this.objId[item.getId()];
+    if (existItem) existItem.update(item);
+
     this.resetKnown();
 }
 YaripPageExtensionList.prototype.reset = function()
@@ -1454,22 +1472,21 @@ YaripPageExtensionList.prototype.reset = function()
     this.sorted = true;
     this.resetKnown();
 }
-YaripPageExtensionList.prototype.clone = function(purge)
+YaripPageExtensionList.prototype.clone = function()
 {
     var tmp = new this.constructor(this.name);
-    tmp.id = this.id;
-    for each (var item in this.obj) if (item) tmp.add(item.clone(purge));
+    for each (var item in this.obj) if (item) tmp.add(item.clone());
     return tmp;
 }
-YaripPageExtensionList.prototype.merge = function(list)
-{
-    for each (var item in list.obj) {
-        if (item.getId() != this.id) this.add(item.clone());
-    }
-}
+//YaripPageExtensionList.prototype.merge = function(list)
+//{
+//    for each (var item in list.obj) {
+////        if (item.getId() != this.getId()) this.add(item.clone());
+//        this.add(item.clone());
+//    }
+//}
 YaripPageExtensionList.prototype.loadFromObject = function(obj)
 {
-    this.setId(obj.id);
     this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripExtensionItem();
@@ -1478,67 +1495,64 @@ YaripPageExtensionList.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripPageExtendedByList()
+function YaripPageExtendedByList(name)
 {
-    this.id = null;
+    this.name = "extension";
     this.obj = {};
     this.objId = {};
 //    this.listLength = 0;
     this.sorted = true;
+
+    this.setName(name);
 }
 YaripPageExtendedByList.prototype = new YaripList;
 YaripPageExtendedByList.prototype.constructor = YaripPageExtendedByList;
 YaripPageExtendedByList.prototype.set = function(row, col, value)
 {
     var i = 0;
+    var obj = {
+        isExtendedBy: true
+    };
     for each (var item in this.obj)
     {
         if (i++ != row) continue;
 
-        var page = item.getPage();
-        var item2 = page.pageExtensionList.obj[new YaripExtensionItem(this.id, item.getPriority()).getKey()];
-
-        this.resetKnown();
-
         switch (col) {
-//        case 1:
-//            var c = item.clone();
-//            c.setPriority(value);
-//            if (!this.contains(c)) {
-//                this.remove(item);
-//                this.add(c);
-//                return c.getKey();
-//            } else {
-//                return false;
-//            }
         case 2:
-            item2.setDoElements(value);
-            break;
+            item.setDoElements(value);
+            obj.item = item;
+            return obj;
         case 3:
-            item2.setDoContents(value);
-            break;
+            item.setDoContents(value);
+            obj.item = item;
+            return obj;
         case 4:
-            item2.setDoScripts(value);
-            break;
+            item.setDoScripts(value);
+            obj.item = item;
+            return obj;
         case 5:
-            item2.setDoHeaders(value);
-            break;
+            item.setDoHeaders(value);
+            obj.item = item;
+            return obj;
         case 6:
-            item2.setDoRedirects(value);
-            break;
+            item.setDoRedirects(value);
+            obj.item = item;
+            return obj;
         case 7:
-            item2.setDoStreams(value);
-            break;
+            item.setDoStreams(value);
+            obj.item = item;
+            return obj;
         case 8:
-            item2.setDoLinks(value);
-            break;
+            item.setDoLinks(value);
+            obj.item = item;
+            return obj;
         default:
             break;
         }
 
         break;
     }
-    return false;
+    return obj;
 }
 YaripPageExtendedByList.prototype.get = function(row, col)
 {
@@ -1548,23 +1562,19 @@ YaripPageExtendedByList.prototype.get = function(row, col)
     {
         if (i++ != row) continue;
 
-        var page = item.getPage();
-        var item2 = page.pageExtensionList.obj[new YaripExtensionItem(this.id, item.getPriority()).getKey()];
-//        if (!item2) return;
-
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
-        case 0: return page.getName();
+        case 0: return item.getPage().getName();
         case 1: return item.getPriority();
-        case 2: return item2.getDoElements();
-        case 3: return item2.getDoContents();
-        case 4: return item2.getDoScripts();
-        case 5: return item2.getDoHeaders();
-        case 6: return item2.getDoRedirects();
-        case 7: return item2.getDoStreams();
-        case 8: return item2.getDoLinks();
+        case 2: return item.getDoElements();
+        case 3: return item.getDoContents();
+        case 4: return item.getDoScripts();
+        case 5: return item.getDoHeaders();
+        case 6: return item.getDoRedirects();
+        case 7: return item.getDoStreams();
+        case 8: return item.getDoLinks();
         case 9:
-            var ms = item2.getCreated();
+            var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
                 return date.toDateString() + " " + date.toLocaleTimeString();
@@ -1600,9 +1610,12 @@ YaripPageExtendedByList.prototype.add = function(item, purge)
 
     return true;
 }
-YaripPageExtendedByList.prototype.setId = function(id)
+YaripPageExtendedByList.prototype.update = function(item)
 {
-    this.id = id;
+    if (!item) return;
+
+    var existItem = this.objId[item.getId()];
+    if (existItem) existItem.update(item);
 }
 YaripPageExtendedByList.prototype.reset = function()
 {
@@ -1611,22 +1624,22 @@ YaripPageExtendedByList.prototype.reset = function()
     this.listLength = 0;
     this.sorted = true;
 }
-YaripPageExtendedByList.prototype.clone = function(purge)
+YaripPageExtendedByList.prototype.clone = function()
 {
-    var tmp = new this.constructor();
-    tmp.id = this.id;
-    for each (var item in this.obj) if (item) tmp.add(item.clone(purge));
+    var tmp = new this.constructor(this.name);
+    for each (var item in this.obj) if (item) tmp.add(item.clone());
     return tmp;
 }
-YaripPageExtendedByList.prototype.merge = function(list)
-{
-    for each (var item in list.obj) {
-        if (item.getId() != this.id) this.add(item.clone());
-    }
-}
+//YaripPageExtendedByList.prototype.merge = function(list)
+//{
+//    for each (var item in list.obj) {
+////        if (item.getId() != this.getId()) this.add(item.clone());
+//        this.add(item.clone());
+//    }
+//}
 YaripPageExtendedByList.prototype.loadFromObject = function(obj)
 {
-    this.setId(obj.id);
+    this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripExtensionItem();
         item.loadFromObject(itemObj);

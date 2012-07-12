@@ -1,3 +1,37 @@
+2012-07-08  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/yarip.jsm (getAddressMap): Allowing reverse retrieval of
+    pages.
+
+    * modules/yarip.jsm (updateExtension, updateExtendedBy), modules/
+    item.jsm (update): Allow updating the extension- and extended-by-items.
+
+    * modules/item.jsm (purge): Not purging the created-value anymore.
+
+    * modules/item.jsm (priority, placeholder): Only storing the priority if
+    its value is not `0' and the placeholder if its value is `true'.
+
+    * modules/item.jsm (RegExp): Allowing case insensitive regular
+    expressions. This could/should be an user-option!?
+
+    * modules/list.jsm (name): Setting the name of the lists properly.
+
+    * modules/loader.jsm (doScripting): Using `JSON.stringify' instead of
+    escaping some characters of xpaths.
+
+    * modules/observer.jsm (examineResponse): Removed the `win'-variable,
+    which was the same as the `defaultView'.
+
+    * modules/yarip.jsm (blacklistElementItem): Not removing whitelisted
+    elements - when creating a new element-blacklist-item which is
+    automatically set to not forced.
+
+    * modules/yarip.jsm (getYaripScript): Only calling the `run'-function if
+    elements where found.
+
+    * chrome/content/pagedialog.js (getId): Removing the item if its `id'
+    matches the pages `id'.
+
 2012-06-27  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * modules/observer.jsm (locationHeader): Ensuring to have a valid URL.
@@ -69,8 +103,8 @@
 
     * modules/yarip.jsm (shouldBlacklist): Returning a status-object.
 
-    * modules/observer.jsm (Pragma): Prevent caching when the Location-header is
-    present and the location blacklisted.
+    * modules/observer.jsm (Pragma): Prevent caching when the Location-
+    header is present and the location blacklisted.
 
 2012-06-10  Kim A. Brandt  <kimabrandt@gmx.de>
 
@@ -78,29 +112,29 @@
     `YaripObserver' into `YaripPreferenceObserver' to not conflict with
     `YaripObserver' in the `module'-directory.
 
-    * chrome/content/pagedialog.js (*RedirectList): Allow use of functions or a
-    string-value for redirect-lists, similar to other lists.
+    * chrome/content/pagedialog.js (*RedirectList): Allow use of functions
+    or a string-value for redirect-lists, similar to other lists.
 
-    * modules/observer.jsm (examineResponse): Allowing redirect and blacklist of
-    the `Location'-header.
+    * modules/observer.jsm (examineResponse): Allowing redirect and
+    blacklist of the `Location'-header.
 
-    * modules/replace.jsm (URI.host): Only copying headers if the host of the
-    old and new URIs is the same.
+    * modules/replace.jsm (URI.host): Only copying headers if the host of
+    the old and new URIs is the same.
 
     * : Made some minor code changes/restructuring.
 
 2012-06-06  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * chrome/content/overlay.js (doWhitelist): Renamed the `whitelistElement'-
-    function.
+    * chrome/content/overlay.js (doWhitelist): Renamed the
+    `whitelistElement'-function.
 
-    * modules/loader.jsm (doStyling): Looping through both the `pageStyleList'-
-    and `elementAttributeList'-list.
+    * modules/loader.jsm (doStyling): Looping through both the
+    `pageStyleList'- and `elementAttributeList'-list.
 
     * modules/page.jsm (setId): Creating a new id if null.
 
-    * modules/yarip.jsm (blacklistElementItem): Getting the `force'-value from
-    the item.
+    * modules/yarip.jsm (blacklistElementItem): Getting the `force'-value
+    from the item.
 
 2012-06-05  Kim A. Brandt  <kimabrandt@gmx.de>
 
@@ -111,11 +145,11 @@
     input-fields.
 
     * modules/map.jsm (addExtension, removeExtension): Creating/removing
-    extensions in the map - which has knowledge of all pages - instead of in the
-    pageExtensionList.
+    extensions in the map - which has knowledge of all pages - instead of in
+    the pageExtensionList.
 
-    * modules/item.jsm (compare): Removed the `getPriorityWithPadding'-function
-    and improved comparison of priorities.
+    * modules/item.jsm (compare): Removed the `getPriorityWithPadding'-
+    function and improved comparison of priorities.
 
     * *: Cleaned up some code.
 
@@ -123,8 +157,8 @@
 
     * install.rdf (version): Increased the version-number.
 
-    * modules/yarip.jsm (addressObj.ext): Replaced the `addressObj.obj'-array
-    with the `addressObj.ext'-object.
+    * modules/yarip.jsm (addressObj.ext): Replaced the `addressObj.obj'-
+    array with the `addressObj.ext'-object.
 
     * modules/yarip.jsm (updateDo): Moved the `do'-matching to item.jsm.
 
@@ -135,17 +169,17 @@
     * modules/webProgressListener.jsm (STATE_START): Ignoring logging on
     STATE_START.
 
-    * modules/yarip.jsm (getExtensionAddressObj): Recursively getting extensions
-    after the extensions of the current reduce-domain/-path pages have been
-    checked.
+    * modules/yarip.jsm (getExtensionAddressObj): Recursively getting
+    extensions after the extensions of the current reduce-domain/-path pages
+    have been checked.
 
     * modules/yarip.jsm (getRecursiveAddressArray): Reintroduced the mask-
     parameter.
 
 2012-05-31  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * modules/yarip.jsm (getPageRegExp): Using a SLD with a regex-wildcard when
-    the user creates or extends a new page.
+    * modules/yarip.jsm (getPageRegExp): Using a SLD with a regex-wildcard
+    when the user creates or extends a new page.
 
 2012-05-28  Kim A. Brandt  <kimabrandt@gmx.de>
 
@@ -153,8 +187,8 @@
 
 2012-05-22  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * modules/item.jsm (createStyle): Using the `:nth-of-type'-pseudo-class for
-    translating XPath-indexes into CSS.
+    * modules/item.jsm (createStyle): Using the `:nth-of-type'-pseudo-class
+    for translating XPath-indexes into CSS.
 
 2012-05-19  Kim A. Brandt  <kimabrandt@gmx.de>
 
@@ -164,8 +198,8 @@
 
     * chrome/content/pagedialog.xul (priority): Added priorities for rules.
 
-    * modules/observer.jsm (yarip.enabled): Allowing updates of the content-type
-    and status-code in the content-monitor when yarip is disabled.
+    * modules/observer.jsm (yarip.enabled): Allowing updates of the content-
+    type and status-code in the content-monitor when yarip is disabled.
 
     * chrome/content/monitordialog.js (updateContentType): Not setting the
     content-type nor status-code on blacklisted or redirected log-entries.
@@ -176,8 +210,8 @@
 2012-04-24  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * modules/observer.jsm (examineResponse): Showing a link-notification if
-    content was not explicitly blacklisted, allowing to white-/blacklist, extend
-    and open the link.
+    content was not explicitly blacklisted, allowing to white-/blacklist,
+    extend and open the link.
 
     * modules/yarip.jsm (getRecursiveAddressArray): Also applying rules from
     sub-domain and sub-path of a given page-address/-path.
@@ -186,25 +220,25 @@
 
 2012-02-12  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * modules/yarip.jsm (getRecursiveAddressArray): Showing extended pages for
-    content-white-/-blacklisting.
+    * modules/yarip.jsm (getRecursiveAddressArray): Showing extended pages
+    for content-white-/-blacklisting.
 
-    * chrome/content/extendpagedialog.xul (checkbox): Showing available features
-    in the dialog.
+    * chrome/content/extendpagedialog.xul (checkbox): Showing available
+    features in the dialog.
 
-    * chrome/content/overlay.xul (manageContent, selectTab): Allowing to go to a
-    rule in the page-manager from the content-monitor.
+    * chrome/content/overlay.xul (manageContent, selectTab): Allowing to go
+    to a rule in the page-manager from the content-monitor.
 
-    * chrome/content/pagedialog.js (Yarip*Item): Changed default-examples for
-    newly added rules.
+    * chrome/content/pagedialog.js (Yarip*Item): Changed default-examples
+    for newly added rules.
 
-    * chrome/content/pagedialog.xul (pageStyleList, pageScriptList): Allowing
-    adding of multiple rules to the page-style/-script-list.
+    * chrome/content/pagedialog.xul (pageStyleList, pageScriptList):
+    Allowing adding of multiple rules to the page-style/-script-list.
 
     * : Removed the `depends on whitelist (dow)'-feature.
 
-    * chrome/content/pagedialog.js (setExclusive): Allowing to make the element-
-    whitelist exclusive.
+    * chrome/content/pagedialog.js (setExclusive): Allowing to make the
+    element-whitelist exclusive.
 
     * modules/page.jsm (init, *INDEX): Improved page sorting.
 
@@ -213,13 +247,13 @@
 		* modules/observer.jsm (YaripResponseStreamListener): Added the `stream-
 		replace'-feature.
 
-    * modules/yarip.jsm (extendPage): Allowing to extend only existing rules on
-    page-extensioning.
+    * modules/yarip.jsm (extendPage): Allowing to extend only existing rules
+    on page-extensioning.
 
 2012-01-22  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * chrome/content/*dialog.js (removeQueryFragment): Allowing removal of the
-    query-fragment in regular-expressions.
+    * chrome/content/*dialog.js (removeQueryFragment): Allowing removal of
+    the query-fragment in regular-expressions.
 
     * modules/*.jsm: Using JavaScript code-modules.
 
@@ -243,8 +277,8 @@
 
 2011-10-18  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * nsYarip.js (shouldLoad, logContentLocation): Allowing logging of content
-    when yarip is disabled.
+    * nsYarip.js (shouldLoad, logContentLocation): Allowing logging of
+    content when yarip is disabled.
 
 2011-07-10  Kim A. Brandt  <kimabrandt@gmx.de>
 
@@ -271,8 +305,8 @@
     `<Ctrl> + <Alt> + <m>' shortcut - for opening the `Page Manager'.
     Probably conflicts with other addons!?
 
-    * chrome/content/pagedialog.{xul,js} (save): Added the save-button, which
-    saves the page-configuration to disk.
+    * chrome/content/pagedialog.{xul,js} (save): Added the save-button,
+    which saves the page-configuration to disk.
 
     * nsYarip.js (getLocation): Allow a redirected page to actually
     being recognized as a page.
@@ -282,8 +316,8 @@
 
 2011-04-11  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * chrome/content/list.js (YaripPageExtendedByList): Fixed a problem with the
-    extended-by-tab in the page-manager.
+    * chrome/content/list.js (YaripPageExtendedByList): Fixed a problem with
+    the extended-by-tab in the page-manager.
 
     * nsYarip.js: Added the `contentRepeatThreshold' preference.
 
@@ -293,23 +327,26 @@
 
 2011-04-01  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * chrome/content/replace.js (YaripStreamListener): Fixed crashing browser.
+    * chrome/content/replace.js (YaripStreamListener): Fixed crashing
+    browser.
 
 2011-03-09  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * : RELEASE yarip-0.2.5.2.xpi
 
-    * Sorting the page-map properly.
+    * : Sorting the page-map properly.
 
-    * Allowing IP:PORT as page-name.
+    * : Allowing IP:PORT as page-name.
 
-    * Allowing renaming of pages - in the page-manager - by double-clicking on them.
+    * : Allowing renaming of pages - in the page-manager - by double-
+    clicking on them.
 
-    * Updated to work with Firefox 4.
+    * : Updated to work with Firefox 4.
 
-    * Removed (complex) CSS-logic which was helping with the noFlicker-feature.
+    * : Removed (complex) CSS-logic which was helping with the noFlicker-
+    feature.
 
-    * Added header- and redirect-features.
+    * : Added header- and redirect-features.
 
 2010-05-06  Kim A. Brandt  <kimabrandt@gmx.de>
 
@@ -317,7 +354,7 @@
 
 2010-04-26  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * Fixed a glitch when running on DOMNodeInserted-events.
+    * : Fixed a glitch when running on DOMNodeInserted-events.
 
 2010-02-26  Kim A. Brandt  <kimabrandt@gmx.de>
 
@@ -325,37 +362,37 @@
 
 2010-02-25  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * Improved the extensioning with checkboxes to choose if elements/contents/
-    scripts should get extended.
+    * : Improved the extensioning with checkboxes to choose if elements/
+    contents/scripts should get extended.
 
-    * Allow to cut/copy/paste the different list items.
+    * : Allow to cut/copy/paste the different list items.
 
-    * Added content-type and status-code to the content-monitor.
+    * : Added content-type and status-code to the content-monitor.
 
-    * Removed user-defined mode. Use the page-manager to make changes.
+    * : Removed user-defined mode. Use the page-manager to make changes.
 
 2010-01-09  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * Allowing saving when setting/changing settings in the page-manager.
+    * : Allowing saving when setting/changing settings in the page-manager.
 
 2009-12-19  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * Updating the number of extensions when removing all.
+    * : Updating the number of extensions when removing all.
 
-    * Ignoring an extension when cpied to itself.
+    * : Ignoring an extension when cpied to itself.
 
 2009-09-25  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * : RELEASE yarip-0.2.3.xpi
 
-    * pagedialog.{xul,js}: Made some cosmetic changes. The Page Manager should
-    now be used to make changes and remove rules. Adding rules is done from the
-    yarip-context menu.
+    * pagedialog.{xul,js}: Made some cosmetic changes. The Page Manager
+    should now be used to make changes and remove rules. Adding rules is
+    done from the yarip-context menu.
 
 2009-08-16  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * nsYarip.js (shouldLoad), overlay.js (DOMContentLoaded): Added `data' to
-    the whitelisted protocols.
+    * nsYarip.js (shouldLoad), overlay.js (DOMContentLoaded): Added `data'
+    to the whitelisted protocols.
 
 2009-08-16  Kim A. Brandt  <kimabrandt@gmx.de>
 
@@ -364,9 +401,9 @@
     * nsYarip.js (monitorDialogues), monitordialog.{xul,js}: Added a content
     monitor.
 
-    * nsYarip.js (purgeInnerHTML): Removing/purging of the innerHTML of elements
-    is now an option. Set `extensions.yarip.purgeInnerHTML.value' to `true' to
-    let yarip remove/purge the innerHTML.
+    * nsYarip.js (purgeInnerHTML): Removing/purging of the innerHTML of
+    elements is now an option. Set `extensions.yarip.purgeInnerHTML.value'
+    to `true' to let yarip remove/purge the innerHTML.
 
 2009-05-31  Kim A. Brandt  <kimabrandt@gmx.de>
 
@@ -497,9 +534,9 @@
 
 2008-06-24  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * nsYarip.js: All windows now access the same singleton-component and don't
-    need to reload all the time. Also saving now only happens when a window/
-    dialog is closed.
+    * nsYarip.js: All windows now access the same singleton-component and
+    don't need to reload all the time. Also saving now only happens when a
+    window/dialog is closed.
 
     * nsYarip.js (save), xpath.js (createStyle, generateCSS): I started an
     attempt to translate XPaths into css to assist the noFlicker-feature,

@@ -55,6 +55,12 @@ YaripMap.prototype.add = function(page)
         this.obj[page.getName()] = page;
         this.objId[page.getId()] = page;
         this.tree.add(page);
+
+//        var list = page.pageExtensionList;
+//        for each (var item in list.obj) {
+//            this.addExtension(page, item);
+//        }
+
         this.length++;
     }
     this.resetKnown();
@@ -102,7 +108,8 @@ YaripMap.prototype.addExtension = function(page, item)
     var extPage = this.getById(item.getId());
     if (extPage) {
         page.pageExtensionList.add(item);
-        extPage.pageExtendedByList.add(new YaripExtensionItem(page.getId(), item.getPriority()));
+        extPage.pageExtendedByList.add(item.clone(page.getId()));
+        this.resetKnown();
     }
 }
 YaripMap.prototype.removeExtension = function(page, item)
@@ -113,6 +120,27 @@ YaripMap.prototype.removeExtension = function(page, item)
     var extPage = this.getById(item.getId());
     if (extPage) {
         extPage.pageExtendedByList.removeById(page.getId());
+        this.resetKnown();
+    }
+}
+YaripMap.prototype.updateExtension = function(page, item)
+{
+    if (!page || !item) return;
+
+    var extPage = this.getById(item.getId());
+    if (extPage) {
+        extPage.pageExtendedByList.update(item.clone(page.getId()));
+        this.resetKnown();
+    }
+}
+YaripMap.prototype.updateExtendedBy = function(page, item)
+{
+    if (!page || !item) return;
+
+    var extPage = this.getById(item.getId());
+    if (extPage) {
+        extPage.pageExtensionList.update(item.clone(page.getId()));
+        this.resetKnown();
     }
 }
 YaripMap.prototype.clone = function()

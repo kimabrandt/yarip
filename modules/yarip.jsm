@@ -454,17 +454,17 @@ Yarip.prototype.getFirstAddress = function(reduceDomain)
 
     return null;
 }
-Yarip.prototype.getAddressMap = function(reduceDomain, follow, matchObj)
+Yarip.prototype.getAddressMap = function(reduceDomain, follow, matchObj, reverseExt)
 {
     var map = new YaripMap();
     if (typeof reduceDomain == "string") {
-        var addressObj = this.getAddressObj(reduceDomain, follow, matchObj);
+        var addressObj = this.getAddressObj(reduceDomain, follow, matchObj, reverseExt);
         for (var pageName in addressObj.ext) {
             map.add(this.map.get(pageName).clone());
         }
     } else { // instanceof Array
         for (var i = 0; i < reduceDomain.length; i++) {
-            var addressObj = this.getAddressObj(reduceDomain[i], follow, matchObj);
+            var addressObj = this.getAddressObj(reduceDomain[i], follow, matchObj, reverseExt);
             for (var pageName in addressObj.ext) {
                 map.add(this.map.get(pageName).clone());
             }
@@ -472,7 +472,7 @@ Yarip.prototype.getAddressMap = function(reduceDomain, follow, matchObj)
     }
     return map;
 }
-Yarip.prototype.getAddressObj = function(origReduceDomain, follow, matchObj)
+Yarip.prototype.getAddressObj = function(origReduceDomain, follow, matchObj, reverseExt)
 {
     var addressObj = {
         ext: {},
@@ -522,7 +522,7 @@ Yarip.prototype.getAddressObj = function(origReduceDomain, follow, matchObj)
     } while (reduceDomain.length !== tmpDomain.length);
 
     if (follow) {
-        this.getExtensionAddressObj(addressObj, matchObj);
+        this.getExtensionAddressObj(addressObj, matchObj, reverseExt);
     }
 
     if (addressObj.found && key) {
@@ -531,7 +531,7 @@ Yarip.prototype.getAddressObj = function(origReduceDomain, follow, matchObj)
 
     return addressObj;
 }
-Yarip.prototype.getExtensionAddressObj = function(addressObj, matchObj)
+Yarip.prototype.getExtensionAddressObj = function(addressObj, matchObj, reverseExt)
 {
     if (!addressObj) return false;
 
@@ -541,12 +541,14 @@ Yarip.prototype.getExtensionAddressObj = function(addressObj, matchObj)
     }
     for (var pageName in obj) {
         var parentItem = addressObj.root ? addressObj.root : addressObj.ext[pageName];
-        this.getRecursiveAddressArray(pageName, addressObj, parentItem, matchObj);
+        this.getRecursiveAddressArray(pageName, addressObj, parentItem, matchObj, reverseExt);
     }
 }
-Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parentItem, matchObj)
+Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parentItem, matchObj, reverseExt)
 {
     if (!parentItem.doesSomething()) return;
+
+    var listName = reverseExt ? "pageExtendedByList" : "pageExtensionList";
 
     var obj = {};
     var reduceDomain = pageName.replace(/[?&#].*$/, "");
@@ -560,7 +562,8 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parent
             var page = this.map.get(reducePath);
             if (page)
             {
-                var list = page.pageExtensionList;
+//                var list = page.pageExtensionList;
+                var list = page[listName];
                 for each (var item in list.obj)
                 {
                     var extPage = item.getPage();
@@ -596,7 +599,8 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parent
                                     addressObj.exclusive = true;
                                     addressObj.exclusivePageName = extPage.getName();
                                 }
-                                if (extPage.pageExtensionList.length > 0) {
+//                                if (extPage.pageExtensionList.length > 0) {
+                                if (extPage[listName].length > 0) {
                                     obj[extPageName] = true;
                                 }
                             }
@@ -616,7 +620,7 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parent
     } while (reduceDomain.length !== tmpDomain.length);
 
     for (var extPageName in obj) {
-        this.getRecursiveAddressArray(extPageName, addressObj, addressObj.ext[extPageName], matchObj);
+        this.getRecursiveAddressArray(extPageName, addressObj, addressObj.ext[extPageName], matchObj, reverseExt);
     }
 }
 Yarip.prototype.resetUndo = function()
@@ -790,6 +794,15 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
     var found = false;
     var incrementType = INCREMENT_NOT_FOUND;
     var useForce = true;
+    if (item.getForce()) {
+        for (var i = 0; i < elements.snapshotLength; i++) {
+            var element = elements.snapshotItem(i);
+            if (element.nodeType === 1 && element.getAttribute("status") == "whitelisted") { // ELEMENT
+                useForce = false; // don't force removal
+                break;
+            }
+        }
+    }
 
     for (var i = 0; i < elements.snapshotLength; i++)
     {
@@ -798,10 +811,11 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
         case 1: // ELEMENT
             switch (element.getAttribute("status")) {
             case "whitelisted":
-                if (item.getForce()) {
-                  useForce = false; // don't force removal
-                  break;
-                } else {
+                if (!useForce) {
+//                  useForce = false; // don't force removal
+//                  break;
+                  continue;
+                } else if (!item.getForce()) {
                   incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
                   continue;
                 }
@@ -2702,14 +2716,15 @@ Yarip.prototype.getYaripScript = function()
 {
     return "" +
         "var yarip = {\n" +
-        "    $: function(x) {\n" +
+        "    $: function(xpath) {\n" +
         "        var arr = [];\n" +
-        "        var xr = document.evaluate(x, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);\n" +
+        "        var xr = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);\n" +
         "        if (xr) for (var i = 0; i < xr.snapshotLength; i++) arr.push(xr.snapshotItem(i));\n" +
         "        return arr;\n" +
         "    },\n" +
-        "    run: function(fun, x) {\n" +
-        "        fun.call(this, this.$(x));\n" +
+        "    run: function(fun, xpath) {\n" +
+        "        var arr = this.$(xpath);\n" +
+        "        if (arr.length > 0) fun.call(this, arr);\n" +
         "    }\n" +
         "}";
 }

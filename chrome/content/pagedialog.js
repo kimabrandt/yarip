@@ -692,7 +692,7 @@ function YaripPageDialog()
         var id = item.getId();
         if (id != "" && id != page.getId()) {
             var item = yarip.map.getById(id).createPageExtensionItem();
-            this.tabs[this.tab].list.add(item);
+            yarip.map.addExtension(page, item);
             page.setTemporary(false);
             this.refreshTab(this.tab, true, null, item.getKey());
         }
@@ -1028,11 +1028,11 @@ function YaripPageDialog()
         {
             var list = page.pageExtensionList;
             for each (var item in list.obj) {
-                if (!item.getPage()) yarip.map.removeExtension(page, item);
+                if (!item.getPage() || item.getId() == page.getId()) yarip.map.removeExtension(page, item);
             }
             list = page.pageExtendedByList;
             for each (var item in list.obj) {
-                if (!item.getPage()) yarip.map.removeExtension(page, item);
+                if (!item.getPage() || item.getId() == page.getId()) yarip.map.removeExtension(page, item);
             }
         }
 
@@ -1755,14 +1755,20 @@ function YaripListTreeView(list)
     this.setCellValue = function(row, col, value) {
         switch (list.getName()) {
         case "extension":
-            var oldNew = list.set(row, col.index, value);
-            if (oldNew) {
+            var obj = list.set(row, col.index, value);
+            if (obj.isNew) {
                 var page = dialog.getPageByIndex();
-                yarip.map.removeExtension(page, oldNew[0]);
-                yarip.map.addExtension(page, oldNew[1]);
+                yarip.map.removeExtension(page, obj.oldItem);
+                yarip.map.addExtension(page, obj.newItem);
                 this.treebox.invalidate();
-                dialog.refreshTab(dialog.tab, null, true, oldNew[1].getKey());
-            } else {
+                dialog.refreshTab(dialog.tab, null, true, obj.newItem.getKey());
+            } else if (obj.item) {
+                var page = dialog.getPageByIndex();
+                if (obj.isExtendedBy) {
+                    yarip.map.updateExtendedBy(page, obj.item);
+                } else {
+                    yarip.map.updateExtension(page, obj.item);
+                }
                 this.treebox.invalidateCell(row, col);
             }
             break;

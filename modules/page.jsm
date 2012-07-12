@@ -53,7 +53,7 @@ function YaripPage(id, name, elementWhitelist, elementBlacklist, elementAttribut
     this.pageRedirectList = pageRedirectList ? pageRedirectList : new YaripRedirectList("redirect");
     this.pageStreamList = pageStreamList ? pageStreamList : new YaripStreamReplaceList("stream");
     this.pageExtensionList = pageExtensionList ? pageExtensionList : new YaripPageExtensionList("extension");
-    this.pageExtendedByList = pageExtendedByList ? pageExtendedByList : new YaripPageExtendedByList();
+    this.pageExtendedByList = pageExtendedByList ? pageExtendedByList : new YaripPageExtendedByList("extension");
     this.temporary = false;
 
     this.setId(id);
@@ -67,11 +67,8 @@ YaripPage.prototype.getKey = function()
 }
 YaripPage.prototype.setId = function(id)
 {
-//    if (!id) return;
     if (!id) id = this.newId();
     this.id = "" + id;
-    this.pageExtensionList.setId(this.id);
-    this.pageExtendedByList.setId(this.id);
 }
 YaripPage.prototype.getId = function()
 {
@@ -161,39 +158,27 @@ YaripPage.prototype.getTemporary = function()
 }
 YaripPage.prototype.clone = function(purge, pageName, id)
 {
-    var origId = this.id;
-    if (purge || id) {
-        this.id = id ? id : this.newId();
-        this.pageExtensionList.id = this.id;
-        this.pageExtendedByList.id = this.id;
-    }
-    var tmp = new this.constructor(
-            this.id,
-            pageName ? pageName : this.name,
-            this.elementWhitelist.clone(purge),
-            this.elementBlacklist.clone(purge),
-            this.elementAttributeList.clone(purge),
-            this.elementScriptList.clone(purge),
-            this.contentWhitelist.clone(purge),
-            this.contentBlacklist.clone(purge),
-            this.contentRequestHeaderList.clone(purge),
-            this.contentResponseHeaderList.clone(purge),
-            this.contentRedirectList.clone(purge),
-            this.contentStreamList.clone(purge),
-            this.pageStyleList.clone(),
-            this.pageScriptList.clone(),
-            this.pageRequestHeaderList.clone(purge),
-            this.pageResponseHeaderList.clone(purge),
-            this.pageRedirectList.clone(purge),
-            this.pageStreamList.clone(purge),
-            this.pageExtensionList.clone(purge),
-            purge ? null : this.pageExtendedByList.clone());
-    if (purge || id) {
-        this.id = origId;
-        this.pageExtensionList.id = this.id;
-        this.pageExtendedByList.id = this.id;
-    }
-    return tmp;
+    return new this.constructor(
+        id ? id : this.id,
+        pageName ? pageName : this.name,
+        this.elementWhitelist.clone(purge),
+        this.elementBlacklist.clone(purge),
+        this.elementAttributeList.clone(purge),
+        this.elementScriptList.clone(purge),
+        this.contentWhitelist.clone(purge),
+        this.contentBlacklist.clone(purge),
+        this.contentRequestHeaderList.clone(purge),
+        this.contentResponseHeaderList.clone(purge),
+        this.contentRedirectList.clone(purge),
+        this.contentStreamList.clone(purge),
+        this.pageStyleList.clone(),
+        this.pageScriptList.clone(),
+        this.pageRequestHeaderList.clone(purge),
+        this.pageResponseHeaderList.clone(purge),
+        this.pageRedirectList.clone(purge),
+        this.pageStreamList.clone(purge),
+        this.pageExtensionList.clone(),
+        purge ? null : this.pageExtendedByList.clone());
 }
 YaripPage.prototype.merge = function(page)
 {
@@ -432,8 +417,8 @@ YaripPage.prototype.createPageExtensionItem = function()
     var doRedirects = false;
     var doStreams = false;
     var doLinks = false;
-    var list = this.pageExtensionList.obj;
-    for each (var item in list) {
+    var list = this.pageExtensionList;
+    for each (var item in list.obj) {
         doElements = doElements || item.getDoElements();
         doContents = doContents || item.getDoContents();
         doScripts = doScripts || item.getDoScripts();
