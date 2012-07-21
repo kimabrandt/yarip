@@ -1,3 +1,10 @@
+2012-07-15  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/pagedialog.js (doPaste): Using the `map.addExtension'-
+    function for adding the pageExtension-items.
+
+    * modules/page.jsm (clone): Creating a new id if `purge' is `true'.
+
 2012-07-08  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * modules/yarip.jsm (getAddressMap): Allowing reverse retrieval of

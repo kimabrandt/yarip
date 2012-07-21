@@ -620,7 +620,7 @@ YaripPageScriptItem.prototype = new YaripScriptItem;
 YaripPageScriptItem.prototype.constructor = YaripPageScriptItem;
 YaripPageScriptItem.prototype.getId = function()
 {
-    return this.getCreated() + " " + this.getXPath();
+    return this.getXPath() + " " + this.getCreated();
 }
 YaripPageScriptItem.prototype.clone = function(purge)
 {
@@ -873,7 +873,7 @@ YaripStyleItem.prototype = new YaripItem;
 YaripStyleItem.prototype.constructor = YaripStyleItem;
 YaripStyleItem.prototype.getId = function()
 {
-    return this.getCreated() + " " + this.getXPath();
+    return this.getXPath() + " " + this.getCreated();
 }
 YaripStyleItem.prototype.clone = function(purge)
 {

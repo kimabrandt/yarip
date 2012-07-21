@@ -159,7 +159,7 @@ YaripPage.prototype.getTemporary = function()
 YaripPage.prototype.clone = function(purge, pageName, id)
 {
     return new this.constructor(
-        id ? id : this.id,
+        id ? id : purge ? this.newId() : this.id,
         pageName ? pageName : this.name,
         this.elementWhitelist.clone(purge),
         this.elementBlacklist.clone(purge),

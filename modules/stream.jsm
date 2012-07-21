@@ -148,7 +148,8 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
 
                             var index = 0;
                             for (var j = 0; j < matches.length; j++) {
-                                index += responseSource.substring(index).search(item.getFirstRegExpObj());
+                                var searchIndex = responseSource.substring(index).search(item.getFirstRegExpObj());
+                                if (searchIndex > 0) index += searchIndex;
                                 var respBeg = responseSource.substring(0, index);
                                 var respEnd = responseSource.substring(index);
                                 var m = respEnd.match(item.getFirstRegExpObj());
@@ -192,7 +193,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         var headEndRe = /<\s*\/\s*head[^>]*>/i;
         var headBeg = responseSource.substring(htmlBeg).search(headRe);
         var headEnd = null;
-        if (headBeg == -1) {
+        if (headBeg == -1) { // no head-begin
             // insert HEAD
             var headBeg = htmlBeg + responseSource.substring(htmlBeg).match(htmlRe)[0].length;
             headTopPart = responseSource.substring(0, headBeg) + "<head>";
@@ -202,12 +203,13 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         } else {
             headBeg += htmlBeg;
             headBeg += responseSource.substring(headBeg).match(headRe)[0].length;
-            headEnd = headBeg + responseSource.substring(headBeg).search(headEndRe);
-            if (headEnd == -1) {
+            var searchIndex = responseSource.substring(headBeg).search(headEndRe);
+            if (searchIndex == -1) { // no head-end
                 this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
                 this.listener.onStopRequest(request, context, statusCode);
                 return;
             } else {
+                headEnd = headBeg + searchIndex;
                 headTopPart = responseSource.substring(0, headBeg);
                 headMidPart = responseSource.substring(headBeg, headEnd);
                 tmpSource = responseSource.substring(headEnd);
@@ -219,7 +221,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         var bodyEndRe = /<\s*\/\s*body[^>]*>/i;
         var bodyBeg = tmpSource.search(bodyRe);
         var bodyEnd = null;
-        if (bodyBeg == -1) {
+        if (bodyBeg == -1) { // no body-begin
             // insert BODY
             var bodyBeg = tmpSource.match(headEndRe)[0].length;
             headBodPart = tmpSource.substring(0, bodyBeg) + "<body>";
@@ -228,12 +230,13 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             bodyEnd = bodyBeg;
         } else {
             bodyBeg += tmpSource.substring(bodyBeg).match(bodyRe)[0].length;
-            bodyEnd = bodyBeg + tmpSource.substring(bodyBeg).search(bodyEndRe);
-            if (bodyEnd == -1) {
+            var searchIndex = tmpSource.substring(bodyBeg).search(bodyEndRe);
+            if (searchIndex == -1) { // no body-end
                 this.onDataAvailable0(request, context, tmpSource, 0, tmpSource.length);
                 this.listener.onStopRequest(request, context, statusCode);
                 return;
             } else {
+                bodyEnd = bodyBeg + searchIndex;
                 headBodPart = tmpSource.substring(0, bodyBeg);
                 bodyMidPart = tmpSource.substring(bodyBeg, bodyEnd);
                 bodyBotPart = tmpSource.substring(bodyEnd);
@@ -250,7 +253,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         var bodyStyles = "";
         var bodyScripts = "";
 
-        // Iterating from end to begin (dependencies).
+        // Iterating from end to beginning (dependencies).
         for (var i = arr.length - 1; i >= 0; i--)
         {
             var extItem = arr[i];

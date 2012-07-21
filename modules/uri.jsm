@@ -284,35 +284,13 @@ var HIER_PART = "((?:(?:\\/\\/)?(?:(?:(?:[\\w-.~!$&'()*+,;=:]|%[a-f\\d]{2})*@)?(
 var PATH = "([;/](?:[\\w-.~!$&'()*+,;=:@/]|%[a-f\\d]{2})*)?";
 var QUERY_FRAGMENT = "((?:[&?](?:[\\w-.~!$&'()*+,;=:@/?]|%[a-f\\d]{2})*)?(?:#(?:[\\w-.~!$&'()*+,;=:@/?]|%[a-f\\d]{2})*)?)";
 
-try { // with complex tld
-    var URI1 = "(" + SCHEME + HIER_PART + QUERY_FRAGMENT + ")";
-    var URI2 = "(" + AUTHORITY + "(?:" + IP + "|(?:" + REG_NAME + "\\b" + TLD + "))" + PORT + PATH + QUERY_FRAGMENT + ")";
+var URI1 = "(" + SCHEME + HIER_PART + QUERY_FRAGMENT + ")";
+var URI2 = "(" + AUTHORITY + "(?:" + IP + "|(?:" + REG_NAME + "\\b" + TLD + "))" + PORT + PATH + QUERY_FRAGMENT + ")";
 
-    var URL_RE = new RegExp("^" + URI1 + "$", "i");
-    var URI_SIMPLE_RE = new RegExp("^(?:" + URI1 + "|" + URI2 + "|(" + SIMPLE_DOT + PORT + PATH + QUERY_FRAGMENT + "))$", "i");
-    var NO_SCHEME_RE = new RegExp("^" + URI2 + "$", "i");
-    var DOMAIN_RE = new RegExp("^(" + IP + "|(?:" + ULD + "\\b" + TLD + ")|" + SIMPLE_DOT + ")" + PORT + "$", "i");
-    var FIND_SLD_RE = new RegExp("\\b(?:" + IP + "|(?:" + SLD + "\\b" + TLD + ")|" + SIMPLE + ")" + PORT + "$", "i");
-    var FIND_TLD_RE = new RegExp("\\b" + TLD + "$", "i");
-} catch (e) { // with simple tld
-    TLD = "(" +
-        "(?:(?:(?:com|edu|gob|gov|int|mil|net|org|tur)\\.)?ar)" +
-        "|(?:(?:(?:adm|adv|agr|am|arq|art|ato|b|bio|blog|bmd|can|cim|cng|cnt|com|coop|ecn|edu|emp|eng|esp|etc|eti|far|flog|fm|fnd|fot|fst|g12|ggf|gov|imb|ind|inf|jor|jus|leg|lel|mat|med|mil|mus|net|nom|not|ntr|odo|org|ppg|pro|psc|psi|qsl|radio|rec|slg|srv|taxi|teo|tmp|trd|tur|tv|vet|vlog|wiki|zlg)\\.)?br)" +
-        "|(?:(?:(?:ac|ah|bj|com|cq|edu|fj|gd|gov|gs|gx|gz|ha|hb|he|hi|hk|hl|hn|jl|js|jx|ln|mil|mo|net|nm|nx|org|qh|sc|sd|sh|sn|sx|tj|tw|xj|xz|yn|zj)\\.)?cn)" +
-        "|(?:(?:(?:ac|ad|aichi|akita|aomori|chiba|co|ed|ehime|fukui|fukuoka|fukushima|geo|gifu|go|gr|gunma|hiroshima|hokkaido|hyogo|ibaraki|ishikawa|iwate|kagawa|kagoshima|kanagawa|kawasaki|kitakyushu|kobe|kochi|kumamoto|kyoto|lg|mie|miyagi|miyazaki|nagano|nagasaki|nagoya|nara|ne|niigata|oita|okayama|okinawa|or|osaka|saga|saitama|sapporo|sendai|shiga|shimane|shizuoka|tochigi|tokushima|tokyo|tottori|toyama|wakayama|yamagata|yamaguchi|yamanashi|yokohama)\\.)?jp)" +
-        "|(?:(?:(?:6bone|agro|aid|art|atm|augustow|auto|babia-gora|bedzin|beskidy|bialowieza|bialystok|bielawa|bieszczady|biz|boleslawiec|bydgoszcz|bytom|cieszyn|co|com|czeladz|czest|dlugoleka|edu|elblag|elk|gda|gdansk|gdynia|gliwice|glogow|gmina|gniezno|gorlice|gov|grajewo|gsm|ilawa|info|irc|jaworzno|jelenia-gora|jgora|kalisz|karpacz|kartuzy|kaszuby|katowice|kazimierz-dolny|kepno|ketrzyn|klodzko|kobierzyce|kolobrzeg|konin|konskowola|krakow|kutno|lapy|lebork|legnica|lezajsk|limanowa|lomza|lowicz|lubin|lukow|mail|malbork|malopolska|mazowsze|mazury|mbone|med|media|miasta|mielec|mielno|mil|mragowo|naklo|net|ngo|nieruchomosci|nom|nowaruda|nysa|olawa|olecko|olkusz|olsztyn|opoczno|opole|org|ostroda|ostroleka|ostrowiec|ostrowwlkp|pa\\.gov|pc|pila|pisz|podhale|podlasie|po\\.gov|polkowice|pomorskie|pomorze|powiat|poznan|priv|prochowice|pruszkow|przeworsk|pulawy|radom|rawa-maz|realestate|rel|rybnik|rzeszow|sanok|sejny|sex|shop|siedlce|sklep|skoczow|slask|slupsk|so\\.gov|sopot|sos|sosnowiec|sr\\.gov|stalowa-wola|starachowice|stargard|starostwo\\.gov|suwalki|swidnica|swiebodzin|swinoujscie|szczecin|szczytno|szkola|targi|tarnobrzeg|tgory|tm|tourism|travel|turek|turystyka|tychy|ug\\.gov|um\\.gov|upow\\.gov|usenet|ustka|uw\\.gov|walbrzych|warmia|warszawa|waw|wegrow|wielun|wlocl|wloclawek|wodzislaw|wolomin|wroc|wroclaw|zachpomor|zagan|zakopane|zarow|zgora|zgorzelec)\\.)?pl)" +
-        "|(?:(?:(?:ac|adygeya|altai|amur|amursk|arkhangelsk|astrakhan|baikal|bashkiria|belgorod|bir|bryansk|buryatia|cap|cbg|chel|chelyabinsk|chita|chukotka|chuvashia|cmw|com|dagestan|dudinka|e-burg|edu|fareast|gov|grozny|int|irkutsk|ivanovo|izhevsk|jamal|jar|joshkar-ola|kalmykia|kaluga|kamchatka|karelia|kazan|kchr|kemerovo|khabarovsk|khakassia|khv|kirov|kms|koenig|komi|kostroma|kranoyarsk|krasnoyarsk|kuban|k-uralsk|kurgan|kursk|kustanai|kuzbass|lipetsk|magadan|magnitka|mari|mari-el|marine|mil|mordovia|mosreg|msk|murmansk|mytis|nakhodka|nalchik|net|nkz|nnov|norilsk|nov|novosibirsk|nsk|omsk|orenburg|org|oryol|oskol|palana|penza|perm|pp|pskov|ptz|pyatigorsk|rnd|rubtsovsk|ryazan|sakhalin|samara|saratov|simbirsk|smolensk|snz|spb|stavropol|stv|surgut|syzran|tambov|tatarstan|test|tlt|tom|tomsk|tsaritsyn|tsk|tula|tuva|tver|tyumen|udm|udmurtia|ulan-ude|vdonsk|vladikavkaz|vladimir|vladivostok|volgograd|vologda|voronezh|vrn|vyatka|yakutia|yamal|yaroslavl|yekaterinburg|yuzhno-sakhalinsk|zgrad)\\.)?ru)" +
-        "|(?:(?:(?:ac|co|ltd|me|mil|net|org|plc|sch)\\.)?uk)" +
-        "|(?:ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|arpa|as|asia|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|co|com|coop|cr|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|local|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sx|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|travel|tt|tv|tw|tz|ua|ug|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xn--0zwm56d|xn--11b5bs3a9aj6g|xn--3e0b707e|xn--45brj9c|xn--54b7fta0cc|xn--80akhbyknj4f|xn--90a3ac|xn--9t4b11yi5a|xn--clchc0ea0b2g2a9gcd|xn--deba0ad|xn--fiqs8s|xn--fiqz9s|xn--fpcrj9c3d|xn--fzc2c9e2c|xn--g6w251d|xn--gecrj9c|xn--h2brj9c|xn--hgbk6aj7f53bba|xn--hlcj6aya9esc7a|xn--j1amh|xn--j6w193g|xn--jxalpdlp|xn--kgbechtv|xn--kprw13d|xn--kpry57d|xn--lgbbat1ad8j|xn--mgb2ddes|xn--mgb9awbf|xn--mgba3a4f16a|xn--mgba3a4f16a.ir|xn--mgba3a4fra|xn--mgba3a4fra.ir|xn--mgbaam7a8h|xn--mgbayh7gpa|xn--mgbbh1a71e|xn--mgbc0a9azcg|xn--mgberp4a5d4a87g|xn--mgberp4a5d4ar|xn--mgbqly7c0a67fbc|xn--mgbqly7cvafr|xn--mgbtf8fl|xn--nnx388a|xn--node|xn--o3cw4h|xn--ogbpf8fl|xn--p1ai|xn--pgbs0dh|xn--s9brj9c|xn--wgbh1c|xn--wgbl6a|xn--xkc2al3hye2a|xn--xkc2dl3a5ee0h|xn--yfro4i67o|xn--yfro4i67o Singapore|xn--ygbi2ammx|xn--zckzah|xxx|ye|yt|za|zm|zw)" +
-        ")";
-    var URI1 = "(" + SCHEME + HIER_PART + QUERY_FRAGMENT + ")";
-    var URI2 = "(" + AUTHORITY + "(?:" + IP + "|(?:" + REG_NAME + "\\b" + TLD + "))" + PORT + PATH + QUERY_FRAGMENT + ")";
+var URL_RE = new RegExp("^" + URI1 + "$", "i");
+var URI_SIMPLE_RE = new RegExp("^(?:" + URI1 + "|" + URI2 + "|(" + SIMPLE_DOT + PORT + PATH + QUERY_FRAGMENT + "))$", "i");
+var NO_SCHEME_RE = new RegExp("^" + URI2 + "$", "i");
+var DOMAIN_RE = new RegExp("^(" + IP + "|(?:" + ULD + "\\b" + TLD + ")|" + SIMPLE_DOT + ")" + PORT + "$", "i");
+var FIND_SLD_RE = new RegExp("\\b(?:" + IP + "|(?:" + SLD + "\\b" + TLD + ")|" + SIMPLE + ")" + PORT + "$", "i");
+var FIND_TLD_RE = new RegExp("\\b" + TLD + "$", "i");
 
-    var URL_RE = new RegExp("^" + URI1 + "$", "i");
-//    var URI_SIMPLE_RE = new RegExp("^(?:" + URI1 + "|" + URI2 + "|(?:" + SIMPLE_DOT + PORT + PATH + QUERY_FRAGMENT + "))$", "i");
-    var URI_SIMPLE_RE = new RegExp("^(?:" + URI1 + "|" + URI2 + "|(" + SIMPLE_DOT + PORT + PATH + QUERY_FRAGMENT + "))$", "i");
-    var NO_SCHEME_RE = new RegExp("^" + URI2 + "$", "i");
-    var DOMAIN_RE = new RegExp("^(" + IP + "|(?:" + ULD + "\\b" + TLD + ")|" + SIMPLE_DOT + ")" + PORT + "$", "i");
-    var FIND_SLD_RE = new RegExp("\\b(?:" + IP + "|(?:" + SLD + "\\b" + TLD + ")|" + SIMPLE + ")" + PORT + "$", "i");
-    var FIND_TLD_RE = new RegExp("\\b" + TLD + "$", "i");
-}

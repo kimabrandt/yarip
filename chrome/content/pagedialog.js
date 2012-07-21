@@ -303,6 +303,11 @@ function YaripPageDialog()
         var page = this.getPageByIndex();
         if (!page) return;
 
+        var list = this.page.pageExtensionList;
+        for each (var item in list.obj) {
+            yarip.map.addExtension(page, item);
+        }
+
         page.merge(this.page);
         page.setTemporary(false);
         this.refreshTab(null, true);
