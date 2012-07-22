@@ -37,6 +37,8 @@
 <!ENTITY treecol.label.newsubstr             "New substring">
 <!ENTITY treecol.label.attrName              "Attribute name">
 <!ENTITY treecol.label.attrValue             "Attribute value">
+<!ENTITY treecol.label.reinject              "Reinject">
+<!ENTITY treecol.tooltiptext.reinject        "Reinject when elements are added dynamically.">
 <!ENTITY treecol.label.headerName            "Header name">
 <!ENTITY treecol.label.headerValue           "Header value">
 <!ENTITY treecol.tooltiptext.merge           "Merge with any existing values.">
@@ -58,8 +60,6 @@
 <!ENTITY label.value.exclusive               "Exclusive">
 <!ENTITY label.tooltiptext.elementExclusive  "Only allow whitelisted elements.">
 <!ENTITY label.tooltiptext.exclusive         "Only allow whitelisted contents.">
-<!ENTITY label.value.noRedirect              "No redirects">
-<!ENTITY label.tooltiptext.noRedirect        "Prohibit redirects to this page.">
 <!ENTITY treecol.label.page                  "Page">
 <!ENTITY treecol.label.element               "Element">
 <!ENTITY treecol.label.content               "Content">
@@ -68,20 +68,20 @@
 <!ENTITY treecol.label.redirect              "Redirect">
 <!ENTITY treecol.label.stream                "Stream">
 <!ENTITY treecol.label.link                  "Link">
-<!ENTITY treecol.tooltiptext.element         "Is using elements from these pages.">
-<!ENTITY treecol.tooltiptext.content         "Is using contents from these pages.">
-<!ENTITY treecol.tooltiptext.script          "Is using scripts from these pages.">
-<!ENTITY treecol.tooltiptext.header          "Is using headers from these pages.">
-<!ENTITY treecol.tooltiptext.redirect        "Is using redirects from these pages.">
-<!ENTITY treecol.tooltiptext.stream          "Is using streams from these pages.">
-<!ENTITY treecol.tooltiptext.link            "Is allowed to link to these pages.">
-<!ENTITY treecol.tooltiptext.element2        "Are using elements from this page.">
-<!ENTITY treecol.tooltiptext.content2        "Are using contents from this page.">
-<!ENTITY treecol.tooltiptext.script2         "Are using scripts from this page.">
-<!ENTITY treecol.tooltiptext.header2         "Are using headers from this page.">
-<!ENTITY treecol.tooltiptext.redirect2       "Are using redirects from this page.">
-<!ENTITY treecol.tooltiptext.stream2         "Are using streams from this page.">
-<!ENTITY treecol.tooltiptext.link2           "Are allowed to link to this page.">
+<!ENTITY treecol.tooltiptext.element         "The current page is using elements from these pages.">
+<!ENTITY treecol.tooltiptext.content         "The current page is using contents from these pages.">
+<!ENTITY treecol.tooltiptext.script          "The current page is using scripts from these pages.">
+<!ENTITY treecol.tooltiptext.header          "The current page is using headers from these pages.">
+<!ENTITY treecol.tooltiptext.redirect        "The current page is using redirects from these pages.">
+<!ENTITY treecol.tooltiptext.stream          "The current page is using streams from these pages.">
+<!ENTITY treecol.tooltiptext.link            "The current page is allowed to link to these pages.">
+<!ENTITY treecol.tooltiptext.element2        "These pages are using elements from the current page.">
+<!ENTITY treecol.tooltiptext.content2        "These pages are using contents from the current page.">
+<!ENTITY treecol.tooltiptext.script2         "These pages are using scripts from the current page.">
+<!ENTITY treecol.tooltiptext.header2         "These pages are using headers from the current page.">
+<!ENTITY treecol.tooltiptext.redirect2       "These pages are using redirects from the current page.">
+<!ENTITY treecol.tooltiptext.stream2         "These pages are using streams from the current page.">
+<!ENTITY treecol.tooltiptext.link2           "These pages are allowed to link to the current page.">
 <!ENTITY button.label.add                    "Add">
 <!ENTITY button.accesskey.add                "A">
 <!ENTITY button.label.remove                 "Remove">

@@ -550,11 +550,12 @@ YaripElementAttributeItem.prototype.loadFromObject = function(obj)
     this.setNotFound(obj.notFound);
 }
 
-function YaripScriptItem(xpath, script, priority, created, lastFound, found, notFound)
+function YaripScriptItem(xpath, script, priority, reinject, created, lastFound, found, notFound)
 {
     this.xpath = "";
     this.script = "";
     this.priority = 0;
+    this.reinject = false;
     this.created = -1;
     this.lastFound = -1;
     this.found = 0;
@@ -563,6 +564,7 @@ function YaripScriptItem(xpath, script, priority, created, lastFound, found, not
     this.setXPath(xpath);
     this.setScript(script);
     this.setPriority(priority);
+    this.setReinject(reinject);
     this.setCreated(created ? created : Date.now());
     this.setLastFound(lastFound);
     this.setFound(found);
@@ -570,9 +572,17 @@ function YaripScriptItem(xpath, script, priority, created, lastFound, found, not
 }
 YaripScriptItem.prototype = new YaripItem;
 YaripScriptItem.prototype.constructor = YaripScriptItem;
+YaripScriptItem.prototype.setReinject = function(value)
+{
+    this.reinject = "" + value == "true";
+}
+YaripScriptItem.prototype.getReinject = function()
+{
+    return this.reinject;
+}
 YaripScriptItem.prototype.clone = function(purge)
 {
-    var tmp = new this.constructor(this.xpath, this.script, this.priority, this.created, this.lastFound, this.found, this.notFound);
+    var tmp = new this.constructor(this.xpath, this.script, this.priority, this.reinject, this.created, this.lastFound, this.found, this.notFound);
     if (purge) tmp.purge();
     return tmp;
 }
@@ -580,6 +590,7 @@ YaripScriptItem.prototype.merge = function(item)
 {
     if (!item) return;
     if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    this.setReinject(item.getReinject() || this.getReinject());
     if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripScriptItem.prototype.generateXml = function()
@@ -588,6 +599,7 @@ YaripScriptItem.prototype.generateXml = function()
     return "\t\t\t\t" +
         "<item" +
             (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
+            (this.reinject ? " reinject=\"" + this.reinject + "\"" : "") +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
@@ -598,11 +610,12 @@ YaripScriptItem.prototype.generateXml = function()
         "\t\t\t\t</item>\n";
 }
 
-function YaripPageScriptItem(xpath, script, priority, created, lastFound, found, notFound)
+function YaripPageScriptItem(xpath, script, priority, reinject, created, lastFound, found, notFound)
 {
     this.xpath = "";
     this.script = "";
     this.priority = 0;
+    this.reinject = false;
     this.created = -1;
     this.lastFound = -1;
     this.found = 0;
@@ -610,6 +623,7 @@ function YaripPageScriptItem(xpath, script, priority, created, lastFound, found,
 
     this.setXPath(xpath);
     this.setPriority(priority);
+    this.setReinject(reinject);
     this.setScript(script);
     this.setCreated(created ? created : Date.now());
     this.setLastFound(lastFound);
@@ -624,7 +638,7 @@ YaripPageScriptItem.prototype.getId = function()
 }
 YaripPageScriptItem.prototype.clone = function(purge)
 {
-    var tmp = new this.constructor(this.xpath, this.script, this.priority, this.created, this.lastFound, this.found, this.notFound);
+    var tmp = new this.constructor(this.xpath, this.script, this.priority, this.reinject, this.created, this.lastFound, this.found, this.notFound);
     if (purge) tmp.purge();
     return tmp;
 }
@@ -632,6 +646,7 @@ YaripPageScriptItem.prototype.merge = function(item)
 {
     if (!item) return;
     if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
+    this.setReinject(item.getReinject() || this.getReinject());
     if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripPageScriptItem.prototype.generateXml = function()
@@ -640,6 +655,7 @@ YaripPageScriptItem.prototype.generateXml = function()
     return "\t\t\t\t" +
         "<item" +
             (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
+            (this.reinject ? " reinject=\"" + this.reinject + "\"" : "") +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +

@@ -555,6 +555,9 @@ YaripElementScriptList.prototype.set = function(row, col, value)
             } else {
                 return false;
             }
+        case 2:
+            item.setReinject(value);
+            return false;
         case 99:
             item.setScript(value);
             return false;
@@ -576,7 +579,8 @@ YaripElementScriptList.prototype.get = function(row, col)
         case LIST_INDEX_KEY: return item.getKey();
         case 0: return item.getXPath();
         case 1: return item.getPriority();
-        case 2:
+        case 2: return item.getReinject();
+        case 3:
             var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -584,7 +588,7 @@ YaripElementScriptList.prototype.get = function(row, col)
             } else {
                 return "";
             }
-        case 3:
+        case 4:
             var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -592,8 +596,8 @@ YaripElementScriptList.prototype.get = function(row, col)
             } else {
                 return "";
             }
-        case 4: return item.getFound();
-        case 5: return item.getNotFound();
+        case 5: return item.getFound();
+        case 6: return item.getNotFound();
         case 99: return item.getScript();
         default: return "";
         }
@@ -1043,6 +1047,9 @@ YaripPageScriptList.prototype.set = function(row, col, value)
             } else {
                 return false;
             }
+        case 2:
+            item.setReinject(value);
+            return false;
         case 99:
             item.setScript(value);
             return false;
@@ -1064,7 +1071,8 @@ YaripPageScriptList.prototype.get = function(row, col)
         case LIST_INDEX_KEY: return item.getKey();
         case 0: return item.getXPath();
         case 1: return item.getPriority();
-        case 2:
+        case 2: return item.getReinject();
+        case 3:
             var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -1072,7 +1080,7 @@ YaripPageScriptList.prototype.get = function(row, col)
             } else {
                 return "";
             }
-        case 3:
+        case 4:
             var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -1080,8 +1088,8 @@ YaripPageScriptList.prototype.get = function(row, col)
             } else {
                 return "";
             }
-        case 4: return item.getFound();
-        case 5: return item.getNotFound();
+        case 5: return item.getFound();
+        case 6: return item.getNotFound();
         case 99: return item.getScript();
         default: return "";
         }

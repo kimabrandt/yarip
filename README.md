@@ -24,15 +24,16 @@ Yet Another Remove It Permanently
 number of different ways. It works by injecting and applying user created
 code-snippets onto a Web page in order to change the look and feel and by
 using rule-based matching in order to remove elements ([DOM][5]) and block
-or redirect content (URLs).
+or redirect content ([URLs][6]).
 
 
 
 Getting help
 ------
 
-A [wiki][2] is in the process of being written. Questions and comments can
-be send to either the yarip [mailing-list][3] or directly to [myself][4].
+A [wiki][2] is available at Github, together with the source code.
+Questions and comments can be send to either the yarip [mailing-list][3]
+or directly to [myself][4].
 
 
 
@@ -62,4 +63,6 @@ Have fun!
 [4]: mailto:kimabrandt@gmx.de?subject=Yarip
     "Kim A. Brandt"
 [5]: http://en.wikipedia.org/wiki/Document_Object_Model
-    "Document Object Model (DOM)"
+    "Document Object Model"
+[6]: http://en.wikipedia.org/wiki/Uniform_resource_locator
+    "Uniform resource locator"

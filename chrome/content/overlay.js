@@ -675,56 +675,25 @@ function YaripOverlay()
 
             var doc = event.originalTarget;
             if (!doc || !doc.body || !doc.defaultView) break;
+            if (!yarip.schemesRegExp.test(doc.location.protocol.replace(/:$/, ""))) break;
 
-            var dv = doc.defaultView;
-            if (!dv.yarip) {
-                dv.yarip = {};
-            } else {
-                if (doc.DOMContentLoaded) return;
-                else doc.DOMContentLoaded = true;
-            }
-            this.doDOMContentLoaded(doc, this);
+            this.domContentLoaded(doc, this);
             doc.body.addEventListener("DOMNodeInserted", this, false);
 //            doc.body.addEventListener("DOMAttrModified", this, false);
-            if (yarip.noFlicker) {
-                if (!dv.yarip) dv.yarip = {}; // needed!?
-                dv.yarip.whitelistTimeout = setTimeout(this.doWhitelist, 100, doc.body);
-            } else {
-                doc.body.setAttribute("status", "whitelisted");
-            }
+            doc.body.setAttribute("status", "whitelisted");
             break;
 
         case "DOMNodeInserted":
             if (!yarip.enabled) break;
 
             var element = event.originalTarget;
+            if ("getAttribute" in element && /^(firebug|yarip)/.test(element.getAttribute("class"))) break;
+
             var doc = element.ownerDocument;
             if (!doc || !doc.body || !doc.defaultView) break;
 
-            var dv = doc.defaultView;
-            if (dv.yarip && dv.yarip.loadTimeout) break;
-            if ("getAttribute" in element && /firebugLayoutBox|firebugHighlight/.test(element.getAttribute("class"))) break;
-
-            // TODO Make numNodeInserted and timeouts customizable!
-            var numNodeInserted = 10;
-            var count = dv.yarip.count;
-            if (!count) dv.yarip.count = count = 1;
-            if (yarip.noFlicker) {
-                if (count <= 3) {
-                    clearTimeout(dv.yarip.whitelistTimeout);
-                    this.doDOMContentLoaded(doc, this, true);
-                    dv.yarip.whitelistTimeout = setTimeout(this.doWhitelist, 100, doc.body);
-                    dv.yarip.count++;
-                } else {
-                    dv.yarip.loadTimeout = setTimeout(this.doDOMContentLoaded, 100 * count /* max-default: 1 sec */, doc, this, true);
-                    if (count < numNodeInserted) dv.yarip.count++;
-                }
-                if (!dv.yarip.resetTimeout) {
-                    dv.yarip.resetTimeout = setTimeout(this.resetCount, 500 * numNodeInserted /* default: 5 sec */, doc);
-                }
-            } else {
-                dv.yarip.loadTimeout = setTimeout(this.doDOMContentLoaded, 100 * numNodeInserted /* default: 1 sec */, doc, this, true);
-            }
+            doc.body.removeEventListener("DOMNodeInserted", this, false);
+            setTimeout(this.domContentLoaded, 1000, doc, this, true);
             break;
 
 //        case "DOMAttrModified":
@@ -855,15 +824,6 @@ function YaripOverlay()
         }
     }
 
-    this.doWhitelist = function (element)
-    {
-        if (!element) return;
-
-        if (element && element.getAttribute("status") != "whitelisted") {
-            element.setAttribute("status", "whitelisted");
-        }
-    }
-
     this.resetCount = function (doc)
     {
         if (doc && doc.defaultView && doc.defaultView.yarip) {
@@ -872,23 +832,26 @@ function YaripOverlay()
         }
     }
 
-    this.doDOMContentLoaded = function(doc, overlay, noIncrement)
+    this.domContentLoaded = function(doc, overlay, noIncrement)
     {
         if (!doc) return;
 
-        if (doc.defaultView && doc.defaultView.yarip) doc.defaultView.yarip.loadTimeout = null;
+        try
+        {
+            if (!yarip.enabled) return;
+//            if (!doc.body || !doc.location) return;
+//            if (!/^https?:$/.test(doc.location.protocol)) return;
+//            if (!/^(text\/html|application\/xhtml\+xml)$/.test(doc.contentType)) return;
 
-        if (!yarip.enabled) return;
-        if (/*!doc ||*/ !doc.body || !doc.location) return;
-        if (!/^https?:$/.test(doc.location.protocol)) return;
-        if (!/^(text\/html|application\/xhtml\+xml)$/.test(doc.contentType)) return;
-
-        if (overlay.loader.load(doc, !noIncrement)) {
-            overlay.setYaripStatus(doc, "found");
-            return true;
-        } else {
-            overlay.setYaripStatus(doc);
-            return false;
+            if (overlay.loader.load(doc, !noIncrement)) {
+                overlay.setYaripStatus(doc, "found");
+                return true;
+            } else {
+                overlay.setYaripStatus(doc);
+                return false;
+            }
+        } finally {
+            doc.body.addEventListener("DOMNodeInserted", overlay, false);
         }
     }
 

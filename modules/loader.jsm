@@ -165,7 +165,7 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
         }
     }
 
-    var obj = {};
+    var tmp = [];
     var found = false;
 
     // page scripting
@@ -189,15 +189,17 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
 
             var id = idPrefix + counter++;
             var script = doc.getElementById(id);
-            if (script) continue;
+            if (script && !item.getReinject()) continue;
 
             var elements = yarip.getElementsByXPath(doc, item.getXPath());
             if (elements && elements.snapshotLength > 0) {
                 var element = elements.snapshotItem(0);
-                obj[id] = {
+                tmp.push({
+                    id: id,
                     script: s,
-                    element: element
-                };
+                    element: element,
+                    reinject: item.getReinject()
+                });
                 if (increment && isSelf) {
                     item.incrementFound();
                 }
@@ -215,7 +217,6 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
     {
         var aObj = arr[i];
         var pageName = aObj.pageName;
-
         var page = yarip.map.get(pageName);
         var list = page.elementScriptList;
         if (list.length == 0) continue;
@@ -231,9 +232,8 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
 
             var id = idPrefix + counter++;
             var script = doc.getElementById(id);
-            if (script) continue;
+            if (script && !item.getReinject()) continue;
 
-            // TODO How to evaluate the XPath only once!?
             if (increment && isSelf) {
                 var elements = yarip.getElementsByXPath(doc, item.getXPath());
                 if (elements && elements.snapshotLength > 0) {
@@ -244,18 +244,21 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
                 }
             }
 
-            obj[id] = {
+            tmp.push({
+                id: id,
                 script: "yarip.run(" + s + ", " + JSON.stringify(item.getXPath()) + ");\n",
-                element: null // /html/body
-            };
+                element: null, // /html/body
+                reinject: item.getReinject()
+            });
             found = true;
         }
     }
 
     if (found) {
         this.injectJavaScript(doc, "yarip-default-script", yarip.getYaripScript());
-        for (var id in obj) {
-            this.injectJavaScript(doc, id, obj[id].script, obj[id].element);
+        for (var i = 0; i < tmp.length; i++) {
+            var obj = tmp[i];
+            this.injectJavaScript(doc, obj.id, obj.script, obj.element, obj.reinject);
         }
     }
 }
@@ -281,11 +284,11 @@ YaripLoader.prototype.injectCascadingStyleSheet = function(doc, id, css, parent)
     }
     this.hasStyles = true;
 }
-YaripLoader.prototype.injectJavaScript = function(doc, id, js, parent)
+YaripLoader.prototype.injectJavaScript = function(doc, id, js, parent, reinject)
 {
     var element = doc.getElementById(id);
     if (element) {
-        if (element.getAttribute("status") != "whitelisted") {
+        if (reinject || element.getAttribute("status") != "whitelisted") {
             element.parentNode.removeChild(element);
         } else {
             return;

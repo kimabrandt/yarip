@@ -1,3 +1,16 @@
+2012-07-22  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/overlay.js (DOMContentLoaded): Simplified the logic
+    around loading and reloading of yarip-rules.
+
+    * chrome/content/overlay.js (DOMNodeInserted): Ignoring elements with a
+    class-attribute beginning with `firebug' or `yarip'.
+
+    * chrome/content/pagedialog.xul (priority): Removed the `flex'-
+    attribute from `treecol'-elements.
+
+    * modules/item.jsm (*ScriptItem): Allowing reinjection of scripts.
+
 2012-07-15  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/pagedialog.js (doPaste): Using the `map.addExtension'-

@@ -1812,6 +1812,7 @@ Yarip.prototype.load = function(file, imported)
                       "/html/body",
                       nScript.textContent,
                       null, // priority
+                      null, // reinject
                       nScript.getAttribute("lastChanged")));
             }
 
@@ -1983,6 +1984,7 @@ Yarip.prototype.load = function(file, imported)
                                 nXPath.textContent,
                                 nScript ? nScript.textContent : null,
                                 nItem.getAttribute("priority"),
+                                nItem.getAttribute("reinject"),
                                 created ? created : pageId,
                                 nItem.getAttribute("lastFound"),
                                 nItem.getAttribute("found"),
@@ -2222,6 +2224,7 @@ if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.1)$/.test(version))
                         "/html/body",
                         nPageScript.textContent,
                         nPageScript.getAttribute("lastChanged"), // priority
+                        null, // reinject
                         nPageScript.getAttribute("lastChanged")));
                 }
 }
@@ -2274,6 +2277,7 @@ else // if (/^0\.3\.2$/.test(version))
                                 nXPath.textContent,
                                 nScript ? nScript.textContent : null,
                                 nItem.getAttribute("priority"),
+                                nItem.getAttribute("reinject"),
                                 created ? created : pageId,
                                 nItem.getAttribute("lastFound"),
                                 nItem.getAttribute("found"),
