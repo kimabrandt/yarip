@@ -1,3 +1,21 @@
+2012-08-06  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : Made some changes to conform with the Mozilla addon-validation.
+
+2012-08-05  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/handler.js (outline): Also using a red outline for
+    elements with @status `whitelisted forced'.
+
+    * chrome/locale/en-US/options.dtd (privateBrowsing): Renamed
+    `Private browsing' into `Create page' in order to prevent confusion with
+    the mozilla `Private Browsing'-mode.
+
+    * modules/loader.jsm (removeAllExceptWhitelisted): Only removing-all-
+    except-whitelisted if `increment' is `true'.
+
+    * modules/yarip.jsm (found): Setting `found' prior to doing checks.
+
 2012-07-22  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/overlay.js (DOMContentLoaded): Simplified the logic

@@ -46,7 +46,7 @@ function Yarip() {
     this.schemesRegExp = null;
     this.contentRecurrence = false;
     this.logWhenClosed = false;
-    this.isMobile = false;
+    this._isMobile = false;
 
     this.map = null;
     this.undoObj = {};
@@ -175,11 +175,11 @@ Yarip.prototype.init = function()
     this.check();
 
     this.initPreferences();
-    if (!this.isMobile) this.initContentPolicy();
+    if (!this.isMobile()) this.initContentPolicy();
 }
 Yarip.prototype.initMobile = function()
 {
-    this.isMobile = true;
+    this.setMobile(true);
 
     Cu.import("resource://yarip/map.jsm");
     Cu.import("resource://yarip/page.jsm");
@@ -707,13 +707,12 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
     var elements = this.getElementsByXPath(doc, item.getXPath());
     if (!elements) return false;
 
-    var found = false;
+    var found = elements.snapshotLength > 0;
     var incrementType = INCREMENT_NOT_FOUND;
 
     for (var i = 0; i < elements.snapshotLength; i++)
     {
         var element = elements.snapshotItem(i);
-
         switch (element.nodeType) {
         case 1: // ELEMENT
             switch (element.getAttribute("status")) {
@@ -741,7 +740,6 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
         }
 
         incrementType = INCREMENT_FOUND;
-        found = true;
     }
 
     if (!pageName) return found;
@@ -791,9 +789,10 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
     var elements = this.getElementsByXPath(doc, item.getXPath());
     if (!elements) return false;
 
-    var found = false;
+    var found = elements.snapshotLength > 0;
     var incrementType = INCREMENT_NOT_FOUND;
     var useForce = true;
+
     if (item.getForce()) {
         for (var i = 0; i < elements.snapshotLength; i++) {
             var element = elements.snapshotItem(i);
@@ -907,7 +906,6 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
         }
 
         incrementType = INCREMENT_FOUND;
-        found = true;
     }
 
     if (!pageName) return found;
@@ -1003,7 +1001,7 @@ Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, incremen
     var elements = this.getElementsByXPath(doc, item.getXPath());
     if (!elements) return false;
 
-    var found = false;
+    var found = elements.snapshotLength > 0;
     var incrementType = INCREMENT_NOT_FOUND;
 
     for (var i = 0; i < elements.snapshotLength; i++)
@@ -1032,7 +1030,6 @@ Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, incremen
         }
 
         incrementType = INCREMENT_FOUND;
-        found = true;
     }
 
     if (!pageName) return found;
@@ -2549,7 +2546,7 @@ Yarip.prototype.logContentLocation = function(status, location, contentLocation,
     var date = new Date();
     location = this.getLocation(location);
     contentLocation = this.getLocation(contentLocation);
-    if (!this.isMobile) {
+    if (!this.isMobile()) {
         var newLog = false;
         for each (var monitor in this.monitorDialogues) {
             if (monitor.logContentLocation(status, location, contentLocation, date, mimeTypeGuess, itemObj)) {
@@ -2868,6 +2865,14 @@ Yarip.prototype.showLinkNotification = function(doc, location, contentLocation)
             return;
         }
     }
+}
+Yarip.prototype.setMobile = function(value)
+{
+    this._isMobile = value === true;
+}
+Yarip.prototype.isMobile = function()
+{
+    return this._isMobile;
 }
 
 var wrappedJSObject = new Yarip();

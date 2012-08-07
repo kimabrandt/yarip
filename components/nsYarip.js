@@ -50,7 +50,7 @@ YaripAppStartupService.prototype.observe = function(subject, topic, data)
             Cc["@mozilla.org/observer-service;1"].
                     getService(Ci.nsIObserverService).
                     addObserver(yarip, "quit-application", true);
-            yarip.isMobile = isMobile;
+            yarip.setMobile(isMobile);
             yarip.init();
 //        }
         Cu.import("resource://yarip/observer.jsm", null).wrappedJSObject.init();

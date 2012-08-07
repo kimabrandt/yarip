@@ -13,7 +13,7 @@
 <!ENTITY tab.label.monitor                 "Content monitor">
 
 <!ENTITY caption.label.pageLoad            "Page load">
-<!ENTITY checkbox.label.privateBrowsing    "Private browsing">
+<!ENTITY checkbox.label.privateBrowsing    "Create page">
 <!ENTITY checkbox.label.purgeInnerHTML     "Purge innerHTML">
 <!ENTITY label.value.matchScheme           "Match schemes (regular expression):">
 

@@ -51,7 +51,6 @@ function YaripHandler(doc, stopCallback, statusCallback)
             this.doc.addEventListener("mouseover", this, false);
             this.doc.addEventListener("mouseout", this, false);
             this.doc.addEventListener("mousedown", this, false);
-//            this.doc.addEventListener("keypress", this, false);
             window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                 .getInterface(Components.interfaces.nsIWebNavigation)
                 .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -64,7 +63,6 @@ function YaripHandler(doc, stopCallback, statusCallback)
         var frames = this.doc.defaultView.frames;
         if (frames) {
             for (var i = 0; i < frames.length; i++) {
-//                this.addHandler(new YaripHandler(frames[i].document, function() { this.stopCallback();}));
                 this.addHandler(new YaripHandler(frames[i].document, this.stopCallback, this.statusCallback));
             }
         }
@@ -87,7 +85,6 @@ function YaripHandler(doc, stopCallback, statusCallback)
         this.doc.removeEventListener("mouseover", this, false);
         this.doc.removeEventListener("mouseout", this, false);
         this.doc.removeEventListener("mousedown", this, false);
-        this.doc.removeEventListener("keypress", this, false);
 
         if (this.handlers.length > 0) for (var i = 0; i < this.handlers.length; i++) if (this.handlers[i].stop()) this.changesMade = true;
         this.handlers = [];
@@ -118,7 +115,8 @@ function YaripHandler(doc, stopCallback, statusCallback)
             this.element = event.target;
             if (!this.element.href) this.switchWithAnchorAncestor();
             this.selectStack = [];
-            this.timeout = setTimeout(this.select, 100, this);
+            var ref = this;
+            this.timeout = setTimeout(function() { ref.select(ref); }, 100);
             event.stopPropagation();
             break;
 
@@ -145,7 +143,6 @@ function YaripHandler(doc, stopCallback, statusCallback)
             switch (event.keyCode) {
             case 27: // escape
                 this.stopCallback();
-//                event.stopPropagation();
                 event.preventDefault();
                 break;
 
@@ -221,7 +218,7 @@ function YaripHandler(doc, stopCallback, statusCallback)
 
         if (handler.element.nodeType != 2) {
             if (!noBackup) handler.outline = handler.element.style.outline;
-            if (handler.element.getAttribute("status") === "whitelisted") handler.element.style.outline = "3px solid #990000";
+            if (/^whitelisted\b/.test(handler.element.getAttribute("status"))) handler.element.style.outline = "3px solid #990000";
             else handler.element.style.outline = "3px solid #000099";
         }
 
@@ -254,7 +251,6 @@ function YaripHandler(doc, stopCallback, statusCallback)
         if (!this.xpath) this.xpath = yarip.createXPath(this.element);
         var item = new YaripElementBlacklistItem(this.xpath);
         if (temporarily) {
-//            item.setForce(true);
             this.hasBlacklist = yarip.blacklistElementItem(this.doc, this.pageName, item);
         } else if (yarip.blacklistElementItem(this.doc, this.pageName, item, true, true)) {
             this.hasBlacklist = true; // don't removeAllExceptWhitelisted!

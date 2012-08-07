@@ -55,15 +55,6 @@
     var yaripMonitor = new YaripMonitorDialog();
   ]]></script>
 
-  <window id="messengerWindow">
-    <box id="yarip"
-        getAppcontent="return document;"
-        getBrowser="return 'getBrowser' in window ? getBrowser() : messageContent;"
-        getContextMenuId="return 'mailContext';"
-        getContextMenu="return document.getElementById('mailContext');"
-        getTabContainer="return document.getElementById('tabmail').tabContainer;"/>
-  </window>
-
   <menu id="tasksMenu">
     <menupopup id="taskPopup">
       <menu id="yarip-tools-menu" class="menu-iconic" label="&menu.label.yarip;" accesskey="&accesskey.yarip;" insertbefore="devToolsSeparator">

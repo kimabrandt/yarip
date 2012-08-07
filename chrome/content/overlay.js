@@ -31,11 +31,7 @@ function YaripOverlay()
     this.schemesObserver = null;
     this.privateObserver = null;
     this.recurrenceObserver = null;
-//    this.monitorModifiersObserver = null;
-//    this.monitorKeyCodeObserver = null;
     this.monitorObserver = null;
-//    this.pagesModifiersObserver = null;
-//    this.pagesKeyCodeObserver = null;
     this.pagesObserver = null;
     this.logWhenClosedObserver = null;
 
@@ -257,7 +253,6 @@ function YaripOverlay()
         var obj = {
             item: new YaripScriptItem(xpath,
                 "function (array) {\n" +
-//                "    // Do something useful with the elements in the array!\n" +
                 "    for (var i = 0; i < array.length; i++) {\n" +
                 "        var element = array[i];\n" +
                 "        console.debug(\"Found element:\", element);\n" +
@@ -314,7 +309,6 @@ function YaripOverlay()
         var obj = {
             pageName: pageName,
             pageLocation: location
-//            contentLocation: null
         }
 
         window.openDialog("chrome://yarip/content/createpagedialog.xul", "createpagedialog", "chrome,modal,resizable", obj);
@@ -476,8 +470,8 @@ function YaripOverlay()
 
         if (/^[\x20-\x7e]$/.test(key)) {
             // Updating the key.
-    //        var keyset = document.getElementById("mainKeyset") ? document.getElementById("mainKeyset") : document.getElementById("mailKeys");
-    //        keyset.removeChild(document.getElementById(id));
+//            var keyset = document.getElementById("mainKeyset") ? document.getElementById("mainKeyset") : document.getElementById("mailKeys");
+//            keyset.removeChild(document.getElementById(id));
             var oldKey = document.getElementById(id);
             var keyset = oldKey.parentNode;
             keyset.removeChild(oldKey);
@@ -525,6 +519,8 @@ function YaripOverlay()
 
     this.handleEvent = function(event)
     {
+        var ref = this;
+
         switch(event.type) {
         case "load":
             yaripMonitor.load();
@@ -615,12 +611,27 @@ function YaripOverlay()
                 function() { yaripOverlay.updateLogWhenClosed(); }
             );
 
-            var y = document.getElementById("yarip");
-            this.getAppcontent = function() new Function(y.getAttribute("getAppcontent")).call(window);
-            this.getBrowser = function() new Function(y.getAttribute("getBrowser")).call(window);
-            this.getContextMenuId = function() new Function(y.getAttribute("getContextMenuId")).call(window);
-            this.getContextMenu = function() new Function(y.getAttribute("getContextMenu")).call(window);
-            this.getTabContainer = function() new Function(y.getAttribute("getTabContainer")).call(window);
+            var appInfo = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
+            switch (appInfo.ID) {
+            case "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}": // Firefox
+                this.getAppcontent = function() { return document.getElementById("appcontent"); };
+                this.getBrowser = function() { return gBrowser; };
+                this.getContextMenuId = function() { return "contentAreaContextMenu"; };
+                this.getContextMenu = function() { return document.getElementById("contentAreaContextMenu"); };
+                this.getTabContainer = function() { return gBrowser.tabContainer; };
+                break;
+            case "{3550f703-e582-4d05-9a08-453d09bdfdc6}": // Thunderbird
+                this.getAppcontent = function() { return document; };
+                this.getBrowser = function() { return "getBrowser" in window ? getBrowser() : messageContent; };
+                this.getContextMenuId = function() { return "mailContext"; };
+                this.getContextMenu = function() { return document.getElementById("mailContext"); };
+                this.getTabContainer = function() { return document.getElementById("tabmail").tabContainer; };
+                break;
+//            case "{a23983c0-fd0e-11dc-95ff-0800200c9a66}": // Mobile
+//                break;
+//            case "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}": // SeaMonkey
+//                break;
+            }
 
             this.appcontent = this.getAppcontent();
             this.gBrowser = this.getBrowser();
@@ -642,7 +653,6 @@ function YaripOverlay()
             if (this.contextMenu) this.contextMenu.addEventListener("popupshowing", this, false);
             if (this.yaripMonitorMenupopup) this.yaripMonitorMenupopup.addEventListener("popupshowing", yaripMonitor, false);
             if (this.tabContainer) this.tabContainer.addEventListener("select", this, false);
-//            if (this.tabContainer) this.tabContainer.addEventListener("TabSelect", this, false);
             window.removeEventListener("load", this, false);
             break;
 
@@ -665,7 +675,6 @@ function YaripOverlay()
             if (this.appcontent) this.appcontent.removeEventListener("DOMContentLoaded", this, false);
             if (this.contextMenu) this.contextMenu.removeEventListener("popupshowing", this, false);
             if (this.tabContainer) this.tabContainer.removeEventListener("select", this, false);
-//            if (this.tabContainer) this.tabContainer.removeEventListener("TabSelect", this, false);
             window.removeEventListener("unload", this, false);
             break;
 
@@ -678,34 +687,35 @@ function YaripOverlay()
             if (!yarip.schemesRegExp.test(doc.location.protocol.replace(/:$/, ""))) break;
 
             this.domContentLoaded(doc, this);
-            doc.body.addEventListener("DOMNodeInserted", this, false);
-//            doc.body.addEventListener("DOMAttrModified", this, false);
+
+            doc.defaultView.yaripMutationObserver = new MutationObserver(function(mutations) {
+                if (!yarip.enabled) return;
+                if (doc.defaultView.yaripMutationObserverTimeout) return;
+
+                var found = false;
+                mutations.forEach(function(mutation) {
+                    for (var i = 0, n = mutation.addedNodes.length; i < n; i++) {
+                        var node = mutation.addedNodes[i];
+                        if (!/^(firebug|yarip)/.test(node.getAttribute("class"))) {
+                            found = true;
+                            break;
+                        }
+                    }
+                });
+                if (!found) return;
+
+                doc.defaultView.yaripMutationObserverTimeout = setTimeout(function() { ref.domContentLoaded(doc, ref, true); }, 1000);
+            });
+            doc.defaultView.yaripMutationObserver.observe(doc.body, {
+                subtree: true,
+                attributes: false,
+                childList: true,
+                characterData: false
+            });
+//            doc.defaultView.yaripMutationObserver.disconnect();
+
             doc.body.setAttribute("status", "whitelisted");
             break;
-
-        case "DOMNodeInserted":
-            if (!yarip.enabled) break;
-
-            var element = event.originalTarget;
-            if ("getAttribute" in element && /^(firebug|yarip)/.test(element.getAttribute("class"))) break;
-
-            var doc = element.ownerDocument;
-            if (!doc || !doc.body || !doc.defaultView) break;
-
-            doc.body.removeEventListener("DOMNodeInserted", this, false);
-            setTimeout(this.domContentLoaded, 1000, doc, this, true);
-            break;
-
-//        case "DOMAttrModified":
-//            var element = event.originalTarget;
-//            if (!/\b(whitelisted|blacklisted|placeholder)\b/.test(element.getAttribute("status"))) break;
-
-//dump("event.originalTarget="+element+"\n");
-//dump("event.attrChange="+event.attrChange+"\n");
-//            //  MODIFICATION = 1;
-//            //  ADDITION = 2;
-//            //  REMOVAL = 3;
-//            break;
 
         case "DOMMenuItemActive":
             var menu = event.target;
@@ -779,8 +789,7 @@ function YaripOverlay()
 
                     var menuitem = document.createElement("menuitem");
                     menuitem.setAttribute("label", this.stringbundle.getFormattedString("undo-" + obj.type, [obj.text]));
-                    menuitem.obj = obj;
-                    menuitem.setAttribute("oncommand", "yaripOverlay.undo(this.obj);");
+                    menuitem.addEventListener("command", function() { ref.undo(obj); }, false);
                     menuitem.setAttribute("crop", "center");
                     undoMenu.insertBefore(menuitem, undoMenu.firstChild);
                     found = true;
@@ -797,11 +806,6 @@ function YaripOverlay()
                 this.setYaripStatus(this.gBrowser.contentWindow.document);
             }
             break;
-
-//        case "TabSelect":
-//            var browser = gBrowser.selectedBrowser;
-//            yaripMonitor.tabSelect(browser);
-//            break;
 
         case "keypress":
             if (event.keyCode === KeyEvent.DOM_VK_ESCAPE)
@@ -834,24 +838,21 @@ function YaripOverlay()
 
     this.domContentLoaded = function(doc, overlay, noIncrement)
     {
-        if (!doc) return;
+        if (!doc || !doc.defaultView) return;
 
-        try
-        {
-            if (!yarip.enabled) return;
-//            if (!doc.body || !doc.location) return;
-//            if (!/^https?:$/.test(doc.location.protocol)) return;
-//            if (!/^(text\/html|application\/xhtml\+xml)$/.test(doc.contentType)) return;
+        /*if (doc.defaultView)*/ doc.defaultView.yaripMutationObserverTimeout = null;
 
-            if (overlay.loader.load(doc, !noIncrement)) {
-                overlay.setYaripStatus(doc, "found");
-                return true;
-            } else {
-                overlay.setYaripStatus(doc);
-                return false;
-            }
-        } finally {
-            doc.body.addEventListener("DOMNodeInserted", overlay, false);
+        if (!yarip.enabled) return;
+//        if (!doc.body || !doc.location) return;
+//        if (!/^https?:$/.test(doc.location.protocol)) return;
+//        if (!/^(text\/html|application\/xhtml\+xml)$/.test(doc.contentType)) return;
+
+        if (overlay.loader.load(doc, !noIncrement)) {
+            overlay.setYaripStatus(doc, "found");
+            return true;
+        } else {
+            overlay.setYaripStatus(doc);
+            return false;
         }
     }
 
@@ -864,21 +865,21 @@ function YaripOverlay()
         menu.addEventListener("DOMMenuItemInactive", this, false);
         var menupopup = document.createElement("menupopup");
 
+        var ref = this;
+
 //        if (!isFrame)
 //        {
             // WHITELIST ELEMENT
             var weMenuitem = document.createElement("menuitem");
-            weMenuitem.node = node;
             weMenuitem.setAttribute("label", this.stringbundle.getString("menuitemElementWhitelist"));
-            weMenuitem.setAttribute("oncommand", "yaripOverlay.whitelistElement(this.node.ownerDocument, this.node);");
+            weMenuitem.addEventListener("command", function() { ref.whitelistElement(node.ownerDocument, node); }, false);
             weMenuitem.setAttribute("class", "whitelist");
             menupopup.appendChild(weMenuitem);
 
             // BLACKLIST ELEMENT
             var beMenuitem = document.createElement("menuitem");
-            beMenuitem.node = node;
             beMenuitem.setAttribute("label", this.stringbundle.getString("menuitemElementBlacklist"));
-            beMenuitem.setAttribute("oncommand", "yaripOverlay.blacklistElement(this.node.ownerDocument, this.node);");
+            beMenuitem.addEventListener("command", function() { ref.blacklistElement(node.ownerDocument, node); }, false);
             beMenuitem.setAttribute("class", "blacklist");
             menupopup.appendChild(beMenuitem);
 //        }
@@ -906,11 +907,9 @@ function YaripOverlay()
                     }
 
                     var baMenuitem = document.createElement("menuitem");
-                    baMenuitem.node = node;
                     baMenuitem.setAttribute("label", attribute.name.toLowerCase());
-                    baMenuitem.attribute = attribute;
-                    if (isFrame) baMenuitem.setAttribute("oncommand", "yaripOverlay.blacklistElement(this.node.ownerDocument.defaultView.frameElement.ownerDocument, this.attribute);");
-                    else baMenuitem.setAttribute("oncommand", "yaripOverlay.blacklistElement(this.node.ownerDocument, this.attribute);");
+                    if (isFrame) baMenuitem.addEventListener("command", function() { ref.blacklistElement(node.ownerDocument.defaultView.frameElement.ownerDocument, attribute); }, false);
+                    else baMenuitem.addEventListener("command", function() { ref.blacklistElement(node.ownerDocument, attribute); }, false);
                     baMenupopup.appendChild(baMenuitem);
                     found = true;
                 }
@@ -926,10 +925,9 @@ function YaripOverlay()
         var seMenu = document.createElement("menu");
         seMenu.setAttribute("label", this.stringbundle.getString("menuitemStyleElement"));
         var seMenuitem = document.createElement("menuitem");
-        seMenuitem.node = node;
         seMenuitem.setAttribute("label", this.stringbundle.getString("menuitemUserDefined"));
-        if (isFrame) seMenuitem.setAttribute("oncommand", "yaripOverlay.styleElement(this.node.ownerDocument.defaultView.frameElement.ownerDocument, this.node);");
-        else seMenuitem.setAttribute("oncommand", "yaripOverlay.styleElement(this.node.ownerDocument, this.node);");
+        if (isFrame) seMenuitem.addEventListener("command", function() { ref.styleElement(node.ownerDocument.defaultView.frameElement.ownerDocument, node); }, false);
+        else seMenuitem.addEventListener("command", function() { ref.styleElement(node.ownerDocument, node); }, false);
         var seMenupopup = document.createElement("menupopup");
         seMenupopup.appendChild(seMenuitem);
         if (node.hasAttributes()) {
@@ -946,11 +944,9 @@ function YaripOverlay()
                 }
 
                 var seMenuitem = document.createElement("menuitem");
-                seMenuitem.node = node;
                 seMenuitem.setAttribute("label", attribute.name.toLowerCase());
-                seMenuitem.attribute = attribute;
-                if (isFrame) seMenuitem.setAttribute("oncommand", "yaripOverlay.styleElement(this.node.ownerDocument.defaultView.frameElement.ownerDocument, this.node, '" + attribute.name.toLowerCase() + "');");
-                else seMenuitem.setAttribute("oncommand", "yaripOverlay.styleElement(this.node.ownerDocument, this.node, '" + attribute.name.toLowerCase() + "');");
+                if (isFrame) seMenuitem.addEventListener("command", function() { ref.styleElement(node.ownerDocument.defaultView.frameElement.ownerDocument, node, attribute.name.toLowerCase()); }, false);
+                else seMenuitem.addEventListener("command", function() { ref.styleElement(node.ownerDocument, node, attribute.name.toLowerCase()); }, false);
                 seMenupopup.insertBefore(seMenuitem, seMenuseparator);
             }
         }
@@ -959,36 +955,31 @@ function YaripOverlay()
 
         // SCRIPT ELEMENT
         var sceMenuitem = document.createElement("menuitem");
-        sceMenuitem.node = node;
         sceMenuitem.setAttribute("label", this.stringbundle.getString("menuitemScriptElement"));
-        sceMenuitem.setAttribute("oncommand", "yaripOverlay.scriptElement(this.node.ownerDocument, this.node);");
-//        sceMenuitem.setAttribute("class", "script");
+        sceMenuitem.addEventListener("command", function() { ref.scriptElement(node.ownerDocument, node); }, false);
         menupopup.appendChild(sceMenuitem);
 
 //        if (!isFrame)
 //        {
             // TEMPORARILY WHITELIST
             var wtMenuitem = document.createElement("menuitem");
-            wtMenuitem.node = node;
             wtMenuitem.setAttribute("label", this.stringbundle.getString("menuitemKeepTemporarily"));
-            wtMenuitem.setAttribute("oncommand", "yaripOverlay.whitelistTemporarily(this.node.ownerDocument, this.node);");
+            wtMenuitem.addEventListener("command", function() { ref.whitelistTemporarily(node.ownerDocument, node); }, false);
             wtMenuitem.setAttribute("class", "whitelist temporary");
             menupopup.appendChild(wtMenuitem);
 
             // TEMPORARILY BLACKLIST
             var rtMenuitem = document.createElement("menuitem");
-            rtMenuitem.node = node;
             rtMenuitem.setAttribute("label", this.stringbundle.getString("menuitemRemoveTemporarily"));
-            rtMenuitem.setAttribute("oncommand", "yaripOverlay.removeTemporarily(this.node.ownerDocument, this.node);");
+            rtMenuitem.addEventListener("command", function() { ref.removeTemporarily(node.ownerDocument, node); }, false);
             rtMenuitem.setAttribute("class", "blacklist temporary");
             menupopup.appendChild(rtMenuitem);
 //        }
 
         // COPY XPATH
         var cxMenuitem = document.createElement("menuitem");
-        cxMenuitem.node = node;
         cxMenuitem.setAttribute("label", this.stringbundle.getString("menuitemCopyXPath"));
-        cxMenuitem.setAttribute("oncommand", "yaripOverlay.copyXPath(this.node);");
+        cxMenuitem.addEventListener("command", function() { ref.copyXPath(node); }, false);
         cxMenuitem.setAttribute("class", "copyXPath");
         menupopup.appendChild(cxMenuitem);
 
@@ -1031,7 +1022,8 @@ function YaripOverlay()
     this.hideStatusAfterTimeout = function()
     {
         clearTimeout(this.statusTimeout);
-        this.statusTimeout = setTimeout(this.hideStatus, 100);
+        var ref = this;
+        this.statusTimeout = setTimeout(function() { ref.hideStatus(); }, 100);
     }
 
     this.setYaripStatus = function(doc, status)

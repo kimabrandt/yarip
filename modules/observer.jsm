@@ -122,14 +122,7 @@ YaripObserver.prototype.modifyRequest = function(channel)
                     try {
                         try { headerValue = channel.getRequestHeader(item.getHeaderName()) } catch (e) {}
                         if (/^\s*function\b/.test(item.getScript())) {
-                            var sandbox = new Cu.Sandbox(defaultView ? defaultView : asciiHref);
-//                            var sandbox = new Cu.Sandbox(defaultView);
-//                            var safeView = new XPCNativeWrapper(defaultView);
-//                            var sandbox = Cu.Sandbox(safeView);
-//                            sandbox.window = safeView;
-//                            if (safeView) sandbox.document = safeView.document;
-//                            sandbox.XPathResult = Ci.nsIDOMXPathResult;
-//                            if (safeView) sandbox.__proto__ = safeView;
+                            var sandbox = new Cu.Sandbox(defaultView ? defaultView : location.asciiHref);
                             if (typeof headerValue === "string") {
                                 sandbox.headerValue = headerValue;
                                 headerValue = Cu.evalInSandbox("(" + item.getScript() + ")(headerValue);", sandbox);
@@ -141,7 +134,7 @@ YaripObserver.prototype.modifyRequest = function(channel)
                         }
 
                         if (typeof headerValue != "string") {
-                            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_HEADER_NOT_A_STRING3", [pageName, item.getHeaderName(), headerValue], 3)));
+                            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_HEADER_NOT_A_STRING2", [pageName, item.getHeaderName()], 2)));
                             continue;
                         }
 
@@ -240,7 +233,8 @@ YaripObserver.prototype.examineResponse = function(channel)
 
         // TODO Make this an user-preference!
         if (isPage && /^(?:text\/.*|application\/(?:javascript|json|(?:\w+\+)?\bxml))$/.test(channel.contentType)) {
-            new YaripResponseStreamListener(channel, addressObj);
+//            new YaripResponseStreamListener(channel, addressObj);
+            new YaripResponseStreamListener(addressObj, location, defaultView, channel);
         }
 
         /*
@@ -265,13 +259,6 @@ YaripObserver.prototype.examineResponse = function(channel)
                         try {
                             if (/^\s*function\b/.test(item.getScript())) {
                                 var sandbox = new Cu.Sandbox(defaultView ? defaultView : location.asciiHref);
-//                                var sandbox = new Cu.Sandbox(defaultView);
-//                                var safeView = new XPCNativeWrapper(defaultView);
-//                                var sandbox = Cu.Sandbox(safeView);
-//                                sandbox.window = safeView;
-//                                if (safeView) sandbox.document = safeView.document;
-//                                sandbox.XPathResult = Ci.nsIDOMXPathResult;
-//                                if (safeView) sandbox.__proto__ = safeView;
                                 if (typeof headerValue === "string") {
                                     sandbox.headerValue = headerValue;
                                     headerValue = Cu.evalInSandbox("(" + item.getScript() + ")(headerValue);", sandbox);
@@ -283,7 +270,7 @@ YaripObserver.prototype.examineResponse = function(channel)
                             }
 
                             if (typeof headerValue != "string") {
-                                yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_HEADER_NOT_A_STRING3", [pageName, item.getHeaderName(), headerValue], 3)));
+                                yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_HEADER_NOT_A_STRING2", [pageName, item.getHeaderName()], 2)));
                                 continue;
                             }
 
@@ -328,14 +315,7 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentL
                 try
                 {
                     if (/^\s*function\b/.test(item.getScript())) {
-                        var sandbox = new Cu.Sandbox(defaultView ? defaultView : asciiHref);
-//                        var sandbox = new Cu.Sandbox(defaultView);
-//                        var safeView = new XPCNativeWrapper(defaultView);
-//                        var sandbox = Cu.Sandbox(safeView);
-//                        sandbox.window = safeView;
-//                        if (safeView) sandbox.document = safeView.document;
-//                        sandbox.XPathResult = Ci.nsIDOMXPathResult;
-//                        if (safeView) sandbox.__proto__ = safeView;
+                        var sandbox = new Cu.Sandbox(defaultView ? defaultView : location.asciiHref);
                         sandbox.asciiHref = asciiHref;
                         newSpec = Cu.evalInSandbox("(" + item.getScript() + ")(asciiHref);", sandbox);
                     } else {
@@ -343,7 +323,7 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentL
                     }
 
                     if (typeof newSpec != "string") {
-                        yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_REDIRECT_NOT_A_STRING4", [pageName, item.getRegExp(), asciiHref, newSpec], 4)));
+                        yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_REDIRECT_NOT_A_STRING3", [pageName, item.getRegExp(), asciiHref], 3)));
                         continue;
                     }
 

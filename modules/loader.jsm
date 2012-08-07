@@ -48,7 +48,7 @@ YaripLoader.prototype.load = function(doc, increment)
     this.doScripting(doc, addressObj, increment);
 
     if (addressObj.elementExclusive || this.hasWhitelist && !this.hasBlacklist) {
-        yarip.removeAllExceptWhitelisted(doc, pageName);
+        if (increment) yarip.removeAllExceptWhitelisted(doc, pageName);
     }
 
     try {
@@ -276,7 +276,7 @@ YaripLoader.prototype.injectCascadingStyleSheet = function(doc, id, css, parent)
     style.type = "text/css";
     style.setAttribute("id", id);
     style.setAttribute("status", "whitelisted");
-    style.innerHTML = css;
+    style.appendChild(doc.createTextNode(css));
     if (parent) {
         parent.appendChild(style);
     } else {
@@ -298,7 +298,7 @@ YaripLoader.prototype.injectJavaScript = function(doc, id, js, parent, reinject)
     script.type = "text/javascript";
     script.setAttribute("id", id);
     script.setAttribute("status", "whitelisted");
-    script.innerHTML = js;
+    script.appendChild(doc.createTextNode(js));
     if (parent) {
         parent.appendChild(script);
     } else {

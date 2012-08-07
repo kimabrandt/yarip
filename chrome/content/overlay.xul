@@ -55,15 +55,6 @@
     var yaripMonitor = new YaripMonitorDialog();
   ]]></script>
 
-  <window id="main-window">
-    <box id="yarip"
-        getAppcontent="return document.getElementById('appcontent');"
-        getBrowser="return gBrowser;"
-        getContextMenuId="return 'contentAreaContextMenu';"
-        getContextMenu="return document.getElementById('contentAreaContextMenu');"
-        getTabContainer="return gBrowser.tabContainer;"/>
-  </window>
-
   <menu id="tools-menu">
     <menupopup id="menu_ToolsPopup">
       <menu id="yarip-tools-menu" class="menu-iconic" label="&menu.label.yarip;" accesskey="&accesskey.yarip;" insertbefore="devToolsSeparator">

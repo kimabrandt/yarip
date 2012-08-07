@@ -81,7 +81,9 @@ YaripRedirectStreamListener.prototype.onDataAvailable = function(request, contex
     this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
 }
 
-function YaripResponseStreamListener(channel, addressObj)
+
+//function YaripResponseStreamListener(channel, addressObj)
+function YaripResponseStreamListener(addressObj, location, defaultView, channel)
 {
     if (!(channel instanceof Ci.nsITraceableChannel)) return;
 
@@ -89,6 +91,8 @@ function YaripResponseStreamListener(channel, addressObj)
 
     this.listener = channel.setNewListener(this);
     this.addressObj = addressObj;
+    this.location = location;
+    this.defaultView = defaultView;
     this.receivedData = [];
 }
 YaripResponseStreamListener.prototype.sb = SB.createBundle("chrome://yarip/locale/stream.properties");
@@ -140,14 +144,24 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
 
                             var isFun = false;
                             if (/^\s*function\b/.test(script)) {
-                                var sandbox = new Cu.Sandbox(request.URI.asciiSpec);
+                                var sandbox = new Cu.Sandbox(this.defaultView ? this.defaultView : this.location.asciiHref);
                                 sandbox.matches = matches;
                                 Cu.evalInSandbox("(" + item.getScript() + ")(matches);", sandbox);
                                 isFun = true;
                             }
 
+//                            if (!(matches instanceof Array)) {
+//                                yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_MATCHES_NOT_INSTANCEOF_ARRAY2", [page.getName(), item.getRegExpObj()], 2)));
+//                                continue;
+//                            }
+
                             var index = 0;
                             for (var j = 0; j < matches.length; j++) {
+                                if (typeof matches[j] != "string") {
+                                    yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_VALUE_NOT_A_STRING3", [page.getName(), item.getRegExpObj(), j], 3)));
+                                    continue;
+                                }
+
                                 var searchIndex = responseSource.substring(index).search(item.getFirstRegExpObj());
                                 if (searchIndex > 0) index += searchIndex;
                                 var respBeg = responseSource.substring(0, index);
