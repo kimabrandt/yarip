@@ -129,7 +129,7 @@
                         <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
                         <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
                         <spacer flex="1"/>
-                        <checkbox id="elementWhitelist-exclusive" label="&label.value.exclusive;" checked="false" tooltiptext="&label.tooltiptext.elementExclusive;" command="cmd_toggleExclusive"/>
+                        <checkbox id="elementWhitelist-exclusive" label="&label.value.exclusive;" checked="false" tooltiptext="&label.tooltiptext.elementExclusive;" command="cmd_toggleExclusive" accesskey="&button.accesskey.exclusive;"/>
                       </hbox>
                     </vbox>
                   </tabpanel>
@@ -247,6 +247,8 @@
                         <treecols>
                           <treecol id="contentWhitelist-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="contentWhitelist-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="contentWhitelist-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="contentWhitelist-tree-force" label="&treecol.label.force;" type="checkbox" editable="true" hidden="true" persist="width hidden" tooltiptext="&treecol.tooltiptext.forceWhitelist;"/>
@@ -262,7 +264,7 @@
                         <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
                         <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
                         <spacer flex="1"/>
-                        <checkbox id="contentWhitelist-exclusive" label="&label.value.exclusive;" checked="false" tooltiptext="&label.tooltiptext.exclusive;" command="cmd_toggleExclusive"/>
+                        <checkbox id="contentWhitelist-exclusive" label="&label.value.exclusive;" checked="false" tooltiptext="&label.tooltiptext.exclusive;" command="cmd_toggleExclusive" accesskey="&button.accesskey.exclusive;"/>
                       </hbox>
                     </vbox>
                   </tabpanel>
@@ -271,6 +273,8 @@
                       <tree id="contentBlacklist-tree" editable="true" flex="1">
                         <treecols>
                           <treecol id="contentBlacklist-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="contentBlacklist-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="contentBlacklist-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
@@ -306,6 +310,8 @@
                                 <treecols>
                                   <treecol id="contentRequestHeaderList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                                   <splitter class="tree-splitter" resizeafter="farthest"/>
+                                  <treecol id="contentRequestHeaderList-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>
+                                  <splitter class="tree-splitter" resizeafter="farthest"/>
                                   <treecol id="contentRequestHeaderList-tree-headerName" label="&treecol.label.headerName;" editable="true" persist="width" primary="true" flex="1"/>
                                   <splitter class="tree-splitter" resizeafter="farthest"/>
                                   <treecol id="contentRequestHeaderList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
@@ -333,6 +339,8 @@
                               <tree id="contentResponseHeaderList-tree" editable="true" persist="height" flex="1">
                                 <treecols>
                                   <treecol id="contentResponseHeaderList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
+                                  <splitter class="tree-splitter" resizeafter="farthest"/>
+                                  <treecol id="contentResponseHeaderList-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>
                                   <splitter class="tree-splitter" resizeafter="farthest"/>
                                   <treecol id="contentResponseHeaderList-tree-headerName" label="&treecol.label.headerName;" editable="true" persist="width" primary="true" flex="1"/>
                                   <splitter class="tree-splitter" resizeafter="farthest"/>
@@ -366,6 +374,8 @@
                         <treecols>
                           <treecol id="contentRedirectList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="contentRedirectList-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="contentRedirectList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="contentRedirectList-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
@@ -389,6 +399,8 @@
 <!--                      <tree id="contentStreamList-tree" editable="true" persist="height" flex="1">-->
 <!--                        <treecols>-->
 <!--                          <treecol id="contentStreamList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>-->
+<!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
+<!--                          <treecol id="contentStreamList-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>-->
 <!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
 <!--                          <treecol id="contentStreamList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>-->
 <!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
@@ -499,6 +511,8 @@
                                 <treecols>
                                   <treecol id="pageRequestHeaderList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                                   <splitter class="tree-splitter" resizeafter="farthest"/>
+                                  <treecol id="pageRequestHeaderList-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>
+                                  <splitter class="tree-splitter" resizeafter="farthest"/>
                                   <treecol id="pageRequestHeaderList-tree-headerName" label="&treecol.label.headerName;" editable="true" persist="width" primary="true" flex="1"/>
                                   <splitter class="tree-splitter" resizeafter="farthest"/>
                                   <treecol id="pageRequestHeaderList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
@@ -526,6 +540,8 @@
                               <tree id="pageResponseHeaderList-tree" editable="true" persist="height" flex="1">
                                 <treecols>
                                   <treecol id="pageResponseHeaderList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
+                                  <splitter class="tree-splitter" resizeafter="farthest"/>
+                                  <treecol id="pageResponseHeaderList-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>
                                   <splitter class="tree-splitter" resizeafter="farthest"/>
                                   <treecol id="pageResponseHeaderList-tree-headerName" label="&treecol.label.headerName;" editable="true" persist="width" primary="true" flex="1"/>
                                   <splitter class="tree-splitter" resizeafter="farthest"/>
@@ -559,8 +575,8 @@
                         <treecols>
                           <treecol id="pageRedirectList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
-<!--                          <treecol id="pageRedirectList-tree-newsubstr" label="&treecol.label.newsubstr;" editable="true" persist="width" primary="true" flex="1"/>-->
-<!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
+                          <treecol id="pageRedirectList-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="pageRedirectList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="pageRedirectList-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
@@ -584,6 +600,8 @@
                       <tree id="pageStreamList-tree" editable="true" persist="height" flex="1">
                         <treecols>
                           <treecol id="pageStreamList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="pageStreamList-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="pageStreamList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>

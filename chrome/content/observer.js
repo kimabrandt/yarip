@@ -45,9 +45,10 @@ YaripPreferenceObserver.prototype.register = function(prefs, callback)
 }
 YaripPreferenceObserver.prototype.unregister = function()
 {
-    var observable = null;
-    while (observable = this.observables.pop()) {
-        if (observable) observable.removeObserver("", this);
+    var observable = this.observables.pop();
+    while (observable) {
+        observable.removeObserver("", this);
+        observable = this.observables.pop()
     }
 }
 YaripPreferenceObserver.prototype.observe = function(subject, topic, data)

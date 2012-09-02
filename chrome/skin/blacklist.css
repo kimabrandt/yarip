@@ -1,26 +1,28 @@
-html > body *[status~="blacklisted"]
-{
-  display: none !important;
+@-moz-document url-prefix(http://), url-prefix(https://) {
+
+/* Hiding an element. */
+html > body [status~="blacklisted"] {
+display: none !important;
 }
 
-html > body *[status~="highlighted"]
-{
-  outline: 3px solid #000099 !important;
+/* Highlighting an element. */
+html > body [status~="highlighted"] {
+outline: 3px solid #000099 !important;
 }
 
-/*html > body *[status~="placeholder"]*/
-html > body *[status="placeholder"]
-/*html > body *:[status~="placeholder"]:not([status~="whitelisted"]):not([status~="blacklisted"]),*/
-{
-  -moz-binding: url("chrome://yarip/content/binding/placeholder.xbl#replace");
+/* Replacing an element with a placeholder. */
+html > body [status~="placeholder"]:not([status~="blacklisted"]) {
+-moz-binding: url("chrome://yarip/content/binding/placeholder.xbl#replace");
 }
 
-*[status~="placeholder"][status~="blacklisted"] + div[class~="placeholder"][status~="whitelisted"]
-{
-  display: none;
+/* Hiding a placeholder when its element is visible. */
+html > body [status~="whitelisted"] + div[class~="placeholder"][status~="whitelisted"] {
+display: none !important;
 }
 
-html > body *[status="blacklisted"] + div[class~="placeholder"][status~="whitelisted"]
-{
-  display: none !important;
+/* Hiding a placeholder when its element is blacklisted. */
+html > body [status~="blacklisted"]:not([status~="placeholder"]) + div[class~="placeholder"][status~="whitelisted"] {
+display: none !important;
+}
+
 }

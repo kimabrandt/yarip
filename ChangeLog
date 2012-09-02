@@ -1,3 +1,45 @@
+2012-08-30  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/yarip.jsm, chrome/skin/blacklist.css, chrome/content/binding/placeholder.xbl:
+    Made some changes to the `placeholder'-feature.
+
+    * chrome/content/{messenger,overlay}.xul: Changed the keyboard-shortcut
+    for opening the page-manager (Ctrl + Alt + m) due to Firefox using the
+    previous one.
+
+    * modules/{yarip,page}.jsm (*Scheme): Made some changes to allow scheme-
+    only page-names. Needs more testing.
+
+    * modules/yarip.jsm (UUID): Using UUIDs for page-IDs instead of a
+    timestamp.
+
+    * chrome/content/pagedialog.js (removePages): Removing extensions before
+    removing a page.
+
+    * chrome/content/pagedialog.xul, modules/item.jsm (flags): Allowing to
+    set regular-expresion flags (e.g. `g', `i' and `m').
+
+    * modules/yarip.jsm (getPageRegExpObj),
+    modules/observer.jsm (shouldRedirect),
+    modules/stream.jsm (YaripResponseStreamListener.onStopRequest):
+    Using `function (match, p1, p2, ..., offset, string)'-style instead of
+    the deprecated `function (url)'-style in combination with regular-
+    expression replacement.
+
+    * modules/list.jsm (removeEntry): Not removing entries anymore when
+    changing items.
+
+    * modules/replace.jsm (loadFlags): Using a flag to recognize content
+    which already has been processed.
+
+    * modules/stream.jsm (YaripResponseStreamListener.onStopRequest):
+    Modified/improved the matching for HTML, HEAD and BODY.
+
+    * modules/uri.jsm (TLD): Added some changes.
+
+    * modules/yarip.jsm (getRecursiveAddressArray): Using rules from all
+    pages matching an given page-address (e.g. FQDN, SLD aso.).
+
 2012-08-06  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * : Made some changes to conform with the Mozilla addon-validation.

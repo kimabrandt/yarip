@@ -44,11 +44,14 @@ const yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
 Cu.import("resource://yarip/constants.jsm");
 Cu.import("resource://yarip/object.jsm");
 
+const stringBundle = SB.createBundle("chrome://yarip/locale/item.properties");
+
 function YaripItem(xpath, style, script, priority, force, placeholder, created, lastFound, found, notFound, ignored)
 {
     this.xpath = "";
     this.regExp = "";
-    this.regexpobj = null;
+    this.flags = "i";
+    this.regExpObj = null;
     this.style = null;
     this.script = "";
     this.priority = 0;
@@ -74,7 +77,6 @@ function YaripItem(xpath, style, script, priority, force, placeholder, created, 
 }
 YaripItem.prototype = new YaripObject;
 YaripItem.prototype.constructor = YaripItem;
-YaripItem.prototype.sb = SB.createBundle("chrome://yarip/locale/item.properties");
 YaripItem.prototype.getId = function()
 {
     return this.getXPath();
@@ -103,17 +105,27 @@ YaripItem.prototype.getRegExp = function()
 {
     return this.regExp;
 }
+YaripItem.prototype.setFlags = function(value)
+{
+    if (!value || !/^[gimy]*$/.test(value)) return;
+    this.flags = value;
+    this.regExpObj = null;
+}
+YaripItem.prototype.getFlags = function()
+{
+    return this.flags;
+}
 YaripItem.prototype.getRegExpObj = function()
 {
-    if (!this.regexpobj) {
+    if (!this.regExpObj) {
         try {
-            this.regexpobj = new RegExp(this.regExp);
+            this.regExpObj = new RegExp(this.regExp, this.flags);
         } catch (e) {
-            this.regexpobj = null;
-            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_CREATE_REGEXP1", [this.regExp], 1)));
+            this.regExpObj = null;
+            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_CREATE_REGEXP1", [this.regExp], 1)));
         }
     }
-    return this.regexpobj;
+    return this.regExpObj;
 }
 YaripItem.prototype.setStyle = function(value)
 {
@@ -149,7 +161,7 @@ YaripItem.prototype.getPriority = function()
 YaripItem.prototype.setForce = function(value)
 {
     this.force = "" + value != "false";
-    if (!this.force) this.style = null;
+    if (!this.force && !this.placeholder) this.style = null;
 }
 YaripItem.prototype.getForce = function()
 {
@@ -158,6 +170,7 @@ YaripItem.prototype.getForce = function()
 YaripItem.prototype.setPlaceholder = function(value)
 {
     this.placeholder = "" + value == "true";
+    if (!this.force && !this.placeholder) this.style = null;
 }
 YaripItem.prototype.getPlaceholder = function()
 {
@@ -301,6 +314,7 @@ YaripItem.prototype.generateXml = function()
 YaripItem.prototype.createStyle = function(force)
 {
     if (this.force) {
+//    if (this.force || this.placeholder) {
 //        if ((force || !this.style) && /^\/?(\/([a-z][\w]*|\*)(\[@[a-z][\w]*='[^']*'\])*)+$/i.test(this.xpath)) {
         if ((force || !this.style) && /^\/?(\/([a-z]\w*|\*)(\[(@[a-z]\w*='[^']*'|\d+)\])*)+$/i.test(this.xpath)) {
 //            this.style = this.xpath.replace(/^\/+/, "").replace(/(([a-z][\w]*|\*)(\[@[a-z][\w]*='[^']*'\])*)\//gi, "$1 > ").replace(/\[@/g, "\[");
@@ -316,10 +330,19 @@ YaripItem.prototype.createStyle = function(force)
         this.style = null;
     }
 }
-YaripItem.prototype.generateCSS = function()
+//YaripItem.prototype.generateCSS = function()
+//{
+////    if (this.force && this.style) {
+//    if (this.force && this.style && !this.placeholder) {
+//        return this.style + ",\n";
+//    } else {
+//        return "";
+//    }
+//}
+YaripItem.prototype.generateCSS = function(suffix)
 {
     if (this.force && this.style) {
-        return this.style + ",\n";
+        return this.style + (suffix || "") + ",\n";
     } else {
         return "";
     }
@@ -408,10 +431,11 @@ function YaripElementBlacklistItem(xpath, style, priority, force, placeholder, c
     this.notFound = 0;
     this.ignored = 0;
 
-    this.setXPath(xpath, true); // no style creation
+    this.setXPath(xpath, true); // don't create style
     this.setStyle(style);
     this.setPriority(priority);
     this.setForce(force);
+//    this.setPlaceholder(placeholder, true);
     this.setPlaceholder(placeholder);
     this.setCreated(created ? created : Date.now());
     this.setLastFound(lastFound);
@@ -419,16 +443,26 @@ function YaripElementBlacklistItem(xpath, style, priority, force, placeholder, c
     this.setNotFound(notFound);
     this.setIgnored(ignored);
 
-    this.createStyle(); // create style if null
+    this.createStyle(); // create style if non-existent
 }
 YaripElementBlacklistItem.prototype = new YaripItem;
 YaripElementBlacklistItem.prototype.constructor = YaripElementBlacklistItem;
-YaripElementBlacklistItem.prototype.setXPath = function(value, noCreateStyle)
+YaripElementBlacklistItem.prototype.setXPath = function(value, ignoreStyle)
 {
     if (!value) return;
     this.xpath = "" + value;
     this.setCreated(Date.now());
-    if (!noCreateStyle) this.createStyle(true);
+    if (!ignoreStyle) this.createStyle(true);
+}
+YaripElementBlacklistItem.prototype.setForce = function(value, ignoreStyle)
+{
+    this.force = "" + value != "false";
+    if (!ignoreStyle) this.createStyle(true);
+}
+YaripItem.prototype.setPlaceholder = function(value, ignoreStyle)
+{
+    this.placeholder = "" + value == "true";
+    if (!ignoreStyle) this.createStyle(true);
 }
 YaripElementBlacklistItem.prototype.clone = function(purge)
 {
@@ -666,10 +700,11 @@ YaripPageScriptItem.prototype.generateXml = function()
         "\t\t\t\t</item>\n";
 }
 
-function YaripContentItem(regExp, priority, force, created, lastFound, ignored)
+function YaripContentItem(regExp, flags, priority, force, created, lastFound, ignored)
 {
     this.regExp = "";
-    this.regexpobj = null;
+    this.flags = "i";
+    this.regExpObj = null;
     this.priority = 0;
     this.force = true;
     this.created = -1;
@@ -677,6 +712,7 @@ function YaripContentItem(regExp, priority, force, created, lastFound, ignored)
     this.ignored = 0;
 
     this.setRegExp(regExp);
+    this.setFlags(flags);
     this.setPriority(priority);
     this.setForce(force);
     this.setCreated(created ? created : Date.now());
@@ -691,7 +727,7 @@ YaripContentItem.prototype.getId = function()
 }
 YaripContentItem.prototype.clone = function(purge)
 {
-    var tmp = new this.constructor(this.regExp, this.priority, this.force, this.created, this.lastFound, this.ignored);
+    var tmp = new this.constructor(this.regExp, this.flags, this.priority, this.force, this.created, this.lastFound, this.ignored);
     if (purge) tmp.purge();
     return tmp;
 }
@@ -713,12 +749,15 @@ YaripContentItem.prototype.generateXml = function()
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
             (this.ignored > 0 ? " ignored=\"" + this.ignored + "\"" : "") +
         ">\n" +
-        "\t\t\t\t\t<regexp><![CDATA[" + this.regExp + "]]></regexp>\n" +
+        "\t\t\t\t\t<regexp" +
+            (this.flags ? " flags=\"" + this.flags + "\"" : "") +
+        "><![CDATA[" + this.regExp + "]]></regexp>\n" +
         "\t\t\t\t</item>\n";
 }
 YaripContentItem.prototype.loadFromObject = function(obj)
 {
     this.setRegExp(obj.regExp);
+    this.setFlags(obj.flags);
     this.setPriority(obj.priority);
     this.setForce(obj.force);
     this.setCreated(obj.created);
@@ -726,16 +765,19 @@ YaripContentItem.prototype.loadFromObject = function(obj)
     this.setIgnored(obj.ignored);
 }
 
-function YaripContentWhitelistItem(regExp, priority, force, created, lastFound)
+//function YaripContentWhitelistItem(regExp, priority, force, created, lastFound)
+function YaripContentWhitelistItem(regExp, flags, priority, force, created, lastFound)
 {
     this.regExp = "";
-    this.regexpobj = null;
+    this.flags = "i";
+    this.regExpObj = null;
     this.priority = 0;
     this.force = false;
     this.created = -1;
     this.lastFound = -1;
 
     this.setRegExp(regExp);
+    this.setFlags(flags);
     this.setPriority(priority);
     this.setForce(force);
     this.setCreated(created ? created : Date.now());
@@ -749,7 +791,7 @@ YaripContentWhitelistItem.prototype.setForce = function(value)
 }
 YaripContentWhitelistItem.prototype.clone = function(purge)
 {
-    var tmp = new this.constructor(this.regExp, this.priority, this.force, this.created, this.lastFound);
+    var tmp = new this.constructor(this.regExp, this.flags, this.priority, this.force, this.created, this.lastFound);
     if (purge) tmp.purge();
     return tmp;
 }
@@ -763,14 +805,18 @@ YaripContentWhitelistItem.prototype.generateXml = function()
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
         ">\n" +
-        "\t\t\t\t\t<regexp><![CDATA[" + this.regExp + "]]></regexp>\n" +
+        "\t\t\t\t\t<regexp" +
+            (this.flags ? " flags=\"" + this.flags + "\"" : "") +
+        "><![CDATA[" + this.regExp + "]]></regexp>\n" +
         "\t\t\t\t</item>\n";
 }
 
-function YaripContentBlacklistItem(regExp, priority, force, created, lastFound, ignored)
+//function YaripContentBlacklistItem(regExp, priority, force, created, lastFound, ignored)
+function YaripContentBlacklistItem(regExp, flags, priority, force, created, lastFound, ignored)
 {
     this.regExp = "";
-    this.regexpobj = null;
+    this.flags = "i";
+    this.regExpObj = null;
     this.firstRegExpObj = null;
     this.priority = 0;
     this.force = true;
@@ -779,6 +825,7 @@ function YaripContentBlacklistItem(regExp, priority, force, created, lastFound, 
     this.ignored = 0;
 
     this.setRegExp(regExp);
+    this.setFlags(flags);
     this.setPriority(priority);
     this.setForce(force);
     this.setCreated(created ? created : Date.now());
@@ -788,16 +835,19 @@ function YaripContentBlacklistItem(regExp, priority, force, created, lastFound, 
 YaripContentBlacklistItem.prototype = new YaripContentItem;
 YaripContentBlacklistItem.prototype.constructor = YaripContentBlacklistItem;
 
-function YaripStreamItem(regExp, script, priority, created, lastFound)
+//function YaripStreamItem(regExp, script, priority, created, lastFound)
+function YaripStreamItem(regExp, flags, script, priority, created, lastFound)
 {
     this.regExp = "";
-    this.regexpobj = null;
+    this.regExpObj = null;
+    this.flags = "gim";
     this.script = "";
     this.priority = 0;
     this.created = -1;
     this.lastFound = -1;
 
     this.setRegExp(regExp);
+    this.setFlags(flags);
     this.setScript(script);
     this.setPriority(priority);
     this.setCreated(created ? created : Date.now());
@@ -809,33 +859,31 @@ YaripStreamItem.prototype.getId = function()
 {
     return this.getRegExp();
 }
-YaripStreamItem.prototype.getRegExpObj = function()
+YaripStreamItem.prototype.getAllRegExpObj = function()
 {
-    if (!this.regexpobj) {
+    if (!this.allRegExpObj) {
         try {
-//            this.regexpobj = new RegExp(this.regExp, "gm");
-            this.regexpobj = new RegExp(this.regExp, "gim"); // TODO Make user option!?
+            this.allRegExpObj = new RegExp(this.regExp, "gim");
         } catch (e) {
-            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_CREATE_REGEXP1", [this.regExp], 1)));
+            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_CREATE_REGEXP1", [this.allRegExpObj], 1)));
         }
     }
-    return this.regexpobj;
+    return this.allRegExpObj;
 }
 YaripStreamItem.prototype.getFirstRegExpObj = function()
 {
     if (!this.firstRegExpObj) {
         try {
-//            this.firstRegExpObj = new RegExp(this.regExp, "m");
-            this.firstRegExpObj = new RegExp(this.regExp, "im"); // TODO Make user option!?
+            this.firstRegExpObj = new RegExp(this.regExp, "im");
         } catch (e) {
-            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_CREATE_REGEXP1", [this.firstRegExpObj], 1)));
+            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_CREATE_REGEXP1", [this.firstRegExpObj], 1)));
         }
     }
     return this.firstRegExpObj;
 }
 YaripStreamItem.prototype.clone = function(purge)
 {
-    var tmp = new this.constructor(this.regExp, this.script, this.priority, this.created, this.lastFound);
+    var tmp = new this.constructor(this.regExp, this.flags, this.script, this.priority, this.created, this.lastFound);
     if (purge) tmp.purge();
     return tmp;
 }
@@ -854,13 +902,16 @@ YaripStreamItem.prototype.generateXml = function()
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
         ">\n" +
-        "\t\t\t\t\t<regexp><![CDATA[" + this.regExp + "]]></regexp>\n" +
+        "\t\t\t\t\t<regexp" +
+            (this.flags ? " flags=\"" + this.flags + "\"" : "") +
+        "><![CDATA[" + this.regExp + "]]></regexp>\n" +
         "\t\t\t\t\t<script><![CDATA[" + this.script + "]]></script>\n" +
         "\t\t\t\t</item>\n";
 }
 YaripStreamItem.prototype.loadFromObject = function(obj)
 {
     this.setRegExp(obj.regExp);
+    this.setFlags(obj.flags);
     this.setScript(obj.script);
     this.setPriority(obj.priority);
     this.setCreated(obj.created);
@@ -919,10 +970,12 @@ YaripStyleItem.prototype.generateXml = function()
         "\t\t\t\t</item>\n";
 }
 
-function YaripHeaderItem(regExp, headerName, script, priority, merge, created, lastFound)
+//function YaripHeaderItem(regExp, headerName, script, priority, merge, created, lastFound)
+function YaripHeaderItem(regExp, flags, headerName, script, priority, merge, created, lastFound)
 {
     this.regExp = "";
-    this.regexpobj = null;
+    this.flags = "i";
+    this.regExpObj = null;
     this.headerName = null;
     this.script = "";
     this.priority = 0;
@@ -931,6 +984,7 @@ function YaripHeaderItem(regExp, headerName, script, priority, merge, created, l
     this.lastFound = -1;
 
     this.setRegExp(regExp);
+    this.setFlags(flags);
     this.setHeaderName(headerName);
     this.setScript(script);
     this.setPriority(priority);
@@ -965,7 +1019,7 @@ YaripHeaderItem.prototype.getMerge = function()
 }
 YaripHeaderItem.prototype.clone = function(purge)
 {
-    var tmp = new this.constructor(this.regExp, this.headerName, this.script, this.priority, this._merge, this.created, this.lastFound);
+    var tmp = new this.constructor(this.regExp, this.flags, this.headerName, this.script, this.priority, this._merge, this.created, this.lastFound);
     if (purge) tmp.purge();
     return tmp;
 }
@@ -986,7 +1040,9 @@ YaripHeaderItem.prototype.generateXml = function()
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
         ">\n" +
-        "\t\t\t\t\t\t<regexp><![CDATA[" + this.regExp + "]]></regexp>\n" +
+        "\t\t\t\t\t\t<regexp" +
+            (this.flags ? " flags=\"" + this.flags + "\"" : "") +
+        "><![CDATA[" + this.regExp + "]]></regexp>\n" +
         "\t\t\t\t\t\t<name><![CDATA[" + this.headerName + "]]></name>\n" +
         "\t\t\t\t\t\t<script><![CDATA[" + this.script + "]]></script>\n" +
         "\t\t\t\t\t</item>\n";
@@ -994,6 +1050,7 @@ YaripHeaderItem.prototype.generateXml = function()
 YaripHeaderItem.prototype.loadFromObject = function(obj)
 {
     this.setRegExp(obj.regExp);
+    this.setFlags(obj.flags);
     this.setHeaderName(obj.headerName);
     this.setPriority(obj.priority);
     this.setScript(obj.script);
@@ -1002,16 +1059,19 @@ YaripHeaderItem.prototype.loadFromObject = function(obj)
     this.setLastFound(obj.lastFound);
 }
 
-function YaripRedirectItem(regExp, newsubstr, priority, created, lastFound)
+//function YaripRedirectItem(regExp, newsubstr, priority, created, lastFound)
+function YaripRedirectItem(regExp, flags, newsubstr, priority, created, lastFound)
 {
     this.regExp = "";
-    this.regexpobj = null;
+    this.flags = "i";
+    this.regExpObj = null;
     this.newsubstr = "";
     this.priority = 0;
     this.created = -1;
     this.lastFound = -1;
 
     this.setRegExp(regExp);
+    this.setFlags(flags);
     this.setScript(newsubstr);
     this.setPriority(priority);
     this.setCreated(created ? created : Date.now());
@@ -1035,7 +1095,7 @@ YaripRedirectItem.prototype.getScript = function()
 }
 YaripRedirectItem.prototype.clone = function(purge)
 {
-    var tmp = new this.constructor(this.regExp, this.newsubstr, this.priority, this.created, this.lastFound);
+    var tmp = new this.constructor(this.regExp, this.flags, this.newsubstr, this.priority, this.created, this.lastFound);
     if (purge) tmp.purge();
     return tmp;
 }
@@ -1054,13 +1114,16 @@ YaripRedirectItem.prototype.generateXml = function()
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
         ">\n" +
-        "\t\t\t\t\t<regexp><![CDATA[" + this.regExp + "]]></regexp>\n" +
+        "\t\t\t\t\t<regexp" +
+            (this.flags ? " flags=\"" + this.flags + "\"" : "") +
+        "><![CDATA[" + this.regExp + "]]></regexp>\n" +
         (this.newsubstr ? "\t\t\t\t\t<newsubstr><![CDATA[" + this.newsubstr + "]]></newsubstr>\n" : "") +
         "\t\t\t\t</item>\n";
 }
 YaripRedirectItem.prototype.loadFromObject = function(obj)
 {
     this.setRegExp(obj.regExp);
+    this.setFlags(obj.flags);
     this.setScript(obj.newsubstr);
     this.setPriority(obj.priority);
     this.setCreated(obj.created);
@@ -1339,4 +1402,19 @@ YaripExtensionItem.prototype.loadFromObject = function(obj)
     this.setDoLinks(obj.doLinks);
     this.setCreated(obj.created);
 }
+//YaripExtensionItem.prototype.toString = function()
+//{
+//    return "{" +
+//        "id: \"" + this.getId() + "\", " +
+//        "priority: " + this.getPriority() + ", " +
+//        "doElements: " + this.getDoElements() + ", " +
+//        "doContents: " + this.getDoContents() + ", " +
+//        "doScripts: " + this.getDoScripts() + ", " +
+//        "doHeaders: " + this.getDoHeaders() + ", " +
+//        "doRedirects: " + this.getDoRedirects() + ", " +
+//        "doStreams: " + this.getDoStreams() + ", " +
+//        "doLinks: " + this.getDoLinks() + ", " +
+//        "created: " + this.getCreated() +
+//        "}";
+//}
 

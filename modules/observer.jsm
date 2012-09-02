@@ -31,6 +31,8 @@ Cu.import("resource://yarip/constants.jsm");
 Cu.import("resource://yarip/replace.jsm");
 Cu.import("resource://yarip/stream.jsm");
 
+const stringBundle = SB.createBundle("chrome://yarip/locale/observer.properties");
+
 function YaripObserver() {
 }
 YaripObserver.prototype = {
@@ -40,7 +42,6 @@ YaripObserver.prototype = {
     _xpcom_categories: [],
     QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver])
 }
-YaripObserver.prototype.sb = SB.createBundle("chrome://yarip/locale/observer.properties");
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIObserver#observe%28%29
 YaripObserver.prototype.observe = function(subject, topic, data)
 {
@@ -93,7 +94,7 @@ YaripObserver.prototype.modifyRequest = function(channel)
             channel.cancel(Cr.NS_ERROR_ABORT);
             var newLog = yarip.logContentLocation(STATUS_BLACKLISTED, location, contentLocation, null, itemObj);
             if (newLog && itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
-                yarip.showLinkNotification(doc, location, contentLocation);
+                yarip.showLinkNotification(doc, location, contentLocation, isLink);
             }
             return;
         case STATUS_REDIRECTED:
@@ -125,16 +126,16 @@ YaripObserver.prototype.modifyRequest = function(channel)
                             var sandbox = new Cu.Sandbox(defaultView ? defaultView : location.asciiHref);
                             if (typeof headerValue === "string") {
                                 sandbox.headerValue = headerValue;
-                                headerValue = Cu.evalInSandbox("(" + item.getScript() + ")(headerValue);", sandbox);
+                                headerValue = Cu.evalInSandbox("(" + item.getScript() + "\n)(headerValue);", sandbox);
                             } else {
-                                headerValue = Cu.evalInSandbox("(" + item.getScript() + ")();", sandbox);
+                                headerValue = Cu.evalInSandbox("(" + item.getScript() + "\n)();", sandbox);
                             }
                         } else {
                             headerValue = item.getScript();
                         }
 
                         if (typeof headerValue != "string") {
-                            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_HEADER_NOT_A_STRING2", [pageName, item.getHeaderName()], 2)));
+                            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_HEADER_NOT_A_STRING2", [pageName, item.getHeaderName()], 2)));
                             continue;
                         }
 
@@ -146,7 +147,7 @@ YaripObserver.prototype.modifyRequest = function(channel)
 
                         if (defaultView) defaultView.yaripStatus = "found";
                     } catch (e) {
-                        yarip.logMessage(LOG_ERROR, new Error(this.sb.formatStringFromName("ERR_SET_HEADER3", [pageName, item.getHeaderName(), headerValue], 3)));
+                        yarip.logMessage(LOG_ERROR, new Error(stringBundle.formatStringFromName("ERR_SET_HEADER2", [pageName, item.getHeaderName()], 2)));
                         yarip.logMessage(LOG_ERROR, e);
                     }
                 }
@@ -212,7 +213,7 @@ YaripObserver.prototype.examineResponse = function(channel)
                             channel.cancel(Cr.NS_ERROR_ABORT);
                             var newLog = yarip.logContentLocation(STATUS_BLACKLISTED, location, newContentLocation, null, itemObj);
                             if (newLog && itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
-                                yarip.showLinkNotification(doc, location, newContentLocation);
+                                yarip.showLinkNotification(doc, location, newContentLocation, isLink);
                             }
                             return;
                         case STATUS_REDIRECTED:
@@ -233,7 +234,6 @@ YaripObserver.prototype.examineResponse = function(channel)
 
         // TODO Make this an user-preference!
         if (isPage && /^(?:text\/.*|application\/(?:javascript|json|(?:\w+\+)?\bxml))$/.test(channel.contentType)) {
-//            new YaripResponseStreamListener(channel, addressObj);
             new YaripResponseStreamListener(addressObj, location, defaultView, channel);
         }
 
@@ -254,23 +254,23 @@ YaripObserver.prototype.examineResponse = function(channel)
                     {
                         if (!item.getRegExpObj().test(contentLocation.asciiHref)) continue;
 
-                        var headerValue = null; // object
-                        try { headerValue = channel.getResponseHeader(item.getHeaderName()); } catch (e) {}
                         try {
+                            var headerValue = null; // object
+                            try { headerValue = channel.getResponseHeader(item.getHeaderName()); } catch (e) {}
                             if (/^\s*function\b/.test(item.getScript())) {
                                 var sandbox = new Cu.Sandbox(defaultView ? defaultView : location.asciiHref);
                                 if (typeof headerValue === "string") {
                                     sandbox.headerValue = headerValue;
-                                    headerValue = Cu.evalInSandbox("(" + item.getScript() + ")(headerValue);", sandbox);
+                                    headerValue = Cu.evalInSandbox("(" + item.getScript() + "\n)(headerValue);", sandbox);
                                 } else {
-                                    headerValue = Cu.evalInSandbox("(" + item.getScript() + ")();", sandbox);
+                                    headerValue = Cu.evalInSandbox("(" + item.getScript() + "\n)();", sandbox);
                                 }
                             } else {
                                 headerValue = item.getScript();
                             }
 
                             if (typeof headerValue != "string") {
-                                yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_HEADER_NOT_A_STRING2", [pageName, item.getHeaderName()], 2)));
+                                yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_HEADER_NOT_A_STRING2", [pageName, item.getHeaderName()], 2)));
                                 continue;
                             }
 
@@ -280,7 +280,7 @@ YaripObserver.prototype.examineResponse = function(channel)
                                 item.incrementLastFound();
                             }
                         } catch (e) {
-                            yarip.logMessage(LOG_ERROR, new Error(this.sb.formatStringFromName("ERR_SET_HEADER3", [pageName, item.getHeaderName(), headerValue], 3)));
+                            yarip.logMessage(LOG_ERROR, new Error(stringBundle.formatStringFromName("ERR_SET_HEADER2", [pageName, item.getHeaderName()], 2)));
                             yarip.logMessage(LOG_ERROR, e);
                         }
                     }
@@ -291,6 +291,72 @@ YaripObserver.prototype.examineResponse = function(channel)
         yarip.logMessage(LOG_ERROR, e);
     }
 }
+//YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentLocation, defaultView, isPage, doFlag)
+//{
+//    var statusObj = {
+//        status: STATUS_UNKNOWN,
+//        newURI: null
+//    };
+
+//    var asciiHref = contentLocation.asciiHref;
+//    if (!addressObj.found) return statusObj;
+
+//    for (var pageName in addressObj.ext)
+//    {
+//        var list = isPage ? yarip.map.get(pageName).pageRedirectList : yarip.map.get(pageName).contentRedirectList;
+//        var extItem = addressObj.ext[pageName];
+//        if (extItem.getDoRedirects() && list.length > 0)
+//        {
+//            for each (var item in list.obj)
+//            {
+//                if (!item.getRegExpObj().test(asciiHref)) continue;
+
+//                var newSpec = null;
+//                try
+//                {
+//                    if (/^\s*function\b/.test(item.getScript())) {
+//                        var sandbox = new Cu.Sandbox(defaultView ? defaultView : location.asciiHref);
+//                        sandbox.asciiHref = asciiHref;
+//                        newSpec = Cu.evalInSandbox("(" + item.getScript() + ")(asciiHref);", sandbox);
+//                    } else {
+//                        newSpec = asciiHref.replace(item.getRegExpObj(), item.getScript());
+//                    }
+
+//                    if (typeof newSpec != "string") {
+//                        yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_REDIRECT_NOT_A_STRING3", [pageName, item.getRegExp(), asciiHref], 3)));
+//                        continue;
+//                    }
+
+//                    if (newSpec == asciiHref) continue; // prevent loop
+
+//                    var newURI = IOS.newURI(newSpec, "originCharset" in contentLocation ? contentLocation.originCharset : "UTF-8", null);
+
+//                    if (extItem.isSelf()) {
+//                        item.incrementLastFound();
+//                    }
+
+//                    if (defaultView) defaultView.yaripStatus = "found";
+
+//                    statusObj.itemObj = {
+//                        pageName: pageName,
+//                        ruleType: isPage ? TYPE_PAGE_REDIRECT : TYPE_CONTENT_REDIRECT,
+//                        itemKey: item.getKey()
+//                    };
+
+//                    statusObj.status = STATUS_REDIRECTED;
+//                    statusObj.newURI = newURI;
+//                    return statusObj;
+//                } catch (e) {
+//                    yarip.logMessage(LOG_ERROR, new Error(stringBundle.formatStringFromName("ERR_REDIRECT4", [pageName, item.getRegExp(), asciiHref, newSpec], 4)));
+//                    yarip.logMessage(LOG_ERROR, e);
+//                }
+//            }
+//        }
+//    }
+
+//    statusObj = yarip.shouldBlacklist(addressObj, asciiHref, defaultView, doFlag);
+//    return statusObj;
+//}
 YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentLocation, defaultView, isPage, doFlag)
 {
     var statusObj = {
@@ -311,19 +377,30 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentL
             {
                 if (!item.getRegExpObj().test(asciiHref)) continue;
 
-                var newSpec = null;
                 try
                 {
-                    if (/^\s*function\b/.test(item.getScript())) {
+                    var newSpec = null; // object
+                    if (/^\s*function\b/.test(item.getScript()))
+                    {
                         var sandbox = new Cu.Sandbox(defaultView ? defaultView : location.asciiHref);
-                        sandbox.asciiHref = asciiHref;
-                        newSpec = Cu.evalInSandbox("(" + item.getScript() + ")(asciiHref);", sandbox);
+                        if (/^\s*function\s*\(\s*url\s*\)/.test(item.getScript())) { // deprecated: script with asciiHref as parameter
+                            // XXX
+                            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_SCRIPT_DEPRECATED")));
+
+                            sandbox.asciiHref = asciiHref;
+                            newSpec = Cu.evalInSandbox("(" + item.getScript() + ")(asciiHref);", sandbox);
+                        } else { // replace with function as parameter
+                            sandbox.url = asciiHref;
+                            sandbox.regexp = item.getRegExpObj();
+//                            newSpec = Cu.evalInSandbox("(" + item.getScript() + ")(asciiHref);", sandbox);
+                            newSpec = Cu.evalInSandbox("url.replace(regexp, " + item.getScript() + "\n);", sandbox);
+                        }
                     } else {
                         newSpec = asciiHref.replace(item.getRegExpObj(), item.getScript());
                     }
 
                     if (typeof newSpec != "string") {
-                        yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_REDIRECT_NOT_A_STRING3", [pageName, item.getRegExp(), asciiHref], 3)));
+                        yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_REDIRECT_NOT_A_STRING3", [pageName, item.getRegExp(), asciiHref], 3)));
                         continue;
                     }
 
@@ -347,7 +424,7 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentL
                     statusObj.newURI = newURI;
                     return statusObj;
                 } catch (e) {
-                    yarip.logMessage(LOG_ERROR, new Error(this.sb.formatStringFromName("ERR_REDIRECT4", [pageName, item.getRegExp(), asciiHref, newSpec], 4)));
+                    yarip.logMessage(LOG_ERROR, new Error(stringBundle.formatStringFromName("ERR_REDIRECT3", [pageName, item.getRegExp(), asciiHref], 3)));
                     yarip.logMessage(LOG_ERROR, e);
                 }
             }

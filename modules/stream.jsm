@@ -32,6 +32,8 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 const yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
 Cu.import("resource://yarip/constants.jsm");
 
+const stringBundle = SB.createBundle("chrome://yarip/locale/stream.properties");
+
 function YaripRedirectStreamListener(channel, callback)
 {
     if (!(channel instanceof Ci.nsITraceableChannel)) return;
@@ -42,7 +44,6 @@ function YaripRedirectStreamListener(channel, callback)
     this.callback = callback;
     this.isCanceled = false;
 }
-YaripRedirectStreamListener.prototype.sb = SB.createBundle("chrome://yarip/locale/stream.properties");
 YaripRedirectStreamListener.prototype = {
     QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener])
 }
@@ -81,8 +82,6 @@ YaripRedirectStreamListener.prototype.onDataAvailable = function(request, contex
     this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
 }
 
-
-//function YaripResponseStreamListener(channel, addressObj)
 function YaripResponseStreamListener(addressObj, location, defaultView, channel)
 {
     if (!(channel instanceof Ci.nsITraceableChannel)) return;
@@ -95,7 +94,6 @@ function YaripResponseStreamListener(addressObj, location, defaultView, channel)
     this.defaultView = defaultView;
     this.receivedData = [];
 }
-YaripResponseStreamListener.prototype.sb = SB.createBundle("chrome://yarip/locale/stream.properties");
 YaripResponseStreamListener.prototype = {
     QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener])
 }
@@ -125,6 +123,8 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             if (item.isSelf() || item.getDoStreams()) arr.push(item);
         });
 
+        var searchIndex = null;
+
         for (var i = 0; i < arr.length; i++)
         {
             var extItem = arr[i];
@@ -134,45 +134,76 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             {
                 for each (var item in list.obj)
                 {
-                    try {
-                        var script = item.getScript();
-                        var matches = responseSource.match(item.getRegExpObj());
-                        if (matches) {
+                    try
+                    {
+                        var tmp = null;
+                        if (/^\s*function\b/.test(item.getScript()))
+                        {
+                            var sandbox = new Cu.Sandbox(this.defaultView ? this.defaultView : this.location.asciiHref);
+                            if (/^\s*function\s*\(\s*matches\s*\)/.test(item.getScript())) // deprecated: script with matches-array as parameter
+                            {
+                                // XXX Deprecated
+                                yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_MATCHES_DEPRECATED", [], 0)));
+
+                                var matches = responseSource.match(item.getAllRegExpObj());
+                                if (!matches) continue;
+
+                                var isFun = false;
+                                if (/^\s*function\b/.test(item.getScript())) {
+                                    sandbox.matches = matches;
+                                    Cu.evalInSandbox("(" + item.getScript() + ")(matches);", sandbox);
+                                    isFun = true;
+                                }
+
+//                                if (!(matches instanceof Array)) {
+//                                    yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_MATCHES_NOT_INSTANCEOF_ARRAY2", [page.getName(), item.getRegExp()], 2)));
+//                                    continue;
+//                                }
+
+                                var index = 0;
+                                tmp = responseSource;
+                                for (var j = 0; j < matches.length; j++)
+                                {
+                                    if (typeof matches[j] != "string") {
+                                        yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_VALUE_NOT_A_STRING3", [page.getName(), item.getRegExp(), j], 3)));
+                                        continue;
+                                    }
+
+                                    searchIndex = tmp.substring(index).search(item.getFirstRegExpObj());
+                                    if (searchIndex > 0) index += searchIndex;
+                                    var respBeg = tmp.substring(0, index);
+                                    var respEnd = tmp.substring(index);
+                                    var m = respEnd.match(item.getFirstRegExpObj());
+                                    var matchLength = m[0].length;
+                                    var oldRespLength = tmp.length;
+                                    tmp = respBeg + respEnd.replace(item.getFirstRegExpObj(), isFun ? matches[j] : item.getScript());
+                                    var newRespLength = tmp.length;
+                                    index += matchLength + newRespLength - oldRespLength;
+                                }
+                            }
+                            else // replace() with function as parameter
+                            {
+                                sandbox.responseSource = responseSource;
+                                sandbox.regexp = item.getRegExpObj();
+                                tmp = Cu.evalInSandbox("responseSource.replace(regexp, " + item.getScript() + "\n);", sandbox);
+
+                                if (typeof tmp != "string") {
+                                    yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_VALUE_NOT_A_STRING2", [page.getName(), item.getRegExp()], 2)));
+                                    continue;
+                                }
+                            }
+                        } else {
+                            tmp = responseSource.replace(item.getRegExpObj(), item.getScript());
+                        }
+
+                        if (responseSource != tmp) {
+                            responseSource = tmp;
+
                             if (extItem.isSelf()) {
                                 item.incrementLastFound();
                             }
 
-                            var isFun = false;
-                            if (/^\s*function\b/.test(script)) {
-                                var sandbox = new Cu.Sandbox(this.defaultView ? this.defaultView : this.location.asciiHref);
-                                sandbox.matches = matches;
-                                Cu.evalInSandbox("(" + item.getScript() + ")(matches);", sandbox);
-                                isFun = true;
-                            }
-
-//                            if (!(matches instanceof Array)) {
-//                                yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_MATCHES_NOT_INSTANCEOF_ARRAY2", [page.getName(), item.getRegExpObj()], 2)));
-//                                continue;
-//                            }
-
-                            var index = 0;
-                            for (var j = 0; j < matches.length; j++) {
-                                if (typeof matches[j] != "string") {
-                                    yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_VALUE_NOT_A_STRING3", [page.getName(), item.getRegExpObj(), j], 3)));
-                                    continue;
-                                }
-
-                                var searchIndex = responseSource.substring(index).search(item.getFirstRegExpObj());
-                                if (searchIndex > 0) index += searchIndex;
-                                var respBeg = responseSource.substring(0, index);
-                                var respEnd = responseSource.substring(index);
-                                var m = respEnd.match(item.getFirstRegExpObj());
-                                var matchLength = m[0].length;
-                                var oldRespLength = responseSource.length;
-                                responseSource = respBeg + respEnd.replace(item.getFirstRegExpObj(), isFun ? matches[j] : script);
-                                var newRespLength = responseSource.length;
-                                index += matchLength + newRespLength - oldRespLength;
-                            }
+                            if (this.defaultView) this.defaultView.yaripStatus = "found";
                         }
                     } catch (e) {
                         yarip.logMessage(LOG_ERROR, e);
@@ -185,82 +216,93 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
          * PAGE SCRIPTING AND STYLING
          */
 
+        arr = [];
+        this.addressObj.root.traverse(function (item) {
+            if (item.isSelf() || item.getDoElements() || item.getDoScripts()) arr.push(item);
+        });
+        if (arr.length === 0) {
+            this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
+            this.listener.onStopRequest(request, context, statusCode);
+            return;
+        }
+
         var headTopPart = ""; // head-top
         var headMidPart = ""; // head-middle
         var headBodPart = ""; // head-bottom/body-top
         var bodyMidPart = ""; // body-middle
         var bodyBotPart = ""; // body-bottom
 
-        // search HTML
-        var htmlRe = /<\s*html[^>]*>/i;
-        var htmlBeg = responseSource.search(htmlRe);
-        if (htmlBeg == -1) {
-            this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
-            this.listener.onStopRequest(request, context, statusCode);
-            return;
-        }
-
-        var tmpSource = "";
-
-        // search HEAD
-        var headRe = /<\s*head[^>]*>/i;
-        var headEndRe = /<\s*\/\s*head[^>]*>/i;
-        var headBeg = responseSource.substring(htmlBeg).search(headRe);
-        var headEnd = null;
-        if (headBeg == -1) { // no head-begin
-            // insert HEAD
-            var headBeg = htmlBeg + responseSource.substring(htmlBeg).match(htmlRe)[0].length;
-            headTopPart = responseSource.substring(0, headBeg) + "<head>";
-            tmpSource = "</head>" + responseSource.substring(headBeg);
-            headBeg += "<head>".length;
-            headEnd = headBeg;
-        } else {
-            headBeg += htmlBeg;
-            headBeg += responseSource.substring(headBeg).match(headRe)[0].length;
-            var searchIndex = responseSource.substring(headBeg).search(headEndRe);
-            if (searchIndex == -1) { // no head-end
-                this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
-                this.listener.onStopRequest(request, context, statusCode);
-                return;
+        // HTML-begin
+        var doctypeRegExp = /<!doctype\b[^>]*>/i;
+        var htmlBegRegExp = /<\s*html\b[^>]*>/i;
+        searchIndex = responseSource.search(htmlBegRegExp);
+        if (searchIndex == -1) { // no HTML-begin
+            searchIndex = responseSource.search(doctypeRegExp);
+            if (searchIndex == -1) { // no DOCTYPE
+                responseSource = "<html>" + responseSource;
+                searchIndex = 0;
             } else {
-                headEnd = headBeg + searchIndex;
-                headTopPart = responseSource.substring(0, headBeg);
-                headMidPart = responseSource.substring(headBeg, headEnd);
-                tmpSource = responseSource.substring(headEnd);
+                searchIndex += responseSource.substring(searchIndex).match(doctypeRegExp)[0].length;
+                responseSource = responseSource.substring(0, searchIndex) + "<html>" + responseSource.substring(searchIndex);
             }
         }
 
-        // search BODY
-        var bodyRe = /<\s*body[^>]*>/i;
-        var bodyEndRe = /<\s*\/\s*body[^>]*>/i;
-        var bodyBeg = tmpSource.search(bodyRe);
-        var bodyEnd = null;
-        if (bodyBeg == -1) { // no body-begin
-            // insert BODY
-            var bodyBeg = tmpSource.match(headEndRe)[0].length;
-            headBodPart = tmpSource.substring(0, bodyBeg) + "<body>";
-            bodyBotPart = "</body>" + tmpSource.substring(bodyBeg);
-            bodyBeg += "<body>".length;
-            bodyEnd = bodyBeg;
+        var tmpSource = responseSource.substring(searchIndex);
+        var htmlBegIdx = searchIndex;
+
+        // HEAD-begin
+        var headBegRegExp = /<\s*head\b[^>]*>/i;
+        searchIndex = tmpSource.search(headBegRegExp);
+        if (searchIndex == -1) { // no HEAD-begin
+            searchIndex = htmlBegIdx + tmpSource.match(htmlBegRegExp)[0].length;
+            headTopPart = responseSource.substring(0, searchIndex) + "<head>";
         } else {
-            bodyBeg += tmpSource.substring(bodyBeg).match(bodyRe)[0].length;
-            var searchIndex = tmpSource.substring(bodyBeg).search(bodyEndRe);
-            if (searchIndex == -1) { // no body-end
-                this.onDataAvailable0(request, context, tmpSource, 0, tmpSource.length);
-                this.listener.onStopRequest(request, context, statusCode);
-                return;
-            } else {
-                bodyEnd = bodyBeg + searchIndex;
-                headBodPart = tmpSource.substring(0, bodyBeg);
-                bodyMidPart = tmpSource.substring(bodyBeg, bodyEnd);
-                bodyBotPart = tmpSource.substring(bodyEnd);
-            }
+            searchIndex += htmlBegIdx + tmpSource.substring(searchIndex).match(headBegRegExp)[0].length;
+            headTopPart = responseSource.substring(0, searchIndex);
         }
 
-        arr = [];
-        this.addressObj.root.traverse(function (item) {
-            if (item.isSelf() || item.getDoElements() || item.getDoScripts()) arr.push(item);
-        });
+        tmpSource = responseSource.substring(searchIndex);
+
+        // HEAD-end
+        var headEndRegExp = /<\s*\/\s*head\b[^>]*>/i;
+        searchIndex = tmpSource.search(headEndRegExp);
+        if (searchIndex == -1) { // no HEAD-end
+            tmpSource = "</head>" + tmpSource; // can be misplaced
+        } else {
+            headMidPart = tmpSource.substring(0, searchIndex);
+            tmpSource = tmpSource.substring(searchIndex);
+        }
+
+        // BODY-begin
+        var bodyBegRegExp = /<\s*(?:body|(frameset))\b[^>]*>/i;
+        searchIndex = tmpSource.search(bodyBegRegExp);
+        var isFrameset = false;
+        if (searchIndex == -1) { // no BODY-begin
+            searchIndex = tmpSource.match(headEndRegExp)[0].length;
+            headBodPart = tmpSource.substring(0, searchIndex) + "<body>";
+        } else {
+            var matches = tmpSource.substring(searchIndex).match(bodyBegRegExp);
+            isFrameset = !!matches[1];
+            searchIndex += matches[0].length;
+            headBodPart = tmpSource.substring(0, searchIndex);
+        }
+
+        tmpSource = tmpSource.substring(searchIndex);
+
+        // BODY-end
+        if (!isFrameset)
+        {
+            var bodyEndRegExp = /<\s*\/\s*body\b[^>]*>/i;
+            searchIndex = tmpSource.search(bodyEndRegExp);
+            if (searchIndex == -1) { // no BODY-end
+                bodyBotPart = "</body>" + tmpSource; // can be misplaced
+            } else {
+                bodyMidPart = tmpSource.substring(0, searchIndex);
+                bodyBotPart = tmpSource.substring(searchIndex);
+            }
+        } else {
+            bodyBotPart = tmpSource;
+        }
 
         var headStyles = "";
         var headScripts = "";
@@ -350,8 +392,13 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         }
 
         if (headStyles || headScripts || bodyStyles || bodyScripts) {
-            responseSource = headTopPart + headStyles + headScripts + headMidPart + headBodPart + bodyMidPart + bodyStyles + bodyScripts + bodyBotPart;
+            if (!isFrameset) {
+                responseSource = headTopPart + headStyles + headScripts + headMidPart + headBodPart + bodyMidPart + bodyStyles + bodyScripts + bodyBotPart;
+            } else {
+                responseSource = headTopPart + headStyles + headScripts + headMidPart + headBodPart + bodyMidPart + bodyBotPart;
+            }
         }
+//dump("responseSource:"+responseSource+"\n---\n");
     } catch (e) {
         yarip.logMessage(LOG_ERROR, e);
     } finally {

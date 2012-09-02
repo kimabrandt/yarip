@@ -431,7 +431,7 @@ function YaripPageDialog()
         case "contentRequestHeaderList":
             var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
-                item: new YaripHeaderItem(re, "Cookie",
+                item: new YaripHeaderItem(re, null, "Cookie",
                         "function (value) {\n" +
                         "    return \"\";\n" +
                         "}", false),
@@ -446,7 +446,7 @@ function YaripPageDialog()
         case "contentResponseHeaderList":
             var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
-                item: new YaripHeaderItem(re, "Set-Cookie",
+                item: new YaripHeaderItem(re, null, "Set-Cookie",
                         "function (value) {\n" +
                         "    return \"\";\n" +
                         "}", false),
@@ -462,10 +462,11 @@ function YaripPageDialog()
             var reObj = yarip.getPageRegExpObj(page.getName(), null, true /* byUser */);
             obj = {
 //                item: new YaripRedirectItem(reObj.regExp, reObj.newSubStr),
-                item: new YaripRedirectItem(reObj.regExp,
-                        "function (url) {\n" +
-                        "    return unescape(url.replace(/.*?\\?url=(http[^&#]+).*/, \"$1\"));\n" +
-                        "}"),
+//                item: new YaripRedirectItem(reObj.regExp,
+//                        "function (url) {\n" +
+//                        "    return unescape(url.replace(/.*?\\?url=(http[^&#]+).*/, \"$1\"));\n" +
+//                        "}"),
+                item: new YaripRedirectItem(reObj.regExp, null, reObj.script),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/redirectdialog.xul", "redirectdialog", "chrome,modal,resizable", obj);
@@ -522,7 +523,7 @@ function YaripPageDialog()
         case "pageRequestHeaderList":
             var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
-                item: new YaripHeaderItem(re, "Cookie",
+                item: new YaripHeaderItem(re, null, "Cookie",
                         "function (value) {\n" +
                         "    return \"\";\n" +
                         "}", false),
@@ -537,7 +538,7 @@ function YaripPageDialog()
         case "pageResponseHeaderList":
             var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
-                item: new YaripHeaderItem(re, "Set-Cookie",
+                item: new YaripHeaderItem(re, null, "Set-Cookie",
                         "function (value) {\n" +
                         "    return \"\";\n" +
                         "}", false),
@@ -553,10 +554,11 @@ function YaripPageDialog()
             var reObj = yarip.getPageRegExpObj(page.getName(), null, true /* byUser */);
             obj = {
 //                item: new YaripRedirectItem(reObj.regExp, reObj.newSubStr),
-                item: new YaripRedirectItem(reObj.regExp,
-                        "function (url) {\n" +
-                        "    return unescape(url.replace(/.*?\\?url=(http[^&#]+).*/, \"$1\"));\n" +
-                        "}"),
+//                item: new YaripRedirectItem(reObj.regExp,
+//                        "function (url) {\n" +
+//                        "    return unescape(url.replace(/.*?\\?url=(http[^&#]+).*/, \"$1\"));\n" +
+//                        "}"),
+                item: new YaripRedirectItem(reObj.regExp, null, reObj.script),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/redirectdialog.xul", "redirectdialog", "chrome,modal,resizable", obj);
@@ -568,11 +570,19 @@ function YaripPageDialog()
         case "pageStreamList":
             obj = {
                 item: new YaripStreamItem("<script\\b[^>]*>(.|\\s)*?</script>",
-                        "function (matches) {\n" +
-                        "    for (var i = 0; i < matches.length; i++) {\n" +
-                        "        matches[i] = matches[i].replace(/foo/g, \"bar\");\n" +
-                        "    }\n" +
+//                        "function (matches) {\n" +
+//                        "    for (var i = 0; i < matches.length; i++) {\n" +
+//                        "        matches[i] = matches[i].replace(/foo/g, \"bar\");\n" +
+//                        "    }\n" +
+//                        "}"),
+                        null,
+                        "function (match, p1, offset, string) {\n" +
+                        "    return \"\";\n" +
                         "}"),
+//                        "}\n" +
+//                        "/*\n" +
+//                        "<empty string>\n" +
+//                        "*/"),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/replacedialog.xul", "replacedialog", "chrome,modal,resizable", obj);
@@ -609,8 +619,6 @@ function YaripPageDialog()
         case "pageResponseHeaderList":
         case "pageRedirectList":
         case "pageStreamList":
-//        case "pageExtensionList":
-//        case "pageExtendedByList":
             var keys = {};
             var selection = tab.tree.view.selection;
             var rangeCount = selection.getRangeCount();
@@ -629,8 +637,7 @@ function YaripPageDialog()
             var keys = {};
             var selection = tab.tree.view.selection;
             var rangeCount = selection.getRangeCount();
-            for (var i = 0; i < rangeCount; i++)
-            {
+            for (var i = 0; i < rangeCount; i++) {
                 var start = {};
                 var end = {};
                 selection.getRangeAt(i, start, end);
@@ -955,7 +962,23 @@ function YaripPageDialog()
                 pageNames[this.getPageByIndex(j).getName()] = true;
             }
         }
-        for (var pageName in pageNames) yarip.map.removeByName(pageName);
+        for (var pageName in pageNames) {
+            var page = yarip.map.get(pageName);
+
+            // Removing extensions.
+            var list = page.pageExtensionList;
+            for each (var item in list.obj) {
+                yarip.map.removeExtension(page, item);
+            }
+            list = page.pageExtendedByList;
+            for each (var item in list.obj) {
+                yarip.map.removeExtension(item.getPage(), page.createPageExtensionItem(true));
+            }
+
+//            yarip.map.removeByName(pageName);
+            yarip.map.remove(page);
+        }
+
         this.refreshPages(true);
     }
 
@@ -1029,17 +1052,18 @@ function YaripPageDialog()
             this.tabs["pageExtensionList"].item = new YaripExtensionItem();
         }
 
-        if (this.treePages.currentIndex >= 0)
-        {
-            var list = page.pageExtensionList;
-            for each (var item in list.obj) {
-                if (!item.getPage() || item.getId() == page.getId()) yarip.map.removeExtension(page, item);
-            }
-            list = page.pageExtendedByList;
-            for each (var item in list.obj) {
-                if (!item.getPage() || item.getId() == page.getId()) yarip.map.removeExtension(page, item);
-            }
-        }
+//        if (this.treePages.currentIndex >= 0)
+//        {
+//            var list = page.pageExtensionList;
+//            for each (var item in list.obj) {
+//                if (!item.getPage() || item.getId() == page.getId()) yarip.map.removeExtension(page, item);
+//            }
+//            list = page.pageExtendedByList;
+//            for each (var item in list.obj) {
+////                if (!item.getPage() || item.getId() == page.getId()) yarip.map.removeExtension(page, item);
+//                if (!item.getPage() || item.getId() == page.getId()) yarip.map.removeExtension(page, page.createPageExtensionItem(true));
+//            }
+//        }
 
         this.refreshTab(null, true);
         this.refreshExtMenulist(load);
@@ -1060,8 +1084,7 @@ function YaripPageDialog()
             pName = yarip.load(files.getNext(), true);
             if (pName) pageName = pName;
         }
-//        if (pageName) {
-            this.refreshPages(true);
+        this.refreshPages(true);
         if (pageName) {
             var page = this.selectPageByName(pageName);
             this.selectTab(page);
@@ -1327,7 +1350,7 @@ function YaripPageDialog()
                 }
             }
             this.refreshPages(true);
-            this.refreshExtMenulist(true);
+//            this.refreshExtMenulist(true);
         }
 
         var tab = null;

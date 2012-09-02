@@ -19,53 +19,6 @@ along with yarip.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 var EXPORTED_SYMBOLS = [
-        /*
-         * nsIChannel
-         */
-        "LOAD_DOCUMENT_URI",
-        "LOAD_INITIAL_DOCUMENT_URI",
-        "LOAD_REPLACE",
-
-        /*
-         * nsIContentPolicy
-         */
-        "ACCEPT",
-        "REJECT_SERVER",
-        "TYPE_DOCUMENT",
-
-        /*
-         * nsIDOMNode
-         */
-        "DOCUMENT_NODE",
-
-        /*
-         * nsIDOMXPathResult
-         */
-        "ORDERED_NODE_ITERATOR_TYPE",
-        "UNORDERED_NODE_SNAPSHOT_TYPE",
-
-        /*
-         * nsIWebProgressListener
-         */
-        "STATE_REDIRECTING",
-        "STATE_START",
-        "STATE_STOP",
-
-        /*
-         * Services
-         */
-        "CS",
-        "IDNS",
-        "IOS",
-        "PB",
-        "CH",
-        "FH",
-        "SB",
-
-        /*
-         * nsIYarip
-         */
-
         "VERSION",
         "FILE",
         "STYLE",
@@ -98,6 +51,7 @@ var EXPORTED_SYMBOLS = [
         "STATUS_REDIRECTED",
 
         "PAGE_TYPE_UNKNOWN",
+        "PAGE_TYPE_SCHEME",
         "PAGE_TYPE_SIMPLE",
         "PAGE_TYPE_IP",
         "PAGE_TYPE_DOMAIN",
@@ -160,62 +114,46 @@ var EXPORTED_SYMBOLS = [
         "LIST_INDEX_KEY",
 
         "LOG_ERROR",
-        "LOG_WARNING"
+        "LOG_WARNING",
+
+        // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIChannel
+        "LOAD_DOCUMENT_URI",
+        "LOAD_INITIAL_DOCUMENT_URI",
+        "LOAD_REPLACE",
+
+        // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIContentPolicy
+        "ACCEPT",
+        "REJECT_SERVER",
+        "TYPE_DOCUMENT",
+
+        // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIDOMNode
+        "DOCUMENT_NODE",
+
+        // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIDOMXPathResult
+        "ORDERED_NODE_ITERATOR_TYPE",
+        "UNORDERED_NODE_SNAPSHOT_TYPE",
+
+        // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIWebProgressListener
+        "STATE_REDIRECTING",
+        "STATE_START",
+        "STATE_STOP",
+
+        // Services
+        "CS",
+        "IDNS",
+        "IOS",
+        "PB",
+        "CH",
+        "FH",
+        "SB",
+        "UUIDG"
     ];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
-/*
- * nsIChannel
- */
-const LOAD_DOCUMENT_URI = Ci.nsIChannel.LOAD_DOCUMENT_URI;
-const LOAD_INITIAL_DOCUMENT_URI = Ci.nsIChannel.LOAD_INITIAL_DOCUMENT_URI;
-const LOAD_REPLACE = Ci.nsIChannel.LOAD_REPLACE;
-
-/*
- * nsIContentPolicy
- */
-const ACCEPT = Ci.nsIContentPolicy.ACCEPT;
-const REJECT_SERVER = Ci.nsIContentPolicy.REJECT_SERVER;
-const TYPE_DOCUMENT = Ci.nsIContentPolicy.TYPE_DOCUMENT;
-
-/*
- * nsIDOMNode
- */
-const DOCUMENT_NODE = Ci.nsIDOMNode.DOCUMENT_NODE;
-
-/*
- * nsIDOMXPathResult
- */
-const ORDERED_NODE_ITERATOR_TYPE = Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE;
-const UNORDERED_NODE_SNAPSHOT_TYPE = Ci.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE;
-
-/*
- * nsIWebProgressListener
- */
-const STATE_REDIRECTING = Ci.nsIWebProgressListener.STATE_REDIRECTING;
-const STATE_START = Ci.nsIWebProgressListener.STATE_START;
-const STATE_STOP = Ci.nsIWebProgressListener.STATE_STOP;
-
-/*
- * Services
- */
-const CS = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
-const IDNS = Cc["@mozilla.org/network/idn-service;1"].getService(Ci.nsIIDNService);
-const IOS = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
-const PB = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
-const CH = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
-const FH = Cc["@mozilla.org/satchel/form-history;1"].getService(Ci.nsIFormHistory2);
-const SB = Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService);
-
-/*
- * nsIYarip
- */
-
-const VERSION = "0.3.3";
+const VERSION = "0.3.4";
 const FILE = "yarip.xml";
-const STYLE = "extensions/yarip@mozdev.org/style.css";
 const CHARSET = "UTF-8";
 
 const MODE_PAGE = 0;
@@ -245,9 +183,10 @@ const STATUS_BLACKLISTED = 2;
 const STATUS_REDIRECTED = 3;
 
 const PAGE_TYPE_UNKNOWN = 0;
-const PAGE_TYPE_SIMPLE = 1;
-const PAGE_TYPE_IP = 2;
-const PAGE_TYPE_DOMAIN = 3;
+const PAGE_TYPE_SCHEME = 1;
+const PAGE_TYPE_SIMPLE = 2;
+const PAGE_TYPE_IP = 3;
+const PAGE_TYPE_DOMAIN = 4;
 
 const PREF_VERSION = "extensions.yarip.version";
 const PREF_ENABLED = "extensions.yarip.enabled.value";
@@ -308,4 +247,36 @@ const LIST_INDEX_KEY = -1;
 
 const LOG_ERROR = Ci.nsIScriptError.errorFlag;
 const LOG_WARNING = Ci.nsIScriptError.warningFlag;
+
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIChannel
+const LOAD_DOCUMENT_URI = Ci.nsIChannel.LOAD_DOCUMENT_URI;
+const LOAD_INITIAL_DOCUMENT_URI = Ci.nsIChannel.LOAD_INITIAL_DOCUMENT_URI;
+const LOAD_REPLACE = Ci.nsIChannel.LOAD_REPLACE;
+
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIContentPolicy
+const ACCEPT = Ci.nsIContentPolicy.ACCEPT;
+const REJECT_SERVER = Ci.nsIContentPolicy.REJECT_SERVER;
+const TYPE_DOCUMENT = Ci.nsIContentPolicy.TYPE_DOCUMENT;
+
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIDOMNode
+const DOCUMENT_NODE = Ci.nsIDOMNode.DOCUMENT_NODE;
+
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIDOMXPathResult
+const ORDERED_NODE_ITERATOR_TYPE = Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE;
+const UNORDERED_NODE_SNAPSHOT_TYPE = Ci.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE;
+
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIWebProgressListener
+const STATE_REDIRECTING = Ci.nsIWebProgressListener.STATE_REDIRECTING;
+const STATE_START = Ci.nsIWebProgressListener.STATE_START;
+const STATE_STOP = Ci.nsIWebProgressListener.STATE_STOP;
+
+// Services
+const CS = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
+const IDNS = Cc["@mozilla.org/network/idn-service;1"].getService(Ci.nsIIDNService);
+const IOS = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+const PB = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
+const CH = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
+const FH = Cc["@mozilla.org/satchel/form-history;1"].getService(Ci.nsIFormHistory2);
+const SB = Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService);
+const UUIDG = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
 

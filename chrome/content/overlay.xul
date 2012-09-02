@@ -79,7 +79,7 @@
 
   <keyset id="mainKeyset">
     <key id="key_yaripToggleShow" modifiers="accel" key="&key.yarip;" command="cmd_yaripToggleShow"/>
-    <key id="key_yaripManagePages" modifiers="accel shift" key="&key.yarip;" command="cmd_yaripManagePages"/>
+    <key id="key_yaripManagePages" modifiers="accel alt" key="&key.yarip;" command="cmd_yaripManagePages"/>
   </keyset>
 
   <stringbundleset>

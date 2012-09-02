@@ -31,11 +31,14 @@ Cu.import("resource://yarip/object.jsm");
 Cu.import("resource://yarip/list.jsm");
 Cu.import("resource://yarip/item.jsm");
 
-function YaripPage(id, name, elementWhitelist, elementBlacklist, elementAttributeList, elementScriptList, contentWhitelist, contentBlacklist, contentRequestHeaderList, contentResponseHeaderList, contentRedirectList, contentStreamList, pageStyleList, pageScriptList, pageRequestHeaderList, pageResponseHeaderList, pageRedirectList, pageStreamList, pageExtensionList, pageExtendedByList)
+//function YaripPage(id, name, elementWhitelist, elementBlacklist, elementAttributeList, elementScriptList, contentWhitelist, contentBlacklist, contentRequestHeaderList, contentResponseHeaderList, contentRedirectList, contentStreamList, pageStyleList, pageScriptList, pageRequestHeaderList, pageResponseHeaderList, pageRedirectList, pageStreamList, pageExtensionList, pageExtendedByList)
+function YaripPage(id, name, created, elementWhitelist, elementBlacklist, elementAttributeList, elementScriptList, contentWhitelist, contentBlacklist, contentRequestHeaderList, contentResponseHeaderList, contentRedirectList, contentStreamList, pageStyleList, pageScriptList, pageRequestHeaderList, pageResponseHeaderList, pageRedirectList, pageStreamList, pageExtensionList, pageExtendedByList)
 {
     this.id = null;
     this.name = "";
+    this.created = -1;
     this.type = PAGE_TYPE_UNKNOWN;
+    this.obj = null;
     this.elementWhitelist = elementWhitelist ? elementWhitelist : new YaripElementWhitelist("whitelist");
     this.elementBlacklist = elementBlacklist ? elementBlacklist : new YaripElementBlacklist("blacklist");
     this.elementAttributeList = elementAttributeList ? elementAttributeList : new YaripElementAttributeList("attribute");
@@ -58,6 +61,7 @@ function YaripPage(id, name, elementWhitelist, elementBlacklist, elementAttribut
 
     this.setId(id);
     this.setName(name, true);
+    this.setCreated(created ? created : Date.now());
 }
 YaripPage.prototype = new YaripObject;
 YaripPage.prototype.constructor = YaripPage;
@@ -84,6 +88,19 @@ YaripPage.prototype.setName = function(value, init)
 YaripPage.prototype.getName = function()
 {
     return this.name;
+}
+YaripPage.prototype.setCreated = function(value)
+{
+    if (!value) return;
+
+    value = Number(value);
+    if (!isNaN(value)) {
+        this.created = value;
+    }
+}
+YaripPage.prototype.getCreated = function()
+{
+    return this.created;
 }
 YaripPage.prototype.setType = function(value)
 {
@@ -161,6 +178,7 @@ YaripPage.prototype.clone = function(purge, pageName, id)
     return new this.constructor(
         id ? id : purge ? this.newId() : this.id,
         pageName ? pageName : this.name,
+        this.created,
         this.elementWhitelist.clone(purge),
         this.elementBlacklist.clone(purge),
         this.elementAttributeList.clone(purge),
@@ -183,6 +201,7 @@ YaripPage.prototype.clone = function(purge, pageName, id)
 YaripPage.prototype.merge = function(page)
 {
     if (!page) return;
+    if (this.getCreated() == -1 || page.getCreated() < this.getCreated()) this.setCreated(page.getCreated());
     this.elementWhitelist.merge(page.elementWhitelist);
     this.elementBlacklist.merge(page.elementBlacklist);
     this.elementAttributeList.merge(page.elementAttributeList);
@@ -275,6 +294,7 @@ YaripPage.prototype.init = function()
                 domainArr: simple.split('.').reverse()
             };
         } else {
+            if (scheme && !domain && !ip && !tld) this.setType(PAGE_TYPE_SCHEME);
             this.obj = {
                 scheme: scheme,
                 domainArr: domain ? domain.split('.').reverse() : simple ? simple.split('.').reverse() : null,
@@ -289,6 +309,10 @@ YaripPage.prototype.init = function()
 //    dump(" obj => "+JSON.stringify(this.obj)+"\n");
 //}
 }
+YaripPage.prototype.isScheme = function()
+{
+    return this.getType() === PAGE_TYPE_SCHEME;
+}
 YaripPage.prototype.compare = function(b, rec)
 {
     if (!b) return 1;
@@ -301,44 +325,49 @@ YaripPage.prototype.compare = function(b, rec)
     if (aType < bType) return -1;
     if (aType > bType) return 1;
 
-    // Same types
-    switch (aType) {
-    case PAGE_TYPE_IP:
-        // Comparing IPs
-        var aIpArr = this.obj.ipArr;
-        var bIpArr = b.obj.ipArr;
-        if (aIpArr < bIpArr) return -1;
-        if (aIpArr > bIpArr) return 1;
-        break;
+    if (this.obj && b.obj)
+    {
+        // Same types
+        switch (aType) {
+        case PAGE_TYPE_IP:
+            // Comparing IPs
+            var aIpArr = this.obj.ipArr;
+            var bIpArr = b.obj.ipArr;
+            if (aIpArr < bIpArr) return -1;
+            if (aIpArr > bIpArr) return 1;
+            break;
 
-    case PAGE_TYPE_SIMPLE:
-        // Comparing DOMAINs (SIMPLE)
-        var aDomainArr = this.obj.domainArr;
-        var bDomainArr = b.obj.domainArr;
-        if (aDomainArr < bDomainArr) return -1;
-        if (aDomainArr > bDomainArr) return 1;
-        break;
+        case PAGE_TYPE_SIMPLE:
+            // Comparing DOMAINs (SIMPLE)
+            var aDomainArr = this.obj.domainArr;
+            var bDomainArr = b.obj.domainArr;
+            if (aDomainArr < bDomainArr) return -1;
+            if (aDomainArr > bDomainArr) return 1;
+            break;
 
-    case PAGE_TYPE_DOMAIN:
-        // Comparing TLDs
-        var aTldArr = this.obj.tldArr;
-        var bTldArr = b.obj.tldArr;
-        if (aTldArr < bTldArr) return -1;
-        if (aTldArr > bTldArr) return 1;
-        // Comparing DOMAINs
-        var aDomainArr = this.obj.domainArr;
-        var bDomainArr = b.obj.domainArr;
-        if (aDomainArr < bDomainArr) return -1;
-        if (aDomainArr > bDomainArr) return 1;
-        break;
-    }
+        case PAGE_TYPE_DOMAIN:
+            // Comparing TLDs
+            var aTldArr = this.obj.tldArr;
+            var bTldArr = b.obj.tldArr;
+            if (aTldArr < bTldArr) return -1;
+            if (aTldArr > bTldArr) return 1;
+            // Comparing DOMAINs
+            var aDomainArr = this.obj.domainArr;
+            var bDomainArr = b.obj.domainArr;
+            if (aDomainArr < bDomainArr) return -1;
+            if (aDomainArr > bDomainArr) return 1;
+            break;
 
-    // Comparing SCHEMEs
-    var aScheme = this.obj.scheme;
-    var bScheme = b.obj.scheme;
-    if (aScheme && bScheme) {
-        if (aScheme < bScheme) return -1;
-        if (aScheme > bScheme) return 1;
+        case PAGE_TYPE_SCHEME:
+            // Comparing SCHEMEs
+            var aScheme = this.obj.scheme;
+            var bScheme = b.obj.scheme;
+            if (aScheme && bScheme) {
+                if (aScheme < bScheme) return -1;
+                if (aScheme > bScheme) return 1;
+            }
+            break;
+        }
     }
 
     var aName = this.getName();
@@ -383,12 +412,21 @@ YaripPage.prototype.generateXml = function()
     }
 
     var tmp = tmpElement + tmpContent + tmpPage;
-    return tmp != "" ? "\t<page id=\"" + this.id + "\" name=\"" + this.name + "\">\n" + tmp + "\t</page>\n" : "";
+//    return tmp != "" ? "\t<page id=\"" + this.id + "\" name=\"" + this.name + "\">\n" + tmp + "\t</page>\n" : "";
+    return tmp != "" ? "\t" +
+        "<page" +
+            " id=\"" + this.id + "\"" +
+            " name=\"" + this.name + "\"" +
+            (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
+        ">\n" +
+        tmp +
+        "\t</page>\n" : "";
 }
 YaripPage.prototype.loadFromObject = function(obj)
 {
     this.id = obj.id;
     this.name = obj.name;
+    this.setCreated(obj.created);
     this.elementWhitelist.loadFromObject(obj.elementWhitelist);
     this.elementBlacklist.loadFromObject(obj.elementBlacklist);
     this.elementAttributeList.loadFromObject(obj.elementAttributeList);
@@ -408,31 +446,36 @@ YaripPage.prototype.loadFromObject = function(obj)
     this.pageExtensionList.loadFromObject(obj.pageExtensionList);
     this.pageExtendedByList.loadFromObject(obj.pageExtendedByList);
 }
-YaripPage.prototype.createPageExtensionItem = function()
+YaripPage.prototype.createPageExtensionItem = function(purge)
 {
-    var doElements = false;
-    var doContents = false;
-    var doScripts = false;
-    var doHeaders = false;
-    var doRedirects = false;
-    var doStreams = false;
-    var doLinks = false;
-    var list = this.pageExtensionList;
-    for each (var item in list.obj) {
-        doElements = doElements || item.getDoElements();
-        doContents = doContents || item.getDoContents();
-        doScripts = doScripts || item.getDoScripts();
-        doHeaders = doHeaders || item.getDoHeaders();
-        doRedirects = doRedirects || item.getDoRedirects();
-        doStreams = doStreams || item.getDoStreams();
-        doLinks = doLinks || item.getDoLinks();
+    if (!purge)
+    {
+        var doElements = false;
+        var doContents = false;
+        var doScripts = false;
+        var doHeaders = false;
+        var doRedirects = false;
+        var doStreams = false;
+        var doLinks = false;
+        var list = this.pageExtensionList;
+        for each (var item in list.obj) {
+            doElements = doElements || item.getDoElements();
+            doContents = doContents || item.getDoContents();
+            doScripts = doScripts || item.getDoScripts();
+            doHeaders = doHeaders || item.getDoHeaders();
+            doRedirects = doRedirects || item.getDoRedirects();
+            doStreams = doStreams || item.getDoStreams();
+            doLinks = doLinks || item.getDoLinks();
+        }
+        doElements = doElements || this.hasElements();
+        doContents = doContents || this.hasContents();
+        doScripts = doScripts || this.hasScripts();
+        doHeaders = doHeaders || this.hasHeaders();
+        doRedirects = doRedirects || this.hasRedirects();
+        doStreams = doStreams || this.hasStreams();
+        return new YaripExtensionItem(this.getId(), null /* priority */, doElements, doContents, doScripts, doHeaders, doRedirects, doStreams, doLinks);
+    } else {
+        return new YaripExtensionItem(this.getId());
     }
-    doElements = doElements || this.hasElements();
-    doContents = doContents || this.hasContents();
-    doScripts = doScripts || this.hasScripts();
-    doHeaders = doHeaders || this.hasHeaders();
-    doRedirects = doRedirects || this.hasRedirects();
-    doStreams = doStreams || this.hasStreams();
-    return new YaripExtensionItem(this.getId(), null /* priority */, doElements, doContents, doScripts, doHeaders, doRedirects, doStreams, doLinks);
 }
 

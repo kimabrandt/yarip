@@ -30,6 +30,8 @@ const yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
 Cu.import("resource://yarip/constants.jsm");
 Cu.import("resource://yarip/stream.jsm");
 
+const stringBundle = SB.createBundle("chrome://yarip/locale/replace.properties");
+
 function YaripChannelReplace(oldChannel, newURI, callback)
 {
     if (!(oldChannel instanceof Ci.nsITraceableChannel)) return;
@@ -39,11 +41,14 @@ function YaripChannelReplace(oldChannel, newURI, callback)
     this.callback = callback;
     var ref = this;
 
-    // nsIRequest
+    // https://developer.mozilla.org/en/XPCOM_Interface_Reference/NsIRequest
     if (this.oldChannel instanceof Ci.nsIRequest && this.newChannel instanceof Ci.nsIRequest) {
         var loadFlags = this.oldChannel.loadFlags;
+        if (loadFlags & 1 << 23) return; // yarip-flag
+
 //        loadFlags |= Ci.nsIChannel.LOAD_RETARGETED_DOCUMENT_URI;
 //        loadFlags |= LOAD_REPLACE;
+        loadFlags |= 1 << 23; // yarip-flag
         if (this.oldChannel.URI.schemeIs("https")) {
             loadFlags &= ~Ci.nsIRequest.INHIBIT_PERSISTENT_CACHING;
         }
@@ -52,11 +57,15 @@ function YaripChannelReplace(oldChannel, newURI, callback)
         this.loadGroup = this.oldChannel.loadGroup;
     }
 
-    // nsIChannel
+    // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIChannel
     if (this.oldChannel instanceof Ci.nsIChannel && this.newChannel instanceof Ci.nsIChannel) {
-        var loadFlags = this.newChannel.loadFlags;
+//        var loadFlags = this.newChannel.loadFlags;
+        var loadFlags = this.oldChannel.loadFlags;
+        if (loadFlags & 1 << 23) return; // yarip-flag
+
         loadFlags |= Ci.nsIChannel.LOAD_RETARGETED_DOCUMENT_URI;
         loadFlags |= LOAD_REPLACE;
+        loadFlags |= 1 << 23; // yarip-flag
         this.newChannel.loadFlags = loadFlags;
 //        this.newChannel.contentCharset = this.oldChannel.contentCharset;
 //        this.newChannel.contentLength = this.oldChannel.contentLength;
@@ -66,10 +75,10 @@ function YaripChannelReplace(oldChannel, newURI, callback)
         this.newChannel.owner = this.oldChannel.owner;
     }
 
-    // nsIHttpChannel
+    // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIHttpChannel
     if (this.oldChannel instanceof Ci.nsIHttpChannel && this.newChannel instanceof Ci.nsIHttpChannel) {
-        if (this.oldChannel.redirectionLimit === 0) {
-            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_REDIRECTION_LIMIT2", [this.oldChannel.URI.spec, this.newChannel.URI.spec], 2)));
+        if (this.oldChannel.redirectionLimit <= 0) {
+            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_REDIRECTION_LIMIT2", [this.oldChannel.URI.spec, this.newChannel.URI.spec], 2)));
             return;
         }
         this.newChannel.allowPipelining = this.oldChannel.allowPipelining;
@@ -90,7 +99,7 @@ function YaripChannelReplace(oldChannel, newURI, callback)
         }
     }
 
-    // nsIHttpChannelInternal
+    // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIHttpChannelInternal
     if (this.oldChannel instanceof Ci.nsIHttpChannelInternal && this.newChannel instanceof Ci.nsIHttpChannelInternal) {
 //        this.oldChannel.channelIsForDownload = this.newChannel.channelIsForDownload;
         if (this.oldChannel.URI == this.oldChannel.documentURI) {
@@ -101,18 +110,18 @@ function YaripChannelReplace(oldChannel, newURI, callback)
         this.oldChannel.forceAllowThirdPartyCookie = this.newChannel.forceAllowThirdPartyCookie;
     }
 
-    // nsIEncodedChannel
-    if (this.oldChannel instanceof Ci.nsIEncodedChannel && this.newChannel instanceof Ci.nsIEncodedChannel) {
-        this.newChannel.applyConversion = this.oldChannel.applyConversion;
-    }
+    // https://developer.mozilla.org/en-US/docs/XPCOM_Interface_Reference/nsIEncodedChannel
+//    if (this.oldChannel instanceof Ci.nsIEncodedChannel && this.newChannel instanceof Ci.nsIEncodedChannel) {
+//        this.newChannel.applyConversion = this.oldChannel.applyConversion;
+//    }
 
-    // nsIApplicationCacheChannel
+    // https://developer.mozilla.org/en/XPCOM_Interface_Reference/NsIApplicationCacheChannel
     if ("nsIApplicationCacheChannel" in Ci && this.oldChannel instanceof Ci.nsIApplicationCacheChannel && this.newChannel instanceof Ci.nsIApplicationCacheChannel) {
 //        this.newChannel.chooseApplicationCache = this.oldChannel.chooseApplicationCache;
         this.newChannel.inheritApplicationCache = this.oldChannel.inheritApplicationCache;
     }
 
-    // nsIPropertyBag
+    // https://developer.mozilla.org/en/XPCOM_Interface_Reference/NsIPropertyBag
     if (this.oldChannel instanceof Ci.nsIPropertyBag && this.newChannel instanceof Ci.nsIWritablePropertyBag) {
         var enumerator = this.oldChannel.enumerator;
         while (enumerator.hasMoreElements()) {
@@ -149,7 +158,6 @@ function YaripChannelReplace(oldChannel, newURI, callback)
         });
     });
 }
-YaripChannelReplace.prototype.sb = SB.createBundle("chrome://yarip/locale/replace.properties");
 YaripChannelReplace.prototype.runWhenPending = function(request, callback)
 {
     if (request.isPending()) {

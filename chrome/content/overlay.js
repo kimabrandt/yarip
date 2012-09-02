@@ -115,7 +115,7 @@ function YaripOverlay()
         if (!doc || !node) return;
 
         var location = yarip.getLocation(doc.location);
-        var pageName = yarip.getFirstAddress(location.asciiHref);
+        var pageName = yarip.getFirstAddress(location.asciiHref, true);
         if (!pageName) {
             pageName = yarip.getPageName(location);
             if (!pageName) return;
@@ -144,7 +144,7 @@ function YaripOverlay()
         if (!doc || !node) return;
 
         var location = yarip.getLocation(doc.location);
-        var pageName = yarip.getFirstAddress(location.asciiHref);
+        var pageName = yarip.getFirstAddress(location.asciiHref, true);
         if (!pageName) {
             pageName = yarip.getPageName(location);
             if (!pageName) return;
@@ -198,7 +198,7 @@ function YaripOverlay()
         if (!doc || !node) return;
 
         var location = yarip.getLocation(doc.location);
-        var pageName = yarip.getFirstAddress(location.asciiHref);
+        var pageName = yarip.getFirstAddress(location.asciiHref, true);
         if (!pageName) {
             pageName = yarip.getPageName(location);
             if (!pageName) return;
@@ -241,7 +241,7 @@ function YaripOverlay()
         if (!doc || !node) return;
 
         var location = yarip.getLocation(doc.location);
-        var pageName = yarip.getFirstAddress(location.asciiHref);
+        var pageName = yarip.getFirstAddress(location.asciiHref, true);
         if (!pageName) {
             pageName = yarip.getPageName(location);
             if (!pageName) return;
@@ -300,7 +300,7 @@ function YaripOverlay()
         yarip.resetUndo();
 
         location = yarip.getLocation(location ? location : content.document.location);
-        var pageName = yarip.getFirstAddress(location.asciiHref);
+        var pageName = yarip.getFirstAddress(location.asciiHref, true);
         if (!pageName) {
             pageName = yarip.getPageName(location);
             if (!pageName) return;
@@ -600,7 +600,7 @@ function YaripOverlay()
             this.pagesObserver = new YaripPreferenceObserver(
                 [PREF_PAGES_MODIFIERS, PREF_PAGES_KEY_CODE],
                 function() {
-                    var modifiers = yarip.getValue(PREF_PAGES_MODIFIERS, "accel shift", DATA_TYPE_STRING);
+                    var modifiers = yarip.getValue(PREF_PAGES_MODIFIERS, "accel alt", DATA_TYPE_STRING);
                     var key = yarip.getValue(PREF_PAGES_KEY_CODE, "m", DATA_TYPE_STRING);
                     yaripOverlay.updateKey("key_yaripManagePages", modifiers, key, "cmd_yaripManagePages");
                 }
@@ -686,25 +686,25 @@ function YaripOverlay()
             if (!doc || !doc.body || !doc.defaultView) break;
             if (!yarip.schemesRegExp.test(doc.location.protocol.replace(/:$/, ""))) break;
 
-            this.domContentLoaded(doc, this);
-
             doc.defaultView.yaripMutationObserver = new MutationObserver(function(mutations) {
                 if (!yarip.enabled) return;
-                if (doc.defaultView.yaripMutationObserverTimeout) return;
+                if (!doc || doc.defaultView.yaripMutationObserverTimeout) return;
 
-                var found = false;
                 mutations.forEach(function(mutation) {
+                    if (!yarip.enabled) return;
+                    if (!doc || doc.defaultView.yaripMutationObserverTimeout) return;
+
                     for (var i = 0, n = mutation.addedNodes.length; i < n; i++) {
                         var node = mutation.addedNodes[i];
-                        if (!("getAttribute" in node) || !/^(firebug|yarip)/.test(node.getAttribute("class"))) {
-                            found = true;
-                            break;
+                        if ("getAttribute" in node) {
+                            if (/^(firebug|yarip)/.test(node.getAttribute("class"))) continue;
+                            if (/\b(blacklisted|highlighted|placeholder|whitelisted\b)/.test(node.getAttribute("status"))) continue;
+
+                            doc.defaultView.yaripMutationObserverTimeout = setTimeout(function() { ref.domContentLoaded(doc, ref, true); }, 1000);
+                            return;
                         }
                     }
                 });
-                if (!found) return;
-
-                doc.defaultView.yaripMutationObserverTimeout = setTimeout(function() { ref.domContentLoaded(doc, ref, true); }, 1000);
             });
             doc.defaultView.yaripMutationObserver.observe(doc.body, {
                 subtree: true,
@@ -714,7 +714,9 @@ function YaripOverlay()
             });
 //            doc.defaultView.yaripMutationObserver.disconnect();
 
-            doc.body.setAttribute("status", "whitelisted");
+            this.domContentLoaded(doc, this);
+
+            /*if (yarip.noFlicker)*/ doc.body.setAttribute("status", "whitelisted");
             break;
 
         case "DOMMenuItemActive":
@@ -764,7 +766,7 @@ function YaripOverlay()
                 }
 
                 // FRAME-MENU
-                var inFrame = gContextMenu.inFrame;
+                var inFrame = gContextMenu && gContextMenu.inFrame || false;
                 if (inFrame)
                 {
                     var frame = node.ownerDocument.defaultView.frameElement;
@@ -840,7 +842,7 @@ function YaripOverlay()
     {
         if (!doc || !doc.defaultView) return;
 
-        /*if (doc.defaultView)*/ doc.defaultView.yaripMutationObserverTimeout = null;
+        doc.defaultView.yaripMutationObserverTimeout = null;
 
         if (!yarip.enabled) return;
 //        if (!doc.body || !doc.location) return;
@@ -866,122 +868,119 @@ function YaripOverlay()
         var menupopup = document.createElement("menupopup");
 
         var ref = this;
+        var item = null;
 
-//        if (!isFrame)
-//        {
-            // WHITELIST ELEMENT
-            var weMenuitem = document.createElement("menuitem");
-            weMenuitem.setAttribute("label", this.stringbundle.getString("menuitemElementWhitelist"));
-            weMenuitem.addEventListener("command", function() { ref.whitelistElement(node.ownerDocument, node); }, false);
-            weMenuitem.setAttribute("class", "whitelist");
-            menupopup.appendChild(weMenuitem);
+        // WHITELIST ELEMENT
+        item = document.createElement("menuitem");
+        item.setAttribute("label", this.stringbundle.getString("menuitemElementWhitelist"));
+        item.addEventListener("command", function() { ref.whitelistElement(node.ownerDocument, node); }, false);
+        item.setAttribute("class", "whitelist");
+        menupopup.appendChild(item);
 
-            // BLACKLIST ELEMENT
-            var beMenuitem = document.createElement("menuitem");
-            beMenuitem.setAttribute("label", this.stringbundle.getString("menuitemElementBlacklist"));
-            beMenuitem.addEventListener("command", function() { ref.blacklistElement(node.ownerDocument, node); }, false);
-            beMenuitem.setAttribute("class", "blacklist");
-            menupopup.appendChild(beMenuitem);
-//        }
+        // BLACKLIST ELEMENT
+        item = document.createElement("menuitem");
+        item.setAttribute("label", this.stringbundle.getString("menuitemElementBlacklist"));
+        item.addEventListener("command", function() { ref.blacklistElement(node.ownerDocument, node); }, false);
+        item.setAttribute("class", "blacklist");
+        menupopup.appendChild(item);
+
+        var tmpMenu = null;
+        var tmpMenupopup = null;
 
         // BLACKLIST ATTRIBUTE
         if (node.hasAttributes())
         {
             var found = false;
-            var baMenu = document.createElement("menu");
-            baMenu.setAttribute("label", this.stringbundle.getString("menuAttributeBlacklist"));
-            var baMenupopup = document.createElement("menupopup");
-            if (node.hasAttributes()) {
+            tmpMenu = document.createElement("menu");
+            tmpMenu.setAttribute("label", this.stringbundle.getString("menuAttributeBlacklist"));
+            tmpMenupopup = document.createElement("menupopup");
+            if (node.hasAttributes())
+            {
                 for (var i = 0; i < node.attributes.length; i++)
                 {
                     var attribute = node.attributes[i];
                     if (!attribute || attribute.value === "") continue;
 
-                    switch (attribute.name)
-                    {
-                        case "status":
-                            if (/^(whitelisted|blacklisted)$/.test(attribute.value)) continue;
-
-                        case "style":
-                            if (OUTLINE_RE.test(attribute.value)) continue;
+                    switch (attribute.name) {
+                    case "status": if (/^(whitelisted|blacklisted)$/.test(attribute.value)) continue;
+                    case "style": if (OUTLINE_RE.test(attribute.value)) continue;
                     }
 
-                    var baMenuitem = document.createElement("menuitem");
-                    baMenuitem.setAttribute("label", attribute.name.toLowerCase());
-                    if (isFrame) baMenuitem.addEventListener("command", function() { ref.blacklistElement(node.ownerDocument.defaultView.frameElement.ownerDocument, attribute); }, false);
-                    else baMenuitem.addEventListener("command", function() { ref.blacklistElement(node.ownerDocument, attribute); }, false);
-                    baMenupopup.appendChild(baMenuitem);
+                    item = document.createElement("menuitem");
+                    item.attribute = attribute;
+                    item.setAttribute("label", attribute.name.toLowerCase());
+                    if (isFrame) item.addEventListener("command", function() { ref.blacklistElement(node.ownerDocument.defaultView.frameElement.ownerDocument, attribute); }, false);
+                    else item.addEventListener("command", function(e) { ref.blacklistElement(node.ownerDocument, e.target.attribute); }, false);
+                    tmpMenupopup.appendChild(item);
                     found = true;
                 }
             }
 
             if (found) {
-                baMenu.appendChild(baMenupopup);
-                menupopup.appendChild(baMenu);
+                tmpMenu.appendChild(tmpMenupopup);
+                menupopup.appendChild(tmpMenu);
             }
         }
 
         // STYLE ELEMENT
-        var seMenu = document.createElement("menu");
-        seMenu.setAttribute("label", this.stringbundle.getString("menuitemStyleElement"));
-        var seMenuitem = document.createElement("menuitem");
-        seMenuitem.setAttribute("label", this.stringbundle.getString("menuitemUserDefined"));
-        if (isFrame) seMenuitem.addEventListener("command", function() { ref.styleElement(node.ownerDocument.defaultView.frameElement.ownerDocument, node); }, false);
-        else seMenuitem.addEventListener("command", function() { ref.styleElement(node.ownerDocument, node); }, false);
-        var seMenupopup = document.createElement("menupopup");
-        seMenupopup.appendChild(seMenuitem);
+        tmpMenu = document.createElement("menu");
+        tmpMenu.setAttribute("label", this.stringbundle.getString("menuitemStyleElement"));
+        item = document.createElement("menuitem");
+        item.setAttribute("label", this.stringbundle.getString("menuitemUserDefined"));
+        if (isFrame) item.addEventListener("command", function() { ref.styleElement(node.ownerDocument.defaultView.frameElement.ownerDocument, node); }, false);
+        else item.addEventListener("command", function() { ref.styleElement(node.ownerDocument, node); }, false);
+        tmpMenupopup = document.createElement("menupopup");
+        tmpMenupopup.appendChild(item);
         if (node.hasAttributes()) {
             var seMenuseparator = document.createElement("menuseparator");
-            seMenupopup.insertBefore(seMenuseparator, seMenuitem);
+            tmpMenupopup.insertBefore(seMenuseparator, item);
             for (var i = 0; i < node.attributes.length; i++)
             {
                 var attribute = node.attributes[i];
                 if (!attribute || attribute.value === "") continue;
 
                 switch (attribute.name) {
-                    case "status": if (/^(whitelisted|blacklisted)$/.test(attribute.value)) continue;
-                    case "style": if (OUTLINE_RE.test(attribute.value)) continue;
+                case "status": if (/^(whitelisted|blacklisted)$/.test(attribute.value)) continue;
+                case "style": if (OUTLINE_RE.test(attribute.value)) continue;
                 }
 
-                var seMenuitem = document.createElement("menuitem");
-                seMenuitem.setAttribute("label", attribute.name.toLowerCase());
-                if (isFrame) seMenuitem.addEventListener("command", function() { ref.styleElement(node.ownerDocument.defaultView.frameElement.ownerDocument, node, attribute.name.toLowerCase()); }, false);
-                else seMenuitem.addEventListener("command", function() { ref.styleElement(node.ownerDocument, node, attribute.name.toLowerCase()); }, false);
-                seMenupopup.insertBefore(seMenuitem, seMenuseparator);
+                item = document.createElement("menuitem");
+                item.attribute = attribute;
+                item.setAttribute("label", attribute.name.toLowerCase());
+                if (isFrame) item.addEventListener("command", function() { ref.styleElement(node.ownerDocument.defaultView.frameElement.ownerDocument, node, attribute.name.toLowerCase()); }, false);
+                else item.addEventListener("command", function(e) { ref.styleElement(node.ownerDocument, node, e.target.attribute.name.toLowerCase()); }, false);
+                tmpMenupopup.insertBefore(item, seMenuseparator);
             }
         }
-        seMenu.appendChild(seMenupopup);
-        menupopup.appendChild(seMenu);
+        tmpMenu.appendChild(tmpMenupopup);
+        menupopup.appendChild(tmpMenu);
 
         // SCRIPT ELEMENT
-        var sceMenuitem = document.createElement("menuitem");
-        sceMenuitem.setAttribute("label", this.stringbundle.getString("menuitemScriptElement"));
-        sceMenuitem.addEventListener("command", function() { ref.scriptElement(node.ownerDocument, node); }, false);
-        menupopup.appendChild(sceMenuitem);
+        item = document.createElement("menuitem");
+        item.setAttribute("label", this.stringbundle.getString("menuitemScriptElement"));
+        item.addEventListener("command", function() { ref.scriptElement(node.ownerDocument, node); }, false);
+        menupopup.appendChild(item);
 
-//        if (!isFrame)
-//        {
-            // TEMPORARILY WHITELIST
-            var wtMenuitem = document.createElement("menuitem");
-            wtMenuitem.setAttribute("label", this.stringbundle.getString("menuitemKeepTemporarily"));
-            wtMenuitem.addEventListener("command", function() { ref.whitelistTemporarily(node.ownerDocument, node); }, false);
-            wtMenuitem.setAttribute("class", "whitelist temporary");
-            menupopup.appendChild(wtMenuitem);
+        // TEMPORARILY WHITELIST
+        item = document.createElement("menuitem");
+        item.setAttribute("label", this.stringbundle.getString("menuitemKeepTemporarily"));
+        item.addEventListener("command", function() { ref.whitelistTemporarily(node.ownerDocument, node); }, false);
+        item.setAttribute("class", "whitelist temporary");
+        menupopup.appendChild(item);
 
-            // TEMPORARILY BLACKLIST
-            var rtMenuitem = document.createElement("menuitem");
-            rtMenuitem.setAttribute("label", this.stringbundle.getString("menuitemRemoveTemporarily"));
-            rtMenuitem.addEventListener("command", function() { ref.removeTemporarily(node.ownerDocument, node); }, false);
-            rtMenuitem.setAttribute("class", "blacklist temporary");
-            menupopup.appendChild(rtMenuitem);
-//        }
+        // TEMPORARILY BLACKLIST
+        item = document.createElement("menuitem");
+        item.setAttribute("label", this.stringbundle.getString("menuitemRemoveTemporarily"));
+        item.addEventListener("command", function() { ref.removeTemporarily(node.ownerDocument, node); }, false);
+        item.setAttribute("class", "blacklist temporary");
+        menupopup.appendChild(item);
 
         // COPY XPATH
-        var cxMenuitem = document.createElement("menuitem");
-        cxMenuitem.setAttribute("label", this.stringbundle.getString("menuitemCopyXPath"));
-        cxMenuitem.addEventListener("command", function() { ref.copyXPath(node); }, false);
-        cxMenuitem.setAttribute("class", "copyXPath");
-        menupopup.appendChild(cxMenuitem);
+        item = document.createElement("menuitem");
+        item.setAttribute("label", this.stringbundle.getString("menuitemCopyXPath"));
+        item.addEventListener("command", function() { ref.copyXPath(node); }, false);
+        item.setAttribute("class", "copyXPath");
+        menupopup.appendChild(item);
 
         menu.appendChild(menupopup);
         return menu;

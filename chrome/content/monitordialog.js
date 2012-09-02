@@ -50,7 +50,7 @@ function YaripMonitorDialog()
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
-        var pageName = yarip.getFirstAddress(item.location.asciiHref);
+        var pageName = yarip.getFirstAddress(item.location.asciiHref, true);
         if (!pageName) {
 //            pageName = yarip.getPageName(item.location);
             pageName = item.location.pageName;
@@ -80,7 +80,7 @@ function YaripMonitorDialog()
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
-        var pageName = yarip.getFirstAddress(item.location.asciiHref);
+        var pageName = yarip.getFirstAddress(item.location.asciiHref, true);
         if (!pageName) {
 //            pageName = yarip.getPageName(item.location);
             pageName = item.location.pageName;
@@ -110,14 +110,14 @@ function YaripMonitorDialog()
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
-        var pageName = yarip.getFirstAddress(item.location.asciiHref);
+        var pageName = yarip.getFirstAddress(item.location.asciiHref, true);
         if (!pageName) {
 //            pageName = yarip.getPageName(item.location);
             pageName = item.location.pageName;
             if (!pageName) return;
         }
 
-        var contentAddress = yarip.getFirstAddress(item.content.asciiHref);
+        var contentAddress = yarip.getFirstAddress(item.content.asciiHref, true);
         if (!contentAddress) {
             var contentLocation = yarip.getLocation(item.content);
             contentAddress = yarip.getPageName(contentLocation);
@@ -150,7 +150,7 @@ function YaripMonitorDialog()
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
-        var pageName = yarip.getFirstAddress(item.location.asciiHref);
+        var pageName = yarip.getFirstAddress(item.location.asciiHref, true);
         if (!pageName) {
 //            pageName = yarip.getPageName(item.location);
             pageName = item.location.pageName;
@@ -192,7 +192,11 @@ function YaripMonitorDialog()
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
-        return item.itemObj && item.itemObj.pageName ? item.itemObj.pageName : yarip.getFirstAddress(item.location.asciiHref);
+        if (item.itemObj && item.itemObj.pageName) {
+            return item.itemObj.pageName;
+        } else {
+            return yarip.getFirstAddress(item.location.asciiHref);
+        }
     }
 
     this.getType = function()
@@ -200,7 +204,11 @@ function YaripMonitorDialog()
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
-        return item.itemObj ? item.itemObj.ruleType : null;
+        if (item.itemObj) {
+            return item.itemObj.ruleType;
+        } else {
+            return null;
+        }
     }
 
     this.getKey = function()
@@ -208,7 +216,11 @@ function YaripMonitorDialog()
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
-        return item.itemObj ? item.itemObj.itemKey : null;
+        if (item.itemObj) {
+            return item.itemObj.itemKey;
+        } else {
+            return null;
+        }
     }
 
     this.copyRegExp = function()
@@ -393,7 +405,11 @@ var yaripMonitorTreeView = {
         if (row < 0 || row >= this.visibleData.length) return "";
 
         var cellText = this.visibleData[row][colid];
-        return cellText ? cellText : null;
+        if (cellText) {
+            return cellText;
+        } else {
+            return null;
+        }
     },
     canDrop: function(index, orientation) { return false; },
     cycleCell: function(row, col) {},

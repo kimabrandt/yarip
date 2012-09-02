@@ -29,6 +29,8 @@ Cu.import("resource://yarip/object.jsm");
 Cu.import("resource://yarip/page.jsm");
 Cu.import("resource://yarip/item.jsm");
 
+const stringBundle = SB.createBundle("chrome://yarip/locale/map.properties");
+
 function YaripMap()
 {
     this.obj = {};
@@ -38,7 +40,6 @@ function YaripMap()
 }
 YaripMap.prototype = new YaripObject;
 YaripMap.prototype.constructor = YaripMap;
-YaripMap.prototype.sb = SB.createBundle("chrome://yarip/locale/map.properties");
 YaripMap.prototype.add = function(page)
 {
     if (!page) return;
@@ -46,9 +47,10 @@ YaripMap.prototype.add = function(page)
     var oldPage = this.obj[page.getName()];
     if (oldPage) {
         oldPage.merge(page);
+//        page = oldPage;
     } else {
         if (page.getId() in this.objId) {
-            yarip.logMessage(LOG_WARNING, new Error(this.sb.formatStringFromName("WARN_PAGE_EXISTS2", [page.getId(), page.getName()], 2)));
+            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_PAGE_EXISTS2", [page.getId(), page.getName()], 2)));
             return;
         }
 
@@ -56,13 +58,15 @@ YaripMap.prototype.add = function(page)
         this.objId[page.getId()] = page;
         this.tree.add(page);
 
-//        var list = page.pageExtensionList;
-//        for each (var item in list.obj) {
-//            this.addExtension(page, item);
-//        }
-
         this.length++;
     }
+
+//    // Adding extensions.
+//    var list = page.pageExtensionList;
+//    for each (var item in list.obj) {
+//        this.addExtension(page, item);
+//    }
+
     this.resetKnown();
 }
 YaripMap.prototype.remove = function(page)
@@ -88,6 +92,17 @@ YaripMap.prototype.removeById = function(id)
     if (!id || !this.objId[id]) return;
 
     var page = this.objId[id];
+
+//    // Removing extensions.
+//    var list = page.pageExtensionList;
+//    for each (var item in list.obj) {
+//        this.removeExtension(page, item);
+//    }
+//    list = page.pageExtendedByList;
+//    for each (var item in list.obj) {
+//        this.removeExtension(item.getPage(), page.createPageExtensionItem(true));
+//    }
+
     this.tree.remove(page);
     delete this.obj[page.getName()];
     delete this.objId[id];
@@ -194,12 +209,14 @@ YaripMap.prototype.merge = function(map)
         }
 
         oldPage = this.getById(newPage.getId());
-        if (oldPage && newPage.getName() != oldPage.getName()) { // same id, different name
-            var newId = null;
-            do {
-                newId = this.newId(); // create new id
-            } while (this.getById(newId) && map.getById(newId)); // while id exists
-            this.replaceExtensionIds(map, newPage, newId); // replace with new id
+//        if (oldPage && newPage.getName() != oldPage.getName()) { // same id, different name
+        if (oldPage && newPage.getName() != oldPage.getName() || ("" + newPage.getId()).length <= 13) { // same id, different name or old-style id
+//            var newId = null;
+//            do {
+//                newId = this.newId(); // create new id
+//            } while (this.getById(newId) && map.getById(newId)); // while id exists
+//            this.replaceExtensionIds(map, newPage, newId); // replace with new id
+            this.replaceExtensionIds(map, newPage, this.newId()); // replace with new id
         }
     }
 

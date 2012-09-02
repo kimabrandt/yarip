@@ -85,7 +85,7 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
         request.cancel(Cr.NS_ERROR_ABORT);
         var newLog = yarip.logContentLocation(STATUS_BLACKLISTED, location, contentLocation, null, statusObj.itemObj);
         if (newLog && statusObj.itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
-            yarip.showLinkNotification(doc, location, contentLocation);
+            yarip.showLinkNotification(doc, location, contentLocation, isLink);
         }
         break;
     }

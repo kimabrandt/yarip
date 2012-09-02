@@ -33,6 +33,7 @@
 
 <!ENTITY treecol.label.xpath                 "XPath">
 <!ENTITY treecol.label.regExp                "Regular expression">
+<!ENTITY treecol.label.flags                 "Flags">
 <!ENTITY treecol.label.contentRegExp         "Content regex">
 <!ENTITY treecol.label.newsubstr             "New substring">
 <!ENTITY treecol.label.attrName              "Attribute name">
@@ -86,6 +87,7 @@
 <!ENTITY button.accesskey.add                "A">
 <!ENTITY button.label.remove                 "Remove">
 <!ENTITY button.label.removeAll              "Remove all">
+<!ENTITY button.accesskey.exclusive          "X">
 
 <!ENTITY button.label.copyPage               "Copy page">
 <!ENTITY button.accesskey.copyPage           "C">

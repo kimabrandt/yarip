@@ -24,148 +24,255 @@
   <binding id="replace">
     <implementation>
       <constructor><![CDATA[
-        document.normalize();
+          if (this.placeholder) return;
+          else this.placeholder = true;
 
-        var parent = this.parentNode;
-        var next = this.nextSibling;
-        var localName = this.localName.toLowerCase();
+          if (!("getAttribute" in this)) return;
+          if (!this.localName) return;
 
-        if (this.ownerDocument instanceof Components.interfaces.nsIDOMXULDocument) return;
-//        if (parent && /^body|object$/i.test(parent.localName) && !/^embed$/.test(localName)) return;
-//        if (/\b(whitelisted|blacklisted|prefswitch)\b/.test(this.getAttribute("status"))) return;
-        if (/\b(whitelisted|blacklisted)\b/.test(this.getAttribute("status"))) return;
-        if (next && next.getAttribute && next.getAttribute("class") == "placeholder" && next.getAttribute("status") == "whitelisted") return;
+          document.normalize();
 
-        switch (localName) {
-//        case "iframe":
-//          this.placeholder_src_backup = this.src;
-//          this.src = "";
-//          break;
-        case "audio":
-        case "video":
-          this.addEventListener("playing", this.pause, false);
-          this.pause();
-          this.placeholder_src_backup = this.src;
-          this.src = "";
-          break;
-        }
+          var parent = this.parentNode;
+          var next = this.nextSibling;
+          var localName = this.localName.toLowerCase();
 
-//        var DEFAULT_WIDTH = "auto";
-        var DEFAULT_WIDTH = "100%";
-        var DEFAULT_HEIGHT = "100%";
-        var cs = document.defaultView.getComputedStyle(this, null);
-        var rect = this.getBoundingClientRect();
-        var width = DEFAULT_WIDTH;
-        var height = DEFAULT_HEIGHT;
-        var cssWidth = cs.getPropertyValue("width") ? cs.getPropertyValue("width") : "auto";
-        var cssHeight = cs.getPropertyValue("height") ? cs.getPropertyValue("height") : "auto";
-        var attrWidth = this.getAttribute("width") ? this.getAttribute("width") : "auto";
-        var attrHeight = this.getAttribute("height") ? this.getAttribute("height") : "auto";
-        var rectWidth = rect.width;
-        var rectHeight = rect.height;
+          if (this.ownerDocument instanceof Components.interfaces.nsIDOMXULDocument) return;
+//          if (/\b(whitelisted|blacklisted|placeholder)\b/.test(this.getAttribute("status"))) return;
+          if (/\b(whitelisted|blacklisted)\b/.test(this.getAttribute("status"))) return;
+          if (next && "getAttribute" in next && next.getAttribute("class") == "placeholder" && next.getAttribute("status") == "whitelisted") return;
 
-        width = cssWidth ? cssWidth : width;
-        height = cssHeight ? cssHeight : height;
+          if (/^(audio|embed|iframe|video)$/i.test(localName)) {
+              if (/^(audio|video)$/i.test(localName)) {
+                  this.addEventListener("playing", this.pause, false);
+                  this.pause(); // prevent autostart
+              }
 
-        var goodMeasureRegExp = /^\d+(px)?$/;
-        if (!goodMeasureRegExp.test(width)) width = attrWidth ? attrWidth : width;
-        if (!goodMeasureRegExp.test(height)) height = attrHeight ? attrHeight : height;
+              if (this.src /*|| /^iframe$/i.test(localName)*/) {
+                  this.setAttribute("src_backup", this.src);
+                  this.src = "";
+              }
 
-        if (!goodMeasureRegExp.test(width)) width = rectWidth > 0 ? rectWidth : width;
-        if (!goodMeasureRegExp.test(height)) height = rectHeight > 0 ? rectHeight : height;
-
-        var smallMeasureRegExp = /^[12]?\d(px)?$/;
-        var digitsRegExp = /^\d+$/;
-        if (smallMeasureRegExp.test(width)) width = DEFAULT_WIDTH;
-        else if (digitsRegExp.test(width)) width = parseInt(width) > 0 ? width + "px" : DEFAULT_WIDTH;
-
-        if (smallMeasureRegExp.test(height)) height = DEFAULT_HEIGHT;
-        else if (digitsRegExp.test(height)) height = parseInt(height) > 0 ? height + "px" : DEFAULT_HEIGHT;
-
-        var display =  cs.getPropertyValue("display") ? cs.getPropertyValue("display") : "inline-table";
-        var float = cs.getPropertyValue("float") ? cs.getPropertyValue("float") : "none";
-        var marginBottom = cs.getPropertyValue("margin-bottom") ? cs.getPropertyValue("margin-bottom") : "auto";
-        var marginLeft = cs.getPropertyValue("margin-left") ? cs.getPropertyValue("margin-left") : "auto";
-        var marginRight = cs.getPropertyValue("margin-right") ? cs.getPropertyValue("margin-right") : "auto";
-        var marginTop = cs.getPropertyValue("margin-top") ? cs.getPropertyValue("margin-top") : "auto";
-        var position = cs.getPropertyValue("position") ? cs.getPropertyValue("position") : "inherit";
-        var textAlign = cs.getPropertyValue("text-align") ? cs.getPropertyValue("text-align") : "center";
-
-        this.setAttribute("status", "placeholder blacklisted");
-
-        // Creating cell and placeholder.
-        var button = document.createElement("input");
-        button.setAttribute("status", "whitelisted");
-        button.setAttribute("type", "button");
-        button.setAttribute("value", this.tagName.toUpperCase());
-        button.setAttribute("style",
-          "float: none !important;" +
-          " font-size: 12px !important;" +
-          " font-weight: bold !important;" +
-          " height: 100% !important;" +
-          " margin: 0px !important;" +
-          " padding: 0px !important;" +
-          " width: 100% !important;"
-          );
-        var cell = document.createElement("div");
-        cell.align = "center";
-        cell.setAttribute("class", "placeholder-cell");
-        cell.setAttribute("status", "whitelisted");
-        cell.setAttribute("style",
-          "display: table-cell !important;" +
-          " float: none !important;" +
-          " height: 100% !important;" +
-          " margin: 0px !important;" +
-          " padding: 0px !important;" +
-          " text-align: " + textAlign + " !important;" +
-          " vertical-align: middle !important;" +
-          " width: 100% !important;"
-          );
-        cell.appendChild(button);
-        var placeholder = document.createElement("div");
-        placeholder.setAttribute("class", "placeholder");
-        placeholder.setAttribute("status", "whitelisted");
-        placeholder.setAttribute("style",
-          "display: " + display + " !important;" +
-          " float: " + float + " !important;" +
-          " height: " + height + " !important;" +
-          " margin-bottom: " + marginBottom + " !important;" +
-          " margin-left: " + marginLeft + " !important;" +
-          " margin-right: " + marginRight + " !important;" +
-          " margin-top: " + marginTop + " !important;" +
-          " position: " + position + " !important;" +
-          " width: " + width + " !important;"
-          );
-        placeholder.appendChild(cell);
-        parent.insertBefore(placeholder, next);
-
-        var element = this;
-        var show = function(placeholder, element) {
-          placeholder.setAttribute("style", "display: none !important;");
-
-          switch (element.tagName.toLowerCase()) {
-          case "object":
-            // Whitelisting child embed/object elements.
-            var es = document.evaluate(".//embed | .//object", element, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-            for (var i = 0; i < es.snapshotLength; i++) es.snapshotItem(i).setAttribute("status", "whitelisted");
-            break;
-//          case "iframe":
-//            element.src = element.placeholder_src_backup;
-//            break;
-          case "audio":
-          case "video":
-            element.removeEventListener("playing", element.pause, false);
-            element.src = element.placeholder_src_backup;
-            break;
+              if (/^(audio|embed|video)$/i.test(localName)) {
+//                  var es = document.evaluate(".//embed | .//object | .//source", this, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                  var es = document.evaluate(".//embed | .//object", this, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                  for (var i = 0; i < es.snapshotLength; i++) {
+                      var child = es.snapshotItem(i);
+                      if (child.src) {
+                          child.setAttribute("src_backup", child.src);
+                          child.src = "";
+                      } else if (child.data) {
+                          child.setAttribute("data_backup", child.data);
+                          child.data = "";
+                      }
+                  }
+              }
+          } else if (/^object$/i.test(localName)) {
+              if (this.data) {
+                  this.setAttribute("data_backup", this.data);
+                  this.data = "";
+              }
           }
 
-          element.setAttribute("status", "whitelisted forced");
-        };
-        button.addEventListener("click", function() { show(placeholder, element); }, false);
+          var parentCs = document.defaultView.getComputedStyle(parent, null);
+          var parentCssWidth = parentCs && parentCs.getPropertyValue("width") || null;
+          var parentCssHeight = parentCs && parentCs.getPropertyValue("height") || null;
+          var cs = document.defaultView.getComputedStyle(this, null);
+          var cssWidth = cs && cs.getPropertyValue("width") || null;
+          var cssHeight = cs && cs.getPropertyValue("height") || null;
+          var attrWidth = this.getAttribute("width") || null;
+          var attrHeight = this.getAttribute("height") || null;
 
-//        if (/^body$/i.test(this.parentNode.localName) && /^(embed|object|video)$/i.test(this.localName)) {
-//          this.parentNode.setAttribute("status", "whitelisted");
-//        }
+          var goodMeasureRegExp = /^\d+(px)?$/;
+          var width = !goodMeasureRegExp.test(cssWidth) && attrWidth || cssWidth;
+          var height = !goodMeasureRegExp.test(cssHeight) && attrHeight || cssHeight;
+          var badMeasureRegExp = /^\dpx$/;
+          if (!width || !height || badMeasureRegExp.test(width) || badMeasureRegExp.test(height)) return;
+
+          var DEFAULT = "auto";
+
+          // Preparing style of placeholder
+          switch (localName) {
+          case "iframe":
+              if (width == "auto" && height == "auto" && (/^body$/i.test(parent.localName) || /^body$/i.test(parent.parentNode.localName))) {
+                return;
+              } else {
+                DEFAULT = "100%";
+              }
+              break;
+          default:
+              if (width == "auto" && height == "auto" && /^\d+px$/.test(parentCssWidth) && /^\d+px$/.test(parentCssHeight)) {
+                width = "100%";
+                height = "100%";
+              }
+              break;
+          }
+
+          var smallMeasureRegExp = /^[12]?\d(px)?$/;
+          var digitsRegExp = /^\d+$/;
+          if (smallMeasureRegExp.test(width)) {
+              width = DEFAULT;
+          } else if (digitsRegExp.test(width)) {
+              width = parseInt(width) > 0 ? width + "px" : DEFAULT;
+          }
+
+          if (smallMeasureRegExp.test(height)) {
+              height = DEFAULT;
+          } else if (digitsRegExp.test(height)) {
+              height = parseInt(height) > 0 ? height + "px" : DEFAULT;
+          }
+
+          // Creating cell and placeholder.
+          var button = document.createElement("input");
+          button.setAttribute("status", "whitelisted");
+          button.setAttribute("type", "button");
+          button.setAttribute("value", localName.toUpperCase());
+          button.setAttribute("style",
+              " float: none !important;" +
+              " font-weight: bold;" +
+              " height: 100% !important;" +
+              " margin: 0px !important;" +
+              " opacity: 0.6 !important;" +
+              " padding: 0px !important;" +
+              " width: 100% !important;"
+          );
+          var cell = document.createElement("div");
+          cell.align = "center";
+          cell.setAttribute("class", "placeholder-cell");
+          cell.setAttribute("status", "whitelisted");
+          cell.setAttribute("style",
+              "display: table-cell !important;" +
+              " float: none !important;" +
+              " height: 100% !important;" +
+              " margin: 0px !important;" +
+              " padding: 0px !important;" +
+              " text-align: " + (cs.getPropertyValue("text-align") || "center") + " !important;" +
+              " vertical-align: middle !important;" +
+              " width: 100% !important;"
+          );
+          cell.appendChild(button);
+          var placeholder = document.createElement("div");
+          placeholder.setAttribute("class", "placeholder");
+          placeholder.setAttribute("status", "whitelisted");
+          placeholder.setAttribute("style",
+//              "display: " + (cs.getPropertyValue("display") || "inline-table") + " !important;" +
+//              "display: inline-table !important;" +
+              "display: inline-table;" +
+              " float: " + (cs.getPropertyValue("float") || "none") + " !important;" +
+              " height: " + height + " !important;" +
+              " margin-bottom: " + (cs.getPropertyValue("margin-bottom") || "auto") + " !important;" +
+              " margin-left: " + (cs.getPropertyValue("margin-left") || "auto") + " !important;" +
+              " margin-right: " + (cs.getPropertyValue("margin-right") || "auto") + " !important;" +
+              " margin-top: " + (cs.getPropertyValue("margin-top") || "auto") + " !important;" +
+              " position: " + (cs.getPropertyValue("position") || "inherit") + " !important;" +
+              " width: " + width + " !important;"
+          );
+          placeholder.appendChild(cell);
+////          if (!/\bplaceholder\b/.test(this.getAttribute("status"))) {
+//              this.setAttribute("status", "placeholder blacklisted");
+////          } else {
+////              this.setAttribute("status", "placeholder blacklisted");
+////          }
+          parent.insertBefore(placeholder, next);
+
+          // Adding `show'-function to element.
+          var show = function(event, placeholder, element)
+          {
+              event.preventDefault();
+
+//              switch (localName) {
+//              case "audio":
+//              case "video":
+//                  element.removeEventListener("playing", element.pause, false);
+//                  element.play(); // autostart
+//                  break;
+//              case "object":
+//                  // Whitelisting child elements.
+//                  es = document.evaluate(".//embed | .//object", element, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+//                  for (var i = 0; i < es.snapshotLength; i++) {
+//                      es.snapshotItem(i).setAttribute("status", "whitelisted");
+//                  }
+//                  break;
+//              }
+              if (/^(audio|embed|video)$/i.test(localName)) {
+                  if (/^embed$/i.test(localName)) element.setAttribute("autostart", "true");
+                  if (element.getAttribute("src_backup")) {
+                      element.src = element.getAttribute("src_backup");
+                      element.removeAttribute("src_backup");
+                  }
+//                  var es = document.evaluate(".//embed | .//object | .//source", element, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                  var es = document.evaluate(".//embed | .//object", element, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                  for (var i = 0; i < es.snapshotLength; i++) {
+                      var child = es.snapshotItem(i);
+                      if (child.getAttribute("src_backup")) {
+                          child.src = child.getAttribute("src_backup");
+                          child.removeAttribute("src_backup");
+                      } else if (child.getAttribute("data_backup")) {
+                          child.data = child.getAttribute("data_backup");
+                          child.removeAttribute("data_backup");
+                      }
+                  }
+                  if (/^(audio|video)$/i.test(localName)) {
+                      element.removeEventListener("playing", element.pause, false);
+                      element.play(); // autostart
+                  }
+              } else if (/^iframe$/i.test(localName)) {
+                  var src = element.contentDocument.location.href;
+//                  var src = element.contentWindow.location.href;
+                  if (src && src != "about:blank") {
+                      element.src = src;
+                  } else if (element.getAttribute("src_backup")) {
+                      element.src = element.getAttribute("src_backup");
+                  }
+                  element.removeAttribute("src_backup");
+              } else if (/^object$/i.test(localName)) {
+                  if (element.getAttribute("data_backup")) {
+                      element.data = element.getAttribute("data_backup");
+                      element.removeAttribute("data_backup");
+                  }
+                  // Whitelisting child embed/object elements.
+                  var es = document.evaluate(".//embed | .//object", element, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                  for (var i = 0; i < es.snapshotLength; i++) {
+                      es.snapshotItem(i).setAttribute("status", "whitelisted");
+                  }
+              }
+
+              element.setAttribute("status", "whitelisted");
+          };
+          var element_ref = this;
+          button.addEventListener("click", function(event) { show(event, placeholder, element_ref); }, true);
+
+          // Adding `update'-function to element.
+          var update = function(event, placeholder, element)
+          {
+              switch (event.attrName) {
+              case "height":
+                  var height = event.newValue;
+                  if (!smallMeasureRegExp.test(height)) {
+                      if (digitsRegExp.test(height)) {
+                          height = parseInt(height) > 0 ? height + "px" : DEFAULT;
+                      }
+                      placeholder.style.height = height;
+                  }
+                  break;
+              case "width":
+                  var width = event.newValue;
+                  if (!smallMeasureRegExp.test(width)) {
+                      if (digitsRegExp.test(width)) {
+                          width = parseInt(width) > 0 ? width + "px" : DEFAULT;
+                      }
+                      placeholder.style.width = width;
+                  }
+                  break;
+              }
+          }
+          this.addEventListener("DOMAttrModified", function(event) { update(event, placeholder, element_ref); }, false);
+
+          this.setAttribute("status", "placeholder blacklisted");
+
+          // Whitelist the body.
+          if (/^body$/i.test(parent.localName) && parent.getAttribute("status") != "whitelisted") {
+              parent.setAttribute("status", "whitelisted");
+          }
       ]]></constructor>
     </implementation>
   </binding>
