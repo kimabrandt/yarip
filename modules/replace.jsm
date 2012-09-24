@@ -133,9 +133,11 @@ function YaripChannelReplace(oldChannel, newURI, callback)
         }
     }
 
-    this.runWhenPending(this.oldChannel, function() {
+    this.runWhenPending(this.oldChannel, function()
+    {
         new YaripRedirectStreamListener(ref.oldChannel, function() {
-            try {
+            try
+            {
                 var flags = Ci.nsIChannelEventSink.REDIRECT_INTERNAL;
 
                 var ces = Cc["@mozilla.org/netwerk/global-channel-event-sink;1"].getService(Ci.nsIChannelEventSink);

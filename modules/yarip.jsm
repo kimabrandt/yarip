@@ -537,7 +537,8 @@ Yarip.prototype.getAddressObj = function(reduceDomain, follow, matchObj, reverse
             var knownObj = this.knownAddressObj[key];
             if (knownObj) return knownObj;
         }
-        var childItem = new YaripExtensionItem(pageName, null, true, true, true, true, true, true, true, null, true);
+//        var childItem = new YaripExtensionItem(pageName, null, true, true, true, true, true, true, true, null, true);
+        var childItem = new YaripExtensionItem(page.getId(), null, true, true, true, true, true, true, true, null, true);
         addressObj.ext[pageName] = childItem;
         addressObj.root.addTo(childItem);
         childItem.addFrom(addressObj.root);
@@ -608,7 +609,8 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parent
                 }
                 else // not yet added
                 {
-                    var childItem = new YaripExtensionItem(extPageName);
+//                    var childItem = new YaripExtensionItem(extPageName);
+                    var childItem = new YaripExtensionItem(extPage.getId());
                     childItem.updateDo(parentItem, item, matchObj);
                     if (item.doesSomething())
                     {
@@ -676,6 +678,7 @@ Yarip.prototype.resetOnAddress = function(obj)
                 case "whitelisted forced":
                 case "blacklisted":
                 case "placeholder":
+                case "placeholder blacklisted":
                     element.removeAttribute("status");
                     break;
                 }
@@ -834,9 +837,18 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
                   incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
                   continue;
                 }
+            case "placeholder":
+            case "placeholder blacklisted":
+//                if (!item.getForce()) {
+                if (item.getPlaceholder()) {
+                  incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
+                  continue;
+                } else {
+                    break;
+                }
             case "blacklisted":
 //            case "placeholder":
-            case "placeholder blacklisted":
+//            case "placeholder blacklisted":
             case "whitelisted forced":
               incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
               continue;

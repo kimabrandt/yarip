@@ -110,8 +110,8 @@
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="elementWhitelist-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
-                          <treecol id="elementWhitelist-tree-force" label="&treecol.label.force;" type="checkbox" editable="true" hidden="true" persist="width hidden" tooltiptext="&treecol.tooltiptext.forceWhitelist;"/>
-                          <splitter class="tree-splitter" resizeafter="farthest"/>
+<!--                          <treecol id="elementWhitelist-tree-force" label="&treecol.label.force;" type="checkbox" editable="true" hidden="true" persist="width hidden" tooltiptext="&treecol.tooltiptext.forceWhitelist;"/>-->
+<!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
                           <treecol id="elementWhitelist-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="elementWhitelist-tree-lastFound" label="&treecol.label.lastFound;" persist="width hidden"/>

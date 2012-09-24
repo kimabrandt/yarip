@@ -284,9 +284,9 @@ YaripElementWhitelist.prototype.set = function(row, col, value)
             } else {
                 return false;
             }
-        case 2:
-            item.setForce(value);
-            return false;
+//        case 2:
+//            item.setForce(value);
+//            return false;
         default:
             return false;
         }
@@ -305,8 +305,8 @@ YaripElementWhitelist.prototype.get = function(row, col)
         case LIST_INDEX_KEY: return item.getKey();
         case 0: return item.getXPath();
         case 1: return item.getPriority();
-        case 2: return item.getForce();
-        case 3:
+//        case 2: return item.getForce();
+        case 2:
             var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -314,7 +314,7 @@ YaripElementWhitelist.prototype.get = function(row, col)
             } else {
                 return "";
             }
-        case 4:
+        case 3:
             var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -322,9 +322,9 @@ YaripElementWhitelist.prototype.get = function(row, col)
             } else {
                 return "";
             }
-        case 5: return item.getFound();
-        case 6: return item.getNotFound();
-        case 7: return item.getIgnored();
+        case 4: return item.getFound();
+        case 5: return item.getNotFound();
+        case 6: return item.getIgnored();
         default: return "";
         }
     }

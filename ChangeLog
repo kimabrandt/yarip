@@ -1,3 +1,16 @@
+2012-09-24  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/pagedialog.xul, modules/{list,item}.jsm (force):
+    Preparing removal of forced element whitelisting.
+
+    * modules/stream.jsm (getPage), modules/yarip.jsm (YaripExtensionItem):
+    Getting pages by id instead of (falsely) by name.
+
+    * modules/stream.jsm (responseSource.search): Only parsing through the
+    page-stream if some page-stream-rules do exist.
+
+    * modules/uri.jsm (TLD, br + ua): Updated the TLD.
+
 2012-08-30  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * modules/yarip.jsm, chrome/skin/blacklist.css, chrome/content/binding/placeholder.xbl:

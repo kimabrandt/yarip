@@ -126,7 +126,7 @@ var TLD = "(" +
     "|(?:(?:(?:asso|barreau|gouv)\\.)?bj)" +
     "|(?:(?:(?:com|edu|gov|net|org)\\.)?bm)" +
     "|(?:(?:(?:com|edu|gob|gov|int|mil|net|org|tv)\\.)?bo)" +
-    "|(?:(?:(?:adm|adv|agr|am|arq|art|ato|b|bio|blog|bmd|can|cim|cng|cnt|com|coop|ecn|edu|emp|eng|esp|etc|eti|far|flog|fm|fnd|fot|fst|g12|ggf|gov|imb|ind|inf|jor|jus|leg|lel|mat|med|mil|mus|net|nom|not|ntr|odo|org|ppg|pro|psc|psi|qsl|radio|rec|slg|srv|taxi|teo|tmp|trd|tur|tv|vet|vlog|wiki|zlg)\\.)?br)" +
+    "|(?:(?:(?:adm|adv|agr|am|arq|art|ato|b|bio|blog|bmd|cim|cng|cnt|com|coop|ecn|eco|edu|emp|eng|esp|etc|eti|far|flog|fm|fnd|fot|fst|g12|ggf|gov|imb|ind|inf|jor|jus|leg|lel|mat|med|mil|mus|net|nom|not|ntr|odo|org|ppg|pro|psc|psi|qsl|radio|rec|slg|srv|taxi|teo|tmp|trd|tur|tv|vet|vlog|wiki|zlg)\\.)?br)" +
     "|(?:(?:(?:com|edu|gov|net|org)\\.)?bs)" +
     "|(?:(?:(?:com|edu|gov|net|org)\\.)?bt)" +
     "|(?:(?:(?:co|org)\\.)?bw)" +
@@ -270,7 +270,7 @@ var TLD = "(" +
     "|(?:(?:(?:better-than|dyndns|on-the-web|worse-than)\\.)?tv)" +
     "|(?:(?:(?:club|com|ebiz|edu|game|gov|idv|mil|net|org|czrw28b|uc0atv|zf0ao64a)\\.)?tw)" +
     "|(?:(?:(?:ac|co|go|mil|ne|or|sc)\\.)?tz)" +
-    "|(?:(?:(?:cherkassy|chernigov|chernovtsy|ck|cn|co|com|crimea|cv|dn|dnepropetrovsk|donetsk|dp|edu|gov|if|in|ivano-frankivsk|kh|kharkov|kherson|khmelnitskiy|kiev|kirovograd|km|kr|ks|kv|lg|lugansk|lutsk|lviv|mk|net|nikolaev|od|odessa|org|pl|poltava|pp|rovno|rv|sebastopol|sumy|te|ternopil|uzhgorod|vinnica|vn|zaporizhzhe|zhitomir|zp|zt)\\.)?ua)" +
+    "|(?:(?:(?:cherkassy|cherkasy|chernigov|chernihiv|chernivtsi|chernovtsy|ck|cn|co|com|cr|crimea|cv|dn|dnepropetrovsk|dnipropetrovsk|dominic|donetsk|dp|edu|gov|if|in|ivano-frankivsk|kh|kharkiv|kharkov|kherson|khmelnitskiy|khmelnytskyi|kiev|kirovograd|km|kr|krym|ks|kv|kyiv|lg|lt|lugansk|lutsk|lv|lviv|mk|mykolaiv|net|nikolaev|od|odesa|odessa|org|pl|poltava|pp|rivne|rovno|rv|sb|sebastopol|sevastopol|sm|sumy|te|ternopil|uz|uzhgorod|vinnica|vinnytsia|vn|volyn|yalta|zaporizhzhe|zaporizhzhia|zhitomir|zhytomyr|zp|zt)\\.)?ua)" +
     "|(?:(?:(?:ac|co|com|go|ne|or|org|sc)\\.)?ug)" +
     "|(?:(?:(?:ac|co|ltd|me|mil|net|org|plc|sch)\\.)?uk)" +
     "|(?:(?:(?:ak|al|ar|as|az|ca|cc\\.(?:ak|al|ar|as|az|ca|co|ct|dc|de|fl|ga|gu|hi|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|pr|ri|sc|sd|tn|tx|ut|va|vi|vt|wa|wi|wv|wy)|chtr\\.k12\\.ma|co|ct|dc|de|dni|fed|fl|ga|gu|hi|ia|id|il|in|is-by|isa|k12\\.(?:ak|al|ar|as|az|ca|co|ct|dc|de|fl|ga|gu|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|pr|ri|sc|sd|tn|tx|ut|va|vi|vt|wa|wi|wv|wy)|kids|ks|ky|la|land-4-sale|lib\\.(?:ak|al|ar|as|az|ca|co|ct|dc|de|fl|ga|gu|hi|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|pr|ri|sc|sd|tn|tx|ut|va|vi|vt|wa|wi|wv|wy)|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nsn|nv|ny|oh|ok|or|pa|paroch\\.k12\\.ma|pr|pvt\\.k12\\.ma|ri|sc|sd|stuff-4-sale|tn|tx|ut|va|vi|vt|wa|wi|wv|wy)\\.)?us)" +

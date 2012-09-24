@@ -688,11 +688,11 @@ function YaripOverlay()
 
             doc.defaultView.yaripMutationObserver = new MutationObserver(function(mutations) {
                 if (!yarip.enabled) return;
-                if (!doc || doc.defaultView.yaripMutationObserverTimeout) return;
+                if (!doc || !doc.defaultView || doc.defaultView.yaripMutationObserverTimeout) return;
 
                 mutations.forEach(function(mutation) {
                     if (!yarip.enabled) return;
-                    if (!doc || doc.defaultView.yaripMutationObserverTimeout) return;
+                    if (!doc || !doc.defaultView || doc.defaultView.yaripMutationObserverTimeout) return;
 
                     for (var i = 0, n = mutation.addedNodes.length; i < n; i++) {
                         var node = mutation.addedNodes[i];

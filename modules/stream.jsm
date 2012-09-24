@@ -52,8 +52,8 @@ YaripRedirectStreamListener.prototype.onStartRequest = function(request, context
 {
     try {
         if (this.callback()) {
-            this.isCanceled = true;
             request.cancel(Cr.NS_BINDING_REDIRECTED);
+            this.isCanceled = true;
         }
 
         this.listener.onStartRequest(request, context);
@@ -111,7 +111,8 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
 {
     var responseSource = this.receivedData.join("");
 
-    try {
+    try
+    {
         request.QueryInterface(Ci.nsIChannel);
 
         /*
@@ -128,7 +129,8 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         for (var i = 0; i < arr.length; i++)
         {
             var extItem = arr[i];
-            var page = yarip.map.get(extItem.getId());
+//            var page = yarip.map.getById(extItem.getId());
+            var page = extItem.getPage();
             var list = page.pageStreamList;
             if (list && list.length > 0)
             {
@@ -216,105 +218,24 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
          * PAGE SCRIPTING AND STYLING
          */
 
-        arr = [];
-        this.addressObj.root.traverse(function (item) {
-            if (item.isSelf() || item.getDoElements() || item.getDoScripts()) arr.push(item);
-        });
-        if (arr.length === 0) {
-            this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
-            this.listener.onStopRequest(request, context, statusCode);
-            return;
-        }
-
-        var headTopPart = ""; // head-top
-        var headMidPart = ""; // head-middle
-        var headBodPart = ""; // head-bottom/body-top
-        var bodyMidPart = ""; // body-middle
-        var bodyBotPart = ""; // body-bottom
-
-        // HTML-begin
-        var doctypeRegExp = /<!doctype\b[^>]*>/i;
-        var htmlBegRegExp = /<\s*html\b[^>]*>/i;
-        searchIndex = responseSource.search(htmlBegRegExp);
-        if (searchIndex == -1) { // no HTML-begin
-            searchIndex = responseSource.search(doctypeRegExp);
-            if (searchIndex == -1) { // no DOCTYPE
-                responseSource = "<html>" + responseSource;
-                searchIndex = 0;
-            } else {
-                searchIndex += responseSource.substring(searchIndex).match(doctypeRegExp)[0].length;
-                responseSource = responseSource.substring(0, searchIndex) + "<html>" + responseSource.substring(searchIndex);
-            }
-        }
-
-        var tmpSource = responseSource.substring(searchIndex);
-        var htmlBegIdx = searchIndex;
-
-        // HEAD-begin
-        var headBegRegExp = /<\s*head\b[^>]*>/i;
-        searchIndex = tmpSource.search(headBegRegExp);
-        if (searchIndex == -1) { // no HEAD-begin
-            searchIndex = htmlBegIdx + tmpSource.match(htmlBegRegExp)[0].length;
-            headTopPart = responseSource.substring(0, searchIndex) + "<head>";
-        } else {
-            searchIndex += htmlBegIdx + tmpSource.substring(searchIndex).match(headBegRegExp)[0].length;
-            headTopPart = responseSource.substring(0, searchIndex);
-        }
-
-        tmpSource = responseSource.substring(searchIndex);
-
-        // HEAD-end
-        var headEndRegExp = /<\s*\/\s*head\b[^>]*>/i;
-        searchIndex = tmpSource.search(headEndRegExp);
-        if (searchIndex == -1) { // no HEAD-end
-            tmpSource = "</head>" + tmpSource; // can be misplaced
-        } else {
-            headMidPart = tmpSource.substring(0, searchIndex);
-            tmpSource = tmpSource.substring(searchIndex);
-        }
-
-        // BODY-begin
-        var bodyBegRegExp = /<\s*(?:body|(frameset))\b[^>]*>/i;
-        searchIndex = tmpSource.search(bodyBegRegExp);
-        var isFrameset = false;
-        if (searchIndex == -1) { // no BODY-begin
-            searchIndex = tmpSource.match(headEndRegExp)[0].length;
-            headBodPart = tmpSource.substring(0, searchIndex) + "<body>";
-        } else {
-            var matches = tmpSource.substring(searchIndex).match(bodyBegRegExp);
-            isFrameset = !!matches[1];
-            searchIndex += matches[0].length;
-            headBodPart = tmpSource.substring(0, searchIndex);
-        }
-
-        tmpSource = tmpSource.substring(searchIndex);
-
-        // BODY-end
-        if (!isFrameset)
-        {
-            var bodyEndRegExp = /<\s*\/\s*body\b[^>]*>/i;
-            searchIndex = tmpSource.search(bodyEndRegExp);
-            if (searchIndex == -1) { // no BODY-end
-                bodyBotPart = "</body>" + tmpSource; // can be misplaced
-            } else {
-                bodyMidPart = tmpSource.substring(0, searchIndex);
-                bodyBotPart = tmpSource.substring(searchIndex);
-            }
-        } else {
-            bodyBotPart = tmpSource;
-        }
-
         var headStyles = "";
         var headScripts = "";
         var bodyStyles = "";
         var bodyScripts = "";
 
+        arr = [];
+        this.addressObj.root.traverse(function (item) {
+            if (item.isSelf() || item.getDoElements() || item.getDoScripts()) arr.push(item);
+        });
+
         // Iterating from end to beginning (dependencies).
         for (var i = arr.length - 1; i >= 0; i--)
         {
             var extItem = arr[i];
-            var pageName = extItem.getId();
-            var page = yarip.map.get(pageName);
+//            var page = yarip.map.getById(extItem.getId());
+            var page = extItem.getPage();
+//            var pageName = extItem.getId();
+            var pageName = page.getName();
 
             // element-blacklist styling
             var tmp = page.elementBlacklist.generateCSS();
@@ -385,6 +306,97 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
                     }
                 }
             }
+        }
+
+        if (!headStyles && !headScripts && !bodyStyles && !bodyScripts) {
+            this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
+            this.listener.onStopRequest(request, context, statusCode);
+            return;
+        }
+
+        var headTopPart = ""; // head-top
+        var headMidPart = ""; // head-middle
+        var headBodPart = ""; // head-bottom/body-top
+        var bodyMidPart = ""; // body-middle
+        var bodyBotPart = ""; // body-bottom
+
+        // HTML-begin
+        var doctypeRegExp = /<!doctype\b[^>]*>/i;
+        var htmlBegRegExp = /<\s*html\b[^>]*>/i;
+        searchIndex = responseSource.search(htmlBegRegExp);
+        if (searchIndex == -1) // no HTML-begin
+        {
+            searchIndex = responseSource.search(doctypeRegExp);
+            if (searchIndex == -1) { // no DOCTYPE
+                if (!("contentType" in request) || !/^(text\/html|application\/(xhtml\+)?xml)$/.test(request.contentType)) { // not (X)HTML
+                    this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
+                    this.listener.onStopRequest(request, context, statusCode);
+                    return;
+                } else {
+                    responseSource = "<html>" + responseSource;
+                    searchIndex = 0;
+                }
+            } else {
+                searchIndex += responseSource.substring(searchIndex).match(doctypeRegExp)[0].length;
+                responseSource = responseSource.substring(0, searchIndex) + "<html>" + responseSource.substring(searchIndex);
+            }
+        }
+
+        var tmpSource = responseSource.substring(searchIndex);
+        var htmlBegIdx = searchIndex;
+
+        // HEAD-begin
+        var headBegRegExp = /<\s*head\b[^>]*>/i;
+        searchIndex = tmpSource.search(headBegRegExp);
+        if (searchIndex == -1) { // no HEAD-begin
+            searchIndex = htmlBegIdx + tmpSource.match(htmlBegRegExp)[0].length;
+            headTopPart = responseSource.substring(0, searchIndex) + "<head>";
+        } else {
+            searchIndex += htmlBegIdx + tmpSource.substring(searchIndex).match(headBegRegExp)[0].length;
+            headTopPart = responseSource.substring(0, searchIndex);
+        }
+
+        tmpSource = responseSource.substring(searchIndex);
+
+        // HEAD-end
+        var headEndRegExp = /<\s*\/\s*head\b[^>]*>/i;
+        searchIndex = tmpSource.search(headEndRegExp);
+        if (searchIndex == -1) { // no HEAD-end
+            tmpSource = "</head>" + tmpSource; // can be misplaced
+        } else {
+            headMidPart = tmpSource.substring(0, searchIndex);
+            tmpSource = tmpSource.substring(searchIndex);
+        }
+
+        // BODY-begin
+        var bodyBegRegExp = /<\s*(?:body|(frameset))\b[^>]*>/i;
+        searchIndex = tmpSource.search(bodyBegRegExp);
+        var isFrameset = false;
+        if (searchIndex == -1) { // no BODY-begin
+            searchIndex = tmpSource.match(headEndRegExp)[0].length;
+            headBodPart = tmpSource.substring(0, searchIndex) + "<body>";
+        } else {
+            var matches = tmpSource.substring(searchIndex).match(bodyBegRegExp);
+            isFrameset = !!matches[1];
+            searchIndex += matches[0].length;
+            headBodPart = tmpSource.substring(0, searchIndex);
+        }
+
+        tmpSource = tmpSource.substring(searchIndex);
+
+        // BODY-end
+        if (!isFrameset)
+        {
+            var bodyEndRegExp = /<\s*\/\s*body\b[^>]*>/i;
+            searchIndex = tmpSource.search(bodyEndRegExp);
+            if (searchIndex == -1) { // no BODY-end
+                bodyBotPart = "</body>" + tmpSource; // FIXME Can be misplaced!
+            } else {
+                bodyMidPart = tmpSource.substring(0, searchIndex);
+                bodyBotPart = tmpSource.substring(searchIndex);
+            }
+        } else {
+            bodyBotPart = tmpSource;
         }
 
         if (headScripts || bodyScripts) {

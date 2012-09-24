@@ -375,7 +375,7 @@ function YaripElementWhitelistItem(xpath, priority, force, created, lastFound, f
 
     this.setXPath(xpath);
     this.setPriority(priority);
-    this.setForce(force);
+//    this.setForce(force);
     this.setCreated(created ? created : Date.now());
     this.setLastFound(lastFound);
     this.setFound(found);
@@ -386,7 +386,7 @@ YaripElementWhitelistItem.prototype = new YaripItem;
 YaripElementWhitelistItem.prototype.constructor = YaripElementWhitelistItem;
 YaripElementWhitelistItem.prototype.setForce = function(value)
 {
-    this.force = "" + value == "true";
+//    this.force = "" + value == "true";
 }
 YaripElementWhitelistItem.prototype.clone = function(purge)
 {
@@ -398,7 +398,7 @@ YaripElementWhitelistItem.prototype.merge = function(item)
 {
     if (!item) return;
     if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
-    this.setForce(item.getForce() || this.getForce());
+//    this.setForce(item.getForce() || this.getForce());
     if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripElementWhitelistItem.prototype.generateXml = function()
@@ -407,7 +407,7 @@ YaripElementWhitelistItem.prototype.generateXml = function()
     return "\t\t\t\t" +
         "<item" +
             (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
-            " force=\"" + this.force + "\"" +
+//            " force=\"" + this.force + "\"" +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
