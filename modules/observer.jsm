@@ -85,21 +85,21 @@ YaripObserver.prototype.modifyRequest = function(channel)
         var itemObj = statusObj.itemObj;
         switch (statusObj.status) {
         case STATUS_UNKNOWN:
-            if (!isPage) yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation, null, itemObj);
+            if (!isPage) yarip.logContent(STATUS_UNKNOWN, location, contentLocation, null, itemObj);
             break;
         case STATUS_WHITELISTED:
-            if (!isPage) yarip.logContentLocation(STATUS_WHITELISTED, location, contentLocation, null, itemObj);
+            if (!isPage) yarip.logContent(STATUS_WHITELISTED, location, contentLocation, null, itemObj);
             break;
         case STATUS_BLACKLISTED:
             channel.cancel(Cr.NS_ERROR_ABORT);
-            var newLog = yarip.logContentLocation(STATUS_BLACKLISTED, location, contentLocation, null, itemObj);
+            var newLog = yarip.logContent(STATUS_BLACKLISTED, location, contentLocation, null, itemObj);
             if (newLog && itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
                 yarip.showLinkNotification(doc, location, contentLocation, isLink);
             }
             return;
         case STATUS_REDIRECTED:
             new YaripChannelReplace(channel, statusObj.newURI, function(oldChannel, newChannel) {
-                    yarip.logContentLocation(STATUS_REDIRECTED, location, newChannel.URI, null, itemObj);
+                    yarip.logContent(STATUS_REDIRECTED, location, newChannel.URI, null, itemObj);
                 });
             return;
         }
@@ -201,24 +201,24 @@ YaripObserver.prototype.examineResponse = function(channel)
                         var itemObj = statusObj.itemObj;
                         switch (statusObj.status) {
                         case STATUS_UNKNOWN:
-                            yarip.logContentLocation(STATUS_UNKNOWN, location, newContentLocation, null, itemObj);
+                            yarip.logContent(STATUS_UNKNOWN, location, newContentLocation, null, itemObj);
                             break;
                         case STATUS_WHITELISTED:
-                            yarip.logContentLocation(STATUS_WHITELISTED, location, newContentLocation, null, itemObj);
+                            yarip.logContent(STATUS_WHITELISTED, location, newContentLocation, null, itemObj);
                             break;
                         case STATUS_BLACKLISTED:
                             channel.setResponseHeader("Pragma", "no-cache", true); // prevent caching
                             channel.setResponseHeader("Cache-Control", "no-cache, no-store, must-revalidate", true);
                             channel.setResponseHeader("Expires", "0", true);
                             channel.cancel(Cr.NS_ERROR_ABORT);
-                            var newLog = yarip.logContentLocation(STATUS_BLACKLISTED, location, newContentLocation, null, itemObj);
+                            var newLog = yarip.logContent(STATUS_BLACKLISTED, location, newContentLocation, null, itemObj);
                             if (newLog && itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
                                 yarip.showLinkNotification(doc, location, newContentLocation, isLink);
                             }
                             return;
                         case STATUS_REDIRECTED:
                             channel.setResponseHeader("Location", statusObj.newURI.spec, false);
-                            yarip.logContentLocation(STATUS_REDIRECTED, location, statusObj.newURI, null, itemObj);
+                            yarip.logContent(STATUS_REDIRECTED, location, statusObj.newURI, null, itemObj);
                             return;
                         }
                     }
@@ -232,9 +232,12 @@ YaripObserver.prototype.examineResponse = function(channel)
          * PAGE SCRIPTING & STREAM REPLACING
          */
 
-        // TODO Make this an user-preference!
-        if (isPage && /^(?:text\/.*|application\/(?:javascript|json|(?:\w+\+)?\bxml))$/.test(channel.contentType)) {
-            new YaripResponseStreamListener(addressObj, location, defaultView, channel);
+        // TODO Create `Stream'-rules: Stream -> Replace -> StreamReplaceList!
+        // TODO Make the content-type a value of the StreamItem!
+//        if (isPage && /^(?:text\/.*|application\/(?:javascript|json|(?:\w+\+)?\bxml))$/.test(channel.contentType)) {
+        if (/^(?:text\/.*|application\/(?:javascript|json|(?:\w+\+)?\bxml))$/.test(channel.contentType)) {
+//            new YaripResponseStreamListener(addressObj, location, defaultView, channel);
+            new YaripResponseStreamListener(channel, addressObj, location, contentLocation, defaultView, isPage);
         }
 
         /*

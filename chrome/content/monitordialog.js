@@ -232,7 +232,7 @@ function YaripMonitorDialog()
         if (regExp) CH.copyString(regExp);
     }
 
-    this.logContentLocation = function(status, location, contentLocation, date, contentType, itemObj)
+    this.logContent = function(status, location, contentLocation, date, contentType, itemObj)
     {
         if (!location || !contentLocation) return false;
         if (this.hidden && !yarip.logWhenClosed) return true;

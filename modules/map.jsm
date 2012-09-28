@@ -46,7 +46,14 @@ YaripMap.prototype.add = function(page)
 
     var oldPage = this.obj[page.getName()];
     if (oldPage) {
+        var oldId = oldPage.getId();
+        var newId = page.getId();
         oldPage.merge(page);
+        if (oldPage.getId() == oldId) {
+            this.replaceExtensionIds(this, newId, oldId); // replace with old id
+        } else {
+            this.replaceExtensionIds(this, oldId, newId); // replace with new id
+        }
 //        page = oldPage;
     } else {
         if (page.getId() in this.objId) {
@@ -164,12 +171,23 @@ YaripMap.prototype.clone = function()
     for each (var page in this.obj) if (page) map.add(page.clone());
     return map;
 }
-YaripMap.prototype.replaceExtensionIds = function(map, oldPage, newId)
+YaripMap.prototype.replacePageId = function(map, oldPage, newId)
 {
     if (!map || !oldPage || !newId) return;
 
-    var arr = [];
     var oldId = oldPage.getId();
+
+    map.remove(oldPage);
+    var newPage = oldPage.clone(null, null, newId);
+    map.add(newPage);
+
+    this.replaceExtensionIds(map, oldId, newId);
+}
+YaripMap.prototype.replaceExtensionIds = function(map, oldId, newId)
+{
+    if (!map || !oldId || !newId) return;
+
+    var arr = [];
     for each (var page in map.obj)
     {
         var list = page.pageExtensionList;
@@ -187,10 +205,6 @@ YaripMap.prototype.replaceExtensionIds = function(map, oldPage, newId)
         }
     }
 
-    map.remove(oldPage);
-    var newPage = oldPage.clone(null, null, newId);
-    map.add(newPage);
-
     for (var i = 0; i < arr.length; i++) {
         map.addExtension(arr[i][0], arr[i][1]);
     }
@@ -204,19 +218,14 @@ YaripMap.prototype.merge = function(map)
         var newPage = map.get(pageName);
         var oldPage = this.get(pageName);
         if (oldPage && newPage.getId() != oldPage.getId()) { // same name, different id
-            this.replaceExtensionIds(map, newPage, oldPage.getId()); // replace with old id
+            this.replacePageId(map, newPage, oldPage.getId()); // replace with old id
             continue;
         }
 
         oldPage = this.getById(newPage.getId());
 //        if (oldPage && newPage.getName() != oldPage.getName()) { // same id, different name
         if (oldPage && newPage.getName() != oldPage.getName() || ("" + newPage.getId()).length <= 13) { // same id, different name or old-style id
-//            var newId = null;
-//            do {
-//                newId = this.newId(); // create new id
-//            } while (this.getById(newId) && map.getById(newId)); // while id exists
-//            this.replaceExtensionIds(map, newPage, newId); // replace with new id
-            this.replaceExtensionIds(map, newPage, this.newId()); // replace with new id
+            this.replacePageId(map, newPage, this.newId()); // replace with new id
         }
     }
 

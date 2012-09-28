@@ -66,51 +66,48 @@ YaripLoader.prototype.reset = function()
 }
 YaripLoader.prototype.doWhitelisting = function(doc, addressObj, increment)
 {
-    for (var pageName in addressObj.ext)
-    {
-        var extItem = addressObj.ext[pageName];
-        if (!extItem.getDoElements()) continue;
+    addressObj.root.traverse(function (eItem) {
+        if (!eItem.getDoElements()) return;
 
-        var page = yarip.map.get(pageName);
+        var page = eItem.getPage();
         var list = page.elementWhitelist;
-        if (list.length === 0) continue;
+        if (list.length === 0) return;
 
-        var isSelf = extItem.isSelf();
+        var pageName = page.getName();
+        var isSelf = eItem.isSelf();
         for each (var item in list.obj) {
             if (yarip.whitelistElementItem(doc, pageName, item, false, isSelf && increment)) {
                 this.hasWhitelist = true;
             }
         }
-    }
+    });
 }
 YaripLoader.prototype.doBlacklisting = function(doc, addressObj, increment)
 {
-    for (var pageName in addressObj.ext)
-    {
-        var extItem = addressObj.ext[pageName];
-        if (!extItem.getDoElements()) continue;
+    addressObj.root.traverse(function (eItem) {
+        if (!eItem.getDoElements()) return;
 
-        var page = yarip.map.get(pageName);
+        var page = eItem.getPage();
         var list = page.elementBlacklist;
-        if (list.length == 0) continue;
+        if (list.length == 0) return;
 
-        var isSelf = extItem.isSelf();
+        var pageName = page.getName();
+        var isSelf = eItem.isSelf();
         for each (var item in list.obj) {
             if (yarip.blacklistElementItem(doc, pageName, item, false, isSelf && increment)) {
                 this.hasBlacklist = true;
             }
         }
-    }
+    });
 }
 YaripLoader.prototype.doStyling = function(doc, addressObj, increment)
 {
-    for (var pageName in addressObj.ext)
-    {
-        var extItem = addressObj.ext[pageName];
-        if (!extItem.getDoElements()) continue;
+    addressObj.root.traverse(function (eItem) {
+        if (!eItem.getDoElements()) return;
 
-        var page = yarip.map.get(pageName);
-        var isSelf = extItem.isSelf();
+        var page = eItem.getPage();
+        var pageName = page.getName();
+        var isSelf = eItem.isSelf();
 
         var list = page.pageStyleList;
         if (list.length > 0)
@@ -152,18 +149,14 @@ YaripLoader.prototype.doStyling = function(doc, addressObj, increment)
                 }
             }
         }
-    }
+    });
 }
 YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
 {
     var arr = [];
-    for (var pageName in addressObj.ext) {
-        var extItem = addressObj.ext[pageName];
-        var isSelf = extItem.isSelf();
-        if (isSelf || extItem.getDoScripts()) {
-            arr.push({"pageName": pageName, "isSelf": isSelf});
-        }
-    }
+    addressObj.root.traverse(function (eItem) {
+        if (eItem.isSelf() || eItem.getDoScripts()) arr.push(eItem);
+    });
 
     var tmp = [];
     var found = false;
@@ -171,14 +164,13 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
     // page scripting
     for (var i = arr.length - 1; i >= 0; i--)
     {
-        var aObj = arr[i];
-        var pageName = aObj.pageName;
-
-        var page = yarip.map.get(pageName);
+        var extItem = arr[i];
+        var page = extItem.getPage();
         var list = page.pageScriptList;
         if (list.length == 0) continue;
 
-        var isSelf = aObj.isSelf;
+        var pageName = page.getName();
+        var isSelf = extItem.isSelf();
         var idPrefix = "yarip-page-script_" + pageName.replace(/\W/g, "-") + "_";
         var counter = 0;
 
@@ -215,13 +207,13 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
     // element scripting
     for (var i = arr.length - 1; i >= 0; i--)
     {
-        var aObj = arr[i];
-        var pageName = aObj.pageName;
-        var page = yarip.map.get(pageName);
+        var extItem = arr[i];
+        var page = extItem.getPage();
         var list = page.elementScriptList;
         if (list.length == 0) continue;
 
-        var isSelf = aObj.isSelf;
+        var pageName = page.getName();
+        var isSelf = extItem.isSelf();
         var idPrefix = "yarip-element-script_" + pageName.replace(/\W/g, "-") + "_";
         var counter = 0;
 

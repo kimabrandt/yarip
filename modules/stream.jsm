@@ -82,7 +82,8 @@ YaripRedirectStreamListener.prototype.onDataAvailable = function(request, contex
     this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
 }
 
-function YaripResponseStreamListener(addressObj, location, defaultView, channel)
+//function YaripResponseStreamListener(addressObj, location, defaultView, channel, isPage)
+function YaripResponseStreamListener(channel, addressObj, location, contentLocation, defaultView, isPage)
 {
     if (!(channel instanceof Ci.nsITraceableChannel)) return;
 
@@ -92,6 +93,7 @@ function YaripResponseStreamListener(addressObj, location, defaultView, channel)
     this.addressObj = addressObj;
     this.location = location;
     this.defaultView = defaultView;
+    this.isPage = isPage;
     this.receivedData = [];
 }
 YaripResponseStreamListener.prototype = {
@@ -129,9 +131,9 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         for (var i = 0; i < arr.length; i++)
         {
             var extItem = arr[i];
-//            var page = yarip.map.getById(extItem.getId());
             var page = extItem.getPage();
             var list = page.pageStreamList;
+//            var list = this.isPage ? page.pageStreamList : page.contentStreamList;
             if (list && list.length > 0)
             {
                 for each (var item in list.obj)
@@ -217,6 +219,20 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         /*
          * PAGE SCRIPTING AND STYLING
          */
+        // HTML-begin
+        var doctypeRegExp = /<!doctype\b[^>]*>/i;
+        var htmlBegRegExp = /<\s*html\b[^>]*>/i;
+        searchIndex = responseSource.search(htmlBegRegExp);
+        if (searchIndex == -1) // no HTML-begin
+        {
+            searchIndex = responseSource.search(doctypeRegExp);
+            if (searchIndex == -1) { // no DOCTYPE
+                return;
+            } else {
+                searchIndex += responseSource.substring(searchIndex).match(doctypeRegExp)[0].length;
+                responseSource = responseSource.substring(0, searchIndex) + "<html>" + responseSource.substring(searchIndex);
+            }
+        }
 
         var headStyles = "";
         var headScripts = "";
@@ -232,9 +248,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         for (var i = arr.length - 1; i >= 0; i--)
         {
             var extItem = arr[i];
-//            var page = yarip.map.getById(extItem.getId());
             var page = extItem.getPage();
-//            var pageName = extItem.getId();
             var pageName = page.getName();
 
             // element-blacklist styling
@@ -309,8 +323,6 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         }
 
         if (!headStyles && !headScripts && !bodyStyles && !bodyScripts) {
-            this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
-            this.listener.onStopRequest(request, context, statusCode);
             return;
         }
 
@@ -319,29 +331,6 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         var headBodPart = ""; // head-bottom/body-top
         var bodyMidPart = ""; // body-middle
         var bodyBotPart = ""; // body-bottom
-
-        // HTML-begin
-        var doctypeRegExp = /<!doctype\b[^>]*>/i;
-        var htmlBegRegExp = /<\s*html\b[^>]*>/i;
-        searchIndex = responseSource.search(htmlBegRegExp);
-        if (searchIndex == -1) // no HTML-begin
-        {
-            searchIndex = responseSource.search(doctypeRegExp);
-            if (searchIndex == -1) { // no DOCTYPE
-                if (!("contentType" in request) || !/^(text\/html|application\/(xhtml\+)?xml)$/.test(request.contentType)) { // not (X)HTML
-                    this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
-                    this.listener.onStopRequest(request, context, statusCode);
-                    return;
-                } else {
-                    responseSource = "<html>" + responseSource;
-                    searchIndex = 0;
-                }
-            } else {
-                searchIndex += responseSource.substring(searchIndex).match(doctypeRegExp)[0].length;
-                responseSource = responseSource.substring(0, searchIndex) + "<html>" + responseSource.substring(searchIndex);
-            }
-        }
-
         var tmpSource = responseSource.substring(searchIndex);
         var htmlBegIdx = searchIndex;
 
@@ -403,17 +392,15 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             headScripts = "\n<script id=\"yarip-default-script\" type=\"text/javascript\" status=\"whitelisted\">" + yarip.getYaripScript() + "</script>" + headScripts;
         }
 
-        if (headStyles || headScripts || bodyStyles || bodyScripts) {
-            if (!isFrameset) {
-                responseSource = headTopPart + headStyles + headScripts + headMidPart + headBodPart + bodyMidPart + bodyStyles + bodyScripts + bodyBotPart;
-            } else {
-                responseSource = headTopPart + headStyles + headScripts + headMidPart + headBodPart + bodyMidPart + bodyBotPart;
-            }
+        if (!isFrameset) {
+            responseSource = headTopPart + headStyles + headScripts + headMidPart + headBodPart + bodyMidPart + bodyStyles + bodyScripts + bodyBotPart;
+        } else {
+            responseSource = headTopPart + headStyles + headScripts + headMidPart + headBodPart + bodyMidPart + bodyBotPart;
         }
-//dump("responseSource:"+responseSource+"\n---\n");
     } catch (e) {
         yarip.logMessage(LOG_ERROR, e);
     } finally {
+//dump("responseSource:"+responseSource+"\n---\n");
         this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
         this.listener.onStopRequest(request, context, statusCode);
     }

@@ -675,7 +675,6 @@ Yarip.prototype.resetOnAddress = function(obj)
 
                 switch (element.getAttribute("status")) {
                 case "whitelisted":
-                case "whitelisted forced":
                 case "blacklisted":
                 case "placeholder":
                 case "placeholder blacklisted":
@@ -715,7 +714,7 @@ Yarip.prototype.reloadPage = function(pageName, selectItem, selectTab, resetFilt
 Yarip.prototype.removeAllExceptWhitelisted = function(doc)
 {
     this.whitelistElementItem(doc, null, new YaripElementWhitelistItem("/html/head/descendant-or-self::*[not(@status='blacklisted')]")); // whitelist head and descendants
-    this.blacklistElementItem(doc, null, new YaripElementBlacklistItem("//*[not(@status='whitelisted') and not(@status='whitelisted forced')]")); // all except whitelisted
+    this.blacklistElementItem(doc, null, new YaripElementBlacklistItem("//*[not(@status='whitelisted')]")); // all except whitelisted
 }
 Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, increment)
 {
@@ -734,7 +733,6 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
         case 1: // ELEMENT
             switch (element.getAttribute("status")) {
             case "whitelisted":
-            case "whitelisted forced":
             case "blacklisted":
             case "placeholder":
             case "placeholder blacklisted":
@@ -743,11 +741,10 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
             }
 
             if (isNew) {
-                element.setAttribute("status", item.getForce() ? "whitelisted forced" : "whitelisted");
+                element.setAttribute("status", "whitelisted");
             } else {
-//                while (element && element.nodeType == 1 && element.getAttribute("status") != "whitelisted" && element.getAttribute("status") != "whitelisted forced") {
-                while (element && element.nodeType == 1 && !/^whitelisted(\s+forced)?$/.test(element.getAttribute("status"))) {
-                    element.setAttribute("status", item.getForce() ? "whitelisted forced" : "whitelisted");
+                while (element && element.nodeType == 1) {
+                    element.setAttribute("status", "whitelisted");
                     element = element.parentNode;
                 }
             }
@@ -808,18 +805,6 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
 
     var found = elements.snapshotLength > 0;
     var incrementType = INCREMENT_NOT_FOUND;
-    var useForce = true;
-
-    // Checking if removal should be forced.
-    if (item.getForce()) {
-        for (var i = 0; i < elements.snapshotLength; i++) {
-            var element = elements.snapshotItem(i);
-            if (element.nodeType === 1 && element.getAttribute("status") == "whitelisted") { // whitelisted element
-                useForce = false; // don't force removal
-                break;
-            }
-        }
-    }
 
     for (var i = 0; i < elements.snapshotLength; i++)
     {
@@ -831,15 +816,12 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
             // Checking status.
             switch (element.getAttribute("status")) {
             case "whitelisted":
-                if (!useForce) {
-                  continue;
-                } else if (!item.getForce()) {
+                if (!item.getForce()) {
                   incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
                   continue;
                 }
             case "placeholder":
             case "placeholder blacklisted":
-//                if (!item.getForce()) {
                 if (item.getPlaceholder()) {
                   incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
                   continue;
@@ -847,93 +829,36 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
                     break;
                 }
             case "blacklisted":
-//            case "placeholder":
-//            case "placeholder blacklisted":
-            case "whitelisted forced":
               incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
               continue;
             }
 
-            // Checking localName.
-//            switch (element.localName) {
-//            case "html":
-//            case "body":
-//            case "frameset":
-//                continue;
-////            case "head":
-////                element.innerHTML =
-////                    "<style rel='stylesheet' type='text/css'>\n" +
-////                        "\t* {\n" +
-////                            "\t\tmargin: 0 !important;\n" +
-////                            "\t\tpadding: 0 !important;\n" +
-////                        "\t}\n" +
-////                        "\tdiv {\n" +
-////                            "\t\theight: auto !important;\n" +
-////                        "\t}\n" +
-////                        "\ttable {\n" +
-////                            "\t\tborder-spacing: 0 0 !important;\n" +
-////                            "\t\theight: auto !important;\n" +
-////                            "\t\twidth: 0 !important;\n" +
-////                        "\t}\n" +
-////                    "</style>";
-////                break;
-////            case "script":
-////                element.removeAttribute("src");
-////                element.innerHTML = "";
-////                break;
-////            case "frame":
-////                if (element.parentNode.localName == "frameset") {
-////                    continue;
-////                } else {
-////                    element.setAttribute("src", "");
-////                    element.setAttribute("status", "blacklisted");
-////                }
-////                break;
-////            case "br":
-////                element.setAttribute("status", "blacklisted");
-////                break;
-////            case "audio":
-////            case "embed":
-////            case "iframe":
-////            case "video":
-////                if (item.getPlaceholder()) {
-////                    element.setAttribute("status", "placeholder");
-////                } else {
-////                    element.setAttribute("status", "blacklisted");
-////                    if (this.purgeInnerHTML && !isNew) {
-////                        element.setAttribute("src", "");
-////                    }
-////                }
-////                break;
-//            default:
-                if (item.getPlaceholder()) {
-                    element.setAttribute("status", "placeholder");
-                } else {
-                    element.setAttribute("status", "blacklisted");
-                    if (this.purgeInnerHTML && !isNew)
-                    {
-                        switch (element.localName) {
-                        case "audio":
-                        case "embed":
-                        case "iframe":
-                        case "script":
-                        case "video":
+            if (item.getPlaceholder()) {
+                element.setAttribute("status", "placeholder");
+            } else {
+                element.setAttribute("status", "blacklisted");
+                if (this.purgeInnerHTML && !isNew)
+                {
+                    switch (element.localName) {
+                    case "audio":
+                    case "embed":
+                    case "iframe":
+                    case "script":
+                    case "video":
+                        element.setAttribute("src", "");
+                        break;
+                    case "frame":
+                        if (element.parentNode.localName != "frameset") {
                             element.setAttribute("src", "");
-                            break;
-                        case "frame":
-                            if (element.parentNode.localName != "frameset") {
-                                element.setAttribute("src", "");
-                            }
-                            break;
-                        case "object":
-                            element.setAttribute("data", "");
-                            break;
                         }
-                        element.innerHTML = "";
+                        break;
+                    case "object":
+                        element.setAttribute("data", "");
+                        break;
                     }
+                    element.innerHTML = "";
                 }
-//            }
-//            break;
+            }
         case 2: // ATTRIBUTE
             if (element.ownerElement) element.ownerElement.removeAttribute(element.name);
             break;
@@ -972,7 +897,6 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
         } else {
             page = this.createPage(doc.location, pageName);
         }
-        item.setForce(useForce);
         page.elementBlacklist.add(item);
         this.reloadPage(pageName, false, true);
 
@@ -1029,8 +953,6 @@ Yarip.prototype.extendPage = function(pageLocation, pageName, contentLocation, c
     }
     this.map.addExtension(pageOwn, item);
     this.pagesModified = true;
-//    pageOwn.setTemporary(false);
-//    this.reloadPage(pageExt.getName());
     this.reloadPage(pageOwn.getName());
     return true;
 }
@@ -1266,7 +1188,6 @@ Yarip.prototype.unHighlight = function(doc, xpath)
                 var status = element.getAttribute("status");
                 if (status && /\bhighlighted\b/.test(status)) {
                     var newStatus = status.replace(/\s*highlighted\b/, "");
-//                    if (newStatus == "") {
                     if (!newStatus) {
                         element.removeAttribute("status");
                     } else {
@@ -1393,10 +1314,8 @@ Yarip.prototype.check = function()
             for (var i = 0; i < arr.length; i++) {
                 var page = this.map.get(arr[i]);
                 page.setCreated(page.getId());
-                if (page) this.map.replaceExtensionIds(this.map, page, this.getId());
+                if (page) this.map.replacePageId(this.map, page, this.getId());
             }
-
-//            this.setValue(PREF_FLICKER, false, DATA_TYPE_BOOLEAN); // disabling noFlicker by default
         }
 
         this.deleteBranch("extensions.yarip.changeType"); // deleted in v0.1.7
@@ -1413,9 +1332,6 @@ Yarip.prototype.check = function()
 }
 Yarip.prototype.getId = function()
 {
-//    var id = Date.now();
-//    while (this.map.getById(id)) id++;
-//    return "" + id;
     return UUIDG.generateUUID().toString();
 }
 Yarip.prototype.addMonitorDialog = function(monitorDialog)
@@ -1470,7 +1386,6 @@ Yarip.prototype.load = function(file, imported)
                     page.elementWhitelist.add(new YaripElementWhitelistItem(
                         nXPath.getAttribute("value"),
                         null, // priority
-                        null, // force
                         pageId, // created
                         null, // lastFound
                         nXPath.getAttribute("found"),
@@ -1590,7 +1505,6 @@ Yarip.prototype.load = function(file, imported)
                     page.elementWhitelist.add(new YaripElementWhitelistItem(
                         nElement.getAttribute("xpath"),
                         null, // priority
-                        null, // force
                         pageId, // created
                         null, // lastFound
                         nElement.getAttribute("found"),
@@ -1614,7 +1528,6 @@ Yarip.prototype.load = function(file, imported)
                         nContent.getAttribute("regexp"),
                         null, // flags
                         null, // priority
-                        null, // force
                         pageId, // created
                         null)); // lastFound
                     nContent = iContent.iterateNext();
@@ -1735,7 +1648,6 @@ Yarip.prototype.load = function(file, imported)
                         page.elementWhitelist.add(new YaripElementWhitelistItem(
                             nXPath.textContent,
                             null, // priority
-                            null, // force
                             created ? created : pageId,
                             nElement.getAttribute("lastFound"),
                             nElement.getAttribute("found"),
@@ -1795,7 +1707,6 @@ Yarip.prototype.load = function(file, imported)
                             nRegexp.textContent,
                             null, // flags
                             null, // priority
-                            null, // force
                             created ? created : pageId,
                             nContent.getAttribute("lastFound")));
                     }
@@ -1948,7 +1859,6 @@ Yarip.prototype.load = function(file, imported)
                             page.elementWhitelist.add(new YaripElementWhitelistItem(
                                 nXPath.textContent,
                                 nItem.getAttribute("priority"),
-                                nItem.getAttribute("force"),
                                 created ? created : pageCreated,
                                 nItem.getAttribute("lastFound"),
                                 nItem.getAttribute("found"),
@@ -2074,7 +1984,6 @@ Yarip.prototype.load = function(file, imported)
                                 nRegexp.textContent,
                                 nRegexp.getAttribute("flags"),
                                 nItem.getAttribute("priority"),
-                                nItem.getAttribute("force"),
                                 created ? created : pageCreated,
                                 nItem.getAttribute("lastFound")));
                         }
@@ -2553,7 +2462,7 @@ Yarip.prototype.logMessage = function(flags, e)
     scriptError.init("Yarip: " + e.message, e.fileName, null, e.lineNumber, e.columnNumber, flags, "chrome javascript");
     CS.logMessage(scriptError);
 }
-Yarip.prototype.logContentLocation = function(status, location, contentLocation, mimeTypeGuess, itemObj)
+Yarip.prototype.logContent = function(status, location, contentLocation, mimeTypeGuess, itemObj)
 {
     var date = new Date();
     location = this.getLocation(location);
@@ -2561,7 +2470,7 @@ Yarip.prototype.logContentLocation = function(status, location, contentLocation,
     if (!this.isMobile()) {
         var newLog = false;
         for each (var monitor in this.monitorDialogues) {
-            if (monitor.logContentLocation(status, location, contentLocation, date, mimeTypeGuess, itemObj)) {
+            if (monitor.logContent(status, location, contentLocation, date, mimeTypeGuess, itemObj)) {
                 newLog = true;
             }
         }
@@ -2628,12 +2537,8 @@ Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
                 itemKey: item.getKey()
             };
             statusObj.status = STATUS_WHITELISTED;
-            if (item.getForce()) {
-                return statusObj;
-            } else {
-                whitelisted = true;
-                break;
-            }
+            whitelisted = true;
+            break;
         }
     }
 

@@ -65,7 +65,7 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
     var contentLocation = yarip.getLocation(request.URI);
     var addressObj = yarip.getAddressObjByLocation(location, true);
     if (!addressObj.found) {
-       yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation);
+       yarip.logContent(STATUS_UNKNOWN, location, contentLocation);
        return;
     }
 
@@ -73,17 +73,17 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
     switch (statusObj.status) {
     case STATUS_UNKNOWN:
         if (!isPage && (STATE_REDIRECTING & stateFlags) === STATE_REDIRECTING) {
-            yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation);
+            yarip.logContent(STATUS_UNKNOWN, location, contentLocation);
         }
         break;
     case STATUS_WHITELISTED:
         if (!isPage && (STATE_REDIRECTING & stateFlags) === STATE_REDIRECTING) {
-            yarip.logContentLocation(STATUS_WHITELISTED, location, contentLocation, null, statusObj.itemObj);
+            yarip.logContent(STATUS_WHITELISTED, location, contentLocation, null, statusObj.itemObj);
         }
         break;
     case STATUS_BLACKLISTED:
         request.cancel(Cr.NS_ERROR_ABORT);
-        var newLog = yarip.logContentLocation(STATUS_BLACKLISTED, location, contentLocation, null, statusObj.itemObj);
+        var newLog = yarip.logContent(STATUS_BLACKLISTED, location, contentLocation, null, statusObj.itemObj);
         if (newLog && statusObj.itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
             yarip.showLinkNotification(doc, location, contentLocation, isLink);
         }

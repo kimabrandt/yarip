@@ -56,18 +56,18 @@ YaripContentPolicy.prototype.shouldLoad = function(contentType, contentLocation,
     contentLocation = yarip.getLocation(contentLocation);
 
     if (!yarip.enabled) {
-        yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation, mimeTypeGuess);
+        yarip.logContent(STATUS_UNKNOWN, location, contentLocation, mimeTypeGuess);
         return ACCEPT;
     }
 
     var addressObj = yarip.getAddressObjByLocation(location, true);
     if (!addressObj.found) {
-        yarip.logContentLocation(STATUS_UNKNOWN, location, contentLocation, mimeTypeGuess);
+        yarip.logContent(STATUS_UNKNOWN, location, contentLocation, mimeTypeGuess);
         return ACCEPT;
     }
 
     var statusObj = yarip.shouldBlacklist(addressObj, contentLocation.asciiHref, defaultView);
-    yarip.logContentLocation(statusObj.status, location, contentLocation, mimeTypeGuess, statusObj.itemObj);
+    yarip.logContent(statusObj.status, location, contentLocation, mimeTypeGuess, statusObj.itemObj);
     switch (statusObj.status) {
     case STATUS_UNKNOWN:
         return ACCEPT;

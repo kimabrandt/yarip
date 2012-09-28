@@ -1,7 +1,16 @@
+2012-09-28  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/pagedialog.xul, modules/item.jsm (force): Removed
+    forced element-whitelisting.
+
+    * modules/map.jsm (replaceExtensionIds): Split the
+    `replaceExtensionIds'-function into `replacePageId' and
+    `replaceExtensionIds'.
+
 2012-09-24  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/pagedialog.xul, modules/{list,item}.jsm (force):
-    Preparing removal of forced element whitelisting.
+    Preparing removal of forced element-whitelisting.
 
     * modules/stream.jsm (getPage), modules/yarip.jsm (YaripExtensionItem):
     Getting pages by id instead of (falsely) by name.

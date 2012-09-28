@@ -110,8 +110,6 @@
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="elementWhitelist-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
-<!--                          <treecol id="elementWhitelist-tree-force" label="&treecol.label.force;" type="checkbox" editable="true" hidden="true" persist="width hidden" tooltiptext="&treecol.tooltiptext.forceWhitelist;"/>-->
-<!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
                           <treecol id="elementWhitelist-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="elementWhitelist-tree-lastFound" label="&treecol.label.lastFound;" persist="width hidden"/>
@@ -250,8 +248,6 @@
                           <treecol id="contentWhitelist-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="contentWhitelist-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
-                          <splitter class="tree-splitter" resizeafter="farthest"/>
-                          <treecol id="contentWhitelist-tree-force" label="&treecol.label.force;" type="checkbox" editable="true" hidden="true" persist="width hidden" tooltiptext="&treecol.tooltiptext.forceWhitelist;"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="contentWhitelist-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>

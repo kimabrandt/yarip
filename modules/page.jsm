@@ -178,7 +178,9 @@ YaripPage.prototype.clone = function(purge, pageName, id)
     return new this.constructor(
         id ? id : purge ? this.newId() : this.id,
         pageName ? pageName : this.name,
-        this.created,
+//        this.created,
+        purge ? Date.now() : this.created,
+//        id || purge ? Date.now() : this.created,
         this.elementWhitelist.clone(purge),
         this.elementBlacklist.clone(purge),
         this.elementAttributeList.clone(purge),

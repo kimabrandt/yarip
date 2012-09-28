@@ -362,11 +362,10 @@ YaripItem.prototype.loadFromObject = function(obj)
     this.setIgnored(obj.ignored);
 }
 
-function YaripElementWhitelistItem(xpath, priority, force, created, lastFound, found, notFound, ignored)
+function YaripElementWhitelistItem(xpath, priority, created, lastFound, found, notFound, ignored)
 {
     this.xpath = "";
     this.priority = 0;
-    this.force = false;
     this.created = -1;
     this.lastFound = -1;
     this.found = 0;
@@ -375,7 +374,6 @@ function YaripElementWhitelistItem(xpath, priority, force, created, lastFound, f
 
     this.setXPath(xpath);
     this.setPriority(priority);
-//    this.setForce(force);
     this.setCreated(created ? created : Date.now());
     this.setLastFound(lastFound);
     this.setFound(found);
@@ -384,13 +382,9 @@ function YaripElementWhitelistItem(xpath, priority, force, created, lastFound, f
 }
 YaripElementWhitelistItem.prototype = new YaripItem;
 YaripElementWhitelistItem.prototype.constructor = YaripElementWhitelistItem;
-YaripElementWhitelistItem.prototype.setForce = function(value)
-{
-//    this.force = "" + value == "true";
-}
 YaripElementWhitelistItem.prototype.clone = function(purge)
 {
-    var tmp = new this.constructor(this.xpath, this.priority, this.force, this.created, this.lastFound, this.found, this.notFound, this.ignored);
+    var tmp = new this.constructor(this.xpath, this.priority, this.created, this.lastFound, this.found, this.notFound, this.ignored);
     if (purge) tmp.purge();
     return tmp;
 }
@@ -398,7 +392,6 @@ YaripElementWhitelistItem.prototype.merge = function(item)
 {
     if (!item) return;
     if (item.getPriority() < this.getPriority()) this.setPriority(item.getPriority());
-//    this.setForce(item.getForce() || this.getForce());
     if (this.getCreated() == -1 || item.getCreated() < this.getCreated()) this.setCreated(item.getCreated());
 }
 YaripElementWhitelistItem.prototype.generateXml = function()
@@ -407,7 +400,6 @@ YaripElementWhitelistItem.prototype.generateXml = function()
     return "\t\t\t\t" +
         "<item" +
             (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
-//            " force=\"" + this.force + "\"" +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
@@ -765,33 +757,26 @@ YaripContentItem.prototype.loadFromObject = function(obj)
     this.setIgnored(obj.ignored);
 }
 
-//function YaripContentWhitelistItem(regExp, priority, force, created, lastFound)
-function YaripContentWhitelistItem(regExp, flags, priority, force, created, lastFound)
+function YaripContentWhitelistItem(regExp, flags, priority, created, lastFound)
 {
     this.regExp = "";
     this.flags = "i";
     this.regExpObj = null;
     this.priority = 0;
-    this.force = false;
     this.created = -1;
     this.lastFound = -1;
 
     this.setRegExp(regExp);
     this.setFlags(flags);
     this.setPriority(priority);
-    this.setForce(force);
     this.setCreated(created ? created : Date.now());
     this.setLastFound(lastFound);
 }
 YaripContentWhitelistItem.prototype = new YaripContentItem;
 YaripContentWhitelistItem.prototype.constructor = YaripContentWhitelistItem;
-YaripContentWhitelistItem.prototype.setForce = function(value)
-{
-    this.force = "" + value == "true";
-}
 YaripContentWhitelistItem.prototype.clone = function(purge)
 {
-    var tmp = new this.constructor(this.regExp, this.flags, this.priority, this.force, this.created, this.lastFound);
+    var tmp = new this.constructor(this.regExp, this.flags, this.priority, this.created, this.lastFound);
     if (purge) tmp.purge();
     return tmp;
 }
@@ -801,7 +786,6 @@ YaripContentWhitelistItem.prototype.generateXml = function()
     return "\t\t\t\t" +
         "<item" +
             (this.priority !== 0 ? " priority=\"" + this.priority + "\"" : "") +
-            " force=\"" + this.force + "\"" +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
             (this.lastFound > -1 ? " lastFound=\"" + this.lastFound + "\"" : "") +
         ">\n" +
@@ -811,7 +795,6 @@ YaripContentWhitelistItem.prototype.generateXml = function()
         "\t\t\t\t</item>\n";
 }
 
-//function YaripContentBlacklistItem(regExp, priority, force, created, lastFound, ignored)
 function YaripContentBlacklistItem(regExp, flags, priority, force, created, lastFound, ignored)
 {
     this.regExp = "";
@@ -835,7 +818,6 @@ function YaripContentBlacklistItem(regExp, flags, priority, force, created, last
 YaripContentBlacklistItem.prototype = new YaripContentItem;
 YaripContentBlacklistItem.prototype.constructor = YaripContentBlacklistItem;
 
-//function YaripStreamItem(regExp, script, priority, created, lastFound)
 function YaripStreamItem(regExp, flags, script, priority, created, lastFound)
 {
     this.regExp = "";
@@ -970,7 +952,6 @@ YaripStyleItem.prototype.generateXml = function()
         "\t\t\t\t</item>\n";
 }
 
-//function YaripHeaderItem(regExp, headerName, script, priority, merge, created, lastFound)
 function YaripHeaderItem(regExp, flags, headerName, script, priority, merge, created, lastFound)
 {
     this.regExp = "";
@@ -1059,7 +1040,6 @@ YaripHeaderItem.prototype.loadFromObject = function(obj)
     this.setLastFound(obj.lastFound);
 }
 
-//function YaripRedirectItem(regExp, newsubstr, priority, created, lastFound)
 function YaripRedirectItem(regExp, flags, newsubstr, priority, created, lastFound)
 {
     this.regExp = "";
@@ -1171,13 +1151,6 @@ YaripExtensionItem.prototype.setId = function(id)
     this.id = "" + id;
     this.setCreated(Date.now());
 }
-//YaripExtensionItem.prototype.setValue = function(value)
-//{
-//    if (!value) return;
-
-//    this.id = "" + value;
-//    this.setCreated(Date.now());
-//}
 YaripExtensionItem.prototype.setDoElements = function(value)
 {
     this.doElements = "" + value == "true";
@@ -1402,19 +1375,4 @@ YaripExtensionItem.prototype.loadFromObject = function(obj)
     this.setDoLinks(obj.doLinks);
     this.setCreated(obj.created);
 }
-//YaripExtensionItem.prototype.toString = function()
-//{
-//    return "{" +
-//        "id: \"" + this.getId() + "\", " +
-//        "priority: " + this.getPriority() + ", " +
-//        "doElements: " + this.getDoElements() + ", " +
-//        "doContents: " + this.getDoContents() + ", " +
-//        "doScripts: " + this.getDoScripts() + ", " +
-//        "doHeaders: " + this.getDoHeaders() + ", " +
-//        "doRedirects: " + this.getDoRedirects() + ", " +
-//        "doStreams: " + this.getDoStreams() + ", " +
-//        "doLinks: " + this.getDoLinks() + ", " +
-//        "created: " + this.getCreated() +
-//        "}";
-//}
 
