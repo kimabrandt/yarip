@@ -1,5 +1,27 @@
 2012-09-28  Kim A. Brandt  <kimabrandt@gmx.de>
 
+    * chrome.manifest, install.rdf (yarip): Preparing upgrade for
+    version 0.3.4.
+
+    * modules/{yarip,item,list,object}.jsm (checkRegExp, setRegExp):
+    Allowing some `URL regex'es (e.g. header and stream) to be empty and
+    thereby matching any given URL.
+
+    * chrome/content/overlay.js (yaripMutationObserver): Ignoring DOM-
+    modifications where `node.parentNode' is null (e.g. browsing
+    in Firebug).
+
+    * chrome/content/pagedialog.{js,xul} (contentStreamList): Introducing
+    the `contentStreamList'.
+
+    * chrome/content/pagedialog.{js,xul} (contentStreamList, pageStreamList):
+    Added a `URL regex' for matching the URL of content and pages.
+
+    * modules/item.jsm (setLastFound): Resetting `lastFound' when a rule is
+    changed.
+
+2012-09-28  Kim A. Brandt  <kimabrandt@gmx.de>
+
     * chrome/content/pagedialog.xul, modules/item.jsm (force): Removed
     forced element-whitelisting.
 

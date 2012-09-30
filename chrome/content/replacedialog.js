@@ -22,7 +22,8 @@ function YaripReplaceDialog()
 {
     this.sb = null;
     this.pageMenulist = null;
-    this.regexpTextbox = null;
+    this.regExpTextbox = null;
+    this.streamRegExpTextbox = null;
     this.scriptTextbox = null;
     this.obj = null;
 
@@ -41,12 +42,14 @@ function YaripReplaceDialog()
 
         this.sb = document.getElementById("stringbundle");
         this.pageMenulist = document.getElementById("page");
-        this.regexpTextbox = document.getElementById("regExp");
+        this.regExpTextbox = document.getElementById("regExp");
+        this.streamRegExpTextbox = document.getElementById("streamRegExp");
         this.scriptTextbox = document.getElementById("script");
 
         var pageName = this.obj.pageName;
         this.pageMenulist.value = pageName;
-        this.regexpTextbox.value = this.obj.item.getRegExp();
+        this.regExpTextbox.value = this.obj.item.getRegExp();
+        this.streamRegExpTextbox.value = this.obj.item.getStreamRegExp();
         this.scriptTextbox.value = this.obj.item.getScript();
 
         var location = "itemLocation" in this.obj ? yarip.getLocation(this.obj.itemLocation) : null;
@@ -86,17 +89,27 @@ function YaripReplaceDialog()
             throw new Error(this.sb.getFormattedString("ERR_INVALID_PAGE_NAME1", [pageName]));
         }
 
-        var regexp = this.regexpTextbox.value;
-        if (!yarip.checkRegExp(regexp)) {
-            this.regexpTextbox.focus();
-            this.regexpTextbox.select();
+        var regExp = this.regExpTextbox.value;
+        if (!yarip.checkRegExp(regExp, true)) {
+            this.regExpTextbox.focus();
+            this.regExpTextbox.select();
             alert(this.sb.getString("ERR_INVALID_REGEXP"));
-            throw new Error(this.sb.getFormattedString("ERR_INVALID_REGEXP1", [regexp]));
+            throw new Error(this.sb.getFormattedString("ERR_INVALID_REGEXP1", [regExp]));
         }
 
-        this.obj.item.setRegExp(regexp);
+        var streamRegExp = this.streamRegExpTextbox.value;
+        if (!yarip.checkRegExp(streamRegExp)) {
+            this.streamRegExpTextbox.focus();
+            this.streamRegExpTextbox.select();
+            alert(this.sb.getString("ERR_INVALID_REGEXP"));
+            throw new Error(this.sb.getFormattedString("ERR_INVALID_REGEXP1", [streamRegExp]));
+        }
+
+        this.obj.item.setRegExp(regExp);
+        this.obj.item.setStreamRegExp(streamRegExp);
         this.obj.pageName = pageName;
-        FH.addEntry("stream-regexp", regexp);
+        FH.addEntry("regexp", regExp);
+        FH.addEntry("stream-regexp", streamRegExp);
     }
 
     this.cancel = function()

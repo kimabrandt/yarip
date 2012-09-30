@@ -43,9 +43,9 @@ YaripObject.prototype.checkXPath = function(value)
 {
     return yarip.checkXPath(value);
 }
-YaripObject.prototype.checkRegExp = function(value)
+YaripObject.prototype.checkRegExp = function(value, allowEmpty)
 {
-    return yarip.checkRegExp(value);
+    return yarip.checkRegExp(value, allowEmpty);
 }
 YaripObject.prototype.resetKnown = function()
 {

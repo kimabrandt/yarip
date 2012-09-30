@@ -697,6 +697,7 @@ function YaripOverlay()
                     for (var i = 0, n = mutation.addedNodes.length; i < n; i++) {
                         var node = mutation.addedNodes[i];
                         if ("getAttribute" in node) {
+                            if (!node.parentNode) continue;
                             if (/^(firebug|yarip)/.test(node.getAttribute("class"))) continue;
                             if (/\b(blacklisted|highlighted|placeholder|whitelisted\b)/.test(node.getAttribute("status"))) continue;
 

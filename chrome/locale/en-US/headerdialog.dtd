@@ -1,6 +1,5 @@
 <!ENTITY dialog.title.editHeader  "Edit HTTP Header">
 <!ENTITY label.value.page         "Page">
-<!ENTITY label.value.regExp       "Regex">
+<!ENTITY label.value.regExp       "URL regex">
 <!ENTITY label.value.headerName   "Header name">
 <!ENTITY label.value.headerValue  "Header value">
-

@@ -188,38 +188,6 @@ YaripList.prototype.generateXml = function()
         return "";
     }
 }
-//YaripList.prototype.generateCSS = function()
-//{
-//    var tmp = "";
-//    for each (var item in this.obj) if (item) tmp += item.generateCSS();
-//    if (tmp) {
-//        return tmp.replace(/,\n$/, "") + " {\n\tdisplay: none !important;\n}";
-//    } else {
-//        return "";
-//    }
-//}
-//YaripList.prototype.generateCSS = function()
-//{
-//    var tmp = "";
-////    for each (var item in this.obj) if (item) tmp += item.generateCSS(item.getPlaceholder() ? ":not([status~=\"whitelisted\"])" : "");
-//    for each (var item in this.obj) if (item) tmp += item.generateCSS(item.getPlaceholder() ? ":not([status~=\"placeholder\"]):not([status~=\"whitelisted\"])" : "");
-//    if (tmp) {
-////        return tmp.replace(/,\n$/, "") + " {\n\tdisplay: none !important;\n}";
-//        return tmp.replace(/,\n$/, "") + " {\n\tvisibility: hidden !important;\n}";
-//    } else {
-//        return "";
-//    }
-//}
-//YaripList.prototype.generateCSS = function()
-//{
-//    var tmp = "";
-//    for each (var item in this.obj) if (item) tmp += item.generateCSS(item.getPlaceholder() ? ":not([status~=\"placeholder\"]):not([status~=\"whitelisted\"]):not([status~=\"blacklisted\"])" : "");
-//    if (tmp) {
-//        return tmp.replace(/,\n$/, "") + " {\n\tdisplay: none !important;\n}";
-//    } else {
-//        return "";
-//    }
-//}
 YaripList.prototype.generateCSS = function()
 {
     var tmpBlacklist = "";
@@ -229,7 +197,6 @@ YaripList.prototype.generateCSS = function()
             if (!item.getPlaceholder()) {
                 tmpBlacklist += item.generateCSS();
             } else {
-//                tmpPlaceholder += item.generateCSS(":not([status~=\"placeholder\"]):not([status~=\"whitelisted\"]):not([status~=\"blacklisted\"])");
                 tmpPlaceholder += item.generateCSS(":not([status~=\"whitelisted\"]):not([status~=\"blacklisted\"])");
             }
         }
@@ -876,22 +843,38 @@ YaripStreamReplaceList.prototype.set = function(row, col, value)
 
         switch (col) {
         case 0:
-            if (!this.checkRegExp(value)) return false;
+            if (!this.checkRegExp(value, true)) return false;
 
             var c = item.clone();
             c.setRegExp(value);
             if (this.contains(c)) return false;
 
-//            FH.removeEntry("stream-regexp", item.getRegExp());
+//            FH.removeEntry("regexp", item.getRegExp());
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("stream-regexp", value);
+            FH.addEntry("regexp", value);
             return c.getKey();
         case 1:
             item.setFlags(value);
             return false;
         case 2:
+            if (!this.checkRegExp(value)) return false;
+
+            var c = item.clone();
+            c.setStreamRegExp(value);
+            if (this.contains(c)) return false;
+
+//            FH.removeEntry("stream-regexp", item.getStreamRegExp());
+            this.remove(item);
+
+            this.add(c);
+            FH.addEntry("stream-regexp", value);
+            return c.getKey();
+        case 3:
+            item.setStreamFlags(value);
+            return false;
+        case 4:
             var c = item.clone();
             c.setPriority(value);
             if (!this.contains(c)) {
@@ -922,8 +905,10 @@ YaripStreamReplaceList.prototype.get = function(row, col)
         case LIST_INDEX_KEY: return item.getKey();
         case 0: return item.getRegExp();
         case 1: return item.getFlags();
-        case 2: return item.getPriority();
-        case 3:
+        case 2: return item.getStreamRegExp();
+        case 3: return item.getStreamFlags();
+        case 4: return item.getPriority();
+        case 5:
             var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -931,7 +916,7 @@ YaripStreamReplaceList.prototype.get = function(row, col)
             } else {
                 return "";
             }
-        case 4:
+        case 6:
             var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -1176,7 +1161,7 @@ YaripHeaderList.prototype.set = function(row, col, value)
 
         switch (col) {
         case 0:
-            if (!this.checkRegExp(value)) return false;
+            if (!this.checkRegExp(value, true)) return false;
 
             var c = item.clone();
             c.setRegExp(value);
@@ -1543,13 +1528,6 @@ YaripPageExtensionList.prototype.clone = function()
     for each (var item in this.obj) if (item) tmp.add(item.clone());
     return tmp;
 }
-//YaripPageExtensionList.prototype.merge = function(list)
-//{
-//    for each (var item in list.obj) {
-////        if (item.getId() != this.getId()) this.add(item.clone());
-//        this.add(item.clone());
-//    }
-//}
 YaripPageExtensionList.prototype.loadFromObject = function(obj)
 {
     this.setName(obj.name);
@@ -1695,13 +1673,6 @@ YaripPageExtendedByList.prototype.clone = function()
     for each (var item in this.obj) if (item) tmp.add(item.clone());
     return tmp;
 }
-//YaripPageExtendedByList.prototype.merge = function(list)
-//{
-//    for each (var item in list.obj) {
-////        if (item.getId() != this.getId()) this.add(item.clone());
-//        this.add(item.clone());
-//    }
-//}
 YaripPageExtendedByList.prototype.loadFromObject = function(obj)
 {
     this.setName(obj.name);

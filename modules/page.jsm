@@ -112,24 +112,24 @@ YaripPage.prototype.getType = function()
 }
 YaripPage.prototype.isEmpty = function()
 {
-    return this.elementWhitelist.isEmpty()
-        && this.elementBlacklist.isEmpty()
-        && this.elementAttributeList.isEmpty()
-        && this.elementScriptList.isEmpty()
-        && this.contentWhitelist.isEmpty()
-        && this.contentBlacklist.isEmpty()
-        && this.contentRequestHeaderList.isEmpty()
-        && this.contentResponseHeaderList.isEmpty()
-        && this.contentRedirectList.isEmpty()
-        && this.contentStreamList.isEmpty()
-        && this.pageStyleList.isEmpty()
-        && this.pageScriptList.isEmpty()
-        && this.pageRequestHeaderList.isEmpty()
-        && this.pageResponseHeaderList.isEmpty()
-        && this.pageRedirectList.isEmpty()
-        && this.pageStreamList.isEmpty()
-        && this.pageExtensionList.isEmpty()
-        && this.pageExtendedByList.isEmpty();
+    return this.elementWhitelist.isEmpty() &&
+        this.elementBlacklist.isEmpty() &&
+        this.elementAttributeList.isEmpty() &&
+        this.elementScriptList.isEmpty() &&
+        this.contentWhitelist.isEmpty() &&
+        this.contentBlacklist.isEmpty() &&
+        this.contentRequestHeaderList.isEmpty() &&
+        this.contentResponseHeaderList.isEmpty() &&
+        this.contentRedirectList.isEmpty() &&
+        this.contentStreamList.isEmpty() &&
+        this.pageStyleList.isEmpty() &&
+        this.pageScriptList.isEmpty() &&
+        this.pageRequestHeaderList.isEmpty() &&
+        this.pageResponseHeaderList.isEmpty() &&
+        this.pageRedirectList.isEmpty() &&
+        this.pageStreamList.isEmpty() &&
+        this.pageExtensionList.isEmpty() &&
+        this.pageExtendedByList.isEmpty();
 }
 YaripPage.prototype.hasElements = function()
 {

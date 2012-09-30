@@ -89,7 +89,7 @@ YaripLoader.prototype.doBlacklisting = function(doc, addressObj, increment)
 
         var page = eItem.getPage();
         var list = page.elementBlacklist;
-        if (list.length == 0) return;
+        if (list.length === 0) return;
 
         var pageName = page.getName();
         var isSelf = eItem.isSelf();
@@ -167,7 +167,7 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
         var extItem = arr[i];
         var page = extItem.getPage();
         var list = page.pageScriptList;
-        if (list.length == 0) continue;
+        if (list.length === 0) continue;
 
         var pageName = page.getName();
         var isSelf = extItem.isSelf();
@@ -210,7 +210,7 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
         var extItem = arr[i];
         var page = extItem.getPage();
         var list = page.elementScriptList;
-        if (list.length == 0) continue;
+        if (list.length === 0) continue;
 
         var pageName = page.getName();
         var isSelf = extItem.isSelf();

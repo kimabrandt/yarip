@@ -32,8 +32,10 @@
 <!ENTITY tab.label.extendedBy                "Extended by">
 
 <!ENTITY treecol.label.xpath                 "XPath">
-<!ENTITY treecol.label.regExp                "Regular expression">
-<!ENTITY treecol.label.flags                 "Flags">
+<!ENTITY treecol.label.regExp                "URL regex">
+<!ENTITY treecol.label.flags                 "URL flags">
+<!ENTITY treecol.label.streamRegExp          "Stream regex">
+<!ENTITY treecol.label.streamFlags           "Stream flags">
 <!ENTITY treecol.label.contentRegExp         "Content regex">
 <!ENTITY treecol.label.newsubstr             "New substring">
 <!ENTITY treecol.label.attrName              "Attribute name">
@@ -45,9 +47,7 @@
 <!ENTITY treecol.tooltiptext.merge           "Merge with any existing values.">
 <!ENTITY treecol.label.blacklist             "Blacklist">
 <!ENTITY treecol.label.force                 "Force">
-<!--<!ENTITY treecol.tooltiptext.forceWhitelist  "Force whitelisting (ignore blacklist, even if forced).">-->
 <!ENTITY treecol.tooltiptext.forceWhitelist  "Force whitelisting (ignore blacklist).">
-<!--<!ENTITY treecol.tooltiptext.forceBlacklist  "Force blacklisting (ignore whitelist, only if not forced).">-->
 <!ENTITY treecol.tooltiptext.forceBlacklist  "Force blacklisting (ignore whitelist).">
 <!ENTITY treecol.label.placeholder           "Placeholder">
 <!ENTITY treecol.tooltiptext.placeholder     "Replace with a placeholder.">

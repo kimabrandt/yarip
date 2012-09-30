@@ -1,3 +1,4 @@
-<!ENTITY dialog.title.editReplace   "Edit Stream">
-<!ENTITY label.value.page           "Page">
-<!ENTITY label.value.regExp         "Regex">
+<!ENTITY dialog.title.editReplace  "Edit Stream">
+<!ENTITY label.value.page          "Page">
+<!ENTITY label.value.regExp        "URL regex">
+<!ENTITY label.value.streamRegExp  "Stream regex">

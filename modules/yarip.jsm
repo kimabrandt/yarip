@@ -316,7 +316,7 @@ Yarip.prototype.toggleLogWhenClosed = function(logWhenClosed)
 }
 Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser)
 {
-    if (!pageName) return "^https?://([^/?#]+[@.])?example\\.net[/?#]";
+    if (!pageName) return "^https?://([^/?#]+[.@])?example\\.net[/?#]";
 
     // TODO Use the protocol from the pageName!
     protocol = !protocol || /^https?:$/.test(protocol) ? "https?:" : protocol;
@@ -332,24 +332,19 @@ Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser)
             }
         }
         var port = domain[DOMAIN_RE_PORT_INDEX] ? ":" + domain[DOMAIN_RE_PORT_INDEX] : "";
-        return "^" + protocol + "//" + (useWildcardExpr ? "([^/?#]+[@.])?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + port + "[/?#]";
+        return "^" + protocol + "//" + (useWildcardExpr ? "([^/?#]+[.@])?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + port + "[/?#]";
     } else {
-        return "^https?://([^/?#]+[@.])?example\\.net[/?#]";
+        return "^https?://([^/?#]+[.@])?example\\.net[/?#]";
     }
 }
 Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
 {
     var tmp = {
-        regExp: "^http://([^/?#]+[@.])?example.net([/?#].*)",
-//        newSubStr: "https://$1example.net$2",
+        regExp: "^http://([^/?#]+[.@])?example.net([/?#].*)",
         script:
             "function (match, p1, p2, offset, string) {\n" +
             "    return \"https://\" + p1 + \"example.net\" + p2;\n" +
             "}"
-//            "}\n" +
-//            "/*\n" +
-//            "https://$1example.net$2\n" +
-//            "*/"
     };
     if (!pageName) return tmp;
 
@@ -373,8 +368,7 @@ Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
     }
 
     return {
-        regExp: "^http://" + (useWildcardExpr ? "([^/?#]+[@.])?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + port + "([/?#].*)",
-//        newSubStr: "https://" + (useWildcardExpr ? "$1" : "") + domainNoPort + port + (useWildcardExpr ? "$2" : "$1")
+        regExp: "^http://" + (useWildcardExpr ? "([^/?#]+[.@])?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + port + "([/?#].*)",
         script:
             "function (match, " + submatches + "offset, string) {\n" +
             (
@@ -383,10 +377,6 @@ Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
                 : "    return \"https://" + domainNoPort + port + "\" + p1;\n"
             ) +
             "}"
-//            "}\n" +
-//            "/*\n" +
-//            "https://" + (useWildcardExpr ? "$1" : "") + domainNoPort + port + (useWildcardExpr ? "$2" : "$1") + "\n" +
-//            "*/"
     };
 }
 Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUser)
@@ -1131,29 +1121,28 @@ Yarip.prototype.checkXPath = function(xpath)
         var dp = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
         var doc = dp.parseFromString("<yarip></yarip>", "text/xml");
         doc.evaluate(xpath, doc, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        return true;
     } catch (e) {
         return false;
     }
-    return true;
 }
-Yarip.prototype.checkRegExp = function(reValue)
+Yarip.prototype.checkRegExp = function(value, allowEmpty)
 {
-    if (!reValue) return false;
+    if (!value && (!allowEmpty || !(typeof value == "string"))) return false;
     try {
-        new RegExp(reValue).test("");
+        new RegExp(value).test("");
+        return true;
     } catch (e) {
         return false;
     }
-    return true;
 }
 Yarip.prototype.getElements = function(doc, xpath)
 {
-    var elements = null;
     try {
-        elements = doc.evaluate(xpath, doc, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        return doc.evaluate(xpath, doc, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
     } catch (e) {
+        return null;
     }
-    return elements;
 }
 Yarip.prototype.highlight = function(doc, xpath)
 {
@@ -1266,24 +1255,28 @@ Yarip.prototype.check = function()
     {
         this.setValue(PREF_VERSION, VERSION, DATA_TYPE_STRING);
 
-        if (/^(0\.1\.[2-9]|0\.2(\.1)?)$/.test(previous) && !/^(0\.1\.[2-9]|0\.2(\.1)?)$/.test(VERSION)) {
+        var re = /^(0\.1\.[2-9]|0\.2(\.1)?)$/;
+        if (re.test(previous) && !re.test(VERSION)) {
             // Changed noflicker-feature.
             this.setValue("content.notify.ontimer", null, DATA_TYPE_RESET);
             this.setValue("content.notify.backoffcount", null, DATA_TYPE_RESET);
             this.setValue("nglayout.initialpaint.delay", null, DATA_TYPE_RESET);
         }
 
-        if (/^0\.2(\.[1-3])?$/.test(previous) && !/^0\.2(\.[1-3])?$/.test(VERSION)) {
+        re = /^0\.2(\.[1-3])?$/;
+        if (re.test(previous) && !re.test(VERSION)) {
             // Changed style-/attribute-feature.
             FH.removeEntriesForName("style");
         }
 
-        if (/^0\.2\.4$/.test(previous) && !/^0\.2\.4$/.test(VERSION)) {
+        re = /^0\.2\.4$/;
+        if (re.test(previous) && !re.test(VERSION)) {
             // Changed `allowed-schemes'-option.
             this.setSchemes(this.getValue("extensions.yarip.schemesList.value", "^https?$", DATA_TYPE_STRING));
         }
 
-        if (/^(0\.[12](\.\d)*|0\.3\.1)$/.test(previous) && !/^(0\.[12](\.\d)*|0\.3\.1)$/.test(VERSION))
+        re = /^(0\.[12](\.\d)*|0\.3\.1)$/;
+        if (re.test(previous) && !re.test(VERSION))
         {
             // Re-introduced styles for xpaths.
             for (var p in this.map.obj) {
@@ -1306,9 +1299,10 @@ Yarip.prototype.check = function()
             }
         }
 
-        if (/^(0\.[12](\.\d)*|0\.3\.[1-3])$/.test(previous) && !/^(0\.[12](\.\d)*|0\.3\.[1-3])$/.test(VERSION))
+        re = /^(0\.[12](\.\d)*|0\.3\.[1-3])$/;
+        if (re.test(previous) && !re.test(VERSION))
         {
-            // Using UUIDs for page IDs.
+            // Using UUIDs for page IDs, instead of a timestamp.
             var arr = [];
             for (var pageName in this.map.obj) arr.push(pageName);
             for (var i = 0; i < arr.length; i++) {
@@ -1601,7 +1595,8 @@ Yarip.prototype.load = function(file, imported)
                 while (nItem)
                 {
                     var value = nItem.getAttribute("value");
-                    if (value != page.getId()) {
+                    if (value != page.getId())
+                    {
                         map.addExtension(page, new YaripExtensionItem(
                             nItem.getAttribute("value"),
                             null, // priority
@@ -1643,7 +1638,8 @@ Yarip.prototype.load = function(file, imported)
                 {
                     var iXPath = doc.evaluate("./xpath", nElement, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nXPath = iXPath.iterateNext();
-                    if (nXPath) {
+                    if (nXPath)
+                    {
                         var created = nElement.getAttribute("created");
                         page.elementWhitelist.add(new YaripElementWhitelistItem(
                             nXPath.textContent,
@@ -1671,7 +1667,8 @@ Yarip.prototype.load = function(file, imported)
                     var nXPath = iXPath.iterateNext();
                     var iStyle = doc.evaluate("./style", nElement, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nStyle = iStyle.iterateNext();
-                    if (nXPath) {
+                    if (nXPath)
+                    {
                         var created = nElement.getAttribute("created");
                         page.elementBlacklist.add(new YaripElementBlacklistItem(
                             nXPath.textContent,
@@ -1699,12 +1696,13 @@ Yarip.prototype.load = function(file, imported)
                 var nContent = iContent.iterateNext();
                 while (nContent)
                 {
-                    var iRegexp = doc.evaluate("./regexp", nContent, null, ORDERED_NODE_ITERATOR_TYPE, null);
-                    var nRegexp = iRegexp.iterateNext();
-                    if (nRegexp) {
+                    var iRegExp = doc.evaluate("./regexp", nContent, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                    var nRegExp = iRegExp.iterateNext();
+                    if (nRegExp)
+                    {
                         var created = nContent.getAttribute("created");
                         page.contentWhitelist.add(new YaripContentWhitelistItem(
-                            nRegexp.textContent,
+                            nRegExp.textContent,
                             null, // flags
                             null, // priority
                             created ? created : pageId,
@@ -1723,12 +1721,13 @@ Yarip.prototype.load = function(file, imported)
                 var nContent = iContent.iterateNext();
                 while (nContent)
                 {
-                    var iRegexp = doc.evaluate("./regexp", nContent, null, ORDERED_NODE_ITERATOR_TYPE, null);
-                    var nRegexp = iRegexp.iterateNext();
-                    if (nRegexp) {
+                    var iRegExp = doc.evaluate("./regexp", nContent, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                    var nRegExp = iRegExp.iterateNext();
+                    if (nRegExp)
+                    {
                         var created = nContent.getAttribute("created");
                         page.contentBlacklist.add(new YaripContentBlacklistItem(
-                            nRegexp.textContent,
+                            nRegExp.textContent,
                             null, // flags
                             null, // priority
                             nContent.getAttribute("force"),
@@ -1755,7 +1754,8 @@ Yarip.prototype.load = function(file, imported)
                     var nName = iName.iterateNext();
                     var iValue = doc.evaluate("./value", nElement, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nValue = iValue.iterateNext();
-                    if (nXPath && nName && nValue) {
+                    if (nXPath && nName && nValue)
+                    {
                         var created = nElement.getAttribute("created");
                         page.elementAttributeList.add(new YaripElementAttributeItem(
                             nXPath.textContent,
@@ -1774,7 +1774,8 @@ Yarip.prototype.load = function(file, imported)
             // SCRIPT
             var iScript = doc.evaluate("./script", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nScript = iScript.iterateNext();
-            if (nScript) {
+            if (nScript)
+            {
                   page.pageScriptList.add(new YaripPageScriptItem(
                       "/html/body",
                       nScript.textContent,
@@ -1805,7 +1806,8 @@ Yarip.prototype.load = function(file, imported)
                 while (nPageRef)
                 {
                     var pageExtId = nPageRef.textContent;
-                    if (pageExtId && pageExtId != page.getId()) {
+                    if (pageExtId && pageExtId != page.getId())
+                    {
                         var created = nPageRef.getAttribute("created");
                         map.addExtension(page, new YaripExtensionItem(
                             pageExtId,
@@ -1854,7 +1856,8 @@ Yarip.prototype.load = function(file, imported)
                     {
                         var iXPath = doc.evaluate("./xpath", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nXPath = iXPath.iterateNext();
-                        if (nXPath) {
+                        if (nXPath)
+                        {
                             var created = nItem.getAttribute("created");
                             page.elementWhitelist.add(new YaripElementWhitelistItem(
                                 nXPath.textContent,
@@ -1882,7 +1885,8 @@ Yarip.prototype.load = function(file, imported)
                         var nXPath = iXPath.iterateNext();
                         var iStyle = doc.evaluate("./style", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nStyle = iStyle.iterateNext();
-                        if (nXPath) {
+                        if (nXPath)
+                        {
                             var created = nItem.getAttribute("created");
                             var element = new YaripElementBlacklistItem(
                                 nXPath.textContent,
@@ -1916,7 +1920,8 @@ Yarip.prototype.load = function(file, imported)
                         var nName = iName.iterateNext();
                         var iValue = doc.evaluate("./value", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nValue = iValue.iterateNext();
-                        if (nXPath && nName && nValue) {
+                        if (nXPath && nName && nValue)
+                        {
                             var created = nItem.getAttribute("created");
                             page.elementAttributeList.add(new YaripElementAttributeItem(
                                 nXPath.textContent,
@@ -1945,7 +1950,8 @@ Yarip.prototype.load = function(file, imported)
                         var nXPath = iXPath.iterateNext();
                         var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nScript = iScript.iterateNext();
-                        if (nXPath) {
+                        if (nXPath)
+                        {
                             var created = nItem.getAttribute("created");
                             page.elementScriptList.add(new YaripScriptItem(
                                 nXPath.textContent,
@@ -1976,13 +1982,14 @@ Yarip.prototype.load = function(file, imported)
                     var nItem = iItem.iterateNext();
                     while (nItem)
                     {
-                        var iRegexp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
-                        var nRegexp = iRegexp.iterateNext();
-                        if (nRegexp) {
+                        var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                        var nRegExp = iRegExp.iterateNext();
+                        if (nRegExp)
+                        {
                             var created = nItem.getAttribute("created");
                             page.contentWhitelist.add(new YaripContentWhitelistItem(
-                                nRegexp.textContent,
-                                nRegexp.getAttribute("flags"),
+                                nRegExp.textContent,
+                                nRegExp.getAttribute("flags"),
                                 nItem.getAttribute("priority"),
                                 created ? created : pageCreated,
                                 nItem.getAttribute("lastFound")));
@@ -2000,13 +2007,14 @@ Yarip.prototype.load = function(file, imported)
                     var nItem = iItem.iterateNext();
                     while (nItem)
                     {
-                        var iRegexp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
-                        var nRegexp = iRegexp.iterateNext();
-                        if (nRegexp) {
+                        var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                        var nRegExp = iRegExp.iterateNext();
+                        if (nRegExp)
+                        {
                             var created = nItem.getAttribute("created");
                             page.contentBlacklist.add(new YaripContentBlacklistItem(
-                                nRegexp.textContent,
-                                nRegexp.getAttribute("flags"),
+                                nRegExp.textContent,
+                                nRegExp.getAttribute("flags"),
                                 nItem.getAttribute("priority"),
                                 nItem.getAttribute("force"),
                                 created ? created : pageCreated,
@@ -2030,17 +2038,18 @@ Yarip.prototype.load = function(file, imported)
                         var nItem = iItem.iterateNext();
                         while (nItem)
                         {
-                            var iRegexp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
-                            var nRegexp = iRegexp.iterateNext();
+                            var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                            var nRegExp = iRegExp.iterateNext();
                             var iName = doc.evaluate("./name", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nName = iName.iterateNext();
                             var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nScript = iScript.iterateNext();
-                            if (nRegexp) {
+                            if (nRegExp)
+                            {
                                 var created = nItem.getAttribute("created");
                                 page.contentRequestHeaderList.add(new YaripHeaderItem(
-                                    nRegexp.textContent,
-                                    nRegexp.getAttribute("flags"),
+                                    nRegExp.textContent,
+                                    nRegExp.getAttribute("flags"),
                                     nName.textContent,
                                     nScript ? nScript.textContent : null,
                                     nItem.getAttribute("priority"),
@@ -2061,17 +2070,18 @@ Yarip.prototype.load = function(file, imported)
                         var nItem = iItem.iterateNext();
                         while (nItem)
                         {
-                            var iRegexp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
-                            var nRegexp = iRegexp.iterateNext();
+                            var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                            var nRegExp = iRegExp.iterateNext();
                             var iName = doc.evaluate("./name", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nName = iName.iterateNext();
                             var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nScript = iScript.iterateNext();
-                            if (nRegexp) {
+                            if (nRegExp)
+                            {
                                 var created = nItem.getAttribute("created");
                                 page.contentResponseHeaderList.add(new YaripHeaderItem(
-                                    nRegexp.textContent,
-                                    nRegexp.getAttribute("flags"),
+                                    nRegExp.textContent,
+                                    nRegExp.getAttribute("flags"),
                                     nName.textContent,
                                     nScript ? nScript.textContent : null,
                                     nItem.getAttribute("priority"),
@@ -2093,16 +2103,49 @@ Yarip.prototype.load = function(file, imported)
                     var nItem = iItem.iterateNext();
                     while (nItem)
                     {
-                        var iRegexp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
-                        var nRegexp = iRegexp.iterateNext();
+                        var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                        var nRegExp = iRegExp.iterateNext();
                         var iNewSubStr = doc.evaluate("./newsubstr", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nNewSubStr = iNewSubStr.iterateNext();
-                        if (nRegexp) {
+                        if (nRegExp)
+                        {
                             var created = nItem.getAttribute("created");
                             page.contentRedirectList.add(new YaripRedirectItem(
-                                nRegexp.textContent,
-                                nRegexp.getAttribute("flags"),
+                                nRegExp.textContent,
+                                nRegExp.getAttribute("flags"),
                                 nNewSubStr ? nNewSubStr.textContent : null,
+                                nItem.getAttribute("priority"),
+                                created ? created : pageCreated,
+                                nItem.getAttribute("lastFound")));
+                        }
+                        nItem = iItem.iterateNext();
+                    }
+                }
+
+                // CONTENT STREAM
+                var iContentStream = doc.evaluate("./stream", nContentChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                var nContentStream = iContentStream.iterateNext();
+                if (nContentStream)
+                {
+                    var iItem = doc.evaluate("./item", nContentStream, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                    var nItem = iItem.iterateNext();
+                    while (nItem)
+                    {
+                        var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                        var nRegExp = iRegExp ? iRegExp.iterateNext() : null;
+                        var iStreamRegExp = doc.evaluate("./stream_regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                        var nStreamRegExp = iStreamRegExp.iterateNext();
+                        var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                        var nScript = iScript.iterateNext();
+                        if (nStreamRegExp)
+                        {
+                            var created = nItem.getAttribute("created");
+                            page.contentStreamList.add(new YaripStreamItem(
+                                nRegExp ? nRegExp.textContent : null,
+                                nRegExp ? nRegExp.getAttribute("flags") : null,
+                                nStreamRegExp.textContent,
+                                nStreamRegExp.getAttribute("flags"),
+                                nScript ? nScript.textContent : null,
                                 nItem.getAttribute("priority"),
                                 created ? created : pageCreated,
                                 nItem.getAttribute("lastFound")));
@@ -2121,7 +2164,8 @@ if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.1)$/.test(version))
                 // PAGE STYLE
                 var iPageStyle = doc.evaluate("./style", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageStyle = iPageStyle.iterateNext();
-                if (nPageStyle) {
+                if (nPageStyle)
+                {
                     page.pageStyleList.add(new YaripStyleItem(
                         "/html/head",
                         nPageStyle.textContent,
@@ -2132,7 +2176,8 @@ if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.1)$/.test(version))
                 // PAGE SCRIPT
                 var iPageScript = doc.evaluate("./script", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageScript = iPageScript.iterateNext();
-                if (nPageScript) {
+                if (nPageScript)
+                {
                     page.pageScriptList.add(new YaripPageScriptItem(
                         "/html/body",
                         nPageScript.textContent,
@@ -2156,7 +2201,8 @@ else // if (/^0\.3\.[2-4]$/.test(version))
                         var nXPath = iXPath.iterateNext();
                         var iStyle = doc.evaluate("./style", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nStyle = iStyle.iterateNext();
-                        if (nXPath) {
+                        if (nXPath)
+                        {
                             var created = nItem.getAttribute("created");
                             page.pageStyleList.add(new YaripStyleItem(
                                 nXPath.textContent,
@@ -2184,7 +2230,8 @@ else // if (/^0\.3\.[2-4]$/.test(version))
                         var nXPath = iXPath.iterateNext();
                         var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nScript = iScript.iterateNext();
-                        if (nXPath) {
+                        if (nXPath)
+                        {
                             var created = nItem.getAttribute("created");
                             page.pageScriptList.add(new YaripPageScriptItem(
                                 nXPath.textContent,
@@ -2214,17 +2261,18 @@ else // if (/^0\.3\.[2-4]$/.test(version))
                         var nItem = iItem.iterateNext();
                         while (nItem)
                         {
-                            var iRegexp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
-                            var nRegexp = iRegexp.iterateNext();
+                            var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                            var nRegExp = iRegExp.iterateNext();
                             var iName = doc.evaluate("./name", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nName = iName.iterateNext();
                             var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nScript = iScript.iterateNext();
-                            if (nRegexp) {
+                            if (nRegExp)
+                            {
                                 var created = nItem.getAttribute("created");
                                 page.pageRequestHeaderList.add(new YaripHeaderItem(
-                                    nRegexp.textContent,
-                                    nRegexp.getAttribute("flags"),
+                                    nRegExp.textContent,
+                                    nRegExp.getAttribute("flags"),
                                     nName.textContent,
                                     nScript ? nScript.textContent : null,
                                     nItem.getAttribute("priority"),
@@ -2245,17 +2293,18 @@ else // if (/^0\.3\.[2-4]$/.test(version))
                         var nItem = iItem.iterateNext();
                         while (nItem)
                         {
-                            var iRegexp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
-                            var nRegexp = iRegexp.iterateNext();
+                            var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                            var nRegExp = iRegExp.iterateNext();
                             var iName = doc.evaluate("./name", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nName = iName.iterateNext();
                             var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nScript = iScript.iterateNext();
-                            if (nRegexp) {
+                            if (nRegExp)
+                            {
                                 var created = nItem.getAttribute("created");
                                 page.pageResponseHeaderList.add(new YaripHeaderItem(
-                                    nRegexp.textContent,
-                                    nRegexp.getAttribute("flags"),
+                                    nRegExp.textContent,
+                                    nRegExp.getAttribute("flags"),
                                     nName.textContent,
                                     nScript ? nScript.textContent : null,
                                     nItem.getAttribute("priority"),
@@ -2268,6 +2317,8 @@ else // if (/^0\.3\.[2-4]$/.test(version))
                     }
                 }
 
+if (/^0\.3\.[2-3]$/.test(version))
+{
                 // PAGE STREAM
                 var iPageStream = doc.evaluate("./stream", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageStream = iPageStream.iterateNext();
@@ -2277,15 +2328,17 @@ else // if (/^0\.3\.[2-4]$/.test(version))
                     var nItem = iItem.iterateNext();
                     while (nItem)
                     {
-                        var iRegexp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
-                        var nRegexp = iRegexp.iterateNext();
+                        var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                        var nRegExp = iRegExp.iterateNext();
                         var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nScript = iScript.iterateNext();
-                        if (nRegexp) {
+                        if (nRegExp) {
                             var created = nItem.getAttribute("created");
                             page.pageStreamList.add(new YaripStreamItem(
-                                nRegexp.textContent,
-                                nRegexp.getAttribute("flags"),
+                                null, // regexp
+                                null, // flags
+                                nRegExp.textContent, // stream_regexp
+                                nRegExp.getAttribute("flags"),
                                 nScript ? nScript.textContent : null,
                                 nItem.getAttribute("priority"),
                                 created ? created : pageCreated,
@@ -2294,6 +2347,41 @@ else // if (/^0\.3\.[2-4]$/.test(version))
                         nItem = iItem.iterateNext();
                     }
                 }
+}
+else // if (/^0\.3\.[4]$/.test(version))
+{
+                // PAGE STREAM
+                var iPageStream = doc.evaluate("./stream", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                var nPageStream = iPageStream.iterateNext();
+                if (nPageStream)
+                {
+                    var iItem = doc.evaluate("./item", nPageStream, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                    var nItem = iItem.iterateNext();
+                    while (nItem)
+                    {
+                        var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                        var nRegExp = iRegExp ? iRegExp.iterateNext() : null;
+                        var iStreamRegExp = doc.evaluate("./stream_regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                        var nStreamRegExp = iStreamRegExp.iterateNext();
+                        var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                        var nScript = iScript.iterateNext();
+                        if (nStreamRegExp)
+                        {
+                            var created = nItem.getAttribute("created");
+                            page.pageStreamList.add(new YaripStreamItem(
+                                nRegExp ? nRegExp.textContent : null,
+                                nRegExp ? nRegExp.getAttribute("flags") : null,
+                                nStreamRegExp.textContent,
+                                nStreamRegExp.getAttribute("flags"),
+                                nScript ? nScript.textContent : null,
+                                nItem.getAttribute("priority"),
+                                created ? created : pageCreated,
+                                nItem.getAttribute("lastFound")));
+                        }
+                        nItem = iItem.iterateNext();
+                    }
+                }
+}
 
                 // PAGE REDIRECT
                 var iPageRedirect = doc.evaluate("./redirect", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
@@ -2304,15 +2392,16 @@ else // if (/^0\.3\.[2-4]$/.test(version))
                     var nItem = iItem.iterateNext();
                     while (nItem)
                     {
-                        var iRegexp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
-                        var nRegexp = iRegexp.iterateNext();
+                        var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
+                        var nRegExp = iRegExp.iterateNext();
                         var iNewSubStr = doc.evaluate("./newsubstr", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nNewSubStr = iNewSubStr.iterateNext();
-                        if (nRegexp) {
+                        if (nRegExp)
+                        {
                             var created = nItem.getAttribute("created");
                             page.pageRedirectList.add(new YaripRedirectItem(
-                                nRegexp.textContent,
-                                nRegexp.getAttribute("flags"),
+                                nRegExp.textContent,
+                                nRegExp.getAttribute("flags"),
                                 nNewSubStr ? nNewSubStr.textContent : null,
                                 nItem.getAttribute("priority"),
                                 created ? created : pageCreated,
@@ -2557,8 +2646,9 @@ Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
             if (whitelisted && !item.getForce()) {
                 if (extPage.isSelf()) {
                     item.incrementIgnored();
+                } else {
+                    continue;
                 }
-                continue;
             }
 
             if (extPage.isSelf()) {

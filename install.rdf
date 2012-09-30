@@ -2,7 +2,7 @@
 <RDF:RDF xmlns:em="http://www.mozilla.org/2004/em-rdf#" xmlns:NC="http://home.netscape.com/NC-rdf#" xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
       em:id="yarip@mozdev.org"
-      em:version="0.3.3"
+      em:version="0.3.4"
       em:type="2"
       em:name="Yet Another Remove It Permanently"
       em:description="Remove elements and block content on Web pages."
@@ -20,18 +20,18 @@
   <RDF:Description RDF:about="rdf:#firefox"
     em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
     em:minVersion="11.0"
-    em:maxVersion="17.*"/>
+    em:maxVersion="18.0a1"/>
   <RDF:Description RDF:about="rdf:#thunderbird"
     em:id="{3550f703-e582-4d05-9a08-453d09bdfdc6}"
     em:minVersion="10.0"
-    em:maxVersion="17.*"/>
+    em:maxVersion="18.0a1"/>
   <RDF:Description RDF:about="rdf:#mobile"
     em:id="{a23983c0-fd0e-11dc-95ff-0800200c9a66}"
     em:optionsURL="chrome://yarip/content/mobileOptions.xul"
     em:minVersion="4.0"
-    em:maxVersion="17.*"/>
+    em:maxVersion="18.0a1"/>
   <RDF:Description RDF:about="rdf:#seamonkey"
     em:id="{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}"
     em:minVersion="2.2"
-    em:maxVersion="2.14.*"/>
+    em:maxVersion="2.15a1"/>
 </RDF:RDF>

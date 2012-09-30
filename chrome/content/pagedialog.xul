@@ -236,7 +236,7 @@
                   <tab id="contentBlacklist-tab" label="&tab.label.blacklist;" oncommand="dialog.setUserSelect()"/>
                   <tab id="contentHeader-tab" label="&tab.label.header;" oncommand="dialog.setUserSelect()"/>
                   <tab id="contentRedirectList-tab" label="&tab.label.redirect;" oncommand="dialog.setUserSelect()"/>
-<!--                  <tab id="contentStreamList-tab" label="&tab.label.stream;" oncommand="dialog.setUserSelect()"/>-->
+                  <tab id="contentStreamList-tab" label="&tab.label.stream;" oncommand="dialog.setUserSelect()"/>
                 </tabs>
                 <tabpanels flex="1">
                   <tabpanel id="contentWhitelist" flex="1">
@@ -390,32 +390,36 @@
                       </hbox>
                     </vbox>
                   </tabpanel>
-<!--                  <tabpanel id="contentStreamList" flex="1">-->
-<!--                    <vbox flex="1">-->
-<!--                      <tree id="contentStreamList-tree" editable="true" persist="height" flex="1">-->
-<!--                        <treecols>-->
-<!--                          <treecol id="contentStreamList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>-->
-<!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
-<!--                          <treecol id="contentStreamList-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>-->
-<!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
-<!--                          <treecol id="contentStreamList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>-->
-<!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
-<!--                          <treecol id="contentStreamList-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>-->
-<!--                          <splitter class="tree-splitter" resizeafter="farthest"/>-->
-<!--                          <treecol id="contentStreamList-tree-lastFound" label="&treecol.label.lastFound;" persist="width hidden"/>-->
-<!--                        </treecols>-->
-<!--                        <treechildren context="yarip-edit-menupopup"/>-->
-<!--                      </tree>-->
-<!--                      <splitter/>-->
-<!--                      <textbox id="contentStreamList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>-->
-<!--                      <hbox align="center">-->
-<!--                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>-->
-<!--                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>-->
-<!--                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>-->
-<!--                        <spacer flex="1"/>-->
-<!--                      </hbox>-->
-<!--                    </vbox>-->
-<!--                  </tabpanel>-->
+                  <tabpanel id="contentStreamList" flex="1">
+                    <vbox flex="1">
+                      <tree id="contentStreamList-tree" editable="true" persist="height" flex="1">
+                        <treecols>
+                          <treecol id="contentStreamList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="contentStreamList-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="contentStreamList-tree-streamRegExp" label="&treecol.label.streamRegExp;" editable="true" persist="width" primary="true" flex="1"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="contentStreamList-tree-streamFlags" label="&treecol.label.streamFlags;" editable="true" hidden="true" persist="width" flex="1"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="contentStreamList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="contentStreamList-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="contentStreamList-tree-lastFound" label="&treecol.label.lastFound;" persist="width hidden"/>
+                        </treecols>
+                        <treechildren context="yarip-edit-menupopup"/>
+                      </tree>
+                      <splitter/>
+                      <textbox id="contentStreamList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
+                      <hbox align="center">
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <spacer flex="1"/>
+                      </hbox>
+                    </vbox>
+                  </tabpanel>
                 </tabpanels>
               </tabbox>
             </vbox>
@@ -598,6 +602,10 @@
                           <treecol id="pageStreamList-tree-regExp" label="&treecol.label.regExp;" editable="true" persist="width" primary="true" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="pageStreamList-tree-flags" label="&treecol.label.flags;" editable="true" hidden="true" persist="width" flex="1"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="pageStreamList-tree-streamRegExp" label="&treecol.label.streamRegExp;" editable="true" persist="width" primary="true" flex="1"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="pageStreamList-tree-streamFlags" label="&treecol.label.streamFlags;" editable="true" hidden="true" persist="width" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="pageStreamList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>

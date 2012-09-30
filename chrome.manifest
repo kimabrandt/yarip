@@ -3,11 +3,11 @@ contract  @yarip.mozdev.org/app-startup-service;1  {0f73e21b-fa4a-4e57-b991-200d
 category  profile-after-change  @yarip.mozdev.org/app-startup-service;1  @yarip.mozdev.org/app-startup-service;1
 
 content  yarip  chrome/content/
-skin  yarip  yarip/0.3.3  chrome/skin/
-skin  yarip-os  yarip/0.3.3  chrome/skin/unix/
-#skin  yarip-os  yarip/0.3.3  chrome/skin/win/  os=WINNT
-#skin  yarip-os  yarip/0.3.3  chrome/skin/winaero/  os=WINNT osversion>=6
-#skin  yarip-os  yarip/0.3.3  chrome/skin/mac/  os=Darwin
+skin  yarip  yarip/0.3.4  chrome/skin/
+skin  yarip-os  yarip/0.3.4  chrome/skin/unix/
+#skin  yarip-os  yarip/0.3.4  chrome/skin/win/  os=WINNT
+#skin  yarip-os  yarip/0.3.4  chrome/skin/winaero/  os=WINNT osversion>=6
+#skin  yarip-os  yarip/0.3.4  chrome/skin/mac/  os=Darwin
 locale  yarip  en-US  chrome/locale/en-US/
 #style  chrome://global/content/customizeToolbar.xul  chrome://yarip-os/skin/toolbar.css
 style  chrome://global/content/customizeToolbar.xul  chrome://yarip-os/skin/style.css

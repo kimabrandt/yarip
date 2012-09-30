@@ -65,7 +65,7 @@ function YaripPageDialog()
                 }
                 break;
             case INDEX_CONTENT_REDIRECT: this.tab = "contentRedirectList"; break;
-//            case INDEX_CONTENT_STREAM: this.tab = "contentStreamList"; break;
+            case INDEX_CONTENT_STREAM: this.tab = "contentStreamList"; break;
             }
             break;
         case INDEX_TABBOX_PAGE:
@@ -116,7 +116,7 @@ function YaripPageDialog()
         case "contentRequestHeaderList":
         case "contentResponseHeaderList":
         case "contentRedirectList":
-//        case "contentStreamList":
+        case "contentStreamList":
         case "pageRequestHeaderList":
         case "pageResponseHeaderList":
         case "pageScriptList":
@@ -170,9 +170,9 @@ function YaripPageDialog()
         case "contentRedirectList":
             toList = this.page.contentRedirectList;
             break;
-//        case "contentStreamList":
-//            toList = this.page.contentStreamList;
-//            break;
+        case "contentStreamList":
+            toList = this.page.contentStreamList;
+            break;
         case "pageStyleList":
             toList = this.page.pageStyleList;
             break;
@@ -252,9 +252,9 @@ function YaripPageDialog()
         case "contentRedirectList":
             toList = this.page.contentRedirectList;
             break;
-//        case "contentStreamList":
-//            toList = this.page.contentStreamList;
-//            break;
+        case "contentStreamList":
+            toList = this.page.contentStreamList;
+            break;
         case "pageStyleList":
             toList = this.page.pageStyleList;
             break;
@@ -412,7 +412,6 @@ function YaripPageDialog()
             window.openDialog("chrome://yarip/content/whitelistcontentdialog.xul", "whitelistcontentdialog", "chrome,modal,resizable", obj);
             if (!obj.item) return;
 
-//            obj.item.setCreated(Date.now());
             page.contentWhitelist.add(obj.item);
             break;
 
@@ -461,11 +460,6 @@ function YaripPageDialog()
         case "contentRedirectList":
             var reObj = yarip.getPageRegExpObj(page.getName(), null, true /* byUser */);
             obj = {
-//                item: new YaripRedirectItem(reObj.regExp, reObj.newSubStr),
-//                item: new YaripRedirectItem(reObj.regExp,
-//                        "function (url) {\n" +
-//                        "    return unescape(url.replace(/.*?\\?url=(http[^&#]+).*/, \"$1\"));\n" +
-//                        "}"),
                 item: new YaripRedirectItem(reObj.regExp, null, reObj.script),
                 pageName: page.getName()
             }
@@ -475,16 +469,21 @@ function YaripPageDialog()
             page.contentRedirectList.add(obj.item);
             break;
 
-//        case "contentStreamList":
-//            obj = {
-//                item: new YaripStreamItem("", ""),
-//                pageName: page.getName()
-//            }
-//            window.openDialog("chrome://yarip/content/replacedialog.xul", "replacedialog", "chrome,modal,resizable", obj);
-//            if (!obj.item) return;
+        case "contentStreamList":
+            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
+            obj = {
+                // TODO Change the example!
+                item: new YaripStreamItem(re, null, "<script\\b[^>]*>(.|\\s)*?</script>", null,
+                        "function (match, p1, offset, string) {\n" +
+                        "    return \"\";\n" +
+                        "}"),
+                pageName: page.getName()
+            }
+            window.openDialog("chrome://yarip/content/replacedialog.xul", "replacedialog", "chrome,modal,resizable", obj);
+            if (!obj.item) return;
 
-//            page.contentStreamList.add(obj.item);
-//            break;
+            page.contentStreamList.add(obj.item);
+            break;
 
         case "pageStyleList":
             obj = {
@@ -553,11 +552,6 @@ function YaripPageDialog()
         case "pageRedirectList":
             var reObj = yarip.getPageRegExpObj(page.getName(), null, true /* byUser */);
             obj = {
-//                item: new YaripRedirectItem(reObj.regExp, reObj.newSubStr),
-//                item: new YaripRedirectItem(reObj.regExp,
-//                        "function (url) {\n" +
-//                        "    return unescape(url.replace(/.*?\\?url=(http[^&#]+).*/, \"$1\"));\n" +
-//                        "}"),
                 item: new YaripRedirectItem(reObj.regExp, null, reObj.script),
                 pageName: page.getName()
             }
@@ -568,21 +562,12 @@ function YaripPageDialog()
             break;
 
         case "pageStreamList":
+            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
             obj = {
-                item: new YaripStreamItem("<script\\b[^>]*>(.|\\s)*?</script>",
-//                        "function (matches) {\n" +
-//                        "    for (var i = 0; i < matches.length; i++) {\n" +
-//                        "        matches[i] = matches[i].replace(/foo/g, \"bar\");\n" +
-//                        "    }\n" +
-//                        "}"),
-                        null,
+                item: new YaripStreamItem(re, null, "<script\\b[^>]*>(.|\\s)*?</script>", null,
                         "function (match, p1, offset, string) {\n" +
                         "    return \"\";\n" +
                         "}"),
-//                        "}\n" +
-//                        "/*\n" +
-//                        "<empty string>\n" +
-//                        "*/"),
                 pageName: page.getName()
             }
             window.openDialog("chrome://yarip/content/replacedialog.xul", "replacedialog", "chrome,modal,resizable", obj);
@@ -612,7 +597,7 @@ function YaripPageDialog()
         case "contentRequestHeaderList":
         case "contentResponseHeaderList":
         case "contentRedirectList":
-//        case "contentStreamList":
+        case "contentStreamList":
         case "pageStyleList":
         case "pageScriptList":
         case "pageRequestHeaderList":
@@ -779,12 +764,12 @@ function YaripPageDialog()
             if (page.contentBlacklist.isEmpty()) {
                 if (page.contentRequestHeaderList.isEmpty() && page.contentResponseHeaderList.isEmpty()) {
                     if (page.contentRedirectList.isEmpty()) {
-//                        if (page.contentStreamList.isEmpty()) {
+                        if (page.contentStreamList.isEmpty()) {
                             this.contentTabbox.selectedIndex = INDEX_CONTENT_WHITELIST;
-//                        } else {
-//                            this.contentTabbox.selectedIndex = INDEX_CONTENT_STREAM;
-//                            selectedIndex = INDEX_TABBOX_CONTENT;
-//                        }
+                        } else {
+                            this.contentTabbox.selectedIndex = INDEX_CONTENT_STREAM;
+                            selectedIndex = INDEX_TABBOX_CONTENT;
+                        }
                     } else {
                         this.contentTabbox.selectedIndex = INDEX_CONTENT_REDIRECT;
                         selectedIndex = INDEX_TABBOX_CONTENT;
@@ -1018,7 +1003,7 @@ function YaripPageDialog()
         this.tabs["contentRequestHeaderList"].list = page.contentRequestHeaderList;
         this.tabs["contentResponseHeaderList"].list = page.contentResponseHeaderList;
         this.tabs["contentRedirectList"].list = page.contentRedirectList;
-//        this.tabs["contentStreamList"].list = page.contentStreamList;
+        this.tabs["contentStreamList"].list = page.contentStreamList;
         this.tabs["pageStyleList"].list = page.pageStyleList;
         this.tabs["pageScriptList"].list = page.pageScriptList;
         this.tabs["pageRequestHeaderList"].list = page.pageRequestHeaderList;
@@ -1037,7 +1022,7 @@ function YaripPageDialog()
         this.tabs["contentRequestHeaderList"].tab.setAttribute("label", this.sb.getFormattedString("request-tab", [this.tabs["contentRequestHeaderList"].list.length]));
         this.tabs["contentResponseHeaderList"].tab.setAttribute("label", this.sb.getFormattedString("response-tab", [this.tabs["contentResponseHeaderList"].list.length]));
         this.tabs["contentRedirectList"].tab.setAttribute("label", this.sb.getFormattedString("redirect-tab", [this.tabs["contentRedirectList"].list.length]));
-//        this.tabs["contentStreamList"].tab.setAttribute("label", this.sb.getFormattedString("stream-tab", [this.tabs["contentStreamList"].list.length]));
+        this.tabs["contentStreamList"].tab.setAttribute("label", this.sb.getFormattedString("stream-tab", [this.tabs["contentStreamList"].list.length]));
         this.tabs["pageStyleList"].tab.setAttribute("label", this.sb.getFormattedString("pageStyleList-tab", [this.tabs["pageStyleList"].list.length]));
         this.tabs["pageScriptList"].tab.setAttribute("label", this.sb.getFormattedString("pageScriptList-tab", [this.tabs["pageScriptList"].list.length]));
         this.tabs["pageHeader"].tab.setAttribute("label", this.sb.getFormattedString("header-tab", [this.tabs["pageRequestHeaderList"].list.length + this.tabs["pageResponseHeaderList"].list.length]));
@@ -1186,7 +1171,7 @@ function YaripPageDialog()
             this.refreshTab("contentRequestHeaderList", load);
             this.refreshTab("contentResponseHeaderList", load);
             this.refreshTab("contentRedirectList", load);
-//            this.refreshTab("contentStreamList", load);
+            this.refreshTab("contentStreamList", load);
             this.refreshTab("pageStyleList", load);
             this.refreshTab("pageScriptList", load);
             this.refreshTab("pageRequestHeaderList", load);
@@ -1206,8 +1191,8 @@ function YaripPageDialog()
             + this.tabs["contentBlacklist"].list.length
             + this.tabs["contentRequestHeaderList"].list.length
             + this.tabs["contentResponseHeaderList"].list.length
-            + this.tabs["contentRedirectList"].list.length;
-//            + this.tabs["contentStreamList"].list.length;
+            + this.tabs["contentRedirectList"].list.length
+            + this.tabs["contentStreamList"].list.length;
         var contentHeaderCount = this.tabs["contentRequestHeaderList"].list.length
             + this.tabs["contentResponseHeaderList"].list.length;
         var pageCount = this.tabs["pageStyleList"].list.length
@@ -1245,7 +1230,7 @@ function YaripPageDialog()
         case "contentRequestHeaderList":
         case "contentResponseHeaderList":
         case "contentRedirectList":
-//        case "contentStreamList":
+        case "contentStreamList":
         case "pageStyleList":
         case "pageScriptList":
         case "pageRequestHeaderList":
@@ -1266,7 +1251,7 @@ function YaripPageDialog()
                 case "contentRequestHeaderList": this.tabs[tab].item = new YaripHeaderItem(); break;
                 case "contentResponseHeaderList": this.tabs[tab].item = new YaripHeaderItem(); break;
                 case "contentRedirectList": this.tabs[tab].item = new YaripRedirectItem(); break;
-//                case "contentStreamList": this.tabs[tab].item = new YaripStreamItem(); break;
+                case "contentStreamList": this.tabs[tab].item = new YaripStreamItem(); break;
                 case "pageStyleList": this.tabs[tab].item = new YaripStyleItem(); break;
                 case "pageScriptList": this.tabs[tab].item = new YaripPageScriptItem(); break;
                 case "pageRedirectList": this.tabs[tab].item = new YaripRedirectItem(); break;
@@ -1299,7 +1284,7 @@ function YaripPageDialog()
             case "contentRequestHeaderList":
             case "contentResponseHeaderList":
             case "contentRedirectList":
-//            case "contentStreamList":
+            case "contentStreamList":
             case "pageStyleList":
             case "pageScriptList":
             case "pageRequestHeaderList":
@@ -1411,8 +1396,6 @@ function YaripPageDialog()
         case "elementAttributeList-tree":
         case "contentWhitelist-tree":
         case "contentBlacklist-tree":
-//        case "contentRedirectList-tree":
-//        case "pageRedirectList-tree":
         case "pageExtensionList-tree":
         case "pageExtendedByList-tree":
             this.refreshTab(this.tab);
@@ -1422,7 +1405,7 @@ function YaripPageDialog()
         case "contentRequestHeaderList-tree":
         case "contentResponseHeaderList-tree":
         case "contentRedirectList-tree":
-//        case "contentStreamList-tree":
+        case "contentStreamList-tree":
         case "pageStyleList-tree":
         case "pageScriptList-tree":
         case "pageRequestHeaderList-tree":
@@ -1454,7 +1437,7 @@ function YaripPageDialog()
         case "contentRequestHeaderList":
         case "contentResponseHeaderList":
         case "contentRedirectList":
-//        case "contentStreamList":
+        case "contentStreamList":
         case "pageStyleList":
         case "pageScriptList":
         case "pageRequestHeaderList":
@@ -1475,7 +1458,7 @@ function YaripPageDialog()
         case "contentRequestHeaderList":
         case "contentResponseHeaderList":
         case "contentRedirectList":
-//        case "contentStreamList":
+        case "contentStreamList":
         case "pageStyleList":
         case "pageScriptList":
         case "pageRequestHeaderList":
@@ -1560,7 +1543,7 @@ function YaripPageDialog()
         this.initTab("contentRequestHeaderList");
         this.initTab("contentResponseHeaderList");
         this.initTab("contentRedirectList");
-//        this.initTab("contentStreamList");
+        this.initTab("contentStreamList");
         this.initTab("pageStyleList");
         this.initTab("pageScriptList");
         this.initTab("pageHeader");
@@ -1589,6 +1572,7 @@ function YaripPageDialog()
         fun("contentRequestHeaderList-tree");
         fun("contentResponseHeaderList-tree");
         fun("contentRedirectList-tree");
+        fun("contentStreamList-tree");
         fun("pageStyleList-tree");
         fun("pageScriptList-tree");
         fun("pageRequestHeaderList-tree");
@@ -1621,7 +1605,7 @@ function YaripPageDialog()
         this.tabs["contentRequestHeaderList"].tree.removeEventListener("select", this, false);
         this.tabs["contentResponseHeaderList"].tree.removeEventListener("select", this, false);
         this.tabs["contentRedirectList"].tree.removeEventListener("select", this, false);
-//        this.tabs["contentStreamList"].tree.removeEventListener("select", this, false);
+        this.tabs["contentStreamList"].tree.removeEventListener("select", this, false);
         this.tabs["pageStyleList"].tree.removeEventListener("select", this, false);
         this.tabs["pageScriptList"].tree.removeEventListener("select", this, false);
         this.tabs["pageRequestHeaderList"].tree.removeEventListener("select", this, false);

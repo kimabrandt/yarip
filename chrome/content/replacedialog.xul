@@ -53,7 +53,11 @@
   </hbox>
   <hbox align="center">
     <label value="&label.value.regExp;:"/>
-    <textbox id="regExp" type="autocomplete" autocompletesearch="form-history" autocompletesearchparam="replace-regexp" enablehistory="true" completedefaultindex="true" flex="1"/>
+    <textbox id="regExp" type="autocomplete" autocompletesearch="form-history" autocompletesearchparam="regexp" enablehistory="true" completedefaultindex="true" flex="1"/>
+  </hbox>
+  <hbox align="center">
+    <label value="&label.value.streamRegExp;:"/>
+    <textbox id="streamRegExp" type="autocomplete" autocompletesearch="form-history" autocompletesearchparam="replace-regexp" enablehistory="true" completedefaultindex="true" flex="1"/>
   </hbox>
   <textbox id="script" multiline="true" oninput="dialog.setScript(this.value);" persist="height" flex="1"/>
 </dialog>

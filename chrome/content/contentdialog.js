@@ -22,42 +22,42 @@ function YaripContentDialog()
 {
     this.sb = null;
     this.pageMenulist = null;
-    this.regexpTextbox = null;
+    this.regExpTextbox = null;
     this.obj = null;
 
     var tld = TLD.replace(/\\./g, "\\\\\\.");
     var subDomainRE = new RegExp("(^\\^http(?:s\\??)?:\\/\\/)(?:(?!" + SIMPLE + "\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?$)" + SIMPLE + "\\\\\\.)+(" + SIMPLE + "\\\\\\." + tld + PORT + "(?:\\[\\/\\?#\\]|[/?#$].*)?)$", "i");
-    var pathRE = new RegExp("(^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\[@\\.\\]\\)\\?)?(?:[^/?#]+[@.])*[^/?#]+\\." + TLD.replace(/\\./g, "\\\\\\.") + ")" + PORT + ")[/?#].*$", "i");
-    var queryFragmentRE = new RegExp("^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\[@\\.\\]\\)\\?)?(?:[^/?#]+[@.])*[^/?#]+\\." + TLD.replace(/\\./g, "\\\\\\.") + ")" + PORT + "(?:[/?#].*)?(?!\\b)$", "i");
+    var pathRE = new RegExp("(^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\[\\.@\\]\\)\\?)?(?:[^/?#]+[.@])*[^/?#]+\\." + TLD.replace(/\\./g, "\\\\\\.") + ")" + PORT + ")[/?#].*$", "i");
+    var queryFragmentRE = new RegExp("^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+\\[\\.@\\]\\)\\?)?(?:[^/?#]+[.@])*[^/?#]+\\." + TLD.replace(/\\./g, "\\\\\\.") + ")" + PORT + "(?:[/?#].*)?(?!\\b)$", "i");
 
     this.removeSubDomain = function()
     {
         if (!this.obj) return;
-        if (!subDomainRE.test(this.regexpTextbox.value)) return;
+        if (!subDomainRE.test(this.regExpTextbox.value)) return;
 
-        var regexp = this.regexpTextbox.value.replace(subDomainRE, "$1([^/?#]+[@.])?$6");
-        this.regexpTextbox.value = regexp;
-        this.obj.item.setRegExp(regexp);
+        var regExp = this.regExpTextbox.value.replace(subDomainRE, "$1([^/?#]+[.@])?$6");
+        this.regExpTextbox.value = regExp;
+        this.obj.item.setRegExp(regExp);
     }
 
     this.removePath = function()
     {
         if (!this.obj) return;
-        if (!pathRE.test(this.regexpTextbox.value)) return;
+        if (!pathRE.test(this.regExpTextbox.value)) return;
 
-        var regexp = this.regexpTextbox.value.replace(pathRE, "$1[/?#]");
-        this.regexpTextbox.value = regexp;
-        this.obj.item.setRegExp(regexp);
+        var regExp = this.regExpTextbox.value.replace(pathRE, "$1[/?#]");
+        this.regExpTextbox.value = regExp;
+        this.obj.item.setRegExp(regExp);
     }
 
     this.removeQueryFragment = function()
     {
         if (!this.obj) return;
-        if (!queryFragmentRE.test(this.regexpTextbox.value)) return;
+        if (!queryFragmentRE.test(this.regExpTextbox.value)) return;
 
-        var regexp = this.regexpTextbox.value.replace(/(?:(?:\\\?|#(?!\])).*)?\$?$/, "\\b");
-        this.regexpTextbox.value = regexp;
-        this.obj.item.setRegExp(regexp);
+        var regExp = this.regExpTextbox.value.replace(/(?:(?:\\\?|#(?!\])).*)?\$?$/, "\\b");
+        this.regExpTextbox.value = regExp;
+        this.obj.item.setRegExp(regExp);
     }
 
     this.load = function()
@@ -69,13 +69,13 @@ function YaripContentDialog()
 
         this.sb = document.getElementById("stringbundle");
         this.pageMenulist = document.getElementById("page");
-        this.regexpTextbox = document.getElementById("regExp");
+        this.regExpTextbox = document.getElementById("regExp");
 
         var pageName = this.obj.pageName;
         this.pageMenulist.value = pageName;
-        this.regexpTextbox.value = this.obj.item.getRegExp();
-        this.regexpTextbox.focus();
-        this.regexpTextbox.select();
+        this.regExpTextbox.value = this.obj.item.getRegExp();
+        this.regExpTextbox.focus();
+        this.regExpTextbox.select();
 
         var location = "itemLocation" in this.obj ? yarip.getLocation(this.obj.itemLocation) : null;
         if (location) {
@@ -115,17 +115,17 @@ function YaripContentDialog()
             throw new Error(this.sb.getFormattedString("ERR_INVALID_PAGE_NAME1", [pageName]));
         }
 
-        var regexp = this.regexpTextbox.value;
-        if (!yarip.checkRegExp(regexp)) {
-            this.regexpTextbox.focus();
-            this.regexpTextbox.select();
+        var regExp = this.regExpTextbox.value;
+        if (!yarip.checkRegExp(regExp)) {
+            this.regExpTextbox.focus();
+            this.regExpTextbox.select();
             alert(this.sb.getString("ERR_INVALID_REGEXP"));
-            throw new Error(this.sb.getFormattedString("ERR_INVALID_REGEXP1", [regexp]));
+            throw new Error(this.sb.getFormattedString("ERR_INVALID_REGEXP1", [regExp]));
         }
 
-        this.obj.item.setRegExp(regexp);
+        this.obj.item.setRegExp(regExp);
         this.obj.pageName = pageName;
-        FH.addEntry("regexp", regexp);
+        FH.addEntry("regexp", regExp);
     }
 
     this.cancel = function()

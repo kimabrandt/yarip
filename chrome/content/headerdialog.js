@@ -22,7 +22,7 @@ function YaripHeaderDialog()
 {
     this.sb = null;
     this.pageMenulist = null;
-    this.regexpTextbox = null;
+    this.regExpTextbox = null;
     this.headerNameTextbox = null;
     this.scriptTextbox = null;
     this.obj = null;
@@ -42,15 +42,15 @@ function YaripHeaderDialog()
 
         this.sb = document.getElementById("stringbundle");
         this.pageMenulist = document.getElementById("page");
-        this.regexpTextbox = document.getElementById("regExp");
+        this.regExpTextbox = document.getElementById("regExp");
         this.headerNameTextbox = document.getElementById("headerName");
         this.scriptTextbox = document.getElementById("script");
 
         var pageName = this.obj.pageName;
         this.pageMenulist.value = pageName;
-        this.regexpTextbox.value = this.obj.item.getRegExp();
-        this.regexpTextbox.focus();
-        this.regexpTextbox.select();
+        this.regExpTextbox.value = this.obj.item.getRegExp();
+        this.regExpTextbox.focus();
+        this.regExpTextbox.select();
         this.headerNameTextbox.value = this.obj.item.getHeaderName();
         this.scriptTextbox.value = this.obj.item.getScript();
 
@@ -91,20 +91,20 @@ function YaripHeaderDialog()
             throw new Error(this.sb.getFormattedString("ERR_INVALID_PAGE_NAME1", [pageName]));
         }
 
-        var regexp = this.regexpTextbox.value;
-        if (!yarip.checkRegExp(regexp)) {
-            this.regexpTextbox.focus();
-            this.regexpTextbox.select();
+        var regExp = this.regExpTextbox.value;
+        if (!yarip.checkRegExp(regExp, true)) {
+            this.regExpTextbox.focus();
+            this.regExpTextbox.select();
             alert(this.sb.getString("ERR_INVALID_REGEXP"));
-            throw new Error(this.sb.getFormattedString("ERR_INVALID_REGEXP1", [regexp]));
+            throw new Error(this.sb.getFormattedString("ERR_INVALID_REGEXP1", [regExp]));
         }
 
         var headerName = this.headerNameTextbox.value;
 
-        this.obj.item.setRegExp(regexp);
+        this.obj.item.setRegExp(regExp);
         this.obj.item.setHeaderName(headerName);
         this.obj.pageName = pageName;
-        FH.addEntry("regexp", regexp);
+        FH.addEntry("regexp", regExp);
         FH.addEntry("header_name", headerName);
     }
 

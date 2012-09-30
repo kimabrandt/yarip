@@ -22,7 +22,7 @@ function YaripRedirectDialog()
 {
     this.sb = null;
     this.pageMenulist = null;
-    this.regexpTextbox = null;
+    this.regExpTextbox = null;
     this.newsubstrTextbox = null;
     this.obj = null;
 
@@ -35,14 +35,14 @@ function YaripRedirectDialog()
 
         this.sb = document.getElementById("stringbundle");
         this.pageMenulist = document.getElementById("page");
-        this.regexpTextbox = document.getElementById("regExp");
+        this.regExpTextbox = document.getElementById("regExp");
         this.newsubstrTextbox = document.getElementById("newsubstr");
 
         var pageName = this.obj.pageName;
         this.pageMenulist.value = pageName;
-        this.regexpTextbox.value = this.obj.item.getRegExp();
-        this.regexpTextbox.focus();
-        this.regexpTextbox.select();
+        this.regExpTextbox.value = this.obj.item.getRegExp();
+        this.regExpTextbox.focus();
+        this.regExpTextbox.select();
         this.newsubstrTextbox.value = this.obj.item.getScript();
 
         var location = "itemLocation" in this.obj ? yarip.getLocation(this.obj.itemLocation) : null;
@@ -82,20 +82,20 @@ function YaripRedirectDialog()
             throw new Error(this.sb.getFormattedString("ERR_INVALID_PAGE_NAME1", [pageName]));
         }
 
-        var regexp = this.regexpTextbox.value;
-        if (!yarip.checkRegExp(regexp)) {
-            this.regexpTextbox.focus();
-            this.regexpTextbox.select();
+        var regExp = this.regExpTextbox.value;
+        if (!yarip.checkRegExp(regExp)) {
+            this.regExpTextbox.focus();
+            this.regExpTextbox.select();
             alert(this.sb.getString("ERR_INVALID_REGEXP"));
-            throw new Error(this.sb.getFormattedString("ERR_INVALID_REGEXP1", [regexp]));
+            throw new Error(this.sb.getFormattedString("ERR_INVALID_REGEXP1", [regExp]));
         }
 
         var newSubStr = this.newsubstrTextbox.value;
 
-        this.obj.item.setRegExp(regexp);
+        this.obj.item.setRegExp(regExp);
         this.obj.item.setScript(newSubStr);
         this.obj.pageName = pageName;
-        FH.addEntry("regexp", regexp);
+        FH.addEntry("regexp", regExp);
     }
 
     this.cancel = function()
