@@ -1828,7 +1828,7 @@ Yarip.prototype.load = function(file, imported)
             nPage = iPage.iterateNext();
         }
     }
-    else // if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.[1-4])$/.test(version))
+    else // if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.[1-4])$/.test(version)) // XXX
     {
         var iPage = doc.evaluate("./page", nYarip, null, ORDERED_NODE_ITERATOR_TYPE, null);
         var nPage = iPage.iterateNext();
@@ -2044,19 +2044,16 @@ Yarip.prototype.load = function(file, imported)
                             var nName = iName.iterateNext();
                             var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nScript = iScript.iterateNext();
-                            if (nRegExp)
-                            {
-                                var created = nItem.getAttribute("created");
-                                page.contentRequestHeaderList.add(new YaripHeaderItem(
-                                    nRegExp.textContent,
-                                    nRegExp.getAttribute("flags"),
-                                    nName.textContent,
-                                    nScript ? nScript.textContent : null,
-                                    nItem.getAttribute("priority"),
-                                    nItem.getAttribute("merge"),
-                                    created ? created : pageCreated,
-                                    nItem.getAttribute("lastFound")));
-                            }
+                            var created = nItem.getAttribute("created");
+                            page.contentRequestHeaderList.add(new YaripHeaderItem(
+                                nRegExp ? nRegExp.textContent : null,
+                                nRegExp ? nRegExp.getAttribute("flags") : null,
+                                nName.textContent,
+                                nScript ? nScript.textContent : null,
+                                nItem.getAttribute("priority"),
+                                nItem.getAttribute("merge"),
+                                created ? created : pageCreated,
+                                nItem.getAttribute("lastFound")));
                             nItem = iItem.iterateNext();
                         }
                     }
@@ -2076,19 +2073,16 @@ Yarip.prototype.load = function(file, imported)
                             var nName = iName.iterateNext();
                             var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nScript = iScript.iterateNext();
-                            if (nRegExp)
-                            {
-                                var created = nItem.getAttribute("created");
-                                page.contentResponseHeaderList.add(new YaripHeaderItem(
-                                    nRegExp.textContent,
-                                    nRegExp.getAttribute("flags"),
-                                    nName.textContent,
-                                    nScript ? nScript.textContent : null,
-                                    nItem.getAttribute("priority"),
-                                    nItem.getAttribute("merge"),
-                                    created ? created : pageCreated,
-                                    nItem.getAttribute("lastFound")));
-                            }
+                            var created = nItem.getAttribute("created");
+                            page.contentResponseHeaderList.add(new YaripHeaderItem(
+                                nRegExp ? nRegExp.textContent : null,
+                                nRegExp ? nRegExp.getAttribute("flags") : null,
+                                nName.textContent,
+                                nScript ? nScript.textContent : null,
+                                nItem.getAttribute("priority"),
+                                nItem.getAttribute("merge"),
+                                created ? created : pageCreated,
+                                nItem.getAttribute("lastFound")));
                             nItem = iItem.iterateNext();
                         }
                     }
@@ -2186,7 +2180,7 @@ if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.1)$/.test(version))
                         nPageScript.getAttribute("lastChanged")));
                 }
 }
-else // if (/^0\.3\.[2-4]$/.test(version))
+else // if (/^0\.3\.[2-4]$/.test(version)) // XXX
 {
                 // PAGE STYLE
                 var iPageStyle = doc.evaluate("./style", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
@@ -2267,19 +2261,16 @@ else // if (/^0\.3\.[2-4]$/.test(version))
                             var nName = iName.iterateNext();
                             var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nScript = iScript.iterateNext();
-                            if (nRegExp)
-                            {
-                                var created = nItem.getAttribute("created");
-                                page.pageRequestHeaderList.add(new YaripHeaderItem(
-                                    nRegExp.textContent,
-                                    nRegExp.getAttribute("flags"),
-                                    nName.textContent,
-                                    nScript ? nScript.textContent : null,
-                                    nItem.getAttribute("priority"),
-                                    nItem.getAttribute("merge"),
-                                    created ? created : pageCreated,
-                                    nItem.getAttribute("lastFound")));
-                            }
+                            var created = nItem.getAttribute("created");
+                            page.pageRequestHeaderList.add(new YaripHeaderItem(
+                                nRegExp ? nRegExp.textContent : null,
+                                nRegExp ? nRegExp.getAttribute("flags") : null,
+                                nName.textContent,
+                                nScript ? nScript.textContent : null,
+                                nItem.getAttribute("priority"),
+                                nItem.getAttribute("merge"),
+                                created ? created : pageCreated,
+                                nItem.getAttribute("lastFound")));
                             nItem = iItem.iterateNext();
                         }
                     }
@@ -2299,19 +2290,16 @@ else // if (/^0\.3\.[2-4]$/.test(version))
                             var nName = iName.iterateNext();
                             var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nScript = iScript.iterateNext();
-                            if (nRegExp)
-                            {
-                                var created = nItem.getAttribute("created");
-                                page.pageResponseHeaderList.add(new YaripHeaderItem(
-                                    nRegExp.textContent,
-                                    nRegExp.getAttribute("flags"),
-                                    nName.textContent,
-                                    nScript ? nScript.textContent : null,
-                                    nItem.getAttribute("priority"),
-                                    nItem.getAttribute("merge"),
-                                    created ? created : pageCreated,
-                                    nItem.getAttribute("lastFound")));
-                            }
+                            var created = nItem.getAttribute("created");
+                            page.pageResponseHeaderList.add(new YaripHeaderItem(
+                                nRegExp ? nRegExp.textContent : null,
+                                nRegExp ? nRegExp.getAttribute("flags") : null,
+                                nName.textContent,
+                                nScript ? nScript.textContent : null,
+                                nItem.getAttribute("priority"),
+                                nItem.getAttribute("merge"),
+                                created ? created : pageCreated,
+                                nItem.getAttribute("lastFound")));
                             nItem = iItem.iterateNext();
                         }
                     }
@@ -2348,7 +2336,7 @@ if (/^0\.3\.[2-3]$/.test(version))
                     }
                 }
 }
-else // if (/^0\.3\.[4]$/.test(version))
+else // if (/^0\.3\.[4]$/.test(version)) // XXX
 {
                 // PAGE STREAM
                 var iPageStream = doc.evaluate("./stream", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
