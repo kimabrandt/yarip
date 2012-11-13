@@ -24,53 +24,58 @@
   <binding id="replace">
     <implementation>
       <constructor><![CDATA[
-          if (this.placeholder) return;
-          else this.placeholder = true;
+          if (this.placeholder) {
+              return;
+          } else {
+              this.placeholder = true;
+          }
 
           if (!("getAttribute" in this)) return;
           if (!this.localName) return;
 
           document.normalize();
 
+          var localName = this.localName;
           var parent = this.parentNode;
           var next = this.nextSibling;
-          var localName = this.localName.toLowerCase();
 
           if (this.ownerDocument instanceof Components.interfaces.nsIDOMXULDocument) return;
 //          if (/\b(whitelisted|blacklisted|placeholder)\b/.test(this.getAttribute("status"))) return;
           if (/\b(whitelisted|blacklisted)\b/.test(this.getAttribute("status"))) return;
           if (next && "getAttribute" in next && next.getAttribute("class") == "placeholder" && next.getAttribute("status") == "whitelisted") return;
 
-          if (/^(audio|embed|iframe|video)$/i.test(localName)) {
-              if (/^(audio|video)$/i.test(localName)) {
-                  this.addEventListener("playing", this.pause, false);
-                  this.pause(); // prevent autostart
+          switch (localName) {
+          case "audio":
+          case "video":
+              this.addEventListener("playing", this.pause, false);
+              this.pause(); // prevent autostart
+              // fall-through
+          case "embed":
+//              var es = document.evaluate(".//embed | .//object | .//source", this, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+              var es = document.evaluate(".//embed | .//object", this, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+              for (var i = 0; i < es.snapshotLength; i++) {
+                  var child = es.snapshotItem(i);
+                  if (child.src) {
+                      child.setAttribute("src_backup", child.src);
+                      child.src = "";
+                  } else if (child.data) {
+                      child.setAttribute("data_backup", child.data);
+                      child.data = "";
+                  }
               }
-
-              if (this.src /*|| /^iframe$/i.test(localName)*/) {
+              // fall-through
+          case "iframe":
+              if (this.src) {
                   this.setAttribute("src_backup", this.src);
                   this.src = "";
               }
-
-              if (/^(audio|embed|video)$/i.test(localName)) {
-//                  var es = document.evaluate(".//embed | .//object | .//source", this, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-                  var es = document.evaluate(".//embed | .//object", this, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-                  for (var i = 0; i < es.snapshotLength; i++) {
-                      var child = es.snapshotItem(i);
-                      if (child.src) {
-                          child.setAttribute("src_backup", child.src);
-                          child.src = "";
-                      } else if (child.data) {
-                          child.setAttribute("data_backup", child.data);
-                          child.data = "";
-                      }
-                  }
-              }
-          } else if (/^object$/i.test(localName)) {
+              break;
+          case "object":
               if (this.data) {
                   this.setAttribute("data_backup", this.data);
                   this.data = "";
               }
+              break;
           }
 
           var parentCs = document.defaultView.getComputedStyle(parent, null);
@@ -93,7 +98,7 @@
           // Preparing style of placeholder
           switch (localName) {
           case "iframe":
-              if (width == "auto" && height == "auto" && (/^body$/i.test(parent.localName) || /^body$/i.test(parent.parentNode.localName))) {
+              if (width == "auto" && height == "auto" && (/^body$/.test(parent.localName) || /^body$/.test(parent.parentNode.localName))) {
                 return;
               } else {
                 DEFAULT = "100%";
@@ -154,8 +159,6 @@
           placeholder.setAttribute("class", "placeholder");
           placeholder.setAttribute("status", "whitelisted");
           placeholder.setAttribute("style",
-//              "display: " + (cs.getPropertyValue("display") || "inline-table") + " !important;" +
-//              "display: inline-table !important;" +
               "display: inline-table;" +
               " float: " + (cs.getPropertyValue("float") || "none") + " !important;" +
               " height: " + height + " !important;" +
@@ -167,38 +170,32 @@
               " width: " + width + " !important;"
           );
           placeholder.appendChild(cell);
-////          if (!/\bplaceholder\b/.test(this.getAttribute("status"))) {
-//              this.setAttribute("status", "placeholder blacklisted");
-////          } else {
-////              this.setAttribute("status", "placeholder blacklisted");
-////          }
           parent.insertBefore(placeholder, next);
 
-          // Adding `show'-function to element.
-          var show = function(event, placeholder, element)
+          var show = function(event, placeholder, localName)
           {
               event.preventDefault();
 
-//              switch (localName) {
-//              case "audio":
-//              case "video":
-//                  element.removeEventListener("playing", element.pause, false);
-//                  element.play(); // autostart
-//                  break;
-//              case "object":
-//                  // Whitelisting child elements.
-//                  es = document.evaluate(".//embed | .//object", element, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-//                  for (var i = 0; i < es.snapshotLength; i++) {
-//                      es.snapshotItem(i).setAttribute("status", "whitelisted");
-//                  }
-//                  break;
-//              }
-              if (/^(audio|embed|video)$/i.test(localName)) {
-                  if (/^embed$/i.test(localName)) element.setAttribute("autostart", "true");
+              var element = placeholder;
+              do {
+                  element = element.previousSibling;
+              } while (element && element.localName != localName);
+              if (!element) throw new Error("placeholder.show: Couldn't find the element!");
+
+              switch (localName) {
+              case "audio":
+              case "video":
+                  element.removeEventListener("playing", element.pause, false);
+                  element.play(); // autostart
+                  // fall-through
+              case "embed":
+                  if (localName == "embed") element.setAttribute("autostart", "true");
+
                   if (element.getAttribute("src_backup")) {
                       element.src = element.getAttribute("src_backup");
                       element.removeAttribute("src_backup");
                   }
+
 //                  var es = document.evaluate(".//embed | .//object | .//source", element, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
                   var es = document.evaluate(".//embed | .//object", element, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
                   for (var i = 0; i < es.snapshotLength; i++) {
@@ -211,11 +208,8 @@
                           child.removeAttribute("data_backup");
                       }
                   }
-                  if (/^(audio|video)$/i.test(localName)) {
-                      element.removeEventListener("playing", element.pause, false);
-                      element.play(); // autostart
-                  }
-              } else if (/^iframe$/i.test(localName)) {
+                  break;
+              case "iframe":
                   var src = element.contentDocument.location.href;
 //                  var src = element.contentWindow.location.href;
                   if (src && src != "about:blank") {
@@ -224,25 +218,25 @@
                       element.src = element.getAttribute("src_backup");
                   }
                   element.removeAttribute("src_backup");
-              } else if (/^object$/i.test(localName)) {
+                  break;
+              case "object":
                   if (element.getAttribute("data_backup")) {
                       element.data = element.getAttribute("data_backup");
                       element.removeAttribute("data_backup");
                   }
+
                   // Whitelisting child embed/object elements.
                   var es = document.evaluate(".//embed | .//object", element, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
                   for (var i = 0; i < es.snapshotLength; i++) {
                       es.snapshotItem(i).setAttribute("status", "whitelisted");
                   }
+                  break;
               }
 
               element.setAttribute("status", "whitelisted");
           };
-          var element_ref = this;
-          button.addEventListener("click", function(event) { show(event, placeholder, element_ref); }, true);
 
-          // Adding `update'-function to element.
-          var update = function(event, placeholder, element)
+          var update = function(event, placeholder)
           {
               switch (event.attrName) {
               case "height":
@@ -264,13 +258,16 @@
                   }
                   break;
               }
-          }
-          this.addEventListener("DOMAttrModified", function(event) { update(event, placeholder, element_ref); }, false);
+          };
+
+          var self = this;
+          button.addEventListener("click", function(event) { show(event, placeholder, self.localName); }, true);
+          this.addEventListener("DOMAttrModified", function(event) { update(event, placeholder); }, false);
 
           this.setAttribute("status", "placeholder blacklisted");
 
           // Whitelist the body.
-          if (/^body$/i.test(parent.localName) && parent.getAttribute("status") != "whitelisted") {
+          if (parent.localName == "body" && parent.getAttribute("status") != "whitelisted") {
               parent.setAttribute("status", "whitelisted");
           }
       ]]></constructor>

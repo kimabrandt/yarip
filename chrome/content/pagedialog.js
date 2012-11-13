@@ -140,160 +140,116 @@ function YaripPageDialog()
     {
         if (this.treePages.currentIndex < 0) return;
 
-        this.page = new YaripPage();
-        var toList = null;
         switch (this.tab) {
         case "elementWhitelist":
-            toList = this.page.elementWhitelist;
-            break;
         case "elementBlacklist":
-            toList = this.page.elementBlacklist;
-            break;
         case "elementAttributeList":
-            toList = this.page.elementAttributeList;
-            break;
         case "elementScriptList":
-            toList = this.page.elementScriptList;
-            break;
         case "contentWhitelist":
-            toList = this.page.contentWhitelist;
-            break;
         case "contentBlacklist":
-            toList = this.page.contentBlacklist;
-            break;
         case "contentRequestHeaderList":
-            toList = this.page.contentRequestHeaderList;
-            break;
         case "contentResponseHeaderList":
-            toList = this.page.contentResponseHeaderList;
-            break;
         case "contentRedirectList":
-            toList = this.page.contentRedirectList;
-            break;
         case "contentStreamList":
-            toList = this.page.contentStreamList;
-            break;
         case "pageStyleList":
-            toList = this.page.pageStyleList;
-            break;
         case "pageScriptList":
-            toList = this.page.pageScriptList;
-            break;
         case "pageRequestHeaderList":
-            toList = this.page.pageRequestHeaderList;
-            break;
         case "pageResponseHeaderList":
-            toList = this.page.pageResponseHeaderList;
-            break;
         case "pageRedirectList":
-            toList = this.page.pageRedirectList;
-            break;
         case "pageStreamList":
-            toList = this.page.pageStreamList;
+            var fromList = this.tabs[this.tab].list;
+            this.page = new YaripPage();
+            var toList = this.page[this.tab];
+            var selection = this.tabs[this.tab].tree.view.selection;
+            var rangeCount = selection.getRangeCount();
+            var keys = {};
+            for (var i = 0; i < rangeCount; i++)
+            {
+                var start = {};
+                var end = {};
+                selection.getRangeAt(i, start, end);
+                for (var j = start.value; j <= end.value; j++) {
+                    var key = fromList.get(j, LIST_INDEX_KEY);
+                    keys[key] = true;
+                    toList.add(fromList.getByKey(key).clone(), null, true);
+                }
+            }
+            for (var key in keys) fromList.removeByKey(key);
+            this.refreshTab(this.tab, true);
+            this.setUserSelect();
             break;
         case "pageExtensionList":
-            toList = this.page.pageExtensionList;
+            var fromList = this.tabs[this.tab].list;
+            this.page = new YaripPage();
+            var toList = this.page[this.tab];
+            var selection = this.tabs[this.tab].tree.view.selection;
+            var rangeCount = selection.getRangeCount();
+            var keys = {};
+            for (var i = 0; i < rangeCount; i++)
+            {
+                var start = {};
+                var end = {};
+                selection.getRangeAt(i, start, end);
+                for (var j = start.value; j <= end.value; j++) {
+                    var key = fromList.get(j, LIST_INDEX_KEY);
+                    keys[key] = true;
+                    toList.add(fromList.getByKey(key).clone(), null, true);
+                }
+            }
+            var page = this.getPageByIndex();
+            for (var key in keys) {
+                var item = page.pageExtensionList.getByKey(key);
+                yarip.map.removeExtension(page, item);
+            }
+            this.refreshTab(this.tab, true);
+            this.setUserSelect();
             break;
         default:
             return;
         }
-
-        var fromList = this.tabs[this.tab].list;
-        var selection = this.tabs[this.tab].tree.view.selection;
-        var rangeCount = selection.getRangeCount();
-        var keys = {};
-        for (var i = 0; i < rangeCount; i++)
-        {
-            var start = {};
-            var end = {};
-            selection.getRangeAt(i, start, end);
-            for (var j = start.value; j <= end.value; j++) {
-                var key = fromList.get(j, LIST_INDEX_KEY);
-                keys[key] = true;
-                toList.add(fromList.getByKey(key).clone(), null, true);
-            }
-        }
-        for (var key in keys) fromList.removeByKey(key);
-        this.refreshTab(this.tab, true);
-        this.setUserSelect();
     }
 
     this.doCopy = function()
     {
         if (this.treePages.currentIndex < 0) return;
 
-        this.page = new YaripPage();
-        var toList = null;
         switch (this.tab) {
         case "elementWhitelist":
-            toList = this.page.elementWhitelist;
-            break;
         case "elementBlacklist":
-            toList = this.page.elementBlacklist;
-            break;
         case "elementAttributeList":
-            toList = this.page.elementAttributeList;
-            break;
         case "elementScriptList":
-            toList = this.page.elementScriptList;
-            break;
         case "contentWhitelist":
-            toList = this.page.contentWhitelist;
-            break;
         case "contentBlacklist":
-            toList = this.page.contentBlacklist;
-            break;
         case "contentRequestHeaderList":
-            toList = this.page.contentRequestHeaderList;
-            break;
         case "contentResponseHeaderList":
-            toList = this.page.contentResponseHeaderList;
-            break;
         case "contentRedirectList":
-            toList = this.page.contentRedirectList;
-            break;
         case "contentStreamList":
-            toList = this.page.contentStreamList;
-            break;
         case "pageStyleList":
-            toList = this.page.pageStyleList;
-            break;
         case "pageScriptList":
-            toList = this.page.pageScriptList;
-            break;
         case "pageRequestHeaderList":
-            toList = this.page.pageRequestHeaderList;
-            break;
         case "pageResponseHeaderList":
-            toList = this.page.pageResponseHeaderList;
-            break;
         case "pageRedirectList":
-            toList = this.page.pageRedirectList;
-            break;
         case "pageStreamList":
-            toList = this.page.pageStreamList;
-            break;
         case "pageExtensionList":
-            toList = this.page.pageExtensionList;
-            break;
+            var fromList = this.tabs[this.tab].list;
+            this.page = new YaripPage();
+            var toList = this.page[this.tab];
+            var selection = this.tabs[this.tab].tree.view.selection;
+            var rangeCount = selection.getRangeCount();
+            for (var i = 0; i < rangeCount; i++)
+            {
+                var start = {};
+                var end = {};
+                selection.getRangeAt(i, start, end);
+                for (var j = start.value; j <= end.value; j++) {
+                    var key = fromList.get(j, LIST_INDEX_KEY);
+                    toList.add(fromList.getByKey(key).clone(), null, true);
+                }
+            }
+            this.setUserSelect();
         default:
             return;
         }
-
-        var fromList = this.tabs[this.tab].list;
-        var selection = this.tabs[this.tab].tree.view.selection;
-        var rangeCount = selection.getRangeCount();
-        for (var i = 0; i < rangeCount; i++)
-        {
-            var start = {};
-            var end = {};
-            selection.getRangeAt(i, start, end);
-            for (var j = start.value; j <= end.value; j++) {
-                var key = fromList.get(j, LIST_INDEX_KEY);
-                toList.add(fromList.getByKey(key).clone(), null, true);
-            }
-        }
-        this.setUserSelect();
     }
 
     this.doPaste = function()

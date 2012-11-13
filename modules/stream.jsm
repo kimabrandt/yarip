@@ -19,9 +19,9 @@ along with yarip.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 const EXPORTED_SYMBOLS = [
-        "YaripRedirectStreamListener",
-        "YaripResponseStreamListener"
-    ];
+    "YaripRedirectStreamListener",
+    "YaripResponseStreamListener"
+];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -122,9 +122,22 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
          */
 
         var arr = [];
+        var tmp = [];
+        var first = true;
         this.addressObj.root.traverse(function (item) {
-            if (item.isSelf() || item.getDoStreams()) arr.push(item);
+//            if (item.isSelf() || item.getDoStreams()) arr.push(item);
+            if (item.isSelf()) {
+                if (first) {
+                    arr.push(item);
+                    first = false;
+                } else {
+                    tmp.push(item); // added to the end
+                }
+            } else if (item.getDoStreams()) {
+                arr.push(item);
+            }
         });
+        arr = arr.concat(tmp);
 
         var searchIndex = null;
 
@@ -401,7 +414,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
     } catch (e) {
         yarip.logMessage(LOG_ERROR, e);
     } finally {
-//dump("responseSource:"+responseSource+"\n---\n");
+//dump("responseSource:"+responseSource+"\n\n--------------------------------------------------------------------------------\n\n");
         this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
         this.listener.onStopRequest(request, context, statusCode);
     }

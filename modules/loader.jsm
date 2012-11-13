@@ -125,9 +125,9 @@ YaripLoader.prototype.doStyling = function(doc, addressObj, increment)
                 var style = doc.getElementById(id);
                 if (style) continue;
 
-                var elements = yarip.getElementsByXPath(doc, item.getXPath());
-                if (elements && elements.snapshotLength > 0) {
-                    var element = elements.snapshotItem(0);
+                var elements = yarip.getNodesByXPath(doc, item.getXPath(), ELEMENT_NODE);
+                if (elements.length > 0) {
+                    var element = elements[0];
                     this.injectCascadingStyleSheet(doc, id, s, element);
                     if (increment && isSelf) {
                         item.incrementFound();
@@ -183,9 +183,9 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
             var script = doc.getElementById(id);
             if (script && !item.getReinject()) continue;
 
-            var elements = yarip.getElementsByXPath(doc, item.getXPath());
-            if (elements && elements.snapshotLength > 0) {
-                var element = elements.snapshotItem(0);
+            var elements = yarip.getNodesByXPath(doc, item.getXPath(), ELEMENT_NODE);
+            if (elements.length > 0) {
+                var element = elements[0];
                 tmp.push({
                     id: id,
                     script: s,
@@ -227,8 +227,8 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
             if (script && !item.getReinject()) continue;
 
             if (increment && isSelf) {
-                var elements = yarip.getElementsByXPath(doc, item.getXPath());
-                if (elements && elements.snapshotLength > 0) {
+                var elements = yarip.getNodesByXPath(doc, item.getXPath(), ELEMENT_NODE);
+                if (elements.length > 0) {
                     item.incrementFound();
                 } else {
                     item.incrementNotFound();

@@ -1,0 +1,9 @@
+<!--<!ENTITY button.label.noSubDomain      "Any 3rd-level domain">-->
+<!--<!ENTITY button.label.noPath           "No path">-->
+<!--<!ENTITY button.label.noQueryFragment  "No query/fragment">-->
+<!ENTITY button.label.noSubDomain      "Domain">
+<!ENTITY button.label.noPath           "Path">
+<!ENTITY button.label.noQueryFragment  "Query">
+
+<!ENTITY button.label.highlight        "Highlight">
+<!ENTITY button.label.noIndex         "No index">

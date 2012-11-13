@@ -18,13 +18,18 @@
     along with yarip.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
-<!DOCTYPE dialog SYSTEM "chrome://yarip/locale/whitelistdialog.dtd">
+<!DOCTYPE dialog [
+  <!ENTITY % dialogDTD SYSTEM "chrome://yarip/locale/whitelistdialog.dtd">
+  %dialogDTD;
+  <!ENTITY % buttonsDTD SYSTEM "chrome://yarip/locale/buttons.dtd">
+  %buttonsDTD;
+]>
 <dialog id="elementWhitelist-dialog"
   title="&dialog.title.editXPathWhitelist;"
   buttons="accept,cancel"
-  onload="dialog.load()"
-  ondialogaccept="dialog.accept()"
-  ondialogcancel="dialog.cancel()"
+  onload="dialog.load();"
+  ondialogaccept="dialog.accept();"
+  ondialogcancel="dialog.cancel();"
   persist="screenX screenY width height"
   width="560"
   height="120"
@@ -53,7 +58,7 @@
   </hbox>
   <hbox align="center">
     <label value="&label.value.xpath;:"/>
-    <textbox id="xpath" type="autocomplete" autocompletesearch="form-history" autocompletesearchparam="xpath" enablehistory="true" completedefaultindex="true" oninput="dialog.setXPath(this.value);" flex="1"/>
+    <textbox id="xpath" type="autocomplete" autocompletesearch="form-history" autocompletesearchparam="xpath" enablehistory="true" completedefaultindex="false" oninput="dialog.setXPath(this.value);" flex="1"/>
     <button id="highlight" label="&button.label.highlight;" oncommand="dialog.highlight();"/>
     <button label="&button.label.noIndex;" oncommand="dialog.removeIndexes();"/>
   </hbox>

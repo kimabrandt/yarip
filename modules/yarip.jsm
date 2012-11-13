@@ -40,15 +40,16 @@ function Yarip()
     this.monitorDialogues = [];
     this.pageDialog = null;
 
-    this.useIndex = 1; // when needed
     this.elementsInContext = 4;
-    this.exclusiveOnCreation = false;
-    this.templates = [];
+    this.useIndex = 1; // when needed
+    this.matchAuthorityPort = true;
     this.privateBrowsing = false;
     this.purgeInnerHTML = false;
     this.schemesRegExp = null;
-    this.contentRecurrence = false;
+    this.exclusiveOnCreation = false;
+    this.templates = [];
     this.logWhenClosed = false;
+
     this._isMobile = false;
 
     this.map = null;
@@ -201,14 +202,14 @@ Yarip.prototype.initPreferences = function()
 {
     this.toggleEnabled(this.getValue(PREF_ENABLED, true, DATA_TYPE_BOOLEAN));
     this.setMode(this.getValue(PREF_MODE, MODE_FQDN, DATA_TYPE_INTEGER));
-    this.setUseIndex(this.getValue(PREF_INDEX, 1, DATA_TYPE_INTEGER));
     this.setElementsInContext(this.getValue(PREF_ELEMENTS, 4, DATA_TYPE_INTEGER));
+    this.setUseIndex(this.getValue(PREF_INDEX, 1, DATA_TYPE_INTEGER));
+    this.setMatchAuthorityPort(this.getValue(PREF_MATCH, true, DATA_TYPE_BOOLEAN));
+    this.setPrivateBrowsing(this.getValue(PREF_PRIVATE, false, DATA_TYPE_BOOLEAN));
     this.setPurgeInnerHTML(this.getValue(PREF_PURGE, false, DATA_TYPE_BOOLEAN));
+    this.setSchemes(this.getValue(PREF_SCHEMES, "^https?$", DATA_TYPE_STRING));
     this.setExclusiveOnCreation(this.getValue(PREF_EXCLUSIVE, false, DATA_TYPE_BOOLEAN));
     this.setTemplates(this.getValue(PREF_TEMPLATES, "", DATA_TYPE_STRING));
-    this.setSchemes(this.getValue(PREF_SCHEMES, "^https?$", DATA_TYPE_STRING));
-    this.setPrivateBrowsing(this.getValue(PREF_PRIVATE, false, DATA_TYPE_BOOLEAN));
-    this.setContentRecurrence(this.getValue(PREF_RECURRENCE, false, DATA_TYPE_BOOLEAN));
     this.toggleLogWhenClosed(this.getValue(PREF_LOG_WHEN_CLOSED, false, DATA_TYPE_BOOLEAN));
 }
 Yarip.prototype.initContentPolicy = function()
@@ -295,13 +296,13 @@ Yarip.prototype.setSchemes = function(value)
         this.schemesRegExp = new RegExp(value);
     } catch (e) {}
 }
+Yarip.prototype.setMatchAuthorityPort = function(value)
+{
+    if (value == true || value == false) this.matchAuthorityPort = value;
+}
 Yarip.prototype.setPrivateBrowsing = function(value)
 {
     if (value == true || value == false) this.privateBrowsing = value;
-}
-Yarip.prototype.setContentRecurrence = function(value)
-{
-    if (value == true || value == false) this.contentRecurrence = value;
 }
 Yarip.prototype.toggleLogWhenClosed = function(logWhenClosed)
 {
@@ -316,7 +317,8 @@ Yarip.prototype.toggleLogWhenClosed = function(logWhenClosed)
 }
 Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser)
 {
-    if (!pageName) return "^https?://([^/?#]+[.@])?example\\.net[/?#]";
+//    if (!pageName) return "^https?://([^/?#]+[.@])?example\\.net(:\\d+)?[/?#]";
+    if (!pageName) return "^https?://([^/?#]+" + (this.matchAuthorityPort ? "[.@]" : "\\.") + ")?example\\.net" + (this.matchAuthorityPort ? "(:\\d+)?" : "") + "[/?#]";
 
     // TODO Use the protocol from the pageName!
     protocol = !protocol || /^https?:$/.test(protocol) ? "https?:" : protocol;
@@ -331,16 +333,20 @@ Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser)
                 useWildcardExpr = uld.indexOf(".", uld.indexOf(".") + 1) == -1; // no more than one dot
             }
         }
-        var port = domain[DOMAIN_RE_PORT_INDEX] ? ":" + domain[DOMAIN_RE_PORT_INDEX] : "";
-        return "^" + protocol + "//" + (useWildcardExpr ? "([^/?#]+[.@])?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + port + "[/?#]";
+//        var port = domain[DOMAIN_RE_PORT_INDEX] ? ":" + domain[DOMAIN_RE_PORT_INDEX] : "(:\\d+)?";
+        var port = domain[DOMAIN_RE_PORT_INDEX] ? ":" + domain[DOMAIN_RE_PORT_INDEX] : this.matchAuthorityPort ? "(:\\d+)?" : "";
+//        return "^" + protocol + "//" + (useWildcardExpr ? "([^/?#]+[.@])?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + port + "[/?#]";
+        return "^" + protocol + "//" + (useWildcardExpr ? "([^/?#]+" + (this.matchAuthorityPort ? "[.@]" : "\\.") + ")?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + port + "[/?#]";
     } else {
-        return "^https?://([^/?#]+[.@])?example\\.net[/?#]";
+//        return "^https?://([^/?#]+[.@])?example\\.net(:\\d+)?[/?#]";
+        return "^https?://([^/?#]+" + (this.matchAuthorityPort ? "[.@]" : "\\.") + ")?example\\.net" + (this.matchAuthorityPort ? "(:\\d+)?" : "") + "[/?#]";
     }
 }
 Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
 {
     var tmp = {
-        regExp: "^http://([^/?#]+[.@])?example.net([/?#].*)",
+//        regExp: "^http://([^/?#]+[.@])?example.net((:\\d+)?[/?#].*)",
+        regExp: "^http://([^/?#]+" + (this.matchAuthorityPort ? "[.@]" : "\\.") + ")?example.net(" + (this.matchAuthorityPort ? "(:\\d+)?" : "") + "[/?#].*)",
         script:
             "function (match, p1, p2, offset, string) {\n" +
             "    return \"https://\" + p1 + \"example.net\" + p2;\n" +
@@ -361,20 +367,21 @@ Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
             useWildcardExpr = uld.indexOf(".", index + 1) == -1; // no more than one dot
         }
     }
-    var port = domain[DOMAIN_RE_PORT_INDEX] ? ":" + domain[DOMAIN_RE_PORT_INDEX] : "";
+    var port = domain[DOMAIN_RE_PORT_INDEX] ? "(:" + domain[DOMAIN_RE_PORT_INDEX] + ")" : this.matchAuthorityPort ? "(:\\d+)?" : "";
+
     var submatches = "";
     for (var i = 1, n = useWildcardExpr ? 2 : 1; i <= n; i++) {
         submatches += "p" + i + ", ";
     }
 
     return {
-        regExp: "^http://" + (useWildcardExpr ? "([^/?#]+[.@])?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + port + "([/?#].*)",
+        regExp: "^http://" + (useWildcardExpr ? "([^/?#]+" + (this.matchAuthorityPort ? "[.@]" : "\\.") + ")?" : "") + domainNoPort.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + "(" + port + "[/?#].*)",
         script:
             "function (match, " + submatches + "offset, string) {\n" +
             (
                 useWildcardExpr
-                ? "    return \"https://\" + p1 + \"" + domainNoPort + port + "\" + p2;\n"
-                : "    return \"https://" + domainNoPort + port + "\" + p1;\n"
+                ? "    return \"https://\" + p1 + \"" + domainNoPort + "\" + p2;\n"
+                : "    return \"https://" + domainNoPort + "\" + p1;\n"
             ) +
             "}"
     };
@@ -527,7 +534,6 @@ Yarip.prototype.getAddressObj = function(reduceDomain, follow, matchObj, reverse
             var knownObj = this.knownAddressObj[key];
             if (knownObj) return knownObj;
         }
-//        var childItem = new YaripExtensionItem(pageName, null, true, true, true, true, true, true, true, null, true);
         var childItem = new YaripExtensionItem(page.getId(), null, true, true, true, true, true, true, true, null, true);
         addressObj.ext[pageName] = childItem;
         addressObj.root.addTo(childItem);
@@ -599,7 +605,6 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parent
                 }
                 else // not yet added
                 {
-//                    var childItem = new YaripExtensionItem(extPageName);
                     var childItem = new YaripExtensionItem(extPage.getId());
                     childItem.updateDo(parentItem, item, matchObj);
                     if (item.doesSomething())
@@ -655,22 +660,18 @@ Yarip.prototype.resetOnAddress = function(obj)
     switch (obj.type) {
     case TYPE_WHITELIST:
     case TYPE_BLACKLIST:
-        var elements = this.getElementsByXPath(obj.document, obj.xpath);
-        if (elements)
-        {
-            for (var i = 0; i < elements.snapshotLength; i++)
-            {
-                var element = elements.snapshotItem(i);
-                if (element.nodeType != 1) continue;
+        var elements = this.getNodesByXPath(obj.document, obj.xpath, ELEMENT_NODE);
+        if (elements.length === 0) break;
 
-                switch (element.getAttribute("status")) {
-                case "whitelisted":
-                case "blacklisted":
-                case "placeholder":
-                case "placeholder blacklisted":
-                    element.removeAttribute("status");
-                    break;
-                }
+        for (var i = 0; i < elements.length; i++) {
+            var element = elements[i];
+            switch (element.getAttribute("status")) {
+            case "whitelisted":
+            case "blacklisted":
+            case "placeholder":
+            case "placeholder blacklisted":
+                element.removeAttribute("status");
+                break;
             }
         }
         break;
@@ -710,37 +711,28 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
 {
     if (!doc || !item) return false;
 
-    var elements = this.getElementsByXPath(doc, item.getXPath());
-    if (!elements) return false;
-
-    var found = elements.snapshotLength > 0;
+    var elements = this.getNodesByXPath(doc, item.getXPath(), ELEMENT_NODE);
+    var found = elements.length > 0;
     var incrementType = INCREMENT_NOT_FOUND;
 
-    for (var i = 0; i < elements.snapshotLength; i++)
-    {
-        var element = elements.snapshotItem(i);
-        switch (element.nodeType) {
-        case 1: // ELEMENT
-            switch (element.getAttribute("status")) {
-            case "whitelisted":
-            case "blacklisted":
-            case "placeholder":
-            case "placeholder blacklisted":
-                incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
-                continue;
-            }
-
-            if (isNew) {
-                element.setAttribute("status", "whitelisted");
-            } else {
-                while (element && element.nodeType == 1) {
-                    element.setAttribute("status", "whitelisted");
-                    element = element.parentNode;
-                }
-            }
-            break;
-        default:
+    for (var i = 0; i < elements.length; i++) {
+        var element = elements[i];
+        switch (element.getAttribute("status")) {
+        case "whitelisted":
+        case "blacklisted":
+        case "placeholder":
+        case "placeholder blacklisted":
+            incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
             continue;
+        }
+
+        if (isNew) {
+            element.setAttribute("status", "whitelisted");
+        } else {
+            while (element && element.nodeType == ELEMENT_NODE) {
+                element.setAttribute("status", "whitelisted");
+                element = element.parentNode;
+            }
         }
 
         incrementType = INCREMENT_FOUND;
@@ -748,8 +740,7 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
 
     if (!pageName) return found;
 
-    if (increment)
-    {
+    if (increment) {
         switch (incrementType) {
         case INCREMENT_FOUND:
             item.incrementFound();
@@ -763,8 +754,7 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
         }
     }
 
-    if (isNew && found)
-    {
+    if (isNew && found) {
         var page = this.map.get(pageName);
         if (page) {
             page.setTemporary(false);
@@ -790,17 +780,15 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
 {
     if (!doc || !item) return false;
 
-    var elements = this.getElementsByXPath(doc, item.getXPath());
-    if (!elements) return false;
-
-    var found = elements.snapshotLength > 0;
+    var nodes = this.getNodesByXPath(doc, item.getXPath());
+    var found = nodes.length > 0;
     var incrementType = INCREMENT_NOT_FOUND;
 
-    for (var i = 0; i < elements.snapshotLength; i++)
-    {
-        var element = elements.snapshotItem(i);
-        switch (element.nodeType) {
-        case 1: // ELEMENT
+    for (var i = 0; i < nodes.length; i++) {
+        var node = nodes[i];
+        switch (node.nodeType) {
+        case ELEMENT_NODE: // ELEMENT
+            var element = node;
             if (/^(html|body|frameset)$/.test(element.localName)) continue; // ignore root-elements
 
             // Checking status.
@@ -849,11 +837,11 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
                     element.innerHTML = "";
                 }
             }
-        case 2: // ATTRIBUTE
-            if (element.ownerElement) element.ownerElement.removeAttribute(element.name);
+        case ATTRIBUTE_NODE:
+            if (node.ownerElement) node.ownerElement.removeAttribute(node.name);
             break;
-        case 3: // TEXT
-            if (element.parentNode) element.parentNode.removeChild(element);
+        case TEXT_NODE:
+            if (node.parentNode) node.parentNode.removeChild(node);
             break;
         default:
             continue;
@@ -864,8 +852,7 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
 
     if (!pageName) return found;
 
-    if (increment)
-    {
+    if (increment) {
         switch (incrementType) {
         case INCREMENT_FOUND:
             item.incrementFound();
@@ -879,8 +866,7 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
         }
     }
 
-    if (isNew && found)
-    {
+    if (isNew && found) {
         var page = this.map.get(pageName);
         if (page) {
             page.setTemporary(false);
@@ -950,35 +936,26 @@ Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, incremen
 {
     if (!doc || !pageName) return false;
 
-    var elements = this.getElementsByXPath(doc, item.getXPath());
-    if (!elements) return false;
-
-    var found = elements.snapshotLength > 0;
+    var elements = this.getNodesByXPath(doc, item.getXPath(), ELEMENT_NODE);
+    var found = elements.length > 0;
     var incrementType = INCREMENT_NOT_FOUND;
 
-    for (var i = 0; i < elements.snapshotLength; i++)
-    {
-        var element = elements.snapshotItem(i);
-        switch (element.nodeType) {
-        case 1: // ELEMENT
-            switch (item.getName()) {
-            case "style":
-                var style = element.getAttribute(item.getName());
-                if (style) {
-                    if (style.indexOf(item.getValue()) === -1) {
-                        element.setAttribute(item.getName(), style + item.getValue());
-                    }
-                } else {
-                    element.setAttribute(item.getName(), item.getValue());
+    for (var i = 0; i < elements.length; i++) {
+        var element = elements[i];
+        switch (item.getName()) {
+        case "style":
+            var style = element.getAttribute(item.getName());
+            if (style) {
+                if (style.indexOf(item.getValue()) === -1) {
+                    element.setAttribute(item.getName(), style + item.getValue());
                 }
-                break;
-            default:
+            } else {
                 element.setAttribute(item.getName(), item.getValue());
-                break;
             }
             break;
         default:
-            continue;
+            element.setAttribute(item.getName(), item.getValue());
+            break;
         }
 
         incrementType = INCREMENT_FOUND;
@@ -986,8 +963,7 @@ Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, incremen
 
     if (!pageName) return found;
 
-    if (increment)
-    {
+    if (increment) {
         switch (incrementType) {
         case INCREMENT_FOUND:
             item.incrementFound();
@@ -998,8 +974,7 @@ Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, incremen
         }
     }
 
-    if (isNew && found)
-    {
+    if (isNew && found) {
         var page = this.map.get(pageName);
         if (page) {
             page.setTemporary(false);
@@ -1024,11 +999,10 @@ Yarip.prototype.scriptElementItem = function(doc, pageName, item, isNew)
 {
     if (!doc || !pageName) return false;
 
-    var elements = this.getElementsByXPath(doc, item.getXPath());
-    if (!elements) return false;
+    var elements = this.getNodesByXPath(doc, item.getXPath(), ELEMENT_NODE);
+    var found = elements.length > 0;
 
-    if (isNew)
-    {
+    if (isNew && found) {
         var page = this.map.get(pageName);
         if (page) {
             page.setTemporary(false);
@@ -1039,13 +1013,33 @@ Yarip.prototype.scriptElementItem = function(doc, pageName, item, isNew)
         this.reloadPage(pageName, false, true);
     }
 
-    return true;
+    return found;
+}
+Yarip.prototype.stylePage = function(doc, pageName, item, isNew)
+{
+    if (!doc || !pageName) return false;
+
+    var elements = this.getNodesByXPath(doc, item.getXPath(), ELEMENT_NODE);
+    var found = elements.length > 0;
+
+    if (isNew) {
+        var page = this.map.get(pageName);
+        if (page) {
+            page.setTemporary(false);
+        } else {
+            page = this.createPage(doc.location, pageName);
+        }
+        page.pageStyleList.add(item);
+        this.reloadPage(pageName, false, true);
+    }
+
+    return found;
 }
 Yarip.prototype.createXPath = function(element, fullPath)
 {
     if (!element || !element.localName) return null;
 
-    if (element.nodeType == 2) {
+    if (element.nodeType === ATTRIBUTE_NODE) {
         return this.createXPath(element.ownerElement, fullPath) + "/@" + element.localName; // attribute
     }
 
@@ -1064,12 +1058,15 @@ Yarip.prototype.createXPath = function(element, fullPath)
         else
         {
             // ATTRIBUTES
-            if (element.getAttribute("name")) attributes += "@name='" + element.getAttribute("name") + "' and ";
-            if (element.getAttribute("class")) attributes += "@class='" + element.getAttribute("class") + "' and ";
-            if (attributes != "") attributes = "[" + attributes.substring(0, attributes.length - 5) + "]";
+//            if (element.getAttribute("name")) attributes += "@name='" + element.getAttribute("name") + "' and ";
+//            if (element.getAttribute("class")) attributes += "@class='" + element.getAttribute("class") + "' and ";
+//            if (attributes != "") attributes = "[" + attributes.substring(0, attributes.length - 5) + "]";
+            if (element.getAttribute("name")) attributes += "@name='" + element.getAttribute("name") + "'";
+            if (element.getAttribute("class")) attributes += (attributes ? " and " : "") + "@class='" + element.getAttribute("class") + "'";
+            if (attributes) attributes = "[" + attributes + "]";
 
             // INDEX
-            if (!/^(html|head|title|body|thead|tbody|tfoot|frameset)$/.test(element.localName))
+            if (this.useIndex !== 2 /* never */ && !/^(html|head|title|body|thead|tbody|tfoot|frameset)$/.test(element.localName))
             {
                 var index = 1;
                 var sibling = element.previousSibling;
@@ -1084,24 +1081,84 @@ Yarip.prototype.createXPath = function(element, fullPath)
                     if (sibling.localName == element.localName) found = true;
                     else sibling = sibling.nextSibling;
                 }
-                if (this.useIndex !== 2 /* never */ && (this.useIndex === 0 /* always */ || found || index > 1)) {
+                if (this.useIndex === 0 /* always */ || found || index > 1) {
                     attributes = "[" + index + "]" + attributes;
                 }
             }
         }
         xpath = "/" + element.localName + attributes + xpath;
         element = element.parentNode;
-    } while (element && element.nodeType == 1);
+    } while (element && element.nodeType === ELEMENT_NODE);
 
-    return xpath != "" ? xpath : null;
+    return xpath || null;
 }
-Yarip.prototype.getElementsByXPath = function(doc, xpath)
+Yarip.prototype.createCssSelector = function(element, fullPath)
 {
+    if (!element || !element.localName) return null;
+
+    var cssSelector = "";
+    do
+    {
+        var attributes = "";
+        if (element.getAttribute("id"))
+        {
+            // ID
+            attributes += "[id='" + element.getAttribute("id") + "']";
+            if (!fullPath) {
+                return element.localName + attributes + (cssSelector ? " > " : "") + cssSelector; // shortest cssSelector
+            }
+        }
+        else
+        {
+            // ATTRIBUTES
+            if (element.getAttribute("name")) attributes += "[name='" + element.getAttribute("name") + "']";
+            if (element.getAttribute("class")) attributes += "[class='" + element.getAttribute("class") + "']";
+
+            // INDEX
+            if (this.useIndex !== 2 /* never */ && !/^(html|head|title|body|thead|tbody|tfoot|frameset)$/.test(element.localName))
+            {
+                var index = 1;
+                var sibling = element.previousSibling;
+                while (sibling) {
+                    if (sibling.localName == element.localName) ++index;
+                    sibling = sibling.previousSibling;
+                }
+
+                var found = false;
+                sibling = element.nextSibling;
+                while (!found && sibling) {
+                    if (sibling.localName == element.localName) found = true;
+                    else sibling = sibling.nextSibling;
+                }
+                if (this.useIndex === 0 /* always */ || found || index > 1) {
+                    attributes = ":nth-of-type(" + index + ")" + attributes;
+                }
+            }
+        }
+        cssSelector = element.localName + attributes + (cssSelector ? " > " : "") + cssSelector;
+        element = element.parentNode;
+    } while (element && element.nodeType === ELEMENT_NODE);
+
+    return cssSelector || null;
+}
+Yarip.prototype.getNodesByXPath = function(doc, xpath, nodeType)
+{
+    var arr = [];
     try {
-        return doc.evaluate(xpath, doc.body, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        var nodes = doc.evaluate(xpath, doc.body, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        if (nodes) {
+            for (var i = 0; i < nodes.snapshotLength; i++) {
+                var node = nodes.snapshotItem(i);
+                if (nodeType !== undefined && nodeType !== node.nodeType) continue; // ignore unwanted nodes
+                if (node.nodeType === ELEMENT_NODE && /^yarip-/.test(node.id)) continue; // ignore yarip nodes
+
+                arr.push(node);
+            }
+        }
     } catch (e) {
         this.logMessage(LOG_ERROR, e);
-        return null;
+    } finally {
+        return arr;
     }
 }
 Yarip.prototype.generateRegExp = function(value)
@@ -1152,7 +1209,7 @@ Yarip.prototype.highlight = function(doc, xpath)
     if (elements.snapshotLength > 0) {
         for (var i = 0; i < elements.snapshotLength; i++) {
             var element = elements.snapshotItem(i);
-            if (element.nodeType == 2 /* ATTRIBUTE */) element = element.ownerElement;
+            if (element.nodeType === ATTRIBUTE_NODE) element = element.ownerElement;
             if (element && element.getAttribute) {
                 var status = element.getAttribute("status");
                 if (!status) {
@@ -1172,7 +1229,7 @@ Yarip.prototype.unHighlight = function(doc, xpath)
     if (elements && elements.snapshotLength > 0) {
         for (var i = 0; i < elements.snapshotLength; i++) {
             var element = elements.snapshotItem(i);
-            if (element.nodeType == 2 /* ATTRIBUTE */) element = element.ownerElement;
+            if (element.nodeType === ATTRIBUTE_NODE) element = element.ownerElement;
             if (element && element.getAttribute) {
                 var status = element.getAttribute("status");
                 if (status && /\bhighlighted\b/.test(status)) {
@@ -1322,6 +1379,7 @@ Yarip.prototype.check = function()
         this.deleteBranch("extensions.yarip.schemesList"); // deleted in v0.2.5.2
         this.deleteBranch("extensions.yarip.alwaysUseIndex"); // deleted in v0.3.2
         this.deleteBranch("extensions.yarip.contentRepeatThreshold"); // deleted in v0.3.2
+        this.deleteBranch("extensions.yarip.contentRecurrence"); // deleted in v0.3.4
     }
 }
 Yarip.prototype.getId = function()

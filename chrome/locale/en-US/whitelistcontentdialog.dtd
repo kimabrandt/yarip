@@ -1,6 +1,3 @@
 <!ENTITY dialog.title.editRegExpWhitelist  "Edit Regular Expression for whitelisting">
 <!ENTITY label.value.page                  "Page">
 <!ENTITY label.value.regExp                "URL regex">
-<!ENTITY button.label.noSubDomain          "Any 3rd-level domain">
-<!ENTITY button.label.noPath               "No path">
-<!ENTITY button.label.noQueryFragment      "No query/fragment">

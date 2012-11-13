@@ -29,8 +29,8 @@ function YaripOverlay()
     this.exclusiveOnCreationObserver = null;
     this.templatesObserver = null;
     this.schemesObserver = null;
+    this.matchObserver = null;
     this.privateObserver = null;
-    this.recurrenceObserver = null;
     this.monitorObserver = null;
     this.pagesObserver = null;
     this.logWhenClosedObserver = null;
@@ -234,6 +234,37 @@ function YaripOverlay()
         yarip.styleElementItem(doc, obj.pageName, obj.item, true, true);
     }
 
+    this.stylePage = function(doc, node)
+    {
+        this.toggleEnabled(true);
+
+        if (!doc || !node) return;
+
+        var location = yarip.getLocation(doc.location);
+        var pageName = yarip.getFirstAddress(location.asciiHref, true);
+        if (!pageName) {
+            pageName = yarip.getPageName(location);
+            if (!pageName) return;
+        }
+
+        var cssSelector = yarip.createCssSelector(node);
+        if (!cssSelector) return;
+
+        var obj = {
+            item: new YaripStyleItem("/html/head",
+                        cssSelector + " {\n" +
+                        "}"),
+            pageName: pageName
+        }
+
+        window.openDialog("chrome://yarip/content/pagestyledialog.xul", "pagestyledialog", "chrome,modal,resizable", doc, obj);
+
+        if (!obj.pageName || obj.pageName === "") return;
+        if (!obj.item) return;
+
+        yarip.stylePage(doc, obj.pageName, obj.item, true);
+    }
+
     this.scriptElement = function(doc, node)
     {
         this.toggleEnabled(true);
@@ -275,6 +306,14 @@ function YaripOverlay()
 
         var xpath = yarip.createXPath(node);
         if (xpath) CH.copyString(xpath);
+    }
+
+    this.copyCssSelector = function(node)
+    {
+        if (!node) return;
+
+        var cssSelector = yarip.createCssSelector(node);
+        if (cssSelector) CH.copyString(cssSelector);
     }
 
     this.startHighlighting = function(node)
@@ -576,16 +615,16 @@ function YaripOverlay()
                     yarip.setSchemes(yarip.getValue(PREF_SCHEMES, "", DATA_TYPE_STRING));
                 }
             );
+            this.matchObserver = new YaripPreferenceObserver(
+                PREF_MATCH,
+                function() {
+                    yarip.setMatchAuthorityPort(yarip.getValue(PREF_MATCH, true, DATA_TYPE_BOOLEAN));
+                }
+            );
             this.privateObserver = new YaripPreferenceObserver(
                 PREF_PRIVATE,
                 function() {
                     yarip.setPrivateBrowsing(yarip.getValue(PREF_PRIVATE, false, DATA_TYPE_BOOLEAN));
-                }
-            );
-            this.recurrenceObserver = new YaripPreferenceObserver(
-                PREF_RECURRENCE,
-                function() {
-                    yarip.setContentRecurrence(yarip.getValue(PREF_RECURRENCE, false, DATA_TYPE_BOOLEAN));
                 }
             );
             this.monitorObserver = new YaripPreferenceObserver(
@@ -666,8 +705,8 @@ function YaripOverlay()
             this.exclusiveOnCreationObserver.unregister();
             this.templatesObserver.unregister();
             this.schemesObserver.unregister();
+            this.matchObserver.unregister();
             this.privateObserver.unregister();
-            this.recurrenceObserver.unregister();
             this.logWhenClosedObserver.unregister();
 
             yaripMonitor.unload();
@@ -786,13 +825,15 @@ function YaripOverlay()
                     menuitem = next;
                 }
                 var found = false;
-                for each (var obj in yarip.undoObj)
-                {
+                for each (var obj in yarip.undoObj) {
                     if (!obj || obj.document != doc) continue;
 
                     var menuitem = document.createElement("menuitem");
                     menuitem.setAttribute("label", this.stringbundle.getFormattedString("undo-" + obj.type, [obj.text]));
-                    menuitem.addEventListener("command", function() { ref.undo(obj); }, false);
+                    menuitem.doc = doc;
+                    menuitem.key = obj.type + " " + obj.key;
+//                    menuitem.addEventListener("command", function() { ref.undo(obj); }, false);
+                    menuitem.addEventListener("command", function() { ref.undoOne(this.doc, this.key); }, false);
                     menuitem.setAttribute("crop", "center");
                     undoMenu.insertBefore(menuitem, undoMenu.firstChild);
                     found = true;
@@ -976,6 +1017,12 @@ function YaripOverlay()
         item.setAttribute("class", "blacklist temporary");
         menupopup.appendChild(item);
 
+        // STYLE PAGE
+        item = document.createElement("menuitem");
+        item.setAttribute("label", this.stringbundle.getString("menuitemStylePage"));
+        item.addEventListener("command", function() { ref.stylePage(node.ownerDocument, node); }, false);
+        menupopup.appendChild(item);
+
         // COPY XPATH
         item = document.createElement("menuitem");
         item.setAttribute("label", this.stringbundle.getString("menuitemCopyXPath"));
@@ -983,8 +1030,26 @@ function YaripOverlay()
         item.setAttribute("class", "copyXPath");
         menupopup.appendChild(item);
 
+        // COPY CSS SELECTOR
+        item = document.createElement("menuitem");
+        item.setAttribute("label", this.stringbundle.getString("menuitemCopyCssSelector"));
+        item.addEventListener("command", function() { ref.copyCssSelector(node); }, false);
+        item.setAttribute("class", "copyCssSelector");
+        menupopup.appendChild(item);
+
         menu.appendChild(menupopup);
         return menu;
+    }
+
+    this.undoOne = function(doc, key)
+    {
+        if (!doc) return;
+
+        var obj = yarip.undoObj[key];
+        if (obj && obj.document === doc) {
+            this.undo(obj, true);
+            yarip.reloadPage(obj.pageName);
+        }
     }
 
     this.undoAll = function(doc)

@@ -12,6 +12,7 @@ locale  yarip  en-US  chrome/locale/en-US/
 #style  chrome://global/content/customizeToolbar.xul  chrome://yarip-os/skin/toolbar.css
 style  chrome://global/content/customizeToolbar.xul  chrome://yarip-os/skin/style.css
 resource  yarip  modules/
+resource  yarip-skin  chrome/skin/
 
 # Firefox
 overlay  chrome://browser/content/browser.xul  chrome://yarip/content/overlay.xul  application={ec8030f7-c20a-464f-9b0e-13a3a9e97384}

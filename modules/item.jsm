@@ -88,7 +88,7 @@ YaripItem.prototype.getKey = function()
 YaripItem.prototype.setXPath = function(value)
 {
     if (!value) return;
-    this.xpath = "" + value;
+    this.xpath = String(value);
     this.setCreated(Date.now());
     this.setLastFound(-1);
 }
@@ -149,7 +149,7 @@ YaripItem.prototype.getScript = function()
 }
 YaripItem.prototype.setPriority = function(value)
 {
-    if (!value && value !== 0 || ("" + value).length > 13) return;
+    if (!value && value !== 0 || (String(value)).length > 13) return;
 
     value = Number(value);
     if (!isNaN(value)) {
@@ -162,7 +162,7 @@ YaripItem.prototype.getPriority = function()
 }
 YaripItem.prototype.setForce = function(value)
 {
-    this.force = "" + value != "false";
+    this.force = String(value) != "false";
     if (!this.force && !this.placeholder) this.style = null;
 }
 YaripItem.prototype.getForce = function()
@@ -171,7 +171,7 @@ YaripItem.prototype.getForce = function()
 }
 YaripItem.prototype.setPlaceholder = function(value)
 {
-    this.placeholder = "" + value == "true";
+    this.placeholder = String(value) == "true";
     if (!this.force && !this.placeholder) this.style = null;
 }
 YaripItem.prototype.getPlaceholder = function()
@@ -444,19 +444,19 @@ YaripElementBlacklistItem.prototype.constructor = YaripElementBlacklistItem;
 YaripElementBlacklistItem.prototype.setXPath = function(value, ignoreStyle)
 {
     if (!value) return;
-    this.xpath = "" + value;
+    this.xpath = String(value);
     this.setCreated(Date.now());
     this.setLastFound(-1);
     if (!ignoreStyle) this.createStyle(true);
 }
 YaripElementBlacklistItem.prototype.setForce = function(value, ignoreStyle)
 {
-    this.force = "" + value != "false";
+    this.force = String(value) != "false";
     if (!ignoreStyle) this.createStyle(true);
 }
 YaripItem.prototype.setPlaceholder = function(value, ignoreStyle)
 {
-    this.placeholder = "" + value == "true";
+    this.placeholder = String(value) == "true";
     if (!ignoreStyle) this.createStyle(true);
 }
 YaripElementBlacklistItem.prototype.clone = function(purge)
@@ -604,7 +604,7 @@ YaripScriptItem.prototype = new YaripItem;
 YaripScriptItem.prototype.constructor = YaripScriptItem;
 YaripScriptItem.prototype.setReinject = function(value)
 {
-    this.reinject = "" + value == "true";
+    this.reinject = String(value) == "true";
 }
 YaripScriptItem.prototype.getReinject = function()
 {
@@ -1046,7 +1046,7 @@ YaripHeaderItem.prototype.getHeaderName = function()
 }
 YaripHeaderItem.prototype.setMerge = function(value)
 {
-    this._merge = "" + value == "true";
+    this._merge = String(value) == "true";
 }
 YaripHeaderItem.prototype.getMerge = function()
 {
@@ -1207,7 +1207,7 @@ YaripExtensionItem.prototype.setId = function(id)
 }
 YaripExtensionItem.prototype.setDoElements = function(value)
 {
-    this.doElements = "" + value == "true";
+    this.doElements = String(value) == "true";
 }
 YaripExtensionItem.prototype.getDoElements = function()
 {
@@ -1215,7 +1215,7 @@ YaripExtensionItem.prototype.getDoElements = function()
 }
 YaripExtensionItem.prototype.setDoContents = function(value)
 {
-    this.doContents = "" + value == "true";
+    this.doContents = String(value) == "true";
 }
 YaripExtensionItem.prototype.getDoContents = function()
 {
@@ -1223,7 +1223,7 @@ YaripExtensionItem.prototype.getDoContents = function()
 }
 YaripExtensionItem.prototype.setDoScripts = function(value)
 {
-    this.doScripts = "" + value == "true";
+    this.doScripts = String(value) == "true";
 }
 YaripExtensionItem.prototype.getDoScripts = function()
 {
@@ -1231,7 +1231,7 @@ YaripExtensionItem.prototype.getDoScripts = function()
 }
 YaripExtensionItem.prototype.setDoHeaders = function(value)
 {
-    this.doHeaders = "" + value == "true";
+    this.doHeaders = String(value) == "true";
 }
 YaripExtensionItem.prototype.getDoHeaders = function()
 {
@@ -1239,7 +1239,7 @@ YaripExtensionItem.prototype.getDoHeaders = function()
 }
 YaripExtensionItem.prototype.setDoRedirects = function(value)
 {
-    this.doRedirects = "" + value == "true";
+    this.doRedirects = String(value) == "true";
 }
 YaripExtensionItem.prototype.getDoRedirects = function()
 {
@@ -1247,7 +1247,7 @@ YaripExtensionItem.prototype.getDoRedirects = function()
 }
 YaripExtensionItem.prototype.setDoStreams = function(value)
 {
-    this.doStreams = "" + value == "true";
+    this.doStreams = String(value) == "true";
 }
 YaripExtensionItem.prototype.getDoStreams = function()
 {
@@ -1255,7 +1255,7 @@ YaripExtensionItem.prototype.getDoStreams = function()
 }
 YaripExtensionItem.prototype.setDoLinks = function(value)
 {
-    this.doLinks = "" + value == "true";
+    this.doLinks = String(value) == "true";
 }
 YaripExtensionItem.prototype.getDoLinks = function()
 {
@@ -1305,7 +1305,7 @@ YaripExtensionItem.prototype.updateDo = function(maskItem, extItem, matchObj)
 }
 YaripExtensionItem.prototype.setIsSelf = function(value)
 {
-    this._isSelf = "" + value == "true";
+    this._isSelf = String(value) == "true";
 }
 YaripExtensionItem.prototype.isSelf = function()
 {

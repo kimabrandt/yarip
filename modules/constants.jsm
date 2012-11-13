@@ -60,19 +60,19 @@ var EXPORTED_SYMBOLS = [
         "PREF_ENABLED",
         "PREF_FLICKER",
         "PREF_MODE",
-        "PREF_INDEX",
         "PREF_ELEMENTS",
-        "PREF_EXCLUSIVE",
-        "PREF_TEMPLATES",
+        "PREF_INDEX",
+        "PREF_MATCH",
         "PREF_PRIVATE",
         "PREF_PURGE",
         "PREF_SCHEMES",
+        "PREF_EXCLUSIVE",
+        "PREF_TEMPLATES",
         "PREF_PAGES_MODIFIERS",
         "PREF_PAGES_KEY_CODE",
+        "PREF_LOG_WHEN_CLOSED",
         "PREF_MONITOR_MODIFIERS",
         "PREF_MONITOR_KEY_CODE",
-        "PREF_RECURRENCE",
-        "PREF_LOG_WHEN_CLOSED",
 
         "OUTLINE_RE",
         "OUTLINE_END_RE",
@@ -138,6 +138,11 @@ var EXPORTED_SYMBOLS = [
         "STATE_START",
         "STATE_STOP",
 
+        // https://developer.mozilla.org/en-US/DOM/Node.nodeType
+        "ELEMENT_NODE",
+        "ATTRIBUTE_NODE",
+        "TEXT_NODE",
+
         // Services
         "CS",
         "IDNS",
@@ -192,19 +197,19 @@ const PREF_VERSION = "extensions.yarip.version";
 const PREF_ENABLED = "extensions.yarip.enabled.value";
 const PREF_FLICKER = "extensions.yarip.noFlicker.value";
 const PREF_MODE = "extensions.yarip.mode.value";
-const PREF_INDEX = "extensions.yarip.useIndex.value";
 const PREF_ELEMENTS = "extensions.yarip.elementsInContext.value";
-const PREF_EXCLUSIVE = "extensions.yarip.exclusiveOnCreation.value";
-const PREF_TEMPLATES = "extensions.yarip.templatesList.value";
+const PREF_INDEX = "extensions.yarip.useIndex.value";
+const PREF_MATCH = "extensions.yarip.matchAuthorityPort.value";
 const PREF_PRIVATE = "extensions.yarip.privateBrowsing.value";
 const PREF_PURGE = "extensions.yarip.purgeInnerHTML.value";
 const PREF_SCHEMES = "extensions.yarip.schemesRegExp.value";
+const PREF_EXCLUSIVE = "extensions.yarip.exclusiveOnCreation.value";
+const PREF_TEMPLATES = "extensions.yarip.templatesList.value";
 const PREF_PAGES_MODIFIERS = "extensions.yarip.managePagesModifiersList.value";
 const PREF_PAGES_KEY_CODE = "extensions.yarip.managePagesKeyCode.value";
+const PREF_LOG_WHEN_CLOSED = "extensions.yarip.logWhenClosed.value";
 const PREF_MONITOR_MODIFIERS = "extensions.yarip.monitorContentModifiersList.value";
 const PREF_MONITOR_KEY_CODE = "extensions.yarip.monitorContentKeyCode.value";
-const PREF_RECURRENCE = "extensions.yarip.contentRecurrence.value";
-const PREF_LOG_WHEN_CLOSED = "extensions.yarip.logWhenClosed.value";
 
 const OUTLINE_RE = /^outline-color:\ rgb\((0|153),\ 0,\ (0|153)\);\ outline-style:\ solid;\ outline-width:\ 3px;$/;
 const OUTLINE_END_RE = /outline-color:\ rgb\((0|153),\ 0,\ (0|153)\);\ outline-style:\ solid;\ outline-width:\ 3px;$/;
@@ -269,6 +274,11 @@ const UNORDERED_NODE_SNAPSHOT_TYPE = Ci.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHO
 const STATE_REDIRECTING = Ci.nsIWebProgressListener.STATE_REDIRECTING;
 const STATE_START = Ci.nsIWebProgressListener.STATE_START;
 const STATE_STOP = Ci.nsIWebProgressListener.STATE_STOP;
+
+// https://developer.mozilla.org/en-US/DOM/Node.nodeType
+const ELEMENT_NODE = 1;
+const ATTRIBUTE_NODE = 2;
+const TEXT_NODE = 3;
 
 // Services
 const CS = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);

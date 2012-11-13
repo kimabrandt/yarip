@@ -34,6 +34,7 @@ menupopup#yarip-monitor-menupopup menuitem[class="openLocation"]
 }
 
 menupopup#yarip-menupopup menuitem[class="copyXPath"],
+menupopup#yarip-menupopup menuitem[class="copyCssSelector"],
 menupopup#yarip-monitor-menupopup menuitem[class="copyLocation"],
 menupopup#yarip-monitor-menupopup menuitem[class="copyRegExp"]
 {

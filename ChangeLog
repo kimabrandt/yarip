@@ -1,3 +1,39 @@
+2012-11-13  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/*dialog.xul (completedefaultindex): Not autocompleting
+    textboxes anymore.
+
+    * chrome.manifest (yarip-skin): Added the `yarip-skin'-resource, to be
+    used by styles and scripts (e.g. when needing to refer to a transparent
+    image or other common reusable resource).
+
+    * chrome/content/binding/placeholder.xbl: Cleaned up some code.
+
+    * chrome/content/overlay.js (undoOne): Fixed the `undo'-feature, which
+    only worked for one entry.
+
+    * chrome/content/pagedialog.js: Cleaned up some code.
+
+    * modules/stream.jsm (STREAM REPLACING): Changed the order of items for
+    applying streams. The first item is the closest root-match for the
+    current page. Second are the extended items. And at last come all the
+    remaining root-items.
+
+    * modules/uri.jsm: Made some changes.
+
+    * modules/yarip.jsm (matchAuthorityPort): Optionally allow matching of
+    authority and port. This results in cleaner rules when the authority and
+    the port are not needed.
+
+    * modules/yarip.jsm (getNodesByXPath): Returning an array of nodes
+    instead of a node-snapshot-iterable.
+
+    * modules/yarip.jsm (createCssSelector): Allow to copy the CSS-selector
+    of an element, similar to the copying the XPath.
+
+    * modules/yarip.jsm (contentRecurrence): Removed the log-`recurrence'-
+    feature.
+
 2012-10-01  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * modules/yarip.jsm (YaripHeaderItem): Allowing empty regexp.
@@ -669,7 +705,7 @@
     * nsYarip.js (save), xpath.js (createStyle, generateCSS): I started an
     attempt to translate XPaths into css to assist the noFlicker-feature,
     since CSS doesn't flicker when content is hidden (not displayed).
-    It (I think) even prevents blocked ressources from being downloaded
+    It (I think) even prevents blocked resources from being downloaded
     (such as iframes, images, ...). The algorithm just replaces some
     characters for now.
 

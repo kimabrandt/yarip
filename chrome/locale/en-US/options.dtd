@@ -1,38 +1,40 @@
-<!ENTITY prefwindow.title.optionsDialog    "Yarip preferences">
+<!ENTITY prefwindow.title.optionsDialog     "Yarip preferences">
 
-<!ENTITY tab.label.monitor                 "Content monitor">
-<!ENTITY caption.label.shortcut            "Keyboard shortcut (modifiers + key/keycode):">
-<!ENTITY checkbox.label.contentRecurrence  "Allow content recurrence">
-<!ENTITY checkbox.label.logWhenClosed      "Log when closed">
 
-<!ENTITY label.value.openPageManager       "Open page manager">
-<!ENTITY label.value.openContentMonitor    "Open content monitor">
+<!ENTITY tab.label.general                  "General">
 
-<!ENTITY tab.label.general                 "General">
-<!ENTITY tab.label.manager                 "Page manager">
-<!ENTITY tab.label.monitor                 "Content monitor">
+<!ENTITY caption.label.contextMenu          "Context-menu">
+<!ENTITY label.value.prefixShow             "Show">
+<!ENTITY label.value.suffixShow             "elements">
 
-<!ENTITY caption.label.pageLoad            "Page load">
-<!ENTITY checkbox.label.privateBrowsing    "Create page">
-<!ENTITY checkbox.label.purgeInnerHTML     "Purge innerHTML">
-<!ENTITY label.value.matchScheme           "Match schemes (regular expression):">
+<!ENTITY caption.label.xpath                "XPath">
+<!ENTITY label.value.useIndex               "Use indexes:">
+<!ENTITY radio.label.always                 "Always">
+<!ENTITY radio.label.whenNeeded             "When needed">
+<!ENTITY radio.label.never                  "Never (selects multiple elements)">
 
-<!ENTITY caption.label.pageCreation        "Page creation">
-<!ENTITY checkbox.label.exclWhitelist      "Exclusively whitelist">
-<!ENTITY label.value.inheritFromPages      "Inherit from pages (space separated list):">
+<!ENTITY caption.label.regex                "Regular expression">
+<!ENTITY checkbox.label.matchAuthorityPort  "Match authority and port">
 
-<!ENTITY caption.label.contextMenu         "Context-menu">
-<!ENTITY label.value.prefixShow            "Show">
-<!ENTITY label.value.suffixShow            "elements">
+<!ENTITY caption.label.pageLoad             "Page load">
+<!ENTITY checkbox.label.privateBrowsing     "Create page">
+<!ENTITY checkbox.label.purgeInnerHTML      "Purge innerHTML">
+<!ENTITY label.value.matchScheme            "Match schemes (regular expression):">
 
-<!ENTITY caption.label.xpath               "XPath">
-<!ENTITY label.value.useIndex              "Use indexes:">
-<!ENTITY radio.label.always                "Always">
-<!ENTITY radio.label.whenNeeded            "When needed">
-<!ENTITY radio.label.never                 "Never (selects multiple elements)">
+<!ENTITY caption.label.pageCreation         "Page creation">
+<!ENTITY checkbox.label.exclWhitelist       "Exclusively whitelist">
+<!ENTITY label.value.inheritFromPages       "Inherit from pages (space separated list):">
+
+<!ENTITY tab.label.manager                  "Page manager">
+
+<!ENTITY caption.label.shortcut             "Keyboard shortcut (modifiers + key/keycode):">
+<!ENTITY label.value.openPageManager        "Open page manager">
+
+<!ENTITY tab.label.monitor                  "Content monitor">
+
+<!ENTITY checkbox.label.logWhenClosed       "Log when closed">
+<!ENTITY label.value.openContentMonitor     "Open content monitor">
+<!ENTITY checkbox.label.contentRecurrence   "Allow content recurrence">
 
 <!ENTITY button.label.reset                "Reset">
-
-<!--ENTITY setting.enabled                   "Enabled"-->
-<!--ENTITY setting.managePages                "Manage pages"-->
 

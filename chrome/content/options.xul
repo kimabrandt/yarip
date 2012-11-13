@@ -48,6 +48,8 @@
       <preference id="prefManagePagesModifiersList" name="extensions.yarip.managePagesModifiersList.value" type="string"/>
       <preference id="prefManagePagesKeyCode" name="extensions.yarip.managePagesKeyCode.value" type="string"/>
 
+      <preference id="prefMatchAuthorityPort" name="extensions.yarip.matchAuthorityPort.value" type="bool"/>
+
       <preference id="prefPrivateBrowsing" name="extensions.yarip.privateBrowsing.value" type="bool"/>
       <preference id="prefPurgeInnerHTML" name="extensions.yarip.purgeInnerHTML.value" type="bool"/>
       <preference id="prefSchemesList" name="extensions.yarip.schemesRegExp.value" type="string"/>
@@ -87,6 +89,11 @@
                 <radio id="radioWhenNeededUseIndex" label="&radio.label.whenNeeded;" value="1" selected="true"/>
                 <radio id="radioNeverUseIndex" label="&radio.label.never;" value="2"/>
               </radiogroup>
+            </groupbox>
+
+            <groupbox>
+              <caption label="&caption.label.regex;"/>
+              <checkbox id="checkboxMatchAuthorityPort" label="&checkbox.label.matchAuthorityPort;" preference="prefMatchAuthorityPort"/>
             </groupbox>
 
             <groupbox>

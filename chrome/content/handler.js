@@ -204,10 +204,10 @@ function YaripHandler(doc, stopCallback, statusCallback)
         var expr = xpath.match(/^.*?\/a\b[^/]*/);
         if (!expr) return;
 
-        var elements = yarip.getElementsByXPath(this.doc, expr[0]);
-        if (!elements) return;
+        var elements = yarip.getNodesByXPath(this.doc, expr[0], ELEMENT_NODE);
+        if (elements.length === 0) return;
 
-        this.element = elements.snapshotItem(0);
+        this.element = elements[0];
         this.xpath = yarip.createXPath(this.element);
     }
 

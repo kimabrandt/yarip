@@ -238,11 +238,7 @@ function YaripMonitorDialog()
         };
         var knownKey = item.location.pageName + " " + item.content.asciiHref;
         var logObj = this.known[knownKey];
-        if (logObj) {
-            if (!yarip.contentRecurrence && status === logObj[0]) {
-                return false;
-            }
-        }
+        if (logObj && status === logObj[0]) return false;
 
         var hours = date.getHours();
         var minutes = date.getMinutes();

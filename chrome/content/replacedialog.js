@@ -27,6 +27,41 @@ function YaripReplaceDialog()
     this.scriptTextbox = null;
     this.obj = null;
 
+    var tld = TLD.replace(/\\./g, "\\\\.");
+    var subDomainRE = new RegExp("(^\\^http(?:s\\??)?:\\/\\/)(?:(?!" + SIMPLE + "\\\\." + tld + PORT + "(?:(?:\\(:\\\\d\\+\\)\\?)?\\[\\/\\?#\\]|[/?#$].*)?$)" + SIMPLE + "\\\\.)*(" + SIMPLE + "\\\\." + tld + PORT + "(?:(?:\\(:\\\\d\\+\\)\\?)?\\[\\/\\?#\\]|[/?#$].*)?)$", "i");
+    var pathRE = new RegExp("(^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+(?:\\[\\.@\\]|\\\\.)\\)\\?)?(?:[^/?#]+[.@])*[^/?#]+\\." + TLD.replace(/\\./g, "\\\\.") + ")" + PORT + ")[/?#].*$", "i");
+    var queryFragmentRE = new RegExp("^\\^http(?:s\\??)?:\\/\\/(?:(?:\\d+\\\\.){3}\\d+|(?:\\(\\[\\^/\\?#\\]\\+(?:\\[\\.@\\]|\\\\.)\\)\\?)?(?:[^/?#]+[.@])*[^/?#]+\\." + TLD.replace(/\\./g, "\\\\.") + ")" + PORT + "(?:[/?#].*)?(?!\\b)$", "i");
+
+    this.removeSubDomain = function()
+    {
+        if (!this.obj) return;
+        if (!subDomainRE.test(this.regExpTextbox.value)) return;
+
+        var regExp = this.regExpTextbox.value.replace(subDomainRE, "$1([^/?#]+" + (yarip.matchAuthorityPort ? "[.@]" : "\\.") + ")?$6");
+        this.regExpTextbox.value = regExp;
+        this.obj.item.setRegExp(regExp);
+    }
+
+    this.removePath = function()
+    {
+        if (!this.obj) return;
+        if (!pathRE.test(this.regExpTextbox.value)) return;
+
+        var regExp = this.regExpTextbox.value.replace(pathRE, "$1" + (yarip.matchAuthorityPort ? "(:\\d+)?" : "") + "[/?#]");
+        this.regExpTextbox.value = regExp;
+        this.obj.item.setRegExp(regExp);
+    }
+
+    this.removeQueryFragment = function()
+    {
+        if (!this.obj) return;
+        if (!queryFragmentRE.test(this.regExpTextbox.value)) return;
+
+        var regExp = this.regExpTextbox.value.replace(/(?:(?:\\\?|#(?!\])).*)?\$?$/, "\\b");
+        this.regExpTextbox.value = regExp;
+        this.obj.item.setRegExp(regExp);
+    }
+
     this.setScript = function(value)
     {
         if (!this.obj) return;
