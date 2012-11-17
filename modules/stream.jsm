@@ -117,6 +117,8 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
     {
         request.QueryInterface(Ci.nsIChannel);
 
+        if (request.loadFlags & LOAD_FLAG_RESPONSE) return; // FIXME
+
         /*
          * STREAM REPLACING
          */
@@ -415,6 +417,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         yarip.logMessage(LOG_ERROR, e);
     } finally {
 //dump("responseSource:"+responseSource+"\n\n--------------------------------------------------------------------------------\n\n");
+        request.loadFlags |= LOAD_FLAG_RESPONSE; // FIXME
         this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
         this.listener.onStopRequest(request, context, statusCode);
     }

@@ -1,3 +1,9 @@
+2012-11-17  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/stream.jsm (loadFlags): Preventing multiple stream-
+    manipullations (e.g. when linking to another page). Needs to be done in a
+    different way (e.g. don't use the loadFlags)!
+
 2012-11-13  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/*dialog.xul (completedefaultindex): Not autocompleting

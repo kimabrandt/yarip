@@ -116,6 +116,9 @@ var EXPORTED_SYMBOLS = [
         "LOG_ERROR",
         "LOG_WARNING",
 
+        "LOAD_FLAG_REPLACE",
+        "LOAD_FLAG_RESPONSE",
+
         // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIChannel
         "LOAD_DOCUMENT_URI",
         "LOAD_INITIAL_DOCUMENT_URI",
@@ -252,6 +255,11 @@ const LIST_INDEX_KEY = -1;
 
 const LOG_ERROR = Ci.nsIScriptError.errorFlag;
 const LOG_WARNING = Ci.nsIScriptError.warningFlag;
+
+// FIXME
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIChannel#Constants
+const LOAD_FLAG_REPLACE = 1 << 23;
+const LOAD_FLAG_RESPONSE = 1 << 24;
 
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIChannel
 const LOAD_DOCUMENT_URI = Ci.nsIChannel.LOAD_DOCUMENT_URI;

@@ -44,11 +44,11 @@ function YaripChannelReplace(oldChannel, newURI, callback)
     // https://developer.mozilla.org/en/XPCOM_Interface_Reference/NsIRequest
     if (this.oldChannel instanceof Ci.nsIRequest && this.newChannel instanceof Ci.nsIRequest) {
         var loadFlags = this.oldChannel.loadFlags;
-        if (loadFlags & 1 << 23) return; // yarip-flag
+        if (loadFlags & LOAD_FLAG_REPLACE) return; // FIXME
 
 //        loadFlags |= Ci.nsIChannel.LOAD_RETARGETED_DOCUMENT_URI;
 //        loadFlags |= LOAD_REPLACE;
-        loadFlags |= 1 << 23; // yarip-flag
+        loadFlags |= LOAD_FLAG_REPLACE; // FIXME
         if (this.oldChannel.URI.schemeIs("https")) {
             loadFlags &= ~Ci.nsIRequest.INHIBIT_PERSISTENT_CACHING;
         }
@@ -61,11 +61,11 @@ function YaripChannelReplace(oldChannel, newURI, callback)
     if (this.oldChannel instanceof Ci.nsIChannel && this.newChannel instanceof Ci.nsIChannel) {
 //        var loadFlags = this.newChannel.loadFlags;
         var loadFlags = this.oldChannel.loadFlags;
-        if (loadFlags & 1 << 23) return; // yarip-flag
+        if (loadFlags & LOAD_FLAG_REPLACE) return; // FIXME
 
         loadFlags |= Ci.nsIChannel.LOAD_RETARGETED_DOCUMENT_URI;
         loadFlags |= LOAD_REPLACE;
-        loadFlags |= 1 << 23; // yarip-flag
+        loadFlags |= LOAD_FLAG_REPLACE; // FIXME
         this.newChannel.loadFlags = loadFlags;
 //        this.newChannel.contentCharset = this.oldChannel.contentCharset;
 //        this.newChannel.contentLength = this.oldChannel.contentLength;
