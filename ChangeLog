@@ -1,8 +1,26 @@
+2012-11-18  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/*dialog.js (removePath): Replacing the port with a
+    regular expression when removing the path.
+
+    * chrome/content/observer.js (nsIPrefBranch): Replaced the interface
+    `nsIPrefBranch2' with `nsIPrefBranch', and increased the minVersion of
+    the addon.
+
+    * chrome/content/pagedialog.js (refreshExtMenulist): Refreshing the
+    extension-menulist after renaming a page.
+
+    * modules/list.jsm (addEntry): Only adding form-history entries in the
+    dialogues.
+
+    * modules/stream.jsm (STREAM REPLACING): Changed the order of items for
+    applying streams. First come the root-items and then the extended-items.
+
 2012-11-17  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * modules/stream.jsm (loadFlags): Preventing multiple stream-
-    manipullations (e.g. when linking to another page). Needs to be done in a
-    different way (e.g. don't use the loadFlags)!
+    manipullations (e.g. when linking to another page). Needs to be done in
+    a different way (e.g. don't use the loadFlags)!
 
 2012-11-13  Kim A. Brandt  <kimabrandt@gmx.de>
 

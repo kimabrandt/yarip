@@ -258,8 +258,8 @@ const LOG_WARNING = Ci.nsIScriptError.warningFlag;
 
 // FIXME
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIChannel#Constants
-const LOAD_FLAG_REPLACE = 1 << 23;
-const LOAD_FLAG_RESPONSE = 1 << 24;
+const LOAD_FLAG_REPLACE = 1 << 29;
+const LOAD_FLAG_RESPONSE = 1 << 30;
 
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIChannel
 const LOAD_DOCUMENT_URI = Ci.nsIChannel.LOAD_DOCUMENT_URI;

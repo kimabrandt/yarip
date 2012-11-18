@@ -38,7 +38,7 @@ YaripPreferenceObserver.prototype.register = function(prefs, callback)
         this.values[prefs[i].substring(index + 1)] = true;
         var prefService = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
         var observable = prefService.getBranch(root);
-        observable.QueryInterface(Components.interfaces.nsIPrefBranch2);
+        observable.QueryInterface(Components.interfaces.nsIPrefBranch);
         observable.addObserver("", this, false);
         this.observables.push(observable);
     }

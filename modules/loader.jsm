@@ -155,7 +155,7 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
 {
     var arr = [];
     addressObj.root.traverse(function (eItem) {
-        if (eItem.isSelf() || eItem.getDoScripts()) arr.push(eItem);
+        if (eItem.getDoScripts()) arr.push(eItem);
     });
 
     var tmp = [];

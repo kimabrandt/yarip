@@ -124,22 +124,26 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
          */
 
         var arr = [];
-        var tmp = [];
-        var first = true;
-        this.addressObj.root.traverse(function (item) {
-//            if (item.isSelf() || item.getDoStreams()) arr.push(item);
-            if (item.isSelf()) {
-                if (first) {
-                    arr.push(item);
-                    first = false;
-                } else {
-                    tmp.push(item); // added to the end
-                }
-            } else if (item.getDoStreams()) {
-                arr.push(item);
-            }
-        });
-        arr = arr.concat(tmp);
+//        var tmp = [];
+//        var first = true;
+//        this.addressObj.root.traverse(function (item) {
+////            if (item.isSelf() || item.getDoStreams()) arr.push(item);
+//            if (item.isSelf()) {
+//                if (first) {
+//                    arr.push(item);
+//                    first = false;
+//                } else {
+//                    tmp.push(item); // added to the end
+//                }
+//            } else if (item.getDoStreams()) {
+//                arr.push(item);
+//            }
+//        });
+//        arr = arr.concat(tmp);
+        for (var pageName in this.addressObj.ext) {
+            var item = this.addressObj.ext[pageName];
+            if (item.getDoStreams()) arr.push(item);
+        }
 
         var searchIndex = null;
 
@@ -160,8 +164,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
                         var sandbox = new Cu.Sandbox(this.defaultView ? this.defaultView : this.location.asciiHref);
                         if (/^\s*function\s*\(\s*matches\s*\)/.test(item.getScript())) // deprecated: script with matches-array as parameter
                         {
-                            // XXX Deprecated
-                            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_MATCHES_DEPRECATED", [], 0)));
+                            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_MATCHES_DEPRECATED", [], 0))); // XXX
 
                             var matches = responseSource.match(item.getAllStreamRegExpObj());
                             if (!matches) continue;
@@ -199,7 +202,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
                                 index += matchLength + newRespLength - oldRespLength;
                             }
                         }
-                        else // replace() with function as parameter
+                        else // replace with function as parameter
                         {
                             sandbox.responseSource = responseSource;
                             sandbox.regexp = item.getStreamRegExpObj();
@@ -257,7 +260,8 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
 
         arr = [];
         this.addressObj.root.traverse(function (item) {
-            if (item.isSelf() || item.getDoElements() || item.getDoScripts()) arr.push(item);
+//            if (item.isSelf() || item.getDoElements() || item.getDoScripts()) arr.push(item);
+            if (item.getDoElements() || item.getDoScripts()) arr.push(item);
         });
 
         // Iterating from end to beginning (dependencies).

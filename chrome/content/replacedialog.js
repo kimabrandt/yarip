@@ -42,12 +42,17 @@ function YaripReplaceDialog()
         this.obj.item.setRegExp(regExp);
     }
 
+    var URI_INDEX = 1;
+//    var TLD_INDEX = 2;
+    var PORT_INDEX = 3;
+
     this.removePath = function()
     {
         if (!this.obj) return;
         if (!pathRE.test(this.regExpTextbox.value)) return;
 
-        var regExp = this.regExpTextbox.value.replace(pathRE, "$1" + (yarip.matchAuthorityPort ? "(:\\d+)?" : "") + "[/?#]");
+        var matches = this.regExpTextbox.value.match(pathRE);
+        var regExp = matches[URI_INDEX].replace(/:\d+$/, "") + (matches[PORT_INDEX] && yarip.matchAuthorityPort ? "(:\\d+)?" : "") + "[/?#]";
         this.regExpTextbox.value = regExp;
         this.obj.item.setRegExp(regExp);
     }

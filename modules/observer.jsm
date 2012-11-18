@@ -340,15 +340,13 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, contentL
                 {
                     var sandbox = new Cu.Sandbox(defaultView ? defaultView : location.asciiHref);
                     if (/^\s*function\s*\(\s*url\s*\)/.test(item.getScript())) { // deprecated: script with asciiHref as parameter
-                        // XXX
-                        yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_SCRIPT_DEPRECATED")));
+                        yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_SCRIPT_DEPRECATED"))); // XXX
 
                         sandbox.asciiHref = asciiHref;
                         newSpec = Cu.evalInSandbox("(" + item.getScript() + ")(asciiHref);", sandbox);
                     } else { // replace with function as parameter
                         sandbox.url = asciiHref;
                         sandbox.regexp = item.getRegExpObj();
-//                            newSpec = Cu.evalInSandbox("(" + item.getScript() + ")(asciiHref);", sandbox);
                         newSpec = Cu.evalInSandbox("url.replace(regexp, " + item.getScript() + "\n);", sandbox);
                     }
                 } else {

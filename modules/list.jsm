@@ -239,7 +239,7 @@ YaripElementWhitelist.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("xpath", value);
+//            FH.addEntry("xpath", value);
             return c.getKey();
         case 1:
             var c = item.clone();
@@ -335,7 +335,7 @@ YaripElementBlacklist.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("xpath", value);
+//            FH.addEntry("xpath", value);
             return c.getKey();
         case 1:
             var c = item.clone();
@@ -438,7 +438,7 @@ YaripElementAttributeList.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("xpath", value);
+//            FH.addEntry("xpath", value);
             return c.getKey();
         case 1:
             var c = item.clone();
@@ -449,13 +449,13 @@ YaripElementAttributeList.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("attribute_name", value);
+//            FH.addEntry("attribute_name", value);
             return c.getKey();
         case 2:
 //            FH.removeEntry("attribute_value", item.getValue());
 
             item.setValue(value);
-            FH.addEntry("attribute_value", value);
+//            FH.addEntry("attribute_value", value);
             return false;
         case 3:
             var c = item.clone();
@@ -551,7 +551,7 @@ YaripElementScriptList.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("xpath", value);
+//            FH.addEntry("xpath", value);
             return c.getKey();
         case 1:
             var c = item.clone();
@@ -655,7 +655,7 @@ YaripContentWhitelist.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("regexp", value);
+//            FH.addEntry("regexp", value);
             return c.getKey();
         case 1:
             item.setFlags(value);
@@ -752,7 +752,7 @@ YaripContentBlacklist.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("regexp", value);
+//            FH.addEntry("regexp", value);
             return c.getKey();
         case 1:
             item.setFlags(value);
@@ -853,7 +853,7 @@ YaripStreamReplaceList.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("regexp", value);
+//            FH.addEntry("regexp", value);
             return c.getKey();
         case 1:
             item.setFlags(value);
@@ -869,7 +869,7 @@ YaripStreamReplaceList.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("stream-regexp", value);
+//            FH.addEntry("stream-regexp", value);
             return c.getKey();
         case 3:
             item.setStreamFlags(value);
@@ -971,7 +971,7 @@ YaripPageStyleList.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("xpath", value);
+//            FH.addEntry("xpath", value);
             return c.getKey();
         case 1:
             var c = item.clone();
@@ -1069,7 +1069,7 @@ YaripPageScriptList.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("xpath", value);
+//            FH.addEntry("xpath", value);
             return c.getKey();
         case 1:
             var c = item.clone();
@@ -1171,7 +1171,7 @@ YaripHeaderList.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("regexp", value);
+//            FH.addEntry("regexp", value);
             return c.getKey();
         case 1:
             item.setFlags(value);
@@ -1185,7 +1185,7 @@ YaripHeaderList.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("header_name", value);
+//            FH.addEntry("header_name", value);
             return c.getKey();
         case 3:
             var c = item.clone();
@@ -1300,7 +1300,7 @@ YaripRedirectList.prototype.set = function(row, col, value)
             this.remove(item);
 
             this.add(c);
-            FH.addEntry("regexp", value);
+//            FH.addEntry("regexp", value);
             return c.getKey();
         case 1:
             item.setFlags(value);

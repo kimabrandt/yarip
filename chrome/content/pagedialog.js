@@ -1639,6 +1639,7 @@ function YaripPageTreeView()
             dialog.tabs[dialog.tab].tree.stopEditing(false);
         }
         dialog.view.purge();
+        dialog.refreshExtMenulist(true);
         dialog.selectPageByName(value, true);
     }
     this.setTree = function(treebox) { this.treebox = treebox; }
