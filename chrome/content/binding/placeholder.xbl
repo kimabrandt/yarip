@@ -56,8 +56,8 @@
               for (var i = 0; i < es.snapshotLength; i++) {
                   var child = es.snapshotItem(i);
                   if (child.src) {
-                      child.setAttribute("src_backup", child.src);
-                      child.src = "";
+                      child.src_backup = child.src;
+                      child.src = "about:blank";
                   } else if (child.data) {
                       child.setAttribute("data_backup", child.data);
                       child.data = "";
@@ -66,8 +66,8 @@
               // fall-through
           case "iframe":
               if (this.src) {
-                  this.setAttribute("src_backup", this.src);
-                  this.src = "";
+                  this.src_backup = this.src;
+                  this.src = "about:blank";
               }
               break;
           case "object":
@@ -191,18 +191,16 @@
               case "embed":
                   if (localName == "embed") element.setAttribute("autostart", "true");
 
-                  if (element.getAttribute("src_backup")) {
-                      element.src = element.getAttribute("src_backup");
-                      element.removeAttribute("src_backup");
+                  if (element.src_backup) {
+                      element.src = element.src_backup;
                   }
 
 //                  var es = document.evaluate(".//embed | .//object | .//source", element, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
                   var es = document.evaluate(".//embed | .//object", element, null, Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
                   for (var i = 0; i < es.snapshotLength; i++) {
                       var child = es.snapshotItem(i);
-                      if (child.getAttribute("src_backup")) {
-                          child.src = child.getAttribute("src_backup");
-                          child.removeAttribute("src_backup");
+                      if (child.src_backup) {
+                          child.src = child.src_backup;
                       } else if (child.getAttribute("data_backup")) {
                           child.data = child.getAttribute("data_backup");
                           child.removeAttribute("data_backup");
@@ -214,10 +212,9 @@
 //                  var src = element.contentWindow.location.href;
                   if (src && src != "about:blank") {
                       element.src = src;
-                  } else if (element.getAttribute("src_backup")) {
-                      element.src = element.getAttribute("src_backup");
+                  } else if (element.src_backup) {
+                      element.src = element.src_backup;
                   }
-                  element.removeAttribute("src_backup");
                   break;
               case "object":
                   if (element.getAttribute("data_backup")) {

@@ -1,21 +1,21 @@
 
 /*
-Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+    Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
 
-This file is part of yarip.
+    This file is part of yarip.
 
-Yarip is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+    Yarip is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
 
-Yarip is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Yarip is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with yarip.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with yarip.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 const EXPORTED_SYMBOLS = [
@@ -233,14 +233,11 @@ YaripElementWhitelist.prototype.set = function(row, col, value)
 
             var c = item.clone();
             c.setXPath(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("xpath", item.getXPath());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("xpath", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 1:
             var c = item.clone();
             c.setPriority(value);
@@ -329,14 +326,11 @@ YaripElementBlacklist.prototype.set = function(row, col, value)
 
             var c = item.clone();
             c.setXPath(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("xpath", item.getXPath());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("xpath", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 1:
             var c = item.clone();
             c.setPriority(value);
@@ -432,30 +426,21 @@ YaripElementAttributeList.prototype.set = function(row, col, value)
 
             var c = item.clone();
             c.setXPath(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("xpath", item.getXPath());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("xpath", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 1:
             var c = item.clone();
             c.setName(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("attribute_name", item.getName());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("attribute_name", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 2:
-//            FH.removeEntry("attribute_value", item.getValue());
-
             item.setValue(value);
-//            FH.addEntry("attribute_value", value);
             return false;
         case 3:
             var c = item.clone();
@@ -545,14 +530,11 @@ YaripElementScriptList.prototype.set = function(row, col, value)
 
             var c = item.clone();
             c.setXPath(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("xpath", item.getXPath());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("xpath", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 1:
             var c = item.clone();
             c.setPriority(value);
@@ -649,14 +631,11 @@ YaripContentWhitelist.prototype.set = function(row, col, value)
 
             var c = item.clone();
             c.setRegExp(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("regexp", item.getRegExp());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("regexp", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 1:
             item.setFlags(value);
             return false;
@@ -746,14 +725,11 @@ YaripContentBlacklist.prototype.set = function(row, col, value)
 
             var c = item.clone();
             c.setRegExp(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("regexp", item.getRegExp());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("regexp", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 1:
             item.setFlags(value);
             return false;
@@ -847,14 +823,11 @@ YaripStreamReplaceList.prototype.set = function(row, col, value)
 
             var c = item.clone();
             c.setRegExp(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("regexp", item.getRegExp());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("regexp", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 1:
             item.setFlags(value);
             return false;
@@ -863,14 +836,11 @@ YaripStreamReplaceList.prototype.set = function(row, col, value)
 
             var c = item.clone();
             c.setStreamRegExp(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("stream-regexp", item.getStreamRegExp());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("stream-regexp", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 3:
             item.setStreamFlags(value);
             return false;
@@ -965,14 +935,11 @@ YaripPageStyleList.prototype.set = function(row, col, value)
 
             var c = item.clone();
             c.setXPath(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("xpath", item.getXPath());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("xpath", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 1:
             var c = item.clone();
             c.setPriority(value);
@@ -1063,14 +1030,11 @@ YaripPageScriptList.prototype.set = function(row, col, value)
 
             var c = item.clone();
             c.setXPath(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("xpath", item.getXPath());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("xpath", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 1:
             var c = item.clone();
             c.setPriority(value);
@@ -1165,28 +1129,22 @@ YaripHeaderList.prototype.set = function(row, col, value)
 
             var c = item.clone();
             c.setRegExp(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("regexp", item.getRegExp());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("regexp", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 1:
             item.setFlags(value);
             return false;
         case 2:
             var c = item.clone();
             c.setHeaderName(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("header_name", item.getHeaderName());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("header_name", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 3:
             var c = item.clone();
             c.setPriority(value);
@@ -1294,14 +1252,11 @@ YaripRedirectList.prototype.set = function(row, col, value)
 
             var c = item.clone();
             c.setRegExp(value);
-            if (this.contains(c)) return false;
-
-//            FH.removeEntry("regexp", item.getRegExp());
-            this.remove(item);
-
-            this.add(c);
-//            FH.addEntry("regexp", value);
-            return c.getKey();
+            if (!this.contains(c)) {
+                this.remove(item);
+                this.add(c);
+                return c.getKey();
+            }
         case 1:
             item.setFlags(value);
             return false;

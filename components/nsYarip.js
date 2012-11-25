@@ -1,21 +1,21 @@
 
 /*
-Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+    Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
 
-This file is part of yarip.
+    This file is part of yarip.
 
-Yarip is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+    Yarip is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
 
-Yarip is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Yarip is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with yarip.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with yarip.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 const Cc = Components.classes;
@@ -39,8 +39,8 @@ YaripAppStartupService.prototype.observe = function(subject, topic, data)
     switch (topic) {
     case "app-startup":
         Cc["@mozilla.org/observer-service;1"].
-                getService(Ci.nsIObserverService).
-                addObserver(this, "profile-after-change", true);
+            getService(Ci.nsIObserverService).
+            addObserver(this, "profile-after-change", true);
         break;
     case "profile-after-change":
         var appInfo = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
@@ -48,8 +48,8 @@ YaripAppStartupService.prototype.observe = function(subject, topic, data)
 //        if (!isMobile) {
             var yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
             Cc["@mozilla.org/observer-service;1"].
-                    getService(Ci.nsIObserverService).
-                    addObserver(yarip, "quit-application", true);
+                getService(Ci.nsIObserverService).
+                addObserver(yarip, "quit-application", true);
             yarip.setMobile(isMobile);
             yarip.init();
 //        }

@@ -32,6 +32,7 @@
 
 <!ENTITY tab.label.monitor                  "Content monitor">
 
+<!ENTITY caption.label.logging              "Logging:">
 <!ENTITY checkbox.label.logWhenClosed       "Log when closed">
 <!ENTITY label.value.openContentMonitor     "Open content monitor">
 <!ENTITY checkbox.label.contentRecurrence   "Allow content recurrence">

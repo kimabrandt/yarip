@@ -1,21 +1,21 @@
 
 /*
-Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+    Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
 
-This file is part of yarip.
+    This file is part of yarip.
 
-Yarip is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+    Yarip is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
 
-Yarip is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Yarip is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with yarip.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with yarip.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 const EXPORTED_SYMBOLS = ["Yarip"];
@@ -271,7 +271,7 @@ Yarip.prototype.setUseIndex = function(value)
 Yarip.prototype.setElementsInContext = function(value)
 {
     var value = Number(value);
-    if (!isNaN(value) && value > 0 && value <= 20) {
+    if (!isNaN(value) && value >= 1 && value <= 20) {
         this.elementsInContext = value;
     }
 }
@@ -1176,7 +1176,7 @@ Yarip.prototype.checkXPath = function(xpath)
     if (!xpath) return false;
     try {
         var dp = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
-        var doc = dp.parseFromString("<yarip></yarip>", "text/xml");
+        var doc = dp.parseFromString("<yarip></yarip>", "application/xml");
         doc.evaluate(xpath, doc, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
         return true;
     } catch (e) {
@@ -1192,6 +1192,10 @@ Yarip.prototype.checkRegExp = function(value, allowEmpty)
     } catch (e) {
         return false;
     }
+}
+Yarip.prototype.escapeCDEnd = function(value)
+{
+    return value.replace(/\]\]>/g, "]]]]><![CDATA[>");
 }
 Yarip.prototype.getElements = function(doc, xpath)
 {
@@ -2525,7 +2529,7 @@ Yarip.prototype.getDoc = function(file)
     if (!data) return null;
 
     var dp = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
-    return dp.parseFromString(data, "text/xml");
+    return dp.parseFromString(data, "application/xml");
 }
 Yarip.prototype.getData = function(file)
 {

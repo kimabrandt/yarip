@@ -1,21 +1,21 @@
 
 /*
-Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+    Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
 
-This file is part of yarip.
+    This file is part of yarip.
 
-Yarip is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+    Yarip is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
 
-Yarip is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Yarip is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with yarip.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with yarip.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 const EXPORTED_SYMBOLS = [
@@ -308,9 +308,9 @@ YaripItem.prototype.generateXml = function()
             (this.notFound > 0 ? " notFound=\"" + this.notFound + "\"" : "") +
             (this.ignored > 0 ? " ignored=\"" + this.ignored + "\"" : "") +
         ">\n" +
-        "\t\t\t\t\t<xpath><![CDATA[" + this.xpath + "]]></xpath>\n" +
-        (this.style ? "\t\t\t\t\t<style><![CDATA[" + this.style + "]]></style>\n" : "") +
-        (this.script ? "\t\t\t\t\t<script><![CDATA[" + this.script + "]]></script>\n" : "") +
+        "\t\t\t\t\t<xpath><![CDATA[" + yarip.escapeCDEnd(this.xpath) + "]]></xpath>\n" +
+        (this.style ? "\t\t\t\t\t<style><![CDATA[" + yarip.escapeCDEnd(this.style) + "]]></style>\n" : "") +
+        (this.script ? "\t\t\t\t\t<script><![CDATA[" + yarip.escapeCDEnd(this.script) + "]]></script>\n" : "") +
         "\t\t\t\t</item>\n";
 }
 YaripItem.prototype.createStyle = function(force)
@@ -408,7 +408,7 @@ YaripElementWhitelistItem.prototype.generateXml = function()
             (this.notFound > 0 ? " notFound=\"" + this.notFound + "\"" : "") +
             (this.ignored > 0 ? " ignored=\"" + this.ignored + "\"" : "") +
         ">\n" +
-        "\t\t\t\t\t<xpath><![CDATA[" + this.xpath + "]]></xpath>\n" +
+        "\t\t\t\t\t<xpath><![CDATA[" + yarip.escapeCDEnd(this.xpath) + "]]></xpath>\n" +
         "\t\t\t\t</item>\n";
 }
 
@@ -488,8 +488,8 @@ YaripElementBlacklistItem.prototype.generateXml = function()
             (this.notFound > 0 ? " notFound=\"" + this.notFound + "\"" : "") +
             (this.ignored > 0 ? " ignored=\"" + this.ignored + "\"" : "") +
         ">\n" +
-        "\t\t\t\t\t<xpath><![CDATA[" + this.xpath + "]]></xpath>\n" +
-        (this.style ? "\t\t\t\t\t<style><![CDATA[" + this.style + "]]></style>\n" : "") +
+        "\t\t\t\t\t<xpath><![CDATA[" + yarip.escapeCDEnd(this.xpath) + "]]></xpath>\n" +
+        (this.style ? "\t\t\t\t\t<style><![CDATA[" + yarip.escapeCDEnd(this.style) + "]]></style>\n" : "") +
         "\t\t\t\t</item>\n";
 }
 
@@ -562,9 +562,9 @@ YaripElementAttributeItem.prototype.generateXml = function()
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
             (this.notFound > 0 ? " notFound=\"" + this.notFound + "\"" : "") +
         ">\n" +
-        "\t\t\t\t\t<xpath><![CDATA[" + this.xpath + "]]></xpath>\n" +
-        "\t\t\t\t\t<name><![CDATA[" + this.name + "]]></name>\n" +
-        "\t\t\t\t\t<value><![CDATA[" + this.value + "]]></value>\n" +
+        "\t\t\t\t\t<xpath><![CDATA[" + yarip.escapeCDEnd(this.xpath) + "]]></xpath>\n" +
+        "\t\t\t\t\t<name><![CDATA[" + yarip.escapeCDEnd(this.name) + "]]></name>\n" +
+        "\t\t\t\t\t<value><![CDATA[" + yarip.escapeCDEnd(this.value) + "]]></value>\n" +
         "\t\t\t\t</item>\n";
     return tmp;
 }
@@ -635,8 +635,8 @@ YaripScriptItem.prototype.generateXml = function()
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
             (this.notFound > 0 ? " notFound=\"" + this.notFound + "\"" : "") +
         ">\n" +
-        "\t\t\t\t\t<xpath><![CDATA[" + this.xpath + "]]></xpath>\n" +
-        "\t\t\t\t\t<script><![CDATA[" + this.script + "]]></script>\n" +
+        "\t\t\t\t\t<xpath><![CDATA[" + yarip.escapeCDEnd(this.xpath) + "]]></xpath>\n" +
+        "\t\t\t\t\t<script><![CDATA[" + yarip.escapeCDEnd(this.script) + "]]></script>\n" +
         "\t\t\t\t</item>\n";
 }
 
@@ -691,8 +691,8 @@ YaripPageScriptItem.prototype.generateXml = function()
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
             (this.notFound > 0 ? " notFound=\"" + this.notFound + "\"" : "") +
         ">\n" +
-        "\t\t\t\t\t<xpath><![CDATA[" + this.xpath + "]]></xpath>\n" +
-        "\t\t\t\t\t<script><![CDATA[" + this.script + "]]></script>\n" +
+        "\t\t\t\t\t<xpath><![CDATA[" + yarip.escapeCDEnd(this.xpath) + "]]></xpath>\n" +
+        "\t\t\t\t\t<script><![CDATA[" + yarip.escapeCDEnd(this.script) + "]]></script>\n" +
         "\t\t\t\t</item>\n";
 }
 
@@ -747,7 +747,7 @@ YaripContentItem.prototype.generateXml = function()
         ">\n" +
         "\t\t\t\t\t<regexp" +
             (this.flags ? " flags=\"" + this.flags + "\"" : "") +
-        "><![CDATA[" + this.regExp + "]]></regexp>\n" +
+        "><![CDATA[" + yarip.escapeCDEnd(this.regExp) + "]]></regexp>\n" +
         "\t\t\t\t</item>\n";
 }
 YaripContentItem.prototype.loadFromObject = function(obj)
@@ -795,7 +795,7 @@ YaripContentWhitelistItem.prototype.generateXml = function()
         ">\n" +
         "\t\t\t\t\t<regexp" +
             (this.flags ? " flags=\"" + this.flags + "\"" : "") +
-        "><![CDATA[" + this.regExp + "]]></regexp>\n" +
+        "><![CDATA[" + yarip.escapeCDEnd(this.regExp) + "]]></regexp>\n" +
         "\t\t\t\t</item>\n";
 }
 
@@ -934,11 +934,11 @@ YaripStreamItem.prototype.generateXml = function()
         ">\n" +
         (this.regExp ? "\t\t\t\t\t<regexp" +
             (this.flags ? " flags=\"" + this.flags + "\"" : "") +
-        "><![CDATA[" + this.regExp + "]]></regexp>\n" : "") +
+        "><![CDATA[" + yarip.escapeCDEnd(this.regExp) + "]]></regexp>\n" : "") +
         "\t\t\t\t\t<stream_regexp" +
             (this.streamFlags ? " flags=\"" + this.streamFlags + "\"" : "") +
-        "><![CDATA[" + this.streamRegExp + "]]></stream_regexp>\n" +
-        "\t\t\t\t\t<script><![CDATA[" + this.script + "]]></script>\n" +
+        "><![CDATA[" + yarip.escapeCDEnd(this.streamRegExp) + "]]></stream_regexp>\n" +
+        "\t\t\t\t\t<script><![CDATA[" + yarip.escapeCDEnd(this.script) + "]]></script>\n" +
         "\t\t\t\t</item>\n";
 }
 YaripStreamItem.prototype.loadFromObject = function(obj)
@@ -1000,8 +1000,8 @@ YaripStyleItem.prototype.generateXml = function()
             (this.found > 0 ? " found=\"" + this.found + "\"" : "") +
             (this.notFound > 0 ? " notFound=\"" + this.notFound + "\"" : "") +
         ">\n" +
-        "\t\t\t\t\t<xpath><![CDATA[" + this.xpath + "]]></xpath>\n" +
-        "\t\t\t\t\t<style><![CDATA[" + this.style + "]]></style>\n" +
+        "\t\t\t\t\t<xpath><![CDATA[" + yarip.escapeCDEnd(this.xpath) + "]]></xpath>\n" +
+        "\t\t\t\t\t<style><![CDATA[" + yarip.escapeCDEnd(this.style) + "]]></style>\n" +
         "\t\t\t\t</item>\n";
 }
 
@@ -1077,9 +1077,9 @@ YaripHeaderItem.prototype.generateXml = function()
         ">\n" +
         (this.regExp ? "\t\t\t\t\t\t<regexp" +
             (this.flags ? " flags=\"" + this.flags + "\"" : "") +
-        "><![CDATA[" + this.regExp + "]]></regexp>\n" : "") +
-        "\t\t\t\t\t\t<name><![CDATA[" + this.headerName + "]]></name>\n" +
-        "\t\t\t\t\t\t<script><![CDATA[" + this.script + "]]></script>\n" +
+        "><![CDATA[" + yarip.escapeCDEnd(this.regExp) + "]]></regexp>\n" : "") +
+        "\t\t\t\t\t\t<name><![CDATA[" + yarip.escapeCDEnd(this.headerName) + "]]></name>\n" +
+        "\t\t\t\t\t\t<script><![CDATA[" + yarip.escapeCDEnd(this.script) + "]]></script>\n" +
         "\t\t\t\t\t</item>\n";
 }
 YaripHeaderItem.prototype.loadFromObject = function(obj)
@@ -1150,8 +1150,8 @@ YaripRedirectItem.prototype.generateXml = function()
         ">\n" +
         "\t\t\t\t\t<regexp" +
             (this.flags ? " flags=\"" + this.flags + "\"" : "") +
-        "><![CDATA[" + this.regExp + "]]></regexp>\n" +
-        (this.newsubstr ? "\t\t\t\t\t<newsubstr><![CDATA[" + this.newsubstr + "]]></newsubstr>\n" : "") +
+        "><![CDATA[" + yarip.escapeCDEnd(this.regExp) + "]]></regexp>\n" +
+        (this.newsubstr ? "\t\t\t\t\t<newsubstr><![CDATA[" + yarip.escapeCDEnd(this.newsubstr) + "]]></newsubstr>\n" : "") +
         "\t\t\t\t</item>\n";
 }
 YaripRedirectItem.prototype.loadFromObject = function(obj)

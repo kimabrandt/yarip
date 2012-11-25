@@ -1,3 +1,36 @@
+2012-11-25  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/binding/placeholder.xbl (src): Setting the `src'-
+    attribute for embed and iframe to `about:blank' instead of blank, to
+    prevent the browser (FF17) from crashing.
+
+    * modules/contentPolicy.jsm (REJECT_OTHER): Replaced `REJECT_SERVER'
+    with `REJECT_OTHER' to indicate that it's not the server that is
+    rejected, but it is due to the yarip-rules matching some URL.
+
+2012-11-24  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/options.xul (logWhenClosed): Added a groupbox for the
+    logWhenClosed-checkbox.
+
+    * chrome/content/pagedialog.js (elementWhitelist-exclusive): Focusing
+    the exclusive-checkbox in the contentWhitelist-tab when choosing
+    `Goto' from the context-menu.
+
+    * chrome/content/pagedialog.js (pageTabbox): Correctly selecting the
+    page-redirect tab when choosing `Goto' from the context-menu.
+
+    * chrome/content/pagedialog.xul (selectAll): Allow to select all items
+    in a list by pressing <CTRL> + <a>.
+
+    * : Reformatted the license-header for some source-files.
+
+    * modules/item.jsm (escapeCDEnd): Escaping the `]]>'-CDATA-end, to
+    prevent problems when loading the `yarip.xml'-file.
+
+    * modules/yarip.jsm (application/xml): Replaced the deprecated
+    content-type `text/xml'.
+
 2012-11-18  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/*dialog.js (removePath): Replacing the port with a

@@ -134,8 +134,6 @@
         </tabpanel>
         <tabpanel id="monitor-tabpanel" flex="1">
           <vbox flex="1">
-            <checkbox id="checkboxLogWhenClosed" label="&checkbox.label.logWhenClosed;" preference="prefLogWhenClosed"/>
-            <separator class="thin"/>
             <groupbox>
               <caption label="&caption.label.shortcut;"/>
 <!--              <label value="&label.value.shortcut;" class="text-link" href="https://developer.mozilla.org/en/XUL_Tutorial/Keyboard_Shortcuts"/>-->
@@ -149,6 +147,11 @@
                   <textbox id="textboxMonitorContentKeyCode" preference="prefMonitorContentKeyCode"/>
                 </vbox>
               </hbox>
+            </groupbox>
+
+            <groupbox>
+              <caption label="&caption.label.logging;"/>
+              <checkbox id="checkboxLogWhenClosed" label="&checkbox.label.logWhenClosed;" preference="prefLogWhenClosed"/>
             </groupbox>
           </vbox>
         </tabpanel>

@@ -54,16 +54,18 @@
     <command id="cmd_copy" oncommand="dialog.doCopy();"/>
     <command id="cmd_paste" oncommand="dialog.doPaste();"/>
     <command id="cmd_goto" oncommand="dialog.gotoPage();"/>
-<!--    <command id="cmd_selectall" oncommand="dialog.doSelectAll();"/>-->
+    <command id="cmd_selectAll" oncommand="dialog.doSelectAll();"/>
+    <command id="cmd_remove" oncommand="dialog.remove();"/>
     <command id="cmd_toggleExclusive" oncommand="dialog.toggleExclusive();"/>
   </commandset>
 
   <keyset>
-    <key key="&key.key.cut;" modifiers="accel" command="cmd_cut"/>
-    <key key="&key.key.copy;" modifiers="accel" command="cmd_copy"/>
-    <key key="&key.key.paste;" modifiers="accel" command="cmd_paste"/>
-    <key key="&key.key.goto;" modifiers="accel" command="cmd_goto"/>
-<!--    <key key="&key.key.selectAll;" modifiers="accel" command="cmd_selectall"/>-->
+    <key modifiers="accel" key="&key.key.cut;" command="cmd_cut"/>
+    <key modifiers="accel" key="&key.key.copy;" command="cmd_copy"/>
+    <key modifiers="accel" key="&key.key.paste;" command="cmd_paste"/>
+    <key modifiers="accel" key="&key.key.goto;" command="cmd_goto"/>
+    <key modifiers="accel" key="&key.key.selectAll;" command="cmd_selectAll"/>
+    <key keycode="&key.keycode.remove;" command="cmd_remove"/>
   </keyset>
 
   <hbox flex="1">

@@ -1,21 +1,21 @@
 
 /*
-Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+    Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
 
-This file is part of yarip.
+    This file is part of yarip.
 
-Yarip is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+    Yarip is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
 
-Yarip is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Yarip is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with yarip.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with yarip.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 const EXPORTED_SYMBOLS = ["YaripWebProgressListener"];
@@ -36,8 +36,9 @@ YaripWebProgressListener.prototype = {
     contractID: "@yarip.mozdev.org/web-progress-listener;1",
     _xpcom_categories: [],
     QueryInterface: XPCOMUtils.generateQI([
-            Ci.nsIWebProgressListener,
-            Ci.nsISupportsWeakReference])
+        Ci.nsIWebProgressListener,
+        Ci.nsISupportsWeakReference
+    ])
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIWebProgressListener#onStateChange%28%29
 YaripWebProgressListener.prototype.onStateChange = function(webProgress, request, stateFlags, status)
@@ -59,7 +60,6 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
 
     var isPage = location.isPage;
     var isLink = location.isLink;
-//    var isLink = location.isLink || (STATE_REDIRECTING & stateFlags) === STATE_REDIRECTING;
     if (isLink && !yarip.privateBrowsing) return;
 
     var contentLocation = yarip.getLocation(request.URI);
