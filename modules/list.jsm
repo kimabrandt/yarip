@@ -190,20 +190,11 @@ YaripList.prototype.generateXml = function()
 }
 YaripList.prototype.generateCSS = function()
 {
-    var tmpBlacklist = "";
-    var tmpPlaceholder = "";
+    var tmp = "";
     for each (var item in this.obj) {
-        if (item) {
-            if (!item.getPlaceholder()) {
-                tmpBlacklist += item.generateCSS();
-            } else {
-                tmpPlaceholder += item.generateCSS(":not([status~=\"whitelisted\"]):not([status~=\"blacklisted\"])");
-            }
-        }
+        if (item) tmp += item.generateCSS();
     }
-    return "" +
-            (tmpBlacklist ? tmpBlacklist.replace(/,\n$/, "") + " {\n\tdisplay: none !important;\n}" : "") +
-            (tmpPlaceholder ? (tmpBlacklist ? "\n\n" : "") + tmpPlaceholder.replace(/,\n$/, "") + " {\n\tvisibility: hidden !important;\n}" : "");
+    return tmp ? tmp.replace(/,\n$/, "") + " {\n\tdisplay: none !important;\n}" : "";
 }
 
 function YaripElementWhitelist(name, exclusive)
@@ -344,9 +335,6 @@ YaripElementBlacklist.prototype.set = function(row, col, value)
         case 2:
             item.setForce(value);
             return false;
-        case 3:
-            item.setPlaceholder(value);
-            return false;
         default:
             return false;
         }
@@ -366,8 +354,7 @@ YaripElementBlacklist.prototype.get = function(row, col)
         case 0: return item.getXPath();
         case 1: return item.getPriority();
         case 2: return item.getForce();
-        case 3: return item.getPlaceholder();
-        case 4:
+        case 3:
             var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -375,7 +362,7 @@ YaripElementBlacklist.prototype.get = function(row, col)
             } else {
                 return "";
             }
-        case 5:
+        case 4:
             var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -383,9 +370,9 @@ YaripElementBlacklist.prototype.get = function(row, col)
             } else {
                 return "";
             }
-        case 6: return item.getFound();
-        case 7: return item.getNotFound();
-        case 8: return item.getIgnored();
+        case 5: return item.getFound();
+        case 6: return item.getNotFound();
+        case 7: return item.getIgnored();
         default: return "";
         }
     }
@@ -422,7 +409,7 @@ YaripElementAttributeList.prototype.set = function(row, col, value)
 
         switch (col) {
         case 0:
-            if (!this.checkXPath(value)) return false;
+            if (!this.checkXPath(value, true)) return false;
 
             var c = item.clone();
             c.setXPath(value);
@@ -452,6 +439,9 @@ YaripElementAttributeList.prototype.set = function(row, col, value)
             } else {
                 return false;
             }
+        case 4:
+            item.setRemove(value);
+            return false;
         default:
             return false;
         }
@@ -472,7 +462,8 @@ YaripElementAttributeList.prototype.get = function(row, col)
         case 1: return item.getName();
         case 2: return item.getValue();
         case 3: return item.getPriority();
-        case 4:
+        case 4: return item.getRemove();
+        case 5:
             var ms = item.getCreated();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -480,7 +471,7 @@ YaripElementAttributeList.prototype.get = function(row, col)
             } else {
                 return "";
             }
-        case 5:
+        case 6:
             var ms = item.getLastFound();
             if (ms > -1) {
                 var date = new Date(ms);
@@ -488,8 +479,8 @@ YaripElementAttributeList.prototype.get = function(row, col)
             } else {
                 return "";
             }
-        case 6: return item.getFound();
-        case 7: return item.getNotFound();
+        case 7: return item.getFound();
+        case 8: return item.getNotFound();
         default: return "";
         }
     }

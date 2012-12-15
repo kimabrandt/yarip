@@ -89,19 +89,19 @@
       </popupset>
       <tabbox id="tabbox" flex="1">
         <tabs onselect="dialog.updateTab()">
-          <tab id="element-tab" label="&tab.label.element;" oncommand="dialog.setUserSelect()"/>
-          <tab id="content-tab" label="&tab.label.content;" oncommand="dialog.setUserSelect()"/>
-          <tab id="page-tab" label="&tab.label.page;" oncommand="dialog.setUserSelect()"/>
+          <tab id="element-tab" label="&tab.label.element;"/>
+          <tab id="content-tab" label="&tab.label.content;"/>
+          <tab id="page-tab" label="&tab.label.page;"/>
         </tabs>
         <tabpanels flex="1">
           <tabpanel id="element-tabpanel" flex="1">
             <vbox flex="1">
               <tabbox id="element-tabbox" flex="1">
                 <tabs onselect="dialog.updateTab()">
-                  <tab id="elementWhitelist-tab" label="&tab.label.whitelist;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="elementBlacklist-tab" label="&tab.label.blacklist;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="elementAttributeList-tab" label="&tab.label.attribute;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="elementScriptList-tab" label="&tab.label.script;" oncommand="dialog.setUserSelect()"/>
+                  <tab id="elementWhitelist-tab" label="&tab.label.whitelist;"/>
+                  <tab id="elementBlacklist-tab" label="&tab.label.blacklist;"/>
+                  <tab id="elementAttributeList-tab" label="&tab.label.attribute;"/>
+                  <tab id="elementScriptList-tab" label="&tab.label.script;"/>
                 </tabs>
                 <tabpanels flex="1">
                   <tabpanel id="elementWhitelist" flex="1">
@@ -143,8 +143,6 @@
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="elementBlacklist-tree-force" label="&treecol.label.force;" type="checkbox" editable="true" persist="width hidden" tooltiptext="&treecol.tooltiptext.forceBlacklist;"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
-                          <treecol id="elementBlacklist-tree-placeholder" label="&treecol.label.placeholder;" type="checkbox" editable="true" hidden="true" persist="width hidden" tooltiptext="&treecol.tooltiptext.placeholder;"/>
-                          <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="elementBlacklist-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="elementBlacklist-tree-lastFound" label="&treecol.label.lastFound;" persist="width hidden"/>
@@ -176,6 +174,8 @@
                           <treecol id="elementAttributeList-tree-attrValue" label="&treecol.label.attrValue;" editable="true" persist="width" primary="true" flex="1"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="elementAttributeList-tree-priority" label="&treecol.label.priority;" editable="true" hidden="true" persist="width hidden"/>
+                          <splitter class="tree-splitter" resizeafter="farthest"/>
+                          <treecol id="elementAttributeList-tree-remove" label="&treecol.label.remove;" type="checkbox" editable="true" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="elementAttributeList-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
                           <splitter class="tree-splitter" resizeafter="farthest"/>
@@ -234,11 +234,11 @@
             <vbox flex="1">
               <tabbox id="content-tabbox" flex="1">
                 <tabs onselect="dialog.updateTab()">
-                  <tab id="contentWhitelist-tab" label="&tab.label.whitelist;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="contentBlacklist-tab" label="&tab.label.blacklist;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="contentHeader-tab" label="&tab.label.header;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="contentRedirectList-tab" label="&tab.label.redirect;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="contentStreamList-tab" label="&tab.label.stream;" oncommand="dialog.setUserSelect()"/>
+                  <tab id="contentWhitelist-tab" label="&tab.label.whitelist;"/>
+                  <tab id="contentBlacklist-tab" label="&tab.label.blacklist;"/>
+                  <tab id="contentHeader-tab" label="&tab.label.header;"/>
+                  <tab id="contentRedirectList-tab" label="&tab.label.redirect;"/>
+                  <tab id="contentStreamList-tab" label="&tab.label.stream;"/>
                 </tabs>
                 <tabpanels flex="1">
                   <tabpanel id="contentWhitelist" flex="1">
@@ -298,8 +298,8 @@
                     <vbox flex="1">
                       <tabbox id="content-header-tabbox" flex="1">
                         <tabs onselect="dialog.updateTab()">
-                          <tab id="contentRequestHeaderList-tab" label="&tab.label.request;" oncommand="dialog.setUserSelect()"/>
-                          <tab id="contentResponseHeaderList-tab" label="&tab.label.response;" oncommand="dialog.setUserSelect()"/>
+                          <tab id="contentRequestHeaderList-tab" label="&tab.label.request;"/>
+                          <tab id="contentResponseHeaderList-tab" label="&tab.label.response;"/>
                         </tabs>
                         <tabpanels flex="1">
                           <tabpanel id="contentRequestHeaderList" flex="1">
@@ -430,13 +430,13 @@
             <vbox flex="1">
               <tabbox id="page-tabbox" flex="1">
                 <tabs onselect="dialog.updateTab()">
-                  <tab id="pageStyleList-tab" label="&tab.label.style;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="pageScriptList-tab" label="&tab.label.script;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="pageHeader-tab" label="&tab.label.header;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="pageRedirectList-tab" label="&tab.label.redirect;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="pageStreamList-tab" label="&tab.label.stream;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="pageExtensionList-tab" label="&tab.label.extension;" oncommand="dialog.setUserSelect()"/>
-                  <tab id="pageExtendedByList-tab" label="&tab.label.extendedBy;" oncommand="dialog.setUserSelect()"/>
+                  <tab id="pageStyleList-tab" label="&tab.label.style;"/>
+                  <tab id="pageScriptList-tab" label="&tab.label.script;"/>
+                  <tab id="pageHeader-tab" label="&tab.label.header;"/>
+                  <tab id="pageRedirectList-tab" label="&tab.label.redirect;"/>
+                  <tab id="pageStreamList-tab" label="&tab.label.stream;"/>
+                  <tab id="pageExtensionList-tab" label="&tab.label.extension;"/>
+                  <tab id="pageExtendedByList-tab" label="&tab.label.extendedBy;"/>
                 </tabs>
                 <tabpanels flex="1">
                   <tabpanel id="pageStyleList" flex="1">
@@ -503,8 +503,8 @@
                     <vbox flex="1">
                       <tabbox id="page-header-tabbox" flex="1">
                         <tabs onselect="dialog.updateTab()">
-                          <tab id="pageRequestHeaderList-tab" label="&tab.label.request;" oncommand="dialog.setUserSelect()"/>
-                          <tab id="pageResponseHeaderList-tab" label="&tab.label.response;" oncommand="dialog.setUserSelect()"/>
+                          <tab id="pageRequestHeaderList-tab" label="&tab.label.request;"/>
+                          <tab id="pageResponseHeaderList-tab" label="&tab.label.response;"/>
                         </tabs>
                         <tabpanels flex="1">
                           <tabpanel id="pageRequestHeaderList" flex="1">
@@ -659,8 +659,6 @@
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="pageExtensionList-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
                         </treecols>
-<!--                        <treechildren context="yarip-edit-menupopup" ondblclick="dialog.gotoPage(event);"/>-->
-<!--                        <treechildren class="clickable" context="yarip-edit-menupopup"/>-->
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <hbox>
@@ -694,8 +692,6 @@
                           <splitter class="tree-splitter" resizeafter="farthest"/>
                           <treecol id="pageExtendedByList-tree-created" label="&treecol.label.created;" hidden="true" persist="width hidden"/>
                         </treecols>
-<!--                        <treechildren context="yarip-edit-menupopup" ondblclick="dialog.gotoPage(event);"/>-->
-<!--                        <treechildren class="clickable" context="yarip-edit-menupopup"/>-->
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                     </vbox>

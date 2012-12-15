@@ -35,6 +35,8 @@ var EXPORTED_SYMBOLS = [
         "TYPE_CONTENT_BLACKLIST",
         "TYPE_CONTENT_REDIRECT",
         "TYPE_PAGE_REDIRECT",
+        "TYPE_PAGE_EXTENSION",
+        "TYPE_PAGE_EXTENDED_BY",
 
         "DATA_TYPE_BOOLEAN",
         "DATA_TYPE_INTEGER",
@@ -147,12 +149,13 @@ var EXPORTED_SYMBOLS = [
         "TEXT_NODE",
 
         // Services
+        "CH",
         "CS",
+        "FH",
         "IDNS",
         "IOS",
+        "OS",
         "PB",
-        "CH",
-        "FH",
         "SB",
         "UUIDG"
     ];
@@ -175,6 +178,8 @@ const TYPE_CONTENT_WHITELIST = 3;
 const TYPE_CONTENT_BLACKLIST = 4;
 const TYPE_CONTENT_REDIRECT = 5;
 const TYPE_PAGE_REDIRECT = 6;
+const TYPE_PAGE_EXTENSION = 7;
+const TYPE_PAGE_EXTENDED_BY = 8;
 
 const DATA_TYPE_BOOLEAN = 0;
 const DATA_TYPE_INTEGER = 1;
@@ -289,12 +294,13 @@ const ATTRIBUTE_NODE = 2;
 const TEXT_NODE = 3;
 
 // Services
+const CH = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
 const CS = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
+const FH = Cc["@mozilla.org/satchel/form-history;1"].getService(Ci.nsIFormHistory2);
 const IDNS = Cc["@mozilla.org/network/idn-service;1"].getService(Ci.nsIIDNService);
 const IOS = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+const OS = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
 const PB = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
-const CH = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
-const FH = Cc["@mozilla.org/satchel/form-history;1"].getService(Ci.nsIFormHistory2);
 const SB = Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService);
 const UUIDG = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
 

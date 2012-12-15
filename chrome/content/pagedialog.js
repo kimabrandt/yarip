@@ -36,7 +36,6 @@ function YaripPageDialog()
 
     this.tab = null;
     this.tabs = null;
-    this.userSelect = false;
 
     this.page = null;
     this.doReload = true;
@@ -85,11 +84,6 @@ function YaripPageDialog()
             }
             break;
         }
-    }
-
-    this.setUserSelect = function(value)
-    {
-        this.userSelect = value != false;
     }
 
     this.getPageByIndex = function(index)
@@ -176,7 +170,6 @@ function YaripPageDialog()
             }
             for (var key in keys) fromList.removeByKey(key);
             this.refreshTab(this.tab, true);
-            this.setUserSelect();
             break;
         case "pageExtensionList":
             var fromList = this.tabs[this.tab].list;
@@ -202,7 +195,6 @@ function YaripPageDialog()
                 yarip.map.removeExtension(page, item);
             }
             this.refreshTab(this.tab, true);
-            this.setUserSelect();
             break;
         default:
             return;
@@ -246,7 +238,6 @@ function YaripPageDialog()
                     toList.add(fromList.getByKey(key).clone(), null, true);
                 }
             }
-            this.setUserSelect();
         default:
             return;
         }
@@ -274,15 +265,17 @@ function YaripPageDialog()
         var currentIndex = this.tabs[this.tab].tree.currentIndex;
         if (currentIndex < 0) return;
 
-        var pageName = this.tabs[this.tab].list.get(currentIndex, 0);
-        this.reloadPage(pageName, false, true, true, true);
+        var oldTab = this.tab;
+        var toPageName = this.tabs[this.tab].list.get(currentIndex, 0);
 
-        switch (this.tab) {
+        switch (oldTab) {
         case "pageExtensionList":
-            this.pageTabbox.selectedIndex = INDEX_PAGE_EXTENDED_BY;
+            var key = this.getPageByName(toPageName).pageExtendedByList.getById(this.getPageByIndex().getId()).getKey();
+            this.reloadPage(toPageName, false, true, true, true, TYPE_PAGE_EXTENDED_BY, key);
             break;
         case "pageExtendedByList":
-            this.pageTabbox.selectedIndex = INDEX_PAGE_EXTENSION;
+            var key = this.getPageByName(toPageName).pageExtensionList.getById(this.getPageByIndex().getId()).getKey();
+            this.reloadPage(toPageName, false, true, true, true, TYPE_PAGE_EXTENSION, key);
             break;
         }
     }
@@ -769,50 +762,63 @@ function YaripPageDialog()
         this.contentHeaderTabbox.selectedIndex = 0;
         this.pageHeaderTabbox.selectedIndex = 0;
 
-        if (typeof type === "number") {
-            var tab = null;
+        if (typeof type !== "number") {
+            this.tabbox.selectedIndex = selectedIndex;
+            return;
+        }
 
-            switch (type) {
-            case TYPE_CONTENT_WHITELIST:
-                tab = "contentWhitelist";
-                this.contentTabbox.selectedIndex = INDEX_CONTENT_WHITELIST;
-                selectedIndex = INDEX_TABBOX_CONTENT;
-                if (!key) {
-                    var tree = this.tabs[tab].tree;
-                    tree.view.selection.clearSelection();
-                    document.getElementById("contentWhitelist-exclusive").focus();
-                }
-                break;
-            case TYPE_CONTENT_BLACKLIST:
-                tab = "contentBlacklist";
-                this.contentTabbox.selectedIndex = INDEX_CONTENT_BLACKLIST;
-                selectedIndex = INDEX_TABBOX_CONTENT;
-                break;
-            case TYPE_CONTENT_REDIRECT:
-                tab = "contentRedirectList";
-                this.contentTabbox.selectedIndex = INDEX_CONTENT_REDIRECT;
-                selectedIndex = INDEX_TABBOX_CONTENT;
-                break;
-            case TYPE_PAGE_REDIRECT:
-                tab = "pageRedirectList";
-                this.pageTabbox.selectedIndex = INDEX_PAGE_REDIRECT;
-                selectedIndex = INDEX_TABBOX_PAGE;
-                break;
+        var tab = null;
+
+        switch (type) {
+        case TYPE_CONTENT_WHITELIST:
+            tab = "contentWhitelist";
+            this.contentTabbox.selectedIndex = INDEX_CONTENT_WHITELIST;
+            selectedIndex = INDEX_TABBOX_CONTENT;
+            if (!key) {
+                var tree = this.tabs[tab].tree;
+                tree.view.selection.clearSelection();
+                document.getElementById("contentWhitelist-exclusive").focus();
             }
+            break;
+        case TYPE_CONTENT_BLACKLIST:
+            tab = "contentBlacklist";
+            this.contentTabbox.selectedIndex = INDEX_CONTENT_BLACKLIST;
+            selectedIndex = INDEX_TABBOX_CONTENT;
+            break;
+        case TYPE_CONTENT_REDIRECT:
+            tab = "contentRedirectList";
+            this.contentTabbox.selectedIndex = INDEX_CONTENT_REDIRECT;
+            selectedIndex = INDEX_TABBOX_CONTENT;
+            break;
+        case TYPE_PAGE_REDIRECT:
+            tab = "pageRedirectList";
+            this.pageTabbox.selectedIndex = INDEX_PAGE_REDIRECT;
+            selectedIndex = INDEX_TABBOX_PAGE;
+            break;
+        case TYPE_PAGE_EXTENSION:
+            tab = "pageExtensionList";
+            this.pageTabbox.selectedIndex = INDEX_PAGE_EXTENSION;
+            selectedIndex = INDEX_TABBOX_PAGE;
+            break;
+        case TYPE_PAGE_EXTENDED_BY:
+            tab = "pageExtendedByList";
+            this.pageTabbox.selectedIndex = INDEX_PAGE_EXTENDED_BY;
+            selectedIndex = INDEX_TABBOX_PAGE;
+            break;
+        }
 
-            this.tabbox.selectedIndex = selectedIndex; // before `tree.focus()'!
+        this.tabbox.selectedIndex = selectedIndex;
 
-            if (tab && key) {
-                var list = this.tabs[tab].list;
-                for (var i = 0; i < list.length; i++) {
-                    if (key == list.get(i, LIST_INDEX_KEY)) {
-                        var tree = this.tabs[tab].tree;
-                        tree.currentIndex = i;
-                        tree.view.selection.select(i);
-                        if (tree.view.treebox) tree.view.treebox.ensureRowIsVisible(i);
-                        tree.focus();
-                        break;
-                    }
+        if (tab && key) {
+            var list = this.tabs[tab].list;
+            for (var i = 0; i < list.length; i++) {
+                if (key == list.get(i, LIST_INDEX_KEY)) {
+                    var tree = this.tabs[tab].tree;
+                    tree.currentIndex = i;
+                    tree.view.selection.select(i);
+                    tree.boxObject.ensureRowIsVisible(i);
+                    tree.focus();
+                    break;
                 }
             }
         }
@@ -832,6 +838,8 @@ function YaripPageDialog()
             this.view.selection.select(index);
             this.view.treebox.ensureRowIsVisible(index);
         }
+
+        return this.view.getPageByIndex(this.treePages.currentIndex);
     }
 
     this.selectPageByName = function(pageName, noResetFilter)
@@ -847,8 +855,7 @@ function YaripPageDialog()
         if (!pageName) {
             this.view.treebox.ensureRowIsVisible(0);
         } else {
-            for (var i = 0; i < this.view.getRowCount(); i++)
-            {
+            for (var i = 0; i < this.view.getRowCount(); i++) {
                 var page = this.view.getPageByIndex(i);
                 if (page.getName() == pageName) {
                     this.treePages.currentIndex = i;
@@ -1251,17 +1258,14 @@ function YaripPageDialog()
             break;
         }
 
-        if (key && (load || update))
-        {
-            if (key) {
-                for (var i = 0; i < list.length; i++) {
-                    if (key == list.get(i, LIST_INDEX_KEY)) {
-                        tree.currentIndex = i;
-                        tree.view.selection.select(i);
-                        if (tree.view.treebox) tree.view.treebox.ensureRowIsVisible(i);
-                        tree.focus();
-                        break;
-                    }
+        if (key && (load || update)) {
+            for (var i = 0; i < list.length; i++) {
+                if (key == list.get(i, LIST_INDEX_KEY)) {
+                    tree.currentIndex = i;
+                    tree.view.selection.select(i);
+                    tree.boxObject.ensureRowIsVisible(i);
+                    tree.focus();
+                    break;
                 }
             }
         }
@@ -1269,36 +1273,33 @@ function YaripPageDialog()
 
     this.reloadPage = function(pageName, refreshPages, selectPage, selectTab, resetFilter, type, key)
     {
-        var page = null;
+        var page = this.getPageByIndex();
+        var oldPageName = page ? page.getName() : null;
         if (refreshPages) {
-            if (!selectPage) {
-                page = this.getPageByIndex();
-                if (page) {
-                    pageName = page.getName();
-                    selectPage = true;
-                }
+            if (!selectPage && oldPageName) {
+                pageName = oldPageName;
+                selectPage = true;
             }
             this.refreshPages(true);
-//            this.refreshExtMenulist(true);
         }
 
-        var tab = null;
+        var diffPages = false;
         if (selectPage) {
-            page = this.getPageByName(pageName);
-            if (page) {
-//                this.resetFilter();
-//                tab = this.selectPageByName(pageName, !resetFilter);
-                page = this.selectPageByName(pageName, !resetFilter);
+            if (this.getPageByName(pageName)) {
+                this.selectPageByName(pageName, !resetFilter);
+                if (pageName != oldPageName) {
+                    selectTab = true;
+                    diffPages = true;
+                }
             } else {
-//                this.selectPageByName(); // unselect
                 this.selectPageByIndex(0); // select first
                 selectTab = true;
             }
         }
 
         if (selectTab) {
-            if (type) {
-                this.selectTab(page, type, key);
+            if (type || diffPages) {
+                this.selectTab(this.getPageByName(pageName), type, key);
             } else {
                 this.refreshTab(null, true);
             }
@@ -1530,7 +1531,13 @@ function YaripPageDialog()
 
         if (pageName) {
             var page = this.selectPageByName(pageName);
-            this.selectTab(page, type, key);
+            if (page) {
+                this.selectTab(page, type, key);
+            } else {
+                this.selectTab(this.selectPageByIndex(0));
+            }
+        } else {
+            this.selectTab(this.selectPageByIndex(0));
         }
     }
 

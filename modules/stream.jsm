@@ -113,8 +113,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
 {
     var responseSource = this.receivedData.join("");
 
-    try
-    {
+    try {
         request.QueryInterface(Ci.nsIChannel);
 
         if (request.loadFlags & LOAD_FLAG_RESPONSE) return; // FIXME
@@ -123,6 +122,9 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
          * STREAM REPLACING
          */
 
+//        var byPriority = function(a, b) { return a.getPriority() - b.getPriority(); };
+
+        // Collecting the extension-items.
         var arr = [];
 //        var tmp = [];
 //        var first = true;
@@ -144,91 +146,93 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             var item = this.addressObj.ext[pageName];
             if (item.getDoStreams()) arr.push(item);
         }
+        arr.sort(function(a, b) { return a.getPriority() - b.getPriority(); }); // FIXME
 
         var searchIndex = null;
 
-        for (var i = 0; i < arr.length; i++)
-        {
+        // Ordering the stream-items.
+        var tmpArr = [];
+        for (var i = 0; i < arr.length; i++) {
             var extItem = arr[i];
             var page = extItem.getPage();
             var list = this.isPage ? page.pageStreamList : page.contentStreamList;
-            if (list.length === 0) continue;
+            if (list.length !== 0) for each (var item in list.obj) {
+                tmpArr.push([item, extItem.isSelf()]);
+            }
+        }
+        arr = tmpArr;
+        arr.sort(function(a, b) { return a[0].getPriority() - b[0].getPriority(); });
 
-            for each (var item in list.obj)
-            {
-                try
-                {
-                    var tmp = null;
-                    if (/^\s*function\b/.test(item.getScript()))
-                    {
-                        var sandbox = new Cu.Sandbox(this.defaultView ? this.defaultView : this.location.asciiHref);
-                        if (/^\s*function\s*\(\s*matches\s*\)/.test(item.getScript())) // deprecated: script with matches-array as parameter
-                        {
-                            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_MATCHES_DEPRECATED", [], 0))); // XXX
+        // Applying the stream-items.
+        for (var i = 0; i < arr.length; i++) {
+            try {
+                var item = arr[i][0];
+                var isSelf = arr[i][1];
+                var tmp = null;
+                if (/^\s*function\b/.test(item.getScript())) {
+                    var sandbox = new Cu.Sandbox(this.defaultView ? this.defaultView : this.location.asciiHref);
+                    if (/^\s*function\s*\(\s*matches\s*\)/.test(item.getScript())) { // deprecated: script with matches-array as parameter
+                        yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_MATCHES_DEPRECATED", [], 0))); // XXX
 
-                            var matches = responseSource.match(item.getAllStreamRegExpObj());
-                            if (!matches) continue;
+                        var matches = responseSource.match(item.getAllStreamRegExpObj());
+                        if (!matches) continue;
 
-                            var isFun = false;
-                            if (/^\s*function\b/.test(item.getScript())) {
-                                sandbox.matches = matches;
-                                Cu.evalInSandbox("(" + item.getScript() + ")(matches);", sandbox);
-                                isFun = true;
-                            }
-
-//                                if (!(matches instanceof Array)) {
-//                                    yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_MATCHES_NOT_INSTANCEOF_ARRAY2", [page.getName(), item.getStreamRegExp()], 2)));
-//                                    continue;
-//                                }
-
-                            var index = 0;
-                            tmp = responseSource;
-                            for (var j = 0; j < matches.length; j++)
-                            {
-                                if (typeof matches[j] != "string") {
-                                    yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_VALUE_NOT_A_STRING3", [page.getName(), item.getStreamRegExp(), j], 3)));
-                                    continue;
-                                }
-
-                                searchIndex = tmp.substring(index).search(item.getFirstStreamRegExpObj());
-                                if (searchIndex > 0) index += searchIndex;
-                                var respBeg = tmp.substring(0, index);
-                                var respEnd = tmp.substring(index);
-                                var m = respEnd.match(item.getFirstStreamRegExpObj());
-                                var matchLength = m[0].length;
-                                var oldRespLength = tmp.length;
-                                tmp = respBeg + respEnd.replace(item.getFirstStreamRegExpObj(), isFun ? matches[j] : item.getScript());
-                                var newRespLength = tmp.length;
-                                index += matchLength + newRespLength - oldRespLength;
-                            }
+                        var isFun = false;
+                        if (/^\s*function\b/.test(item.getScript())) {
+                            sandbox.matches = matches;
+                            Cu.evalInSandbox("(" + item.getScript() + ")(matches);", sandbox);
+                            isFun = true;
                         }
-                        else // replace with function as parameter
-                        {
-                            sandbox.responseSource = responseSource;
-                            sandbox.regexp = item.getStreamRegExpObj();
-                            tmp = Cu.evalInSandbox("responseSource.replace(regexp, " + item.getScript() + "\n);", sandbox);
 
-                            if (typeof tmp != "string") {
-                                yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_VALUE_NOT_A_STRING2", [page.getName(), item.getStreamRegExp()], 2)));
+//                        if (!(matches instanceof Array)) {
+//                            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_MATCHES_NOT_INSTANCEOF_ARRAY2", [page.getName(), item.getStreamRegExp()], 2)));
+//                            continue;
+//                        }
+
+                        var index = 0;
+                        tmp = responseSource;
+                        for (var j = 0; j < matches.length; j++) {
+                            if (typeof matches[j] != "string") {
+                                yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_VALUE_NOT_A_STRING3", [page.getName(), item.getStreamRegExp(), j], 3)));
                                 continue;
                             }
+
+                            searchIndex = tmp.substring(index).search(item.getFirstStreamRegExpObj());
+                            if (searchIndex > 0) index += searchIndex;
+                            var respBeg = tmp.substring(0, index);
+                            var respEnd = tmp.substring(index);
+                            var m = respEnd.match(item.getFirstStreamRegExpObj());
+                            var matchLength = m[0].length;
+                            var oldRespLength = tmp.length;
+                            tmp = respBeg + respEnd.replace(item.getFirstStreamRegExpObj(), isFun ? matches[j] : item.getScript());
+                            var newRespLength = tmp.length;
+                            index += matchLength + newRespLength - oldRespLength;
                         }
-                    } else {
-                        tmp = responseSource.replace(item.getStreamRegExpObj(), item.getScript());
-                    }
+                    } else { // replace with function as parameter
+                        sandbox.responseSource = responseSource;
+                        sandbox.regexp = item.getStreamRegExpObj();
+                        tmp = Cu.evalInSandbox("responseSource.replace(regexp, " + item.getScript() + "\n);", sandbox);
 
-                    if (responseSource != tmp) {
-                        responseSource = tmp;
-
-                        if (extItem.isSelf()) {
-                            item.incrementLastFound();
+                        if (typeof tmp != "string") {
+                            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_VALUE_NOT_A_STRING2", [page.getName(), item.getStreamRegExp()], 2)));
+                            continue;
                         }
-
-                        if (this.defaultView) this.defaultView.yaripStatus = "found";
                     }
-                } catch (e) {
-                    yarip.logMessage(LOG_ERROR, e);
+                } else {
+                    tmp = responseSource.replace(item.getStreamRegExpObj(), item.getScript());
                 }
+
+                if (responseSource != tmp) {
+                    responseSource = tmp;
+
+                    if (isSelf) {
+                        item.incrementLastFound();
+                    }
+
+                    if (this.defaultView) this.defaultView.yaripStatus = "found";
+                }
+            } catch (e) {
+                yarip.logMessage(LOG_ERROR, e);
             }
         }
 

@@ -63,9 +63,10 @@ Yarip.prototype = {
     contractID: "@yarip.mozdev.org;1",
     _xpcom_categories: [],
     QueryInterface: XPCOMUtils.generateQI([
-            Ci.nsIObserver,
-            Ci.nsIWebProgressListener,
-            Ci.nsISupportsWeakReference])
+        Ci.nsIObserver,
+        Ci.nsIWebProgressListener,
+        Ci.nsISupportsWeakReference
+    ])
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIObserver#observe%28%29
 Yarip.prototype.observe = function(subject, topic, data)
@@ -105,6 +106,7 @@ Yarip.prototype.getLocation = function(obj, channel, doc)
     var asciiHost = "";
     var asciiHref = "";
     var pageName = "";
+    var originCharset = "";
 
     if ("assign" in obj) { // https://developer.mozilla.org/en/DOM/window.location
         try { host = obj.host.replace(/\.+(:\d+)?$/, "$1"); } catch(e) {}
@@ -128,6 +130,8 @@ Yarip.prototype.getLocation = function(obj, channel, doc)
 //        try { asciiHost = obj.asciiHost.replace(/\.+$/, ""); } catch (e) {}
         try { asciiHref = obj.asciiSpec; } catch (e) {}
         try { pageName = protocol + "//" + asciiHost + pathname; } catch (e) {}
+//        try { originCharset = "originCharset" in obj ? obj.originCharset : "UTF-8"; } catch (e) {}
+        try { originCharset = obj.originCharset; } catch (e) {} // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIURI#Attributes
     }
 
     return {
@@ -140,6 +144,7 @@ Yarip.prototype.getLocation = function(obj, channel, doc)
         asciiHost: asciiHost,
         asciiHref: asciiHref,
         pageName: pageName.replace(/[/]*$/, ""),
+        originCharset: originCharset,
         isPage: isPage,
         isLink: isLink,
         isLocation: true
@@ -153,8 +158,7 @@ Yarip.prototype.getPageName = function(location, mode)
     if (isNaN(mode)) mode = this.mode;
 
     location = this.getLocation(location);
-    try
-    {
+    try {
         switch (mode) {
         case MODE_PAGE: return location.pageName;
         case MODE_FQDN: return location.asciiHost;
@@ -191,7 +195,7 @@ Yarip.prototype.initMobile = function()
     Cu.import("resource://yarip/list.jsm");
     Cu.import("resource://yarip/item.jsm");
     Cu.import("resource://yarip/replace.jsm");
-//        Cu.import("resource://yarip/stream.jsm");
+//    Cu.import("resource://yarip/stream.jsm");
 
     this.map = new YaripMap();
 
@@ -223,8 +227,7 @@ Yarip.prototype.initContentPolicy = function()
     } catch (e) {
         Cu.reportError(e);
     }
-    const categoryManager = XPCOMUtils.categoryManager;
-    categoryManager.addCategoryEntry("content-policy", yaripContentPolicy.classDescription, yaripContentPolicy.contractID, false, true);
+    XPCOMUtils.categoryManager.addCategoryEntry("content-policy", yaripContentPolicy.classDescription, yaripContentPolicy.contractID, false, true);
 }
 Yarip.prototype.toggleEnabled = function(enabled)
 {
@@ -264,7 +267,7 @@ Yarip.prototype.setMode = function(mode)
 Yarip.prototype.setUseIndex = function(value)
 {
     value = Number(value);
-    if (!isNaN(value) && [0, 1, 2].indexOf(value) > -1) {
+    if (!isNaN(value) && value >= 0 && value <= 2) {
         this.useIndex = value;
     }
 }
@@ -277,11 +280,11 @@ Yarip.prototype.setElementsInContext = function(value)
 }
 Yarip.prototype.setPurgeInnerHTML = function(value)
 {
-    if (value == true || value == false) this.purgeInnerHTML = value;
+    if (typeof value === "boolean") this.purgeInnerHTML = value;
 }
 Yarip.prototype.setExclusiveOnCreation = function(value)
 {
-    if (value == true || value == false) this.exclusiveOnCreation = value;
+    if (typeof value === "boolean") this.exclusiveOnCreation = value;
 }
 Yarip.prototype.setTemplates = function(value)
 {
@@ -298,11 +301,11 @@ Yarip.prototype.setSchemes = function(value)
 }
 Yarip.prototype.setMatchAuthorityPort = function(value)
 {
-    if (value == true || value == false) this.matchAuthorityPort = value;
+    if (typeof value === "boolean") this.matchAuthorityPort = value;
 }
 Yarip.prototype.setPrivateBrowsing = function(value)
 {
-    if (value == true || value == false) this.privateBrowsing = value;
+    if (typeof value === "boolean") this.privateBrowsing = value;
 }
 Yarip.prototype.toggleLogWhenClosed = function(logWhenClosed)
 {
@@ -668,8 +671,6 @@ Yarip.prototype.resetOnAddress = function(obj)
             switch (element.getAttribute("status")) {
             case "whitelisted":
             case "blacklisted":
-            case "placeholder":
-            case "placeholder blacklisted":
                 element.removeAttribute("status");
                 break;
             }
@@ -720,8 +721,6 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
         switch (element.getAttribute("status")) {
         case "whitelisted":
         case "blacklisted":
-        case "placeholder":
-        case "placeholder blacklisted":
             incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
             continue;
         }
@@ -798,47 +797,35 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
                   incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
                   continue;
                 }
-            case "placeholder":
-            case "placeholder blacklisted":
-                if (item.getPlaceholder()) {
-                  incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
-                  continue;
-                } else {
-                    break;
-                }
             case "blacklisted":
               incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
               continue;
             }
 
-            if (item.getPlaceholder()) {
-                element.setAttribute("status", "placeholder");
-            } else {
-                element.setAttribute("status", "blacklisted");
-                if (this.purgeInnerHTML && !isNew)
-                {
-                    switch (element.localName) {
-                    case "audio":
-                    case "embed":
-                    case "iframe":
-                    case "script":
-                    case "video":
+            element.setAttribute("status", "blacklisted");
+            if (this.purgeInnerHTML && !isNew) {
+                switch (element.localName) {
+                case "audio":
+                case "embed":
+                case "iframe":
+                case "script":
+                case "video":
+                    element.setAttribute("src", "");
+                    break;
+                case "frame":
+                    if (element.parentNode.localName != "frameset") {
                         element.setAttribute("src", "");
-                        break;
-                    case "frame":
-                        if (element.parentNode.localName != "frameset") {
-                            element.setAttribute("src", "");
-                        }
-                        break;
-                    case "object":
-                        element.setAttribute("data", "");
-                        break;
                     }
-                    element.innerHTML = "";
+                    break;
+                case "object":
+                    element.setAttribute("data", "");
+                    break;
                 }
+                element.innerHTML = "";
             }
         case ATTRIBUTE_NODE:
             if (node.ownerElement) node.ownerElement.removeAttribute(node.name);
+            if (i === 0) this.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_ATTRIBUTE_DEPRECATED", [], 0))); // XXX
             break;
         case TEXT_NODE:
             if (node.parentNode) node.parentNode.removeChild(node);
@@ -936,26 +923,30 @@ Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, incremen
 {
     if (!doc || !pageName) return false;
 
-    var elements = this.getNodesByXPath(doc, item.getXPath(), ELEMENT_NODE);
+    var elements = this.getNodesByXPath(doc, item.getXPath() || "//*", ELEMENT_NODE);
     var found = elements.length > 0;
     var incrementType = INCREMENT_NOT_FOUND;
 
     for (var i = 0; i < elements.length; i++) {
         var element = elements[i];
-        switch (item.getName()) {
-        case "style":
-            var style = element.getAttribute(item.getName());
-            if (style) {
-                if (style.indexOf(item.getValue()) === -1) {
-                    element.setAttribute(item.getName(), style + item.getValue());
+        if (item.getRemove()) {
+            element.removeAttribute(item.getName());
+        } else {
+            switch (item.getName()) {
+            case "style":
+                var style = element.getAttribute(item.getName());
+                if (style) {
+                    if (style.indexOf(item.getValue()) === -1) {
+                        element.setAttribute(item.getName(), style + item.getValue());
+                    }
+                } else {
+                    element.setAttribute(item.getName(), item.getValue());
                 }
-            } else {
+                break;
+            default:
                 element.setAttribute(item.getName(), item.getValue());
+                break;
             }
-            break;
-        default:
-            element.setAttribute(item.getName(), item.getValue());
-            break;
         }
 
         incrementType = INCREMENT_FOUND;
@@ -1171,13 +1162,13 @@ Yarip.prototype.checkPageName = function(value)
 {
     return URI_SIMPLE_RE.test(value);
 }
-Yarip.prototype.checkXPath = function(xpath)
+Yarip.prototype.checkXPath = function(value, allowEmpty)
 {
-    if (!xpath) return false;
+    if (!value) return allowEmpty && typeof value === "string"; 
     try {
         var dp = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
         var doc = dp.parseFromString("<yarip></yarip>", "application/xml");
-        doc.evaluate(xpath, doc, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        doc.evaluate(value, doc, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
         return true;
     } catch (e) {
         return false;
@@ -1185,7 +1176,7 @@ Yarip.prototype.checkXPath = function(xpath)
 }
 Yarip.prototype.checkRegExp = function(value, allowEmpty)
 {
-    if (!value && (!allowEmpty || !(typeof value == "string"))) return false;
+    if (!value) return allowEmpty && typeof value === "string"; 
     try {
         new RegExp(value).test("");
         return true;
@@ -1465,7 +1456,6 @@ Yarip.prototype.load = function(file, imported)
                         nXPath.getAttribute("style"),
                         null, // priority
                         nXPath.getAttribute("force") == "true",
-                        null, // placeholder
                         pageId, // created
                         null, // lastFound
                         nXPath.getAttribute("found"),
@@ -1504,7 +1494,6 @@ Yarip.prototype.load = function(file, imported)
                         nElement.getAttribute("style"),
                         null, // priority
                         nElement.getAttribute("force") == "true",
-                        null, // placeholder
                         pageId, // created
                         null, // lastFound
                         nElement.getAttribute("found"),
@@ -1604,6 +1593,7 @@ Yarip.prototype.load = function(file, imported)
                         "style",
                         nElement.getAttribute("style"),
                         null, // priority
+                        null, // remove
                         pageId, // created
                         null, // lastFound
                         nElement.getAttribute("found"),
@@ -1627,6 +1617,7 @@ Yarip.prototype.load = function(file, imported)
                         nElement.getAttribute("name"),
                         nElement.getAttribute("value"),
                         null, // priority
+                        null, // remove
                         pageId, // created
                         nElement.getAttribute("lastFound"),
                         nElement.getAttribute("found"),
@@ -1737,7 +1728,6 @@ Yarip.prototype.load = function(file, imported)
                             nStyle ? nStyle.textContent : null,
                             null, // priority
                             nElement.getAttribute("force"),
-                            null, // placeholder
                             created ? created : pageId,
                             nElement.getAttribute("lastFound"),
                             nElement.getAttribute("found"),
@@ -1824,6 +1814,7 @@ Yarip.prototype.load = function(file, imported)
                             nName.textContent,
                             nValue.textContent,
                             null, // priority
+                            null, // remove
                             created ? created : pageId,
                             nElement.getAttribute("lastFound"),
                             nElement.getAttribute("found"),
@@ -1955,7 +1946,6 @@ Yarip.prototype.load = function(file, imported)
                                 nStyle ? nStyle.textContent : null,
                                 nItem.getAttribute("priority"),
                                 nItem.getAttribute("force"),
-                                nItem.getAttribute("placeholder"),
                                 created ? created : pageCreated,
                                 nItem.getAttribute("lastFound"),
                                 nItem.getAttribute("found"),
@@ -1970,26 +1960,25 @@ Yarip.prototype.load = function(file, imported)
                 // ELEMENT ATTRIBUTE
                 var iElementAttribute = doc.evaluate("./attribute", nElementChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nElementAttribute = iElementAttribute.iterateNext();
-                if (nElementAttribute)
-                {
+                if (nElementAttribute) {
                     var iItem = doc.evaluate("./item", nElementAttribute, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iXPath = doc.evaluate("./xpath", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nXPath = iXPath.iterateNext();
                         var iName = doc.evaluate("./name", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nName = iName.iterateNext();
                         var iValue = doc.evaluate("./value", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nValue = iValue.iterateNext();
-                        if (nXPath && nName && nValue)
-                        {
+//                        if (nXPath && nName && nValue) {
+                        if (nName) {
                             var created = nItem.getAttribute("created");
                             page.elementAttributeList.add(new YaripElementAttributeItem(
-                                nXPath.textContent,
+                                nXPath ? nXPath.textContent : null,
                                 nName.textContent,
-                                nValue.textContent,
+                                nValue ? nValue.textContent : null,
                                 nItem.getAttribute("priority"),
+                                nItem.getAttribute("remove"),
                                 created ? created : pageCreated,
                                 nItem.getAttribute("lastFound"),
                                 nItem.getAttribute("found"),
@@ -2777,7 +2766,12 @@ Yarip.prototype.getYaripScript = function()
         "    $: function(xpath) {\n" +
         "        var arr = [];\n" +
         "        var xr = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);\n" +
-        "        if (xr) for (var i = 0; i < xr.snapshotLength; i++) arr.push(xr.snapshotItem(i));\n" +
+        "        if (xr) for (var i = 0; i < xr.snapshotLength; i++) {\n" +
+        "            var e = xr.snapshotItem(i);\n" +
+        "            if (e && (e.nodeType !== 1 || !/^yarip-/.test(e.id))) {\n" +
+        "                arr.push(e);\n" +
+        "            }\n" +
+        "        }\n" +
         "        return arr;\n" +
         "    },\n" +
         "    run: function(fun, xpath) {\n" +
@@ -2790,13 +2784,11 @@ Yarip.prototype.showLinkNotification = function(doc, location, contentLocation, 
 {
     var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
     var browserEnum = wm.getEnumerator("navigator:browser");
-    while (browserEnum.hasMoreElements())
-    {
+    while (browserEnum.hasMoreElements()) {
         var browserWin = browserEnum.getNext();
         var tabBrowser = browserWin.gBrowser;
         var index = tabBrowser.getBrowserIndexForDocument(doc);
-        if (index >= 0)
-        {
+        if (index >= 0) {
             var browser = tabBrowser.getBrowserAtIndex(index);
             location = this.getLocation(location ? location : doc.location);
             contentLocation = this.getLocation(contentLocation);
@@ -2832,8 +2824,7 @@ Yarip.prototype.showLinkNotification = function(doc, location, contentLocation, 
                     },
                     label: stringBundle.GetStringFromName("STR_WHITELIST"),
                     popup: null
-                },
-                {
+                }, {
                     accessKey: stringBundle.GetStringFromName("STR_ACCESS_KEY_BLACKLIST"),
                     callback: function() {
                         var pageName = yarip.getFirstAddress(location.asciiHref, true);
@@ -2861,8 +2852,7 @@ Yarip.prototype.showLinkNotification = function(doc, location, contentLocation, 
                     },
                     label: stringBundle.GetStringFromName("STR_BLACKLIST"),
                     popup: null
-                },
-                {
+                }, {
                     accessKey: stringBundle.GetStringFromName("STR_ACCESS_KEY_EXTEND"),
                     callback: function() {
                         var pageName = yarip.getFirstAddress(location.asciiHref, true);
@@ -2908,8 +2898,7 @@ Yarip.prototype.showLinkNotification = function(doc, location, contentLocation, 
                     },
                     label: stringBundle.GetStringFromName("STR_EXTEND"),
                     popup: null
-                },
-                {
+                }, {
                     accessKey: stringBundle.GetStringFromName("STR_ACCESS_KEY_OPEN"),
                     callback: function() { openLocation(contentLocation.href); },
 //                    callback: function() { doc.location = contentLocation.href; },

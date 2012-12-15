@@ -10,19 +10,4 @@ html > body [status~="highlighted"] {
 outline: 3px solid #000099 !important;
 }
 
-/* Replacing an element with a placeholder. */
-html > body [status~="placeholder"]:not([status~="blacklisted"]) {
--moz-binding: url("chrome://yarip/content/binding/placeholder.xbl#replace");
-}
-
-/* Hiding a placeholder when its element is visible. */
-html > body [status~="whitelisted"] + div[class~="placeholder"][status~="whitelisted"] {
-display: none !important;
-}
-
-/* Hiding a placeholder when its element is blacklisted. */
-html > body [status~="blacklisted"]:not([status~="placeholder"]) + div[class~="placeholder"][status~="whitelisted"] {
-display: none !important;
-}
-
 }

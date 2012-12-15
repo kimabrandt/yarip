@@ -20,6 +20,7 @@
 
 function YaripAttributeDialog()
 {
+    this.sb = null;
     this.pageMenulist = null;
     this.xpathTextbox = null;
     this.attrNameTextbox = null;
@@ -36,14 +37,14 @@ function YaripAttributeDialog()
 
     this.setAttrName = function(value)
     {
-        if (!this.obj) return;
+        if (!this.obj || !value) return;
         this.obj.attrName = value;
         if (this.obj.node) this.setAttrValue(this.obj.node.getAttribute(value), true);
     }
 
     this.setAttrValue = function(value, update)
     {
-        if (!this.obj || !value) return;
+        if (!this.obj || typeof value !== "string") return; // allow null
         this.obj.attrValue = value;
         if (update) this.attrValueTextbox.value = value;
     }
@@ -82,7 +83,7 @@ function YaripAttributeDialog()
         this.obj = window.arguments[1];
         if (!this.obj) return;
 
-        this.stringbundle = document.getElementById("style-dialog-stringbundle");
+        this.sb = document.getElementById("style-dialog-stringbundle");
         this.pageMenulist = document.getElementById("page");
         this.xpathTextbox = document.getElementById("xpath");
         this.attrNameTextbox = document.getElementById("attrName");
@@ -130,24 +131,26 @@ function YaripAttributeDialog()
     {
         if (this.doc) {
             this.unHighlight(this.doc, this.xpath);
-            if (!this.obj || !this.obj.attrName || this.obj.attrName === "") return;
+            if (!this.obj || !this.obj.attrName) return;
 
             this.obj.pageName = this.pageMenulist.value;
 
-            var elements = yarip.getElements(this.doc, this.obj.item.getXPath());
-            if (!elements) {
-                alert(this.sb.getString("ERR_INVALID_XPATH"));
-                throw new Error(this.sb.getFormattedString("ERR_INVALID_XPATH1", [xpath]));
+            if (this.obj.item.getXPath()) {
+                var elements = yarip.getElements(this.doc, this.obj.item.getXPath());
+                if (!elements) {
+                    alert(this.sb.getString("ERR_INVALID_XPATH"));
+                    throw new Error(this.sb.getFormattedString("ERR_INVALID_XPATH1", [xpath]));
+                }
             }
         } else {
             if (!this.obj) return;
-            if (!yarip.checkXPath(this.obj.item.getXPath())) {
+            if (!yarip.checkXPath(this.obj.item.getXPath(), true)) {
                 alert(this.sb.getString("ERR_INVALID_XPATH"));
                 throw new Error(this.sb.getFormattedString("ERR_INVALID_XPATH1", [xpath]));
             }
         }
 
-        FH.addEntry("xpath", this.obj.item.getXPath());
+        if (this.obj.item.getXPath()) FH.addEntry("xpath", this.obj.item.getXPath());
         FH.addEntry("attribute_name", this.obj.attrName);
         FH.addEntry("attribute_value", this.obj.attrValue);
 

@@ -82,9 +82,11 @@ function YaripHandler(doc, stopCallback, statusCallback)
     {
         if (!this.active || !this.doc) return false;
 
-        this.doc.removeEventListener("mouseover", this, false);
-        this.doc.removeEventListener("mouseout", this, false);
-        this.doc.removeEventListener("mousedown", this, false);
+        try {
+            this.doc.removeEventListener("mouseover", this, false);
+            this.doc.removeEventListener("mouseout", this, false);
+            this.doc.removeEventListener("mousedown", this, false);
+        } catch (e) {}
 
         if (this.handlers.length > 0) for (var i = 0; i < this.handlers.length; i++) if (this.handlers[i].stop()) this.changesMade = true;
         this.handlers = [];
@@ -92,6 +94,7 @@ function YaripHandler(doc, stopCallback, statusCallback)
         if (this.hasWhitelist && !this.hasBlacklist) yarip.removeAllExceptWhitelisted(this.doc, this.pageName);
 
         this.reset();
+        this.doc = null;
         this.active = false;
 
         return this.changesMade;
@@ -264,10 +267,12 @@ function YaripHandler(doc, stopCallback, statusCallback)
     {
         clearTimeout(this.timeout);
 
-        if (this.element && this.element.nodeType != 2) {
-            this.element.style.outline = this.outline;
-            if (this.element.getAttribute("style") === "") this.element.removeAttribute("style");
-        }
+        try {
+            if (this.element && this.element.nodeType != 2) {
+                this.element.style.outline = this.outline;
+                if (this.element.getAttribute("style") === "") this.element.removeAttribute("style");
+            }
+        } catch(e) {}
 
         this.element = null;
         this.xpath = null;

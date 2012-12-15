@@ -1,3 +1,40 @@
+2012-12-15  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/{handler,overlay}.js (this.doc, this.element): Catching
+    and thereby ignoring the TypeError `can't access dead object'.
+
+    * chrome/content/overlay.js, modules/{item,yarip}.jsm (placeholder):
+    Removing the `placeholder'-feature in favor of the Mozilla
+    `Click to Play'-feature.
+
+    * chrome/content/pagedialog.{xul,js} (setUserSelect): Removing the
+    `setUserSelect'-functionality.
+
+    * chrome/content/pagedialog.js (refreshTab): Selecting and ensuring that
+    a rule is visible.
+
+    * chrome/content/styledialog.js (setAttrValue): Allowing empty
+    attribute-values.
+
+    * modules/{item,list}.jsm (*Remove): Allowing the removal of element-
+    attributes by the `Remove'-checkbox for the `Element > Attribute'-
+    feature, due to the deprecation of the `Attr.ownerElement'-function.
+
+    * modules/loader.jsm (ref): Fixed the reference-problem when calling the
+    loader-object from inside the `traverse'-function.
+
+    * modules/{object,yarip}.jsm (checkXPath): Allowing empty XPath-values.
+
+    * modules/observer.jsm: Doing the `Location'-header (redirect) after the
+    `Response'-headers manipulation, to allow modification of the headers
+    before redirecting.
+
+    * modules/stream.jsm (STREAM REPLACING): Modifying the order of items by
+    sorting pages and items by their priority; additionally to the natural
+    order (first root-items and then extended-items).
+
+    * modules/yarip.jsm (getYaripScript): Ignoring yarip-elements.
+
 2012-11-25  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/binding/placeholder.xbl (src): Setting the `src'-
@@ -21,7 +58,7 @@
     page-redirect tab when choosing `Goto' from the context-menu.
 
     * chrome/content/pagedialog.xul (selectAll): Allow to select all items
-    in a list by pressing <CTRL> + <a>.
+    in a list by pressing <ctrl> + <a>.
 
     * : Reformatted the license-header for some source-files.
 
@@ -213,6 +250,8 @@
     * modules/item.jsm (*ScriptItem): Allowing reinjection of scripts.
 
 2012-07-15  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.3.3.xpi
 
     * chrome/content/pagedialog.js (doPaste): Using the `map.addExtension'-
     function for adding the pageExtension-items.

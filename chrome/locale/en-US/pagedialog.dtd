@@ -22,7 +22,6 @@
 <!ENTITY tab.label.blacklist                 "Blacklist">
 <!ENTITY tab.label.attribute                 "Attribute">
 <!ENTITY tab.label.script                    "Script">
-<!ENTITY tab.label.placeholder               "Placeholder">
 <!ENTITY tab.label.header                    "Header">
 <!ENTITY tab.label.request                   "Request">
 <!ENTITY tab.label.response                  "Response">
@@ -41,6 +40,7 @@
 <!ENTITY treecol.label.newsubstr             "New substring">
 <!ENTITY treecol.label.attrName              "Attribute name">
 <!ENTITY treecol.label.attrValue             "Attribute value">
+<!ENTITY treecol.label.remove                "Remove">
 <!ENTITY treecol.label.reinject              "Reinject">
 <!ENTITY treecol.tooltiptext.reinject        "Reinject when elements are added dynamically.">
 <!ENTITY treecol.label.headerName            "Header name">
@@ -50,8 +50,6 @@
 <!ENTITY treecol.label.force                 "Force">
 <!ENTITY treecol.tooltiptext.forceWhitelist  "Force whitelisting (ignore blacklist).">
 <!ENTITY treecol.tooltiptext.forceBlacklist  "Force blacklisting (ignore whitelist).">
-<!ENTITY treecol.label.placeholder           "Placeholder">
-<!ENTITY treecol.tooltiptext.placeholder     "Replace with a placeholder.">
 <!ENTITY treecol.label.priority              "Priority">
 <!ENTITY treecol.label.merge                 "Merge">
 <!ENTITY treecol.label.created               "Created">

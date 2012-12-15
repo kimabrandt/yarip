@@ -23,6 +23,8 @@ const Ci = Components.interfaces;
 const Cu = Components.utils;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+const yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
+Cu.import("resource://yarip/constants.jsm");
 
 function YaripAppStartupService() {
 }
@@ -38,18 +40,14 @@ YaripAppStartupService.prototype.observe = function(subject, topic, data)
 {
     switch (topic) {
     case "app-startup":
-        Cc["@mozilla.org/observer-service;1"].
-            getService(Ci.nsIObserverService).
-            addObserver(this, "profile-after-change", true);
+        OS.addObserver(this, "profile-after-change", true);
         break;
     case "profile-after-change":
         var appInfo = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
         var isMobile = appInfo.ID === "{a23983c0-fd0e-11dc-95ff-0800200c9a66}";
 //        if (!isMobile) {
-            var yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
-            Cc["@mozilla.org/observer-service;1"].
-                getService(Ci.nsIObserverService).
-                addObserver(yarip, "quit-application", true);
+//            var yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
+            OS.addObserver(yarip, "quit-application", true);
             yarip.setMobile(isMobile);
             yarip.init();
 //        }

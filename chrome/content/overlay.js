@@ -738,7 +738,7 @@ function YaripOverlay()
                         if ("getAttribute" in node) {
                             if (!node.parentNode) continue;
                             if (/^(firebug|yarip)/.test(node.getAttribute("class"))) continue;
-                            if (/\b(blacklisted|highlighted|placeholder|whitelisted\b)/.test(node.getAttribute("status"))) continue;
+                            if (/\b(blacklisted|highlighted|whitelisted)\b/.test(node.getAttribute("status"))) continue;
 
                             doc.defaultView.yaripMutationObserverTimeout = setTimeout(function() { ref.domContentLoaded(doc, ref, true); }, 1000);
                             return;
@@ -1095,41 +1095,39 @@ function YaripOverlay()
     {
         if (!doc) return;
 
-        if (yarip.enabled)
-        {
-            if (!status)
-            {
-                status = doc.defaultView && doc.defaultView.yaripStatus ? doc.defaultView.yaripStatus : null;
-                switch (status)
-                {
-                    case "enabled":
-                    case "stopped":
-                    case "found":
-                        break;
-
-                    case "disabled":
-                    case "started":
-                        if (this.active) break;
-
-                    default:
-                        status = "enabled";
+        if (yarip.enabled) {
+            if (!status) {
+                try {
+                    status = doc.defaultView && doc.defaultView.yaripStatus ? doc.defaultView.yaripStatus : null;
+                } catch(e) {}
+                switch (status) {
+                case "enabled":
+                case "stopped":
+                case "found":
+                    break;
+                case "disabled":
+                case "started":
+                    if (this.active) break;
+                default:
+                    status = "enabled";
                 }
             }
         } else {
             status = "disabled";
         }
 
-        if (doc.defaultView) {
-            doc.defaultView.yaripStatus = status;
-        }
-
-        if (doc === this.gBrowser.contentWindow.document)
-        {
-            var toolbarbutton = document.getElementById("yarip-toolbarbutton");
-            if (toolbarbutton) {
-                document.getElementById("yarip-toolbarbutton").setAttribute("status", status);
-                document.getElementById("yarip-toolbarbutton").setAttribute("tooltiptext", this.stringbundle.getString("status-" + status));
+        try {
+            if (doc.defaultView) {
+                doc.defaultView.yaripStatus = status;
             }
-        }
+
+            if (doc === this.gBrowser.contentWindow.document) {
+                var toolbarbutton = document.getElementById("yarip-toolbarbutton");
+                if (toolbarbutton) {
+                    toolbarbutton.setAttribute("status", status);
+                    toolbarbutton.setAttribute("tooltiptext", this.stringbundle.getString("status-" + status));
+                }
+            }
+        } catch(e) {}
     }
 }

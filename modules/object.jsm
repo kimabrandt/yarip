@@ -39,9 +39,9 @@ YaripObject.prototype.getPageById = function(id)
 {
     return yarip.map.getById(id);
 }
-YaripObject.prototype.checkXPath = function(value)
+YaripObject.prototype.checkXPath = function(value, allowEmpty)
 {
-    return yarip.checkXPath(value);
+    return yarip.checkXPath(value, allowEmpty);
 }
 YaripObject.prototype.checkRegExp = function(value, allowEmpty)
 {
