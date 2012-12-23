@@ -116,39 +116,19 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
     try {
         request.QueryInterface(Ci.nsIChannel);
 
-        if (request.loadFlags & LOAD_FLAG_RESPONSE) return; // FIXME
+        if ((request.loadFlags & LOAD_FLAG_RESPONSE) !== 0) return; // FIXME
 
         /*
          * STREAM REPLACING
          */
 
-//        var byPriority = function(a, b) { return a.getPriority() - b.getPriority(); };
-
         // Collecting the extension-items.
         var arr = [];
-//        var tmp = [];
-//        var first = true;
-//        this.addressObj.root.traverse(function (item) {
-////            if (item.isSelf() || item.getDoStreams()) arr.push(item);
-//            if (item.isSelf()) {
-//                if (first) {
-//                    arr.push(item);
-//                    first = false;
-//                } else {
-//                    tmp.push(item); // added to the end
-//                }
-//            } else if (item.getDoStreams()) {
-//                arr.push(item);
-//            }
-//        });
-//        arr = arr.concat(tmp);
         for (var pageName in this.addressObj.ext) {
             var item = this.addressObj.ext[pageName];
             if (item.getDoStreams()) arr.push(item);
         }
-        arr.sort(function(a, b) { return a.getPriority() - b.getPriority(); }); // FIXME
-
-        var searchIndex = null;
+        arr.sort(function(a, b) { return a.getPriority() - b.getPriority(); });
 
         // Ordering the stream-items.
         var tmpArr = [];
@@ -156,18 +136,20 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             var extItem = arr[i];
             var page = extItem.getPage();
             var list = this.isPage ? page.pageStreamList : page.contentStreamList;
-            if (list.length !== 0) for each (var item in list.obj) {
-                tmpArr.push([item, extItem.isSelf()]);
+            if (list.length !== 0) {
+                for each (var item in list.obj) {
+                    tmpArr.push({ "item": item, "isSelf": extItem.isSelf() });
+                }
             }
         }
         arr = tmpArr;
-        arr.sort(function(a, b) { return a[0].getPriority() - b[0].getPriority(); });
+        arr.sort(function(a, b) { return a.item.getPriority() - b.item.getPriority(); });
 
         // Applying the stream-items.
         for (var i = 0; i < arr.length; i++) {
             try {
-                var item = arr[i][0];
-                var isSelf = arr[i][1];
+                var item = arr[i].item;
+                var isSelf = arr[i].isSelf;
                 var tmp = null;
                 if (/^\s*function\b/.test(item.getScript())) {
                     var sandbox = new Cu.Sandbox(this.defaultView ? this.defaultView : this.location.asciiHref);
@@ -197,7 +179,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
                                 continue;
                             }
 
-                            searchIndex = tmp.substring(index).search(item.getFirstStreamRegExpObj());
+                            var searchIndex = tmp.substring(index).search(item.getFirstStreamRegExpObj());
                             if (searchIndex > 0) index += searchIndex;
                             var respBeg = tmp.substring(0, index);
                             var respEnd = tmp.substring(index);
@@ -245,7 +227,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         // HTML-begin
         var doctypeRegExp = /<!doctype\b[^>]*>/i;
         var htmlBegRegExp = /<\s*html\b[^>]*>/i;
-        searchIndex = responseSource.search(htmlBegRegExp);
+        var searchIndex = responseSource.search(htmlBegRegExp);
         if (searchIndex == -1) // no HTML-begin
         {
             searchIndex = responseSource.search(doctypeRegExp);
@@ -437,28 +419,39 @@ YaripResponseStreamListener.prototype.onDataAvailable = function(request, contex
     bis.setInputStream(inputStream);
     this.receivedData.push(bis.readBytes(count));
 }
+//YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count)
+//{
+//    try {
+//        var beg = 0;
+////        var end = 8191; // 8 kb
+//        var end = 98304 - 12; // ~96 kb
+//        var tmpData = data.substring(beg, end);
+//        while (tmpData != "") {
+//            var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
+//            var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
+//            count = tmpData.length;
+//            ss.init(8192, count, null);
+//            bos.setOutputStream(ss.getOutputStream(0));
+//            bos.writeBytes(tmpData, count);
+//            this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
+//            offset += count;
+//            beg = end;
+//            end += 8192;
+//            tmpData = data.substring(beg, end);
+//        }
+//    } catch (e) {
+//        yarip.logMessage(LOG_ERROR, e);
+//    }
+//}
 YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count)
 {
-    try
-    {
-        var beg = 0;
-//        var end = 8191; // 8 kb
-        var end = 98304 - 12; // ~96 kb
-        var tmpData = data.substring(beg, end);
-        while (tmpData != "")
-        {
-            var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
-            var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
-            count = tmpData.length;
-            ss.init(8192, count, null);
-            bos.setOutputStream(ss.getOutputStream(0));
-            bos.writeBytes(tmpData, count);
-            this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
-            offset += count;
-            beg = end;
-            end += 8192;
-            tmpData = data.substring(beg, end);
-        }
+    try {
+        var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
+        var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
+        ss.init(8192, count, null);
+        bos.setOutputStream(ss.getOutputStream(0));
+        bos.writeBytes(data, count);
+        this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
     } catch (e) {
         yarip.logMessage(LOG_ERROR, e);
     }

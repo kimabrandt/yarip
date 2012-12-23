@@ -138,6 +138,9 @@ var EXPORTED_SYMBOLS = [
         "ORDERED_NODE_ITERATOR_TYPE",
         "UNORDERED_NODE_SNAPSHOT_TYPE",
 
+        "NOTIFY_STATE_DOCUMENT",
+        "NOTIFY_STATE_REQUEST",
+
         // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIWebProgressListener
         "STATE_REDIRECTING",
         "STATE_START",
@@ -157,7 +160,8 @@ var EXPORTED_SYMBOLS = [
         "OS",
         "PB",
         "SB",
-        "UUIDG"
+        "UUIDG",
+        "WP"
     ];
 
 const Cc = Components.classes;
@@ -283,6 +287,10 @@ const DOCUMENT_NODE = Ci.nsIDOMNode.DOCUMENT_NODE;
 const ORDERED_NODE_ITERATOR_TYPE = Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE;
 const UNORDERED_NODE_SNAPSHOT_TYPE = Ci.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE;
 
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIWebProgress
+const NOTIFY_STATE_DOCUMENT = Ci.nsIWebProgress.NOTIFY_STATE_DOCUMENT;
+const NOTIFY_STATE_REQUEST = Ci.nsIWebProgress.NOTIFY_STATE_REQUEST;
+
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIWebProgressListener
 const STATE_REDIRECTING = Ci.nsIWebProgressListener.STATE_REDIRECTING;
 const STATE_START = Ci.nsIWebProgressListener.STATE_START;
@@ -303,4 +311,5 @@ const OS = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverServic
 const PB = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
 const SB = Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService);
 const UUIDG = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
+const WP = Cc['@mozilla.org/docloaderservice;1'].getService(Ci.nsIWebProgress);
 

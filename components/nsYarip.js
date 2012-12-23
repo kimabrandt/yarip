@@ -46,26 +46,20 @@ YaripAppStartupService.prototype.observe = function(subject, topic, data)
         var appInfo = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
         var isMobile = appInfo.ID === "{a23983c0-fd0e-11dc-95ff-0800200c9a66}";
 //        if (!isMobile) {
-//            var yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
             OS.addObserver(yarip, "quit-application", true);
             yarip.setMobile(isMobile);
             yarip.init();
 //        }
-        Cu.import("resource://yarip/observer.jsm", null).wrappedJSObject.init();
+
+        var observer = Cu.import("resource://yarip/observer.jsm", null).wrappedJSObject;
+        observer.init();
 
         var webProgressListener = Cu.import("resource://yarip/webProgressListener.jsm", null).wrappedJSObject;
-        Cc['@mozilla.org/docloaderservice;1'].
-                getService(Ci.nsIWebProgress).
-                addProgressListener(webProgressListener, Ci.nsIWebProgress.NOTIFY_STATE_DOCUMENT | Ci.nsIWebProgress.NOTIFY_STATE_REQUEST);
+        WP.addProgressListener(webProgressListener, NOTIFY_STATE_DOCUMENT | NOTIFY_STATE_REQUEST);
         break;
     }
 }
 
-//if (XPCOMUtils.generateNSGetFactory) {
-    // https://developer.mozilla.org/en/JavaScript_code_modules/XPCOMUtils.jsm#generateNSGetFactory%28%29
-    const NSGetFactory = XPCOMUtils.generateNSGetFactory([YaripAppStartupService]);
-//} else {
-//    // https://developer.mozilla.org/en/JavaScript_code_modules/XPCOMUtils.jsm#generateNSGetModule%28%29
-//    const NSGetModule = XPCOMUtils.generateNSGetModule([YaripAppStartupService]);
-//}
+// https://developer.mozilla.org/en/JavaScript_code_modules/XPCOMUtils.jsm#generateNSGetFactory%28%29
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([YaripAppStartupService]);
 

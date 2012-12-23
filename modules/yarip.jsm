@@ -1155,7 +1155,6 @@ Yarip.prototype.getNodesByXPath = function(doc, xpath, nodeType)
 Yarip.prototype.generateRegExp = function(value)
 {
     if (!value) return null;
-//    return "^" + value.replace(/([/.*+?|()\[\]{}\\])/g, "\\$1") + "$";
     return "^" + value.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + "$";
 }
 Yarip.prototype.checkPageName = function(value)

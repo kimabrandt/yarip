@@ -46,7 +46,7 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
     if (!yarip.enabled) return;
     if (!webProgress.isLoadingDocument) return;
     if (!(request instanceof Ci.nsIHttpChannel)) return;
-    if ((STATE_START & stateFlags) !== STATE_START && (STATE_REDIRECTING & stateFlags) !== STATE_REDIRECTING) return;
+    if ((stateFlags & STATE_START & STATE_REDIRECTING) !== 0) return;
 
     request.QueryInterface(Ci.nsIHttpChannel);
 
@@ -58,7 +58,6 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
     var location = yarip.getLocation(doc.location, request, doc);
     if (!location) return;
 
-    var isPage = location.isPage;
     var isLink = location.isLink;
     if (isLink && !yarip.privateBrowsing) return;
 
@@ -72,19 +71,19 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
     var statusObj = yarip.shouldBlacklist(addressObj, contentLocation.asciiHref, doc.defaultView, isLink ? DO_LINKS : DO_CONTENTS);
     switch (statusObj.status) {
     case STATUS_UNKNOWN:
-        if (!isPage && (STATE_REDIRECTING & stateFlags) === STATE_REDIRECTING) {
+        if (!location.isPage && (stateFlags & STATE_REDIRECTING) !== 0) {
             yarip.logContent(STATUS_UNKNOWN, location, contentLocation);
         }
         break;
     case STATUS_WHITELISTED:
-        if (!isPage && (STATE_REDIRECTING & stateFlags) === STATE_REDIRECTING) {
+        if (!location.isPage && (stateFlags & STATE_REDIRECTING) !== 0) {
             yarip.logContent(STATUS_WHITELISTED, location, contentLocation, null, statusObj.itemObj);
         }
         break;
     case STATUS_BLACKLISTED:
         request.cancel(Cr.NS_ERROR_ABORT);
         var newLog = yarip.logContent(STATUS_BLACKLISTED, location, contentLocation, null, statusObj.itemObj);
-        if (newLog && statusObj.itemObj.ruleType != TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
+        if (newLog && statusObj.itemObj.ruleType !== TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
             yarip.showLinkNotification(doc, location, contentLocation, isLink);
         }
         break;

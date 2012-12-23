@@ -2,12 +2,12 @@
 
 /* Hiding an element. */
 html > body [status~="blacklisted"] {
-display: none !important;
+    display: none !important;
 }
 
 /* Highlighting an element. */
 html > body [status~="highlighted"] {
-outline: 3px solid #000099 !important;
+    outline: 3px solid #000099 !important;
 }
 
 }

@@ -219,7 +219,7 @@ function YaripHandler(doc, stopCallback, statusCallback)
         if (!handler) handler = this;
         if (!handler.element) return;
 
-        if (handler.element.nodeType != 2) {
+        if (handler.element.nodeType !== 2) {
             if (!noBackup) handler.outline = handler.element.style.outline;
             if (/^whitelisted\b/.test(handler.element.getAttribute("status"))) handler.element.style.outline = "3px solid #990000";
             else handler.element.style.outline = "3px solid #000099";
@@ -268,9 +268,11 @@ function YaripHandler(doc, stopCallback, statusCallback)
         clearTimeout(this.timeout);
 
         try {
-            if (this.element && this.element.nodeType != 2) {
+            if (this.element && this.element.nodeType !== 2) {
                 this.element.style.outline = this.outline;
-                if (this.element.getAttribute("style") === "") this.element.removeAttribute("style");
+                if (this.element.getAttribute("style") === "") {
+                    this.element.removeAttribute("style");
+                }
             }
         } catch(e) {}
 
