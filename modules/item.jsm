@@ -96,7 +96,7 @@ YaripItem.prototype.getXPath = function()
 }
 YaripItem.prototype.setRegExp = function(value)
 {
-    if (!(typeof value === "string")) return; // allow empty
+    if (typeof value !== "string") return; // allow empty
     this.regExp = value;
     this.setCreated(Date.now());
     this.setLastFound(-1);
@@ -129,7 +129,7 @@ YaripItem.prototype.getFlags = function()
 }
 YaripItem.prototype.setStyle = function(value)
 {
-    if (!value && value != "") return;
+    if (typeof value !== "string") return; // allow empty
     this.style = value;
 }
 YaripItem.prototype.getStyle = function()
@@ -138,7 +138,7 @@ YaripItem.prototype.getStyle = function()
 }
 YaripItem.prototype.setScript = function(value)
 {
-    if (!value && value != "") return;
+    if (typeof value !== "string") return; // allow empty
     this.script = value;
 }
 YaripItem.prototype.getScript = function()
@@ -1110,7 +1110,7 @@ YaripRedirectItem.prototype.getId = function()
 }
 YaripRedirectItem.prototype.setScript = function(value)
 {
-    if (!value && value != "") return;
+    if (typeof value !== "string") return; // allow empty
 
     this.newsubstr = value;
 }

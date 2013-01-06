@@ -85,10 +85,10 @@ Yarip.prototype.getLocation = function(obj, channel, doc)
     var isPage = null;
     var isLink = null;
     if (channel) {
-        isPage = (LOAD_DOCUMENT_URI & channel.loadFlags) === LOAD_DOCUMENT_URI;
-        isLink = isPage || (LOAD_INITIAL_DOCUMENT_URI & channel.loadFlags) === LOAD_INITIAL_DOCUMENT_URI;
+        isPage = (channel.loadFlags & LOAD_DOCUMENT_URI) === LOAD_DOCUMENT_URI;
+        isLink = isPage || (channel.loadFlags & LOAD_INITIAL_DOCUMENT_URI) === LOAD_INITIAL_DOCUMENT_URI;
 
-        if (!obj) {
+        if (!obj || (doc && !this.schemesRegExp.test(doc.location.protocol.replace(/:$/, "")))) {
             try {
                 obj = IOS.newURI(channel.loadGroup.defaultLoadRequest.name, channel.URI.originCharset, null);
             } catch (e) {

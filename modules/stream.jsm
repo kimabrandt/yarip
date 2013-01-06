@@ -116,7 +116,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
     try {
         request.QueryInterface(Ci.nsIChannel);
 
-        if ((request.loadFlags & LOAD_FLAG_RESPONSE) !== 0) return; // FIXME
+        if (request.loadFlags & LOAD_FLAG_RESPONSE) return; // FIXME
 
         /*
          * STREAM REPLACING
@@ -419,41 +419,41 @@ YaripResponseStreamListener.prototype.onDataAvailable = function(request, contex
     bis.setInputStream(inputStream);
     this.receivedData.push(bis.readBytes(count));
 }
-//YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count)
-//{
-//    try {
-//        var beg = 0;
-////        var end = 8191; // 8 kb
-//        var end = 98304 - 12; // ~96 kb
-//        var tmpData = data.substring(beg, end);
-//        while (tmpData != "") {
-//            var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
-//            var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
-//            count = tmpData.length;
-//            ss.init(8192, count, null);
-//            bos.setOutputStream(ss.getOutputStream(0));
-//            bos.writeBytes(tmpData, count);
-//            this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
-//            offset += count;
-//            beg = end;
-//            end += 8192;
-//            tmpData = data.substring(beg, end);
-//        }
-//    } catch (e) {
-//        yarip.logMessage(LOG_ERROR, e);
-//    }
-//}
 YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count)
 {
     try {
-        var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
-        var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
-        ss.init(8192, count, null);
-        bos.setOutputStream(ss.getOutputStream(0));
-        bos.writeBytes(data, count);
-        this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
+        var beg = 0;
+//        var end = 8191; // 8 kb
+        var end = 98304 - 12; // ~96 kb
+        var tmpData = data.substring(beg, end);
+        while (tmpData != "") {
+            var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
+            var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
+            count = tmpData.length;
+            ss.init(8192, count, null);
+            bos.setOutputStream(ss.getOutputStream(0));
+            bos.writeBytes(tmpData, count);
+            this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
+            offset += count;
+            beg = end;
+            end += 8192;
+            tmpData = data.substring(beg, end);
+        }
     } catch (e) {
         yarip.logMessage(LOG_ERROR, e);
     }
 }
+//YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count)
+//{
+//    try {
+//        var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
+//        var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
+//        ss.init(8192, count, null);
+//        bos.setOutputStream(ss.getOutputStream(0));
+//        bos.writeBytes(data, count);
+//        this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
+//    } catch (e) {
+//        yarip.logMessage(LOG_ERROR, e);
+//    }
+//}
 

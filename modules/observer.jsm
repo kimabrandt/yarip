@@ -71,7 +71,8 @@ YaripObserver.prototype.modifyRequest = function(channel)
         var doc = null;
         try { doc = yarip.getInterface(channel, Ci.nsIDOMWindow).document; } catch(e) {}
         if (!doc) try { doc = yarip.getInterface(channel, Ci.nsIWebNavigation).document; } catch(e) {}
-        var location = yarip.getLocation(null, channel, doc);
+//        var location = yarip.getLocation(null, channel, doc);
+        var location = yarip.getLocation(doc ? doc.location : null, channel, doc);
         if (!location) return;
         if (!yarip.schemesRegExp.test(location.scheme)) return;
 
@@ -174,7 +175,8 @@ YaripObserver.prototype.examineResponse = function(channel)
             doc = defaultView.document;
         } catch(e) {
         }
-        var location = yarip.getLocation(null, channel, doc);
+//        var location = yarip.getLocation(null, channel, doc);
+        var location = yarip.getLocation(doc ? doc.location : null, channel, doc);
         if (!location) return;
         if (!yarip.schemesRegExp.test(location.scheme)) return;
 

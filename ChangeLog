@@ -1,3 +1,11 @@
+2013-01-06  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/item.jsm (set*): Allowing some values to have an empty string.
+
+    * modules/{observer,yarip}.jsm (getLocation): Fixed the location-
+    retrieval, where sometimes redirects could leak into the current rule-
+    set.
+
 2012-12-23  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * : Minor cleanup.
