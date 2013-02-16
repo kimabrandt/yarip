@@ -1,6 +1,6 @@
 
 /*
-    Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+    Copyright 2007-2013 Kim A. Brandt <kimabrandt@gmx.de>
 
     This file is part of yarip.
 
@@ -71,7 +71,6 @@ YaripObserver.prototype.modifyRequest = function(channel)
         var doc = null;
         try { doc = yarip.getInterface(channel, Ci.nsIDOMWindow).document; } catch(e) {}
         if (!doc) try { doc = yarip.getInterface(channel, Ci.nsIWebNavigation).document; } catch(e) {}
-//        var location = yarip.getLocation(null, channel, doc);
         var location = yarip.getLocation(doc ? doc.location : null, channel, doc);
         if (!location) return;
         if (!yarip.schemesRegExp.test(location.scheme)) return;
@@ -107,6 +106,16 @@ YaripObserver.prototype.modifyRequest = function(channel)
         }
 
         var asciiHref = contentLocation.asciiHref;
+
+        if (doc) {
+//            location = yarip.getLocation(null, channel);
+            location = yarip.getLocation(null, channel, doc);
+            if (!location) return;
+            if (!yarip.schemesRegExp.test(location.scheme)) return;
+
+            var addressObj = yarip.getAddressObjByLocation(location, true);
+            if (!addressObj.found) return;
+        }
 
         /*
          * REQUEST HEADER
@@ -170,13 +179,15 @@ YaripObserver.prototype.examineResponse = function(channel)
     {
         var defaultView = null;
         var doc = null;
+//        var location = null;
         try {
             defaultView = yarip.getInterface(channel, Ci.nsIDOMWindow);
             doc = defaultView.document;
+//            location = yarip.getLocation(doc.location, channel, doc);
         } catch(e) {
+//            location = yarip.getLocation(null, channel);
         }
-//        var location = yarip.getLocation(null, channel, doc);
-        var location = yarip.getLocation(doc ? doc.location : null, channel, doc);
+        var location = yarip.getLocation(null, channel, doc);
         if (!location) return;
         if (!yarip.schemesRegExp.test(location.scheme)) return;
 

@@ -1,4 +1,4 @@
-    Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+    Copyright 2007-2013 Kim A. Brandt <kimabrandt@gmx.de>
 
     This file is part of yarip.
 

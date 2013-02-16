@@ -1,6 +1,6 @@
 
 /*
-    Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+    Copyright 2007-2013 Kim A. Brandt <kimabrandt@gmx.de>
 
     This file is part of yarip.
 
@@ -173,7 +173,7 @@ var TLD = "(" +
     "|(?:(?:(?:com|from|iz|name)\\.)?hr)" +
     "|(?:(?:(?:adult|art|asso|com|coop|edu|firm|gouv|info|med|net|org|perso|pol|pro|rel|shop)\\.)?ht)" +
     "|(?:(?:(?:2000|agrar|blogspot|bolt|casino|city|co|erotica|erotika|film|forum|games|hotel|info|ingatlan|jogasz|konyvelo|lakas|media|news|org|priv|reklam|sex|shop|sport|suli|szex|tm|tozsde|utazas|video)\\.)?hu)" +
-    "|(?:(?:(?:ac|co|go|mil|net|or|sch|web)\\.)?id)" +
+    "|(?:(?:(?:ac|biz|co|go|mil|my|net|or|sch|web)\\.)?id)" +
     "|(?:(?:(?:blogspot|gov)\\.)?ie)" +
     "|(?:(?:(?:ac|(?:(?:blogspot)\\.)?co|gov|idf|k12|muni|net|org)\\.)?il)" +
     "|(?:(?:(?:ac|co|gov|ltd\\.co|net|nic|org|plc\\.co)\\.)?im)" +
@@ -278,7 +278,7 @@ var TLD = "(" +
     "|(?:(?:(?:aero|biz|co|com|coop|edu|gov|info|int|jobs|mobi|museum|name|net|org|pro|travel)\\.)?tt)" +
     "|(?:(?:(?:better-than|dyndns|on-the-web|worse-than)\\.)?tv)" +
     "|(?:(?:(?:blogspot|club|com|ebiz|edu|game|gov|idv|mil|net|org|czrw28b|uc0atv|zf0ao64a)\\.)?tw)" +
-    "|(?:(?:(?:ac|co|go|mil|ne|or|sc)\\.)?tz)" +
+    "|(?:(?:(?:ac|co|go|hotel|info|me|mil|mobi|ne|or|sc|tv)\\.)?tz)" +
     "|(?:(?:(?:cherkassy|cherkasy|chernigov|chernihiv|chernivtsi|chernovtsy|ck|cn|co|com|cr|crimea|cv|dn|dnepropetrovsk|dnipropetrovsk|dominic|donetsk|dp|edu|gov|if|in|ivano-frankivsk|kh|kharkiv|kharkov|kherson|khmelnitskiy|khmelnytskyi|kiev|kirovograd|km|kr|krym|ks|kv|kyiv|lg|lt|lugansk|lutsk|lv|lviv|mk|mykolaiv|net|nikolaev|od|odesa|odessa|org|pl|poltava|pp|rivne|rovno|rv|sb|sebastopol|sevastopol|sm|sumy|te|ternopil|uz|uzhgorod|vinnica|vinnytsia|vn|volyn|yalta|zaporizhzhe|zaporizhzhia|zhitomir|zhytomyr|zp|zt)\\.)?ua)" +
     "|(?:(?:(?:ac|co|com|go|ne|or|org|sc)\\.)?ug)" +
     "|(?:(?:(?:ac|bl|(?:(?:blogspot)\\.)?co|gov|jet|judiciary|ltd|me|mil|mod|net|nic|nls|org|parliament|plc|sch)\\.)?uk)" +

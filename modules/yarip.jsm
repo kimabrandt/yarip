@@ -1,6 +1,6 @@
 
 /*
-    Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+    Copyright 2007-2013 Kim A. Brandt <kimabrandt@gmx.de>
 
     This file is part of yarip.
 
@@ -92,7 +92,7 @@ Yarip.prototype.getLocation = function(obj, channel, doc)
             try {
                 obj = IOS.newURI(channel.loadGroup.defaultLoadRequest.name, channel.URI.originCharset, null);
             } catch (e) {
-                obj = doc && !isPage ? doc.location : channel.URI;
+                obj = doc && !isLink ? doc.location : channel.URI;
             }
         }
     }
@@ -797,6 +797,7 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
                   incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
                   continue;
                 }
+                break;
             case "blacklisted":
               incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
               continue;
@@ -2918,6 +2919,20 @@ Yarip.prototype.isMobile = function()
 {
     return this._isMobile;
 }
+//Yarip.prototype.dumpAddressObj = function(addressObj)
+//{
+//    for (var pageName in addressObj.ext) {
+//        var extItem = addressObj.ext[pageName];
+//        dump("    * " + pageName + "\n");
+//        if (extItem.getDoElements()) dump("        + elements\n");
+//        if (extItem.getDoContents()) dump("        + contents\n");
+//        if (extItem.getDoScripts()) dump("        + scripts\n");
+//        if (extItem.getDoHeaders()) dump("        + headers\n");
+//        if (extItem.getDoRedirects()) dump("        + redirects\n");
+//        if (extItem.getDoStreams()) dump("        + streams\n");
+//        if (extItem.getDoLinks()) dump("        + links\n");
+//    }
+//}
 
 var wrappedJSObject = new Yarip();
 

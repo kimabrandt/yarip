@@ -1,6 +1,6 @@
 
 /*
-    Copyright 2007-2012 Kim A. Brandt <kimabrandt@gmx.de>
+    Copyright 2007-2013 Kim A. Brandt <kimabrandt@gmx.de>
 
     This file is part of yarip.
 
@@ -46,7 +46,7 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
     if (!yarip.enabled) return;
     if (!webProgress.isLoadingDocument) return;
     if (!(request instanceof Ci.nsIHttpChannel)) return;
-    if ((stateFlags & STATE_START & STATE_REDIRECTING) !== 0) return;
+    if (stateFlags & STATE_START & STATE_REDIRECTING) return;
 
     request.QueryInterface(Ci.nsIHttpChannel);
 
