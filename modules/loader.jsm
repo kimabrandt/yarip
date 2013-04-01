@@ -255,7 +255,7 @@ YaripLoader.prototype.injectCascadingStyleSheet = function(doc, id, css, parent)
 {
     var element = doc.getElementById(id);
     if (element) {
-        if (element.getAttribute("status") != "whitelisted") {
+        if (element.getAttribute("status") !== "whitelisted") {
             element.parentNode.removeChild(element);
         } else {
             return;
@@ -277,7 +277,7 @@ YaripLoader.prototype.injectJavaScript = function(doc, id, js, parent, reinject)
 {
     var element = doc.getElementById(id);
     if (element) {
-        if (reinject || element.getAttribute("status") != "whitelisted") {
+        if (reinject || element.getAttribute("status") !== "whitelisted") {
             element.parentNode.removeChild(element);
         } else {
             return;

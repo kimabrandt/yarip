@@ -47,28 +47,27 @@ YaripContentPolicy.prototype.shouldLoad = function(contentType, contentLocation,
     if (!yarip.schemesRegExp.test(contentLocation.scheme)) return ACCEPT;
     if (!yarip.schemesRegExp.test(requestOrigin.scheme)) return ACCEPT;
 
-    if (context.nodeType != DOCUMENT_NODE) context = context.ownerDocument;
-    var defaultView = context && context.nodeType == DOCUMENT_NODE ? context.defaultView : null;
+    if (context.nodeType !== DOCUMENT_NODE) context = context.ownerDocument;
+    var defaultView = context && context.nodeType === DOCUMENT_NODE ? context.defaultView : null;
     var doc = defaultView ? defaultView.document : null;
     var location = doc ? doc.location : null;
     if (!location || !yarip.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return ACCEPT;
 
     location = yarip.getLocation(location);
-    contentLocation = yarip.getLocation(contentLocation);
+    content = yarip.getLocation(contentLocation);
 
     if (!yarip.enabled) {
-        yarip.logContent(STATUS_UNKNOWN, location, contentLocation, mimeTypeGuess);
+        yarip.logContent(STATUS_UNKNOWN, location, content, mimeTypeGuess);
         return ACCEPT;
     }
 
-    var addressObj = yarip.getAddressObjByLocation(location, true);
+    var addressObj = yarip.getAddressObjByLocation(location);
     if (!addressObj.found) {
-        yarip.logContent(STATUS_UNKNOWN, location, contentLocation, mimeTypeGuess);
+        yarip.logContent(STATUS_UNKNOWN, location, content, mimeTypeGuess);
         return ACCEPT;
     }
-
-    var statusObj = yarip.shouldBlacklist(addressObj, contentLocation.asciiHref, defaultView);
-    yarip.logContent(statusObj.status, location, contentLocation, mimeTypeGuess, statusObj.itemObj);
+    var statusObj = yarip.shouldBlacklist(addressObj, content, defaultView);
+    yarip.logContent(statusObj.status, location, content, mimeTypeGuess, statusObj.itemObj);
     switch (statusObj.status) {
     case STATUS_UNKNOWN:
         return ACCEPT;

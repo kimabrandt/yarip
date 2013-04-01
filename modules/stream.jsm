@@ -34,8 +34,7 @@ Cu.import("resource://yarip/constants.jsm");
 
 const stringBundle = SB.createBundle("chrome://yarip/locale/stream.properties");
 
-function YaripRedirectStreamListener(channel, callback)
-{
+function YaripRedirectStreamListener(channel, callback) {
     if (!(channel instanceof Ci.nsITraceableChannel)) return;
 
     channel.QueryInterface(Ci.nsITraceableChannel);
@@ -45,11 +44,10 @@ function YaripRedirectStreamListener(channel, callback)
     this.isCanceled = false;
 }
 YaripRedirectStreamListener.prototype = {
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener])
+    "QueryInterface": XPCOMUtils.generateQI([Ci.nsIStreamListener])
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIRequestObserver#onStartRequest%28%29
-YaripRedirectStreamListener.prototype.onStartRequest = function(request, context)
-{
+YaripRedirectStreamListener.prototype.onStartRequest = function(request, context) {
     try {
         if (this.callback()) {
             request.cancel(Cr.NS_BINDING_REDIRECTED);
@@ -62,15 +60,13 @@ YaripRedirectStreamListener.prototype.onStartRequest = function(request, context
     }
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIRequestObserver#onStopRequest%28%29
-YaripRedirectStreamListener.prototype.onStopRequest = function(request, context, statusCode)
-{
+YaripRedirectStreamListener.prototype.onStopRequest = function(request, context, statusCode) {
     if (!this.isCanceled) {
         this.listener.onStopRequest(request, context, statusCode);
     }
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIStreamListener#onDataAvailable%28%29
-YaripRedirectStreamListener.prototype.onDataAvailable = function(request, context, inputStream, offset, count)
-{
+YaripRedirectStreamListener.prototype.onDataAvailable = function(request, context, inputStream, offset, count) {
     var bis = Cc["@mozilla.org/binaryinputstream;1"].createInstance(Ci.nsIBinaryInputStream);
     bis.setInputStream(inputStream);
     var data = bis.readBytes(count);
@@ -82,9 +78,7 @@ YaripRedirectStreamListener.prototype.onDataAvailable = function(request, contex
     this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
 }
 
-//function YaripResponseStreamListener(addressObj, location, defaultView, channel, isPage)
-function YaripResponseStreamListener(channel, addressObj, location, contentLocation, defaultView, isPage)
-{
+function YaripResponseStreamListener(channel, addressObj, location, _content, defaultView) {
     if (!(channel instanceof Ci.nsITraceableChannel)) return;
 
     channel.QueryInterface(Ci.nsITraceableChannel);
@@ -93,15 +87,13 @@ function YaripResponseStreamListener(channel, addressObj, location, contentLocat
     this.addressObj = addressObj;
     this.location = location;
     this.defaultView = defaultView;
-    this.isPage = isPage;
     this.receivedData = [];
 }
 YaripResponseStreamListener.prototype = {
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener])
+    "QueryInterface": XPCOMUtils.generateQI([Ci.nsIStreamListener])
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIRequestObserver#onStartRequest%28%29
-YaripResponseStreamListener.prototype.onStartRequest = function(request, context)
-{
+YaripResponseStreamListener.prototype.onStartRequest = function(request, context) {
     try {
         this.listener.onStartRequest(request, context);
     } catch (e) {
@@ -109,8 +101,7 @@ YaripResponseStreamListener.prototype.onStartRequest = function(request, context
     }
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIRequestObserver#onStopRequest%28%29
-YaripResponseStreamListener.prototype.onStopRequest = function(request, context, statusCode)
-{
+YaripResponseStreamListener.prototype.onStopRequest = function(request, context, statusCode) {
     var responseSource = this.receivedData.join("");
 
     try {
@@ -135,10 +126,10 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         for (var i = 0; i < arr.length; i++) {
             var extItem = arr[i];
             var page = extItem.getPage();
-            var list = this.isPage ? page.pageStreamList : page.contentStreamList;
+            var list = this.location.isPage ? page.pageStreamList : page.contentStreamList;
             if (list.length !== 0) {
                 for each (var item in list.obj) {
-                    tmpArr.push({ "item": item, "isSelf": extItem.isSelf() });
+                    tmpArr.push({ "pageName": page.getName(), "item": item, "isSelf": extItem.isSelf() });
                 }
             }
         }
@@ -148,63 +139,34 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         // Applying the stream-items.
         for (var i = 0; i < arr.length; i++) {
             try {
+                var pageName = arr[i].pageName;
                 var item = arr[i].item;
                 var isSelf = arr[i].isSelf;
                 var tmp = null;
                 if (/^\s*function\b/.test(item.getScript())) {
-                    var sandbox = new Cu.Sandbox(this.defaultView ? this.defaultView : this.location.asciiHref);
-                    if (/^\s*function\s*\(\s*matches\s*\)/.test(item.getScript())) { // deprecated: script with matches-array as parameter
-                        yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_MATCHES_DEPRECATED", [], 0))); // XXX
+                    if (/^\s*function\s*\(\s*matches\s*\)/.test(item.getScript())) { // deprecated: replace with `matches'-array as parameter
+                        yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_MATCHES_DEPRECATED2", [pageName, item.getStreamRegExp()], 2))); // XXX
+                        continue;
+                    } else {
+                        var sandbox = new Cu.Sandbox(this.defaultView ? this.defaultView : this.location.asciiHref);
+                        sandbox._source = responseSource;
+//                        sandbox._re = item.getStreamRegExpObj();
+                        sandbox._pattern = item.getStreamRegExp();
+                        sandbox._flags = item.getStreamFlags();
+//                        tmp = Cu.evalInSandbox("_source.replace(_re, " + item.getScript() + "\n);", sandbox);
+                        tmp = Cu.evalInSandbox("_source.replace(new RegExp(_pattern, _flags), " + item.getScript() + "\n);", sandbox);
 
-                        var matches = responseSource.match(item.getAllStreamRegExpObj());
-                        if (!matches) continue;
-
-                        var isFun = false;
-                        if (/^\s*function\b/.test(item.getScript())) {
-                            sandbox.matches = matches;
-                            Cu.evalInSandbox("(" + item.getScript() + ")(matches);", sandbox);
-                            isFun = true;
-                        }
-
-//                        if (!(matches instanceof Array)) {
-//                            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_MATCHES_NOT_INSTANCEOF_ARRAY2", [page.getName(), item.getStreamRegExp()], 2)));
-//                            continue;
-//                        }
-
-                        var index = 0;
-                        tmp = responseSource;
-                        for (var j = 0; j < matches.length; j++) {
-                            if (typeof matches[j] != "string") {
-                                yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_VALUE_NOT_A_STRING3", [page.getName(), item.getStreamRegExp(), j], 3)));
-                                continue;
-                            }
-
-                            var searchIndex = tmp.substring(index).search(item.getFirstStreamRegExpObj());
-                            if (searchIndex > 0) index += searchIndex;
-                            var respBeg = tmp.substring(0, index);
-                            var respEnd = tmp.substring(index);
-                            var m = respEnd.match(item.getFirstStreamRegExpObj());
-                            var matchLength = m[0].length;
-                            var oldRespLength = tmp.length;
-                            tmp = respBeg + respEnd.replace(item.getFirstStreamRegExpObj(), isFun ? matches[j] : item.getScript());
-                            var newRespLength = tmp.length;
-                            index += matchLength + newRespLength - oldRespLength;
-                        }
-                    } else { // replace with function as parameter
-                        sandbox.responseSource = responseSource;
-                        sandbox.regexp = item.getStreamRegExpObj();
-                        tmp = Cu.evalInSandbox("responseSource.replace(regexp, " + item.getScript() + "\n);", sandbox);
-
-                        if (typeof tmp != "string") {
+                        if (typeof tmp !== "string") {
                             yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_VALUE_NOT_A_STRING2", [page.getName(), item.getStreamRegExp()], 2)));
                             continue;
                         }
                     }
                 } else {
-                    tmp = responseSource.replace(item.getStreamRegExpObj(), item.getScript());
+//                    tmp = responseSource.replace(item.getStreamRegExpObj(), item.getScript());
+                    tmp = responseSource.replace(new RegExp(item.getStreamRegExp(), item.getStreamFlags()), item.getScript());
                 }
 
-                if (responseSource != tmp) {
+                if (responseSource !== tmp) {
                     responseSource = tmp;
 
                     if (isSelf) {
@@ -218,7 +180,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             }
         }
 
-        if (!this.isPage) return;
+        if (!this.location.isPage) return;
 
         /*
          * PAGE SCRIPTING AND STYLING
@@ -228,10 +190,9 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         var doctypeRegExp = /<!doctype\b[^>]*>/i;
         var htmlBegRegExp = /<\s*html\b[^>]*>/i;
         var searchIndex = responseSource.search(htmlBegRegExp);
-        if (searchIndex == -1) // no HTML-begin
-        {
+        if (searchIndex === -1) { // no HTML-begin
             searchIndex = responseSource.search(doctypeRegExp);
-            if (searchIndex == -1) { // no DOCTYPE
+            if (searchIndex === -1) { // no DOCTYPE
                 return;
             } else {
                 searchIndex += responseSource.substring(searchIndex).match(doctypeRegExp)[0].length;
@@ -251,8 +212,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         });
 
         // Iterating from end to beginning (dependencies).
-        for (var i = arr.length - 1; i >= 0; i--)
-        {
+        for (var i = arr.length - 1; i >= 0; i--) {
             var extItem = arr[i];
             var page = extItem.getPage();
             var pageName = page.getName();
@@ -264,15 +224,12 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             }
 
             // page styling
-            if (extItem.getDoElements())
-            {
+            if (extItem.getDoElements()) {
                 var list = page.pageStyleList;
-                if (list.length > 0)
-                {
+                if (list.length > 0) {
                     var idPrefix = "yarip-page-style_" + pageName.replace(/\W/g, "-") + "_";
                     var counter = 0;
-                    for each (var item in list.obj)
-                    {
+                    for each (var item in list.obj) {
                         var value = item.getStyle();
                         if (!value) continue;
 
@@ -296,15 +253,12 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             }
 
             // page scripting
-            if (extItem.getDoScripts())
-            {
+            if (extItem.getDoScripts()) {
                 var list = page.pageScriptList;
-                if (list.length > 0)
-                {
+                if (list.length > 0) {
                     var idPrefix = "yarip-page-script_" + pageName.replace(/\W/g, "-") + "_";
                     var counter = 0;
-                    for each (var item in list.obj)
-                    {
+                    for each (var item in list.obj) {
                         var value = item.getScript();
                         if (!value) continue;
 
@@ -343,7 +297,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         // HEAD-begin
         var headBegRegExp = /<\s*head\b[^>]*>/i;
         searchIndex = tmpSource.search(headBegRegExp);
-        if (searchIndex == -1) { // no HEAD-begin
+        if (searchIndex === -1) { // no HEAD-begin
             searchIndex = htmlBegIdx + tmpSource.match(htmlBegRegExp)[0].length;
             headTopPart = responseSource.substring(0, searchIndex) + "<head>";
         } else {
@@ -356,7 +310,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         // HEAD-end
         var headEndRegExp = /<\s*\/\s*head\b[^>]*>/i;
         searchIndex = tmpSource.search(headEndRegExp);
-        if (searchIndex == -1) { // no HEAD-end
+        if (searchIndex === -1) { // no HEAD-end
             tmpSource = "</head>" + tmpSource; // can be misplaced
         } else {
             headMidPart = tmpSource.substring(0, searchIndex);
@@ -367,7 +321,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         var bodyBegRegExp = /<\s*(?:body|(frameset))\b[^>]*>/i;
         searchIndex = tmpSource.search(bodyBegRegExp);
         var isFrameset = false;
-        if (searchIndex == -1) { // no BODY-begin
+        if (searchIndex === -1) { // no BODY-begin
             searchIndex = tmpSource.match(headEndRegExp)[0].length;
             headBodPart = tmpSource.substring(0, searchIndex) + "<body>";
         } else {
@@ -380,11 +334,10 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         tmpSource = tmpSource.substring(searchIndex);
 
         // BODY-end
-        if (!isFrameset)
-        {
+        if (!isFrameset) {
             var bodyEndRegExp = /<\s*\/\s*body\b[^>]*>/i;
             searchIndex = tmpSource.search(bodyEndRegExp);
-            if (searchIndex == -1) { // no BODY-end
+            if (searchIndex === -1) { // no BODY-end
                 bodyBotPart = "</body>" + tmpSource; // FIXME Can be misplaced!
             } else {
                 bodyMidPart = tmpSource.substring(0, searchIndex);
@@ -406,27 +359,27 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
     } catch (e) {
         yarip.logMessage(LOG_ERROR, e);
     } finally {
-//dump("responseSource:"+responseSource+"\n\n--------------------------------------------------------------------------------\n\n");
-        request.loadFlags |= LOAD_FLAG_RESPONSE; // FIXME
-        this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
-        this.listener.onStopRequest(request, context, statusCode);
+        try {
+            this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
+            this.listener.onStopRequest(request, context, statusCode);
+        } finally {
+            request.loadFlags |= LOAD_FLAG_RESPONSE; // FIXME
+        }
     }
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIStreamListener#onDataAvailable%28%29
-YaripResponseStreamListener.prototype.onDataAvailable = function(request, context, inputStream, offset, count)
-{
+YaripResponseStreamListener.prototype.onDataAvailable = function(request, context, inputStream, offset, count) {
     var bis = Cc["@mozilla.org/binaryinputstream;1"].createInstance(Ci.nsIBinaryInputStream);
     bis.setInputStream(inputStream);
     this.receivedData.push(bis.readBytes(count));
 }
-YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count)
-{
+YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count) {
     try {
         var beg = 0;
 //        var end = 8191; // 8 kb
         var end = 98304 - 12; // ~96 kb
         var tmpData = data.substring(beg, end);
-        while (tmpData != "") {
+        while (tmpData) {
             var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
             var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
             count = tmpData.length;
@@ -443,8 +396,7 @@ YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, conte
         yarip.logMessage(LOG_ERROR, e);
     }
 }
-//YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count)
-//{
+//YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count) {
 //    try {
 //        var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
 //        var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);

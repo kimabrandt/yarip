@@ -160,7 +160,7 @@ YaripItem.prototype.getPriority = function()
 }
 YaripItem.prototype.setForce = function(value)
 {
-    this.force = String(value) != "false";
+    this.force = String(value) !== "false";
     if (!this.force) this.style = null;
 }
 YaripItem.prototype.getForce = function()
@@ -426,7 +426,7 @@ YaripElementBlacklistItem.prototype.setXPath = function(value, ignoreStyle)
 }
 YaripElementBlacklistItem.prototype.setForce = function(value, ignoreStyle)
 {
-    this.force = String(value) != "false";
+    this.force = String(value) !== "false";
     if (!ignoreStyle) this.createStyle(true);
 }
 YaripElementBlacklistItem.prototype.clone = function(purge)
@@ -819,16 +819,12 @@ function YaripStreamItem(regExp, flags, streamRegExp, streamFlags, script, prior
     this.regExpObj = null;
     this.flags = "i";
     this.streamRegExp = "";
-    this.streamRegExpObj = null;
+//    this.streamRegExpObj = null;
     this.streamFlags = "gim";
     this.script = "";
     this.priority = 0;
     this.created = -1;
     this.lastFound = -1;
-
-    // XXX Deprecated
-    this.allStreamRegExpObj = null;
-    this.firstStreamRegExpObj = null;
 
     this.setRegExp(regExp);
     this.setFlags(flags);
@@ -856,51 +852,27 @@ YaripStreamItem.prototype.getStreamRegExp = function()
 {
     return this.streamRegExp;
 }
-YaripStreamItem.prototype.getStreamRegExpObj = function()
-{
-    if (!this.streamRegExpObj) {
-        try {
-            this.streamRegExpObj = new RegExp(this.streamRegExp, this.streamFlags);
-        } catch (e) {
-            this.streamRegExpObj = null;
-            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_CREATE_REGEXP1", [this.streamRegExp], 1)));
-        }
-    }
-    return this.streamRegExpObj;
-}
+//YaripStreamItem.prototype.getStreamRegExpObj = function()
+//{
+//    if (!this.streamRegExpObj) {
+//        try {
+//            this.streamRegExpObj = new RegExp(this.streamRegExp, this.streamFlags);
+//        } catch (e) {
+//            this.streamRegExpObj = null;
+//            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_CREATE_REGEXP1", [this.streamRegExp], 1)));
+//        }
+//    }
+//    return this.streamRegExpObj;
+//}
 YaripStreamItem.prototype.setStreamFlags = function(value)
 {
     if (!value || !/^[gimy]*$/.test(value)) return;
     this.streamFlags = value;
-    this.streamRegExpObj = null;
+//    this.streamRegExpObj = null;
 }
 YaripStreamItem.prototype.getStreamFlags = function()
 {
     return this.streamFlags;
-}
-// XXX Deprecated
-YaripStreamItem.prototype.getAllStreamRegExpObj = function()
-{
-    if (!this.allStreamRegExpObj) {
-        try {
-            this.allStreamRegExpObj = new RegExp(this.streamRegExp, "gim");
-        } catch (e) {
-            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_CREATE_REGEXP1", [this.allStreamRegExpObj], 1)));
-        }
-    }
-    return this.allStreamRegExpObj;
-}
-// XXX Deprecated
-YaripStreamItem.prototype.getFirstStreamRegExpObj = function()
-{
-    if (!this.firstStreamRegExpObj) {
-        try {
-            this.firstStreamRegExpObj = new RegExp(this.streamRegExp, "im");
-        } catch (e) {
-            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_CREATE_REGEXP1", [this.firstStreamRegExpObj], 1)));
-        }
-    }
-    return this.firstStreamRegExpObj;
 }
 YaripStreamItem.prototype.clone = function(purge)
 {
@@ -1025,7 +997,7 @@ YaripHeaderItem.prototype.getId = function()
 }
 YaripHeaderItem.prototype.setHeaderName = function(value)
 {
-    if (!value && value != "") return;
+    if (!value && value !== "") return;
 
     this.headerName = value;
     this.setCreated(Date.now());
@@ -1193,7 +1165,7 @@ YaripExtensionItem.prototype.setId = function(id)
 {
     if (!id) return;
 
-    this.id = "" + id;
+    this.id = String(id);
     this.setCreated(Date.now());
 }
 YaripExtensionItem.prototype.setDoElements = function(value)
@@ -1422,6 +1394,12 @@ YaripExtensionItem.prototype.loadFromObject = function(obj)
 }
 //YaripExtensionItem.prototype.toString = function()
 //{
-//    return JSON.stringify({ "name": this.getPage().getName(), "priority": this.getPriority() });
+//    var n = "";
+//    try { n = this.getPage().getName(); } catch(e) {}
+//    return JSON.stringify({
+//        "id": this.getId(),
+//        "name": n,
+//        "priority": this.getPriority()
+//    });
 //}
 

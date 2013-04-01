@@ -92,7 +92,7 @@ function YaripReplaceDialog()
         this.streamRegExpTextbox.value = this.obj.item.getStreamRegExp();
         this.scriptTextbox.value = this.obj.item.getScript();
 
-        var location = "itemLocation" in this.obj ? yarip.getLocation(this.obj.itemLocation) : null;
+        var location = "location" in this.obj ? yarip.getLocation(this.obj.location) : null;
         if (location) {
             var aMap = yarip.getAddressMap(location.asciiHref, true, { content: true });
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_PAGE)));

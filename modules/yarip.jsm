@@ -37,7 +37,7 @@ function Yarip()
     this.enabled = null;
     this.noFlicker = null;
 
-    this.monitorDialogues = [];
+    this.monitorDialogues = {};
     this.pageDialog = null;
 
     this.elementsInContext = 4;
@@ -56,6 +56,7 @@ function Yarip()
     this.undoObj = {};
     this.pagesModified = false;
     this.knownAddressObj = {};
+    this.knownNotification = {};
 }
 Yarip.prototype = {
     classDescription: "Yet Another Remove It Permanently",
@@ -121,16 +122,13 @@ Yarip.prototype.getLocation = function(obj, channel, doc)
     } else { // https://developer.mozilla.org/en/nsIURI
         try { scheme = obj.scheme; } catch (e) {}
         try { host = obj.hostPort.replace(/\.+(:\d+)?$/, "$1"); } catch (e) {}
-//        try { host = obj.host.replace(/\.+$/, ""); } catch (e) {}
         try { href = obj.spec; } catch (e) {}
         try { pathname = obj.path.replace(/[?&#].*$/, ""); } catch(e) {}
         try { port = obj.port; } catch (e) {}
         try { protocol = obj.scheme + ":"; } catch(e) {}
-        try { asciiHost = obj.asciiHost.replace(/\.+$/, "") + (port > -1 && port != 80 ? ":" + port : ""); } catch (e) {}
-//        try { asciiHost = obj.asciiHost.replace(/\.+$/, ""); } catch (e) {}
+        try { asciiHost = obj.asciiHost.replace(/\.+$/, "") + (port > -1 && port !== 80 ? ":" + port : ""); } catch (e) {}
         try { asciiHref = obj.asciiSpec; } catch (e) {}
         try { pageName = protocol + "//" + asciiHost + pathname; } catch (e) {}
-//        try { originCharset = "originCharset" in obj ? obj.originCharset : "UTF-8"; } catch (e) {}
         try { originCharset = obj.originCharset; } catch (e) {} // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIURI#Attributes
     }
 
@@ -231,9 +229,9 @@ Yarip.prototype.initContentPolicy = function()
 }
 Yarip.prototype.toggleEnabled = function(enabled)
 {
-    if (enabled == this.enabled) return false;
+    if (enabled === this.enabled) return false;
 
-    if (enabled != true && enabled != false) enabled = !this.enabled;
+    if (enabled !== true && enabled !== false) enabled = !this.enabled;
     this.enabled = enabled;
 
     if (enabled) this.toggleNoFlicker(this.getValue(PREF_FLICKER, false, DATA_TYPE_BOOLEAN), null, true);
@@ -244,9 +242,9 @@ Yarip.prototype.toggleEnabled = function(enabled)
 }
 Yarip.prototype.toggleNoFlicker = function(noFlicker, dontNotify, force)
 {
-    if (noFlicker == this.noFlicker && !force) return false;
+    if (noFlicker === this.noFlicker && !force) return false;
 
-    if (noFlicker != true && noFlicker != false) noFlicker = !this.getValue(PREF_FLICKER, false, DATA_TYPE_BOOLEAN);
+    if (noFlicker !== true && noFlicker !== false) noFlicker = !this.getValue(PREF_FLICKER, false, DATA_TYPE_BOOLEAN);
     this.noFlicker = noFlicker;
 
     this.injectCSS("chrome://yarip/skin/noflicker.css", this.noFlicker && this.enabled);
@@ -309,8 +307,8 @@ Yarip.prototype.setPrivateBrowsing = function(value)
 }
 Yarip.prototype.toggleLogWhenClosed = function(logWhenClosed)
 {
-    if (logWhenClosed == this.logWhenClosed) return false;
-    if (logWhenClosed != true && logWhenClosed != false) {
+    if (logWhenClosed === this.logWhenClosed) return false;
+    if (logWhenClosed !== true && logWhenClosed !== false) {
         logWhenClosed = !this.getValue(PREF_LOG_WHEN_CLOSED, false, DATA_TYPE_BOOLEAN);
     }
     this.logWhenClosed = logWhenClosed;
@@ -333,7 +331,7 @@ Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser)
         if (byUser && useWildcardExpr) {
             var uld = domain[DOMAIN_RE_ULD_INDEX];
             if (uld) {
-                useWildcardExpr = uld.indexOf(".", uld.indexOf(".") + 1) == -1; // no more than one dot
+                useWildcardExpr = uld.indexOf(".", uld.indexOf(".") + 1) === -1; // no more than one dot
             }
         }
 //        var port = domain[DOMAIN_RE_PORT_INDEX] ? ":" + domain[DOMAIN_RE_PORT_INDEX] : "(:\\d+)?";
@@ -367,7 +365,7 @@ Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
         var uld = domain[DOMAIN_RE_ULD_INDEX];
         if (uld) {
             var index = uld.indexOf(".");
-            useWildcardExpr = uld.indexOf(".", index + 1) == -1; // no more than one dot
+            useWildcardExpr = uld.indexOf(".", index + 1) === -1; // no more than one dot
         }
     }
     var port = domain[DOMAIN_RE_PORT_INDEX] ? "(:" + domain[DOMAIN_RE_PORT_INDEX] + ")" : this.matchAuthorityPort ? "(:\\d+)?" : "";
@@ -411,8 +409,7 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUse
     // Adding the default WhitelistContent.
     if (this.exclusiveOnCreation || privateBrowsing) {
         var re = this.getPageRegExp(pageName, location.protocol, byUser);
-        var content = new YaripContentWhitelistItem(re);
-        page.contentWhitelist.add(content);
+        page.contentWhitelist.add(new YaripContentWhitelistItem(re));
         page.contentWhitelist.setExclusive(true);
     }
 
@@ -420,7 +417,12 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUse
     var addressObj = this.getAddressObj(pageName, false);
     if (!addressObj.found && this.templates.length > 0) {
         for (var i = 0; i < this.templates.length; i++) {
-            page.merge(this.map.get(this.templates[i]));
+            var tmplPage = this.map.get(this.templates[i]);
+            page.merge(tmplPage, true /* ignoreTemporary */);
+            var list = tmplPage.pageExtensionList;
+            for each (var item in list.obj) {
+                this.map.addExtension(page, item.clone());
+            }
         }
     }
 
@@ -430,9 +432,9 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUse
 }
 Yarip.prototype.hasAddress = function(pageName)
 {
-    return this.getFirstAddress(pageName) != null;
+    return this.getFirstAddress(pageName) !== null;
 }
-Yarip.prototype.getAddressObjByLocation = function(location, follow)
+Yarip.prototype.getAddressObjByLocation = function(location)
 {
     var pageName = location ? location.pageName : null;
     if (!pageName) {
@@ -445,11 +447,11 @@ Yarip.prototype.getAddressObjByLocation = function(location, follow)
         };
     }
 
-    var addressObj = this.getAddressObj(pageName, follow);
+    var addressObj = this.getAddressObj(pageName, true);
     if (this.privateBrowsing && (!addressObj.found || (addressObj.allScheme && !addressObj.exclusive))) {
         var page = this.createPage(location, null, true);
         this.reloadPage(page.getName());
-        addressObj = this.getAddressObj(pageName, follow);
+        addressObj = this.getAddressObj(pageName, true);
     }
 
     addressObj.pageName = pageName;
@@ -471,7 +473,7 @@ Yarip.prototype.getFirstAddress = function(pageName, notScheme)
 Yarip.prototype.getAddressMap = function(reduceDomain, follow, matchObj, reverseExt)
 {
     var map = new YaripMap();
-    if (typeof reduceDomain == "string") {
+    if (typeof reduceDomain === "string") {
         var addressObj = this.getAddressObj(reduceDomain, follow, matchObj, reverseExt);
         for (var pageName in addressObj.ext) {
             map.add(this.map.get(pageName).clone());
@@ -692,6 +694,7 @@ Yarip.prototype.getIncrement = function(newIncrement, oldIncrement)
 Yarip.prototype.resetKnown = function()
 {
     this.knownAddressObj = {};
+    this.knownNotification = {};
 }
 Yarip.prototype.reloadPage = function(pageName, selectItem, selectTab, resetFilter, type, key)
 {
@@ -706,7 +709,7 @@ Yarip.prototype.reloadPage = function(pageName, selectItem, selectTab, resetFilt
 Yarip.prototype.removeAllExceptWhitelisted = function(doc)
 {
     this.whitelistElementItem(doc, null, new YaripElementWhitelistItem("/html/head/descendant-or-self::*[not(@status='blacklisted')]")); // whitelist head and descendants
-    this.blacklistElementItem(doc, null, new YaripElementBlacklistItem("//*[not(@status='whitelisted')]")); // all except whitelisted
+    this.blacklistElementItem(doc, null, new YaripElementBlacklistItem("//*[not(@status='whitelisted')]")); // blacklist all except whitelisted
 }
 Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, increment)
 {
@@ -728,7 +731,7 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
         if (isNew) {
             element.setAttribute("status", "whitelisted");
         } else {
-            while (element && element.nodeType == ELEMENT_NODE) {
+            while (element && element.nodeType === ELEMENT_NODE) {
                 element.setAttribute("status", "whitelisted");
                 element = element.parentNode;
             }
@@ -814,7 +817,7 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
                     element.setAttribute("src", "");
                     break;
                 case "frame":
-                    if (element.parentNode.localName != "frameset") {
+                    if (element.parentNode.localName !== "frameset") {
                         element.setAttribute("src", "");
                     }
                     break;
@@ -824,9 +827,10 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
                 }
                 element.innerHTML = "";
             }
+            break;
         case ATTRIBUTE_NODE:
+            if (i === 0) this.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_ATTRIBUTE_DEPRECATED2", [pageName, item.getXPath()], 2))); // XXX
             if (node.ownerElement) node.ownerElement.removeAttribute(node.name);
-            if (i === 0) this.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_ATTRIBUTE_DEPRECATED", [], 0))); // XXX
             break;
         case TEXT_NODE:
             if (node.parentNode) node.parentNode.removeChild(node);
@@ -904,12 +908,12 @@ Yarip.prototype.blacklistContentItem = function(location, pageName, item)
     this.reloadPage(pageName, false, true);
     return true;
 }
-Yarip.prototype.extendPage = function(pageLocation, pageName, contentLocation, contentAddress, item)
+Yarip.prototype.extendPage = function(location, pageName, content, contentAddress, item)
 {
     if (!pageName || !contentAddress) return false;
 
-    var pageOwn = this.createPage(pageLocation, pageName);
-    var pageExt = this.createPage(contentLocation, contentAddress);
+    var pageOwn = this.createPage(location, pageName);
+    var pageExt = this.createPage(content, contentAddress);
     if (item) {
         item.setId(pageExt.getId());
     } else {
@@ -1050,9 +1054,6 @@ Yarip.prototype.createXPath = function(element, fullPath)
         else
         {
             // ATTRIBUTES
-//            if (element.getAttribute("name")) attributes += "@name='" + element.getAttribute("name") + "' and ";
-//            if (element.getAttribute("class")) attributes += "@class='" + element.getAttribute("class") + "' and ";
-//            if (attributes != "") attributes = "[" + attributes.substring(0, attributes.length - 5) + "]";
             if (element.getAttribute("name")) attributes += "@name='" + element.getAttribute("name") + "'";
             if (element.getAttribute("class")) attributes += (attributes ? " and " : "") + "@class='" + element.getAttribute("class") + "'";
             if (attributes) attributes = "[" + attributes + "]";
@@ -1063,14 +1064,14 @@ Yarip.prototype.createXPath = function(element, fullPath)
                 var index = 1;
                 var sibling = element.previousSibling;
                 while (sibling) {
-                    if (sibling.localName == element.localName) ++index;
+                    if (sibling.localName === element.localName) ++index;
                     sibling = sibling.previousSibling;
                 }
 
                 var found = false;
                 sibling = element.nextSibling;
                 while (!found && sibling) {
-                    if (sibling.localName == element.localName) found = true;
+                    if (sibling.localName === element.localName) found = true;
                     else sibling = sibling.nextSibling;
                 }
                 if (this.useIndex === 0 /* always */ || found || index > 1) {
@@ -1112,14 +1113,14 @@ Yarip.prototype.createCssSelector = function(element, fullPath)
                 var index = 1;
                 var sibling = element.previousSibling;
                 while (sibling) {
-                    if (sibling.localName == element.localName) ++index;
+                    if (sibling.localName === element.localName) ++index;
                     sibling = sibling.previousSibling;
                 }
 
                 var found = false;
                 sibling = element.nextSibling;
                 while (!found && sibling) {
-                    if (sibling.localName == element.localName) found = true;
+                    if (sibling.localName === element.localName) found = true;
                     else sibling = sibling.nextSibling;
                 }
                 if (this.useIndex === 0 /* always */ || found || index > 1) {
@@ -1258,7 +1259,7 @@ Yarip.prototype.getValue = function(preference, defaultValue, type)
             return PB.getCharPref(preference);
         }
     } catch (e) {
-        if (defaultValue !== false && (typeof defaultValue != "number" || isNaN(defaultValue)) && !defaultValue) {
+        if (defaultValue !== false && (typeof defaultValue !== "number" || isNaN(defaultValue)) && !defaultValue) {
             return null;
         }
         this.setValue(preference, defaultValue, type);
@@ -1270,7 +1271,7 @@ Yarip.prototype.setValue = function(preference, value, type)
     try {
         switch (type) {
         case DATA_TYPE_BOOLEAN:
-            PB.setBoolPref(preference, "" + value == "true");
+            PB.setBoolPref(preference, String(value) === "true");
             break;
         case DATA_TYPE_INTEGER:
             PB.setIntPref(preference, value);
@@ -1303,7 +1304,7 @@ Yarip.prototype.injectCSS = function(uri, value)
 Yarip.prototype.check = function()
 {
     var previous = this.getValue(PREF_VERSION, "", DATA_TYPE_STRING);
-    if (previous && previous != VERSION)
+    if (previous && previous !== VERSION)
     {
         this.setValue(PREF_VERSION, VERSION, DATA_TYPE_STRING);
 
@@ -1384,12 +1385,12 @@ Yarip.prototype.getId = function()
 Yarip.prototype.addMonitorDialog = function(monitorDialog)
 {
     monitorDialog.id = Date.now();
-    while ("" + monitorDialog.id in this.monitorDialogues) monitorDialog.id++;
-    this.monitorDialogues["" + monitorDialog.id] = monitorDialog;
+    while (monitorDialog.id in this.monitorDialogues) monitorDialog.id++;
+    this.monitorDialogues[String(monitorDialog.id)] = monitorDialog;
 }
 Yarip.prototype.removeMonitorDialog = function(monitorDialog)
 {
-    delete this.monitorDialogues["" + monitorDialog.id];
+    delete this.monitorDialogues[monitorDialog.id];
     monitorDialog.id = -1;
 }
 Yarip.prototype.load = function(file, imported)
@@ -1398,7 +1399,7 @@ Yarip.prototype.load = function(file, imported)
     if (!doc) {
         if (!imported) this.save();
         return null;
-    } else if (doc.documentElement.nodeName == "parsererror") {
+    } else if (doc.documentElement.nodeName === "parsererror") {
         return null;
     }
 
@@ -1455,7 +1456,7 @@ Yarip.prototype.load = function(file, imported)
                         nXPath.getAttribute("value"),
                         nXPath.getAttribute("style"),
                         null, // priority
-                        nXPath.getAttribute("force") == "true",
+                        nXPath.getAttribute("force") === "true",
                         pageId, // created
                         null, // lastFound
                         nXPath.getAttribute("found"),
@@ -1493,7 +1494,7 @@ Yarip.prototype.load = function(file, imported)
                         nElement.getAttribute("xpath"),
                         nElement.getAttribute("style"),
                         null, // priority
-                        nElement.getAttribute("force") == "true",
+                        nElement.getAttribute("force") === "true",
                         pageId, // created
                         null, // lastFound
                         nElement.getAttribute("found"),
@@ -1517,7 +1518,7 @@ Yarip.prototype.load = function(file, imported)
                         nContent.getAttribute("regexp"),
                         null, // flags
                         null, // priority
-                        nContent.getAttribute("force") == "true",
+                        nContent.getAttribute("force") === "true",
                         pageId, // created
                         null, // lastFound
                         nContent.getAttribute("ignored")));
@@ -1648,7 +1649,7 @@ Yarip.prototype.load = function(file, imported)
                 while (nItem)
                 {
                     var value = nItem.getAttribute("value");
-                    if (value != page.getId())
+                    if (value !== page.getId())
                     {
                         map.addExtension(page, new YaripExtensionItem(
                             nItem.getAttribute("value"),
@@ -1859,7 +1860,7 @@ Yarip.prototype.load = function(file, imported)
                 while (nPageRef)
                 {
                     var pageExtId = nPageRef.textContent;
-                    if (pageExtId && pageExtId != page.getId())
+                    if (pageExtId && pageExtId !== page.getId())
                     {
                         var created = nPageRef.getAttribute("created");
                         map.addExtension(page, new YaripExtensionItem(
@@ -2478,7 +2479,7 @@ else // if (/^0\.3\.[4]$/.test(version)) // XXX
                     while (nItem)
                     {
                         var pageExtId = nItem.textContent;
-                        if (pageExtId && pageExtId != page.getId())
+                        if (pageExtId && pageExtId !== page.getId())
                         {
                             var created = nItem.getAttribute("created");
                             map.addExtension(page, new YaripExtensionItem(
@@ -2566,7 +2567,7 @@ Yarip.prototype.getFile = function(path)
 }
 Yarip.prototype.saveToFile = function(data, file)
 {
-    if (data != "" && !data || !file) return;
+    if (!data && data !== "" || !file) return;
 
     var fos = null;
     var os = null;
@@ -2590,46 +2591,24 @@ Yarip.prototype.logMessage = function(flags, e)
     scriptError.init("Yarip: " + e.message, e.fileName, null, e.lineNumber, e.columnNumber, flags, "chrome javascript");
     CS.logMessage(scriptError);
 }
-Yarip.prototype.logContent = function(status, location, contentLocation, mimeTypeGuess, itemObj)
+Yarip.prototype.logContent = function(status, location, content, mimeTypeGuess, itemObj)
 {
+    var newLog = false;
     var date = new Date();
-    location = this.getLocation(location);
-    contentLocation = this.getLocation(contentLocation);
-    if (!this.isMobile()) {
-        var newLog = false;
-        for each (var monitor in this.monitorDialogues) {
-            if (monitor.logContent(status, location, contentLocation, date, mimeTypeGuess, itemObj)) {
-                newLog = true;
-            }
+    for each (var monitor in this.monitorDialogues) {
+        if (monitor.logContent(status, location, content, date, mimeTypeGuess, itemObj)) {
+            newLog = true;
         }
-        return newLog;
-    } else {
-        var hours = date.getHours();
-        var minutes = date.getMinutes();
-        var seconds = date.getSeconds();
-        var milliseconds = date.getMilliseconds();
-        var time = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds + "." + (milliseconds < 10 ? "00" : (milliseconds < 100 ? "0" : "")) + milliseconds;
-        var state = "  ";
-        switch (status) {
-        case STATUS_WHITELISTED: state = "\u263A "; break; // whitelisted
-//        case STATUS_BLACKLISTED: state = "\u2639 "; break; // blacklisted
-        case STATUS_BLACKLISTED: state = "\u263B "; break; // blacklisted
-        case STATUS_REDIRECTED: state = status + " "; break; // redirected
-        default: state = status + " "; break;
-        }
-        var page = location.href;
-        var content = contentLocation.href;
-        dump("yarip: " + time + " " + state + " " + page + " " + content + "\n");
-        return true;
     }
+    return newLog;
 }
-Yarip.prototype.updateContentType = function(status, location, contentLocation, contentType, responseStatus)
+Yarip.prototype.updateContentType = function(status, location, content, contentType, responseStatus)
 {
     for each (var monitor in this.monitorDialogues) {
-        monitor.updateContentType(status, location, contentLocation, contentType, responseStatus);
+        monitor.updateContentType(status, location, content, contentType, responseStatus);
     }
 }
-Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
+Yarip.prototype.shouldBlacklist = function(addressObj, content, defaultView, doFlag)
 {
     if (!doFlag) doFlag = DO_CONTENTS;
     var whitelisted = false;
@@ -2651,7 +2630,7 @@ Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
 
         for each (var item in list.obj)
         {
-            if (!item.getRegExpObj().test(url)) continue;
+            if (!item.getRegExpObj().test(content.asciiHref)) continue;
 
             if (extPage.isSelf()) {
                 item.incrementLastFound();
@@ -2681,7 +2660,7 @@ Yarip.prototype.shouldBlacklist = function(addressObj, url, defaultView, doFlag)
 
         for each (var item in list.obj)
         {
-            if (!item.getRegExpObj().test(url)) continue;
+            if (!item.getRegExpObj().test(content.asciiHref)) continue;
             if (whitelisted && !item.getForce()) {
                 if (extPage.isSelf()) {
                     item.incrementIgnored();
@@ -2780,19 +2759,27 @@ Yarip.prototype.getYaripScript = function()
         "    }\n" +
         "}";
 }
-Yarip.prototype.showLinkNotification = function(doc, location, contentLocation, isLink)
+Yarip.prototype.showLinkNotification = function(doc, location, content)
 {
+    location = this.getLocation(location ? location : doc.location);
+    content = this.getLocation(content);
+
+    var key = location.pageName + " " + content.asciiHref;
+    if (key in this.knownNotification) {
+        return;
+    } else {
+        this.knownNotification[key] = true;
+    }
+
     var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
     var browserEnum = wm.getEnumerator("navigator:browser");
     while (browserEnum.hasMoreElements()) {
-        var browserWin = browserEnum.getNext();
-        var tabBrowser = browserWin.gBrowser;
+        var win = browserEnum.getNext();
+        var tabBrowser = win.gBrowser;
         var index = tabBrowser.getBrowserIndexForDocument(doc);
         if (index >= 0) {
             var browser = tabBrowser.getBrowserAtIndex(index);
-            location = this.getLocation(location ? location : doc.location);
-            contentLocation = this.getLocation(contentLocation);
-            var message = stringBundle.formatStringFromName(isLink ? "MSG_OPEN_LINK1" : "MSG_OPEN_CONTENT1", [contentLocation.href.length <= 100 ? contentLocation.href : contentLocation.href.substring(0, 97) + "..."], 1);
+            var message = stringBundle.formatStringFromName("MSG_OPEN1", [content.href.length <= 100 ? content.href : content.href.substring(0, 97) + "..."], 1);
             var nb = tabBrowser.getNotificationBox(browser);
             var openLocation = this.openLocation;
             var yarip = this;
@@ -2805,17 +2792,17 @@ Yarip.prototype.showLinkNotification = function(doc, location, contentLocation, 
                             if (!pageName) return;
                         }
 
-                        var regExp = yarip.generateRegExp(contentLocation.asciiHref);
+                        var regExp = yarip.generateRegExp(content.asciiHref);
                         if (!regExp) return;
 
                         var obj = {
                             pageName: pageName,
-                            itemLocation: location,
-                            item: new YaripContentWhitelistItem(regExp),
-                            itemContent: contentLocation
+                            location: location,
+                            content: content,
+                            item: new YaripContentWhitelistItem(regExp)
                         }
 
-                        browserWin.openDialog("chrome://yarip/content/whitelistcontentdialog.xul", "whitelistcontentdialog", "chrome,modal,resizable", obj);
+                        win.openDialog("chrome://yarip/content/whitelistcontentdialog.xul", "whitelistcontentdialog", "chrome,modal,resizable", obj);
 
                         if (!obj.pageName) return;
                         if (!obj.item) return;
@@ -2833,17 +2820,17 @@ Yarip.prototype.showLinkNotification = function(doc, location, contentLocation, 
                             if (!pageName) return;
                         }
 
-                        var regExp = yarip.generateRegExp(contentLocation.asciiHref);
+                        var regExp = yarip.generateRegExp(content.asciiHref);
                         if (!regExp) return;
 
                         var obj = {
                             pageName: pageName,
-                            itemLocation: location,
-                            item: new YaripContentBlacklistItem(regExp),
-                            itemContent: contentLocation
+                            location: location,
+                            content: content,
+                            item: new YaripContentBlacklistItem(regExp)
                         }
 
-                        browserWin.openDialog("chrome://yarip/content/blacklistcontentdialog.xul", "blacklistcontentdialog", "chrome,modal,resizable", obj);
+                        win.openDialog("chrome://yarip/content/blacklistcontentdialog.xul", "blacklistcontentdialog", "chrome,modal,resizable", obj);
 
                         if (!obj.pageName) return;
                         if (!obj.item) return;
@@ -2861,47 +2848,47 @@ Yarip.prototype.showLinkNotification = function(doc, location, contentLocation, 
                             if (!pageName) return;
                         }
 
-//                        var regExp = yarip.generateRegExp(contentLocation.asciiHref);
+//                        var regExp = yarip.generateRegExp(content.asciiHref);
 //                        if (!regExp) return;
 
 //                        var obj = {
 //                            pageName: pageName,
-//                            itemLocation: location,
-//                            item: new YaripContentBlacklistItem(regExp),
-//                            itemContent: contentLocation
+//                            location: location,
+//                            content: content,
+//                            item: new YaripContentBlacklistItem(regExp)
 //                        }
 
-                        var contentAddress = yarip.getFirstAddress(contentLocation.asciiHref, true);
+                        var contentAddress = yarip.getFirstAddress(content.asciiHref, true);
                         if (!contentAddress) {
-                            contentAddress = yarip.getPageName(contentLocation);
+                            contentAddress = yarip.getPageName(content);
                             if (!contentAddress) return;
                         }
 
-                        var pageExt = yarip.createPage(contentLocation, contentAddress, true /* privateBrowsing/temporary */);
+                        var pageExt = yarip.createPage(content, contentAddress, true /* privateBrowsing/temporary */);
                         var extItem = pageExt.createPageExtensionItem();
 
                         var obj = {
                             pageName: pageName,
-                            pageLocation: location,
+                            location: location,
+                            content: content,
                             contentAddress: contentAddress,
-                            contentLocation: contentLocation,
                             extItem: extItem
                         }
 
-                        browserWin.openDialog("chrome://yarip/content/extendpagedialog.xul", "extendpagedialog", "chrome,modal,resizable", obj);
+                        win.openDialog("chrome://yarip/content/extendpagedialog.xul", "extendpagedialog", "chrome,modal,resizable", obj);
 
                         if (!obj.pageName || !obj.contentAddress || !obj.extItem) {
                             if (pageExt.getTemporary()) yarip.map.remove(pageExt);
                         } else {
-                            yarip.extendPage(obj.pageLocation, obj.pageName, obj.contentLocation, obj.contentAddress, obj.extItem);
+                            yarip.extendPage(obj.location, obj.pageName, obj.content, obj.contentAddress, obj.extItem);
                         }
                     },
                     label: stringBundle.GetStringFromName("STR_EXTEND"),
                     popup: null
                 }, {
                     accessKey: stringBundle.GetStringFromName("STR_ACCESS_KEY_OPEN"),
-                    callback: function() { openLocation(contentLocation.href); },
-//                    callback: function() { doc.location = contentLocation.href; },
+                    callback: function() { openLocation(content.href); },
+//                    callback: function() { doc.location = content.href; },
                     label: stringBundle.GetStringFromName("STR_OPEN"),
                     popup: null
                 }];

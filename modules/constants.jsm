@@ -155,6 +155,7 @@ var EXPORTED_SYMBOLS = [
         "CH",
         "CS",
         "FH",
+        "GH",
         "IDNS",
         "IOS",
         "OS",
@@ -297,14 +298,15 @@ const STATE_START = Ci.nsIWebProgressListener.STATE_START;
 const STATE_STOP = Ci.nsIWebProgressListener.STATE_STOP;
 
 // https://developer.mozilla.org/en-US/DOM/Node.nodeType
-const ELEMENT_NODE = 1;
-const ATTRIBUTE_NODE = 2;
-const TEXT_NODE = 3;
+const ELEMENT_NODE = Ci.nsIDOMHTMLElement.ELEMENT_NODE;
+const ATTRIBUTE_NODE = Ci.nsIDOMHTMLElement.ATTRIBUTE_NODE;
+const TEXT_NODE = Ci.nsIDOMHTMLElement.TEXT_NODE;
 
 // Services
 const CH = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
 const CS = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
 const FH = Cc["@mozilla.org/satchel/form-history;1"].getService(Ci.nsIFormHistory2);
+const GH = Cc['@mozilla.org/browser/global-history;2'].getService(Ci.nsIGlobalHistory2);
 const IDNS = Cc["@mozilla.org/network/idn-service;1"].getService(Ci.nsIIDNService);
 const IOS = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
 const OS = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);

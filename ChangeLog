@@ -1,3 +1,29 @@
+2013-04-01  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/uri.jsm (TLD): Updated the top-level-domain regex.
+
+    * modules/stream.jsm (onStopRequest): Removed support for the
+    `function (matches)'-style stream-feature. Instead the
+    `function (match, p1, p2, ..., offset, string)'-style should be used.
+
+    * chrome/content/overlay.js (ADD TO HISTORY): Allowing to add links to
+    the history (from the context-menu) without first having to visit them.
+
+    * chrome/content/monitordialog.js (return null): Returning `null' in
+    some functions, which previously didn't return anything.
+
+    * modules/yarip.jsm (showLinkNotification): Preventing duplicate
+    notifications.
+
+2013-02-17  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * modules/observer.jsm (REQUEST HEADER): Using the `addressObj' from the
+    `content' if the page was linked to (e.g. HTTP 302).
+
+    * chrome/content/*dialog.js, modules/yarip.jsm: Renamed a few things
+    (e.g. `contentLocation' -> `content' and `{item,page}Location' ->
+    `location').
+
 2013-02-16  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * install.rdf (maxVersion): Updated supported versions.

@@ -37,17 +37,17 @@ function YaripCreatePageDialog()
         var pageName = this.obj.pageName;
         this.pageMenulist.value = pageName;
 
-        var location = "pageLocation" in this.obj ? yarip.getLocation(this.obj.pageLocation) : null;
+        var location = "location" in this.obj ? yarip.getLocation(this.obj.location) : null;
         if (location) {
-            var contentLocation = "contentLocation" in this.obj ? yarip.getLocation(this.obj.contentLocation) : null;
-            var aMap = yarip.getAddressMap([location.asciiHref, contentLocation ? contentLocation.asciiHref : null]);
+            var content = "content" in this.obj ? yarip.getLocation(this.obj.content) : null;
+            var aMap = yarip.getAddressMap([location.asciiHref, content ? content.asciiHref : null]);
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_PAGE)));
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_FQDN)));
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_SLD)));
-            if (contentLocation) {
-                aMap.add(new YaripPage(null, yarip.getPageName(contentLocation, MODE_PAGE)));
-                aMap.add(new YaripPage(null, yarip.getPageName(contentLocation, MODE_FQDN)));
-                aMap.add(new YaripPage(null, yarip.getPageName(contentLocation, MODE_SLD)));
+            if (content) {
+                aMap.add(new YaripPage(null, yarip.getPageName(content, MODE_PAGE)));
+                aMap.add(new YaripPage(null, yarip.getPageName(content, MODE_FQDN)));
+                aMap.add(new YaripPage(null, yarip.getPageName(content, MODE_SLD)));
             }
             var menupopup = document.getElementById("page-menupopup");
             var createMenuitem = this.createMenuitem;

@@ -143,7 +143,7 @@
           <menuitem id="yarip-extendPage-menuitem" label="&menuitem.label.extendPage;" oncommand="yaripMonitor.extendPage();"/>
           <menuitem id="yarip-copyRegExp-menuitem" class="copyRegExp" label="&menuitem.label.copyRegExp;" oncommand="yaripMonitor.copyRegExp();"/>
           <menuseparator id="yarip-copyRegExp-menuseparator"/>
-          <menuitem class="menuitem-iconic goto-menuitem" label="&menuitem.label.goto;" oncommand="yaripOverlay.manageContent(yaripMonitor.getContentPageName(), yaripMonitor.getType(), yaripMonitor.getKey());"/>
+          <menuitem class="menuitem-iconic goto-menuitem" label="&menuitem.label.goto;" oncommand="yaripOverlay.managePages(yaripMonitor.getContentPageName(), yaripMonitor.getType(), yaripMonitor.getKey());"/>
           <menuitem class="createPage" label="&menuitem.label.createPage;" oncommand="yaripMonitor.createPage();"/>
           <menuitem class="managePages" label="&menuitem.label.managePages;" oncommand="yaripOverlay.managePages(yaripMonitor.getPageName());"/>
         </menupopup>
@@ -155,9 +155,9 @@
             <splitter class="tree-splitter" resizeafter="farthest"/>
             <treecol id="status" label="&treecol.label.status;" persist="width hidden"/>
             <splitter class="tree-splitter" resizeafter="farthest"/>
-            <treecol id="page" label="&treecol.label.page;" persist="width hidden" flex="1"/>
+            <treecol id="locationHref" label="&treecol.label.page;" persist="width hidden" flex="1"/>
             <splitter class="tree-splitter" resizeafter="farthest"/>
-            <treecol id="contentLocation" label="&treecol.label.contentLocation;" persist="width" primary="true" flex="1"/>
+            <treecol id="contentHref" label="&treecol.label.contentLocation;" persist="width" primary="true" flex="1"/>
             <splitter class="tree-splitter" resizeafter="farthest"/>
             <treecol id="contentType" label="&treecol.label.contentType;" hidden="true" persist="width hidden"/>
             <splitter class="tree-splitter" resizeafter="farthest"/>

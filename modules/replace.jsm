@@ -32,8 +32,7 @@ Cu.import("resource://yarip/stream.jsm");
 
 const stringBundle = SB.createBundle("chrome://yarip/locale/replace.properties");
 
-function YaripChannelReplace(oldChannel, newURI, callback)
-{
+function YaripChannelReplace(oldChannel, newURI, callback) {
     if (!(oldChannel instanceof Ci.nsITraceableChannel)) return;
 
     this.oldChannel = oldChannel;
@@ -88,9 +87,9 @@ function YaripChannelReplace(oldChannel, newURI, callback)
             this.newChannel.referrer = this.oldChannel.referrer;
         }
         this.newChannel.requestMethod = this.oldChannel.requestMethod;
-        if (this.newChannel.URI.host == this.oldChannel.URI.host) {
+        if (this.newChannel.URI.host === this.oldChannel.URI.host) {
             this.oldChannel.visitRequestHeaders({
-                visitHeader: function(key, value) {
+                "visitHeader": function(key, value) {
 //                    if (!/^(Authorization|Cookie|Host)$|Cache|^If-/.test(key)) {
                         ref.newChannel.setRequestHeader(key, value, false);
 //                    }
@@ -102,12 +101,13 @@ function YaripChannelReplace(oldChannel, newURI, callback)
     // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIHttpChannelInternal
     if (this.oldChannel instanceof Ci.nsIHttpChannelInternal && this.newChannel instanceof Ci.nsIHttpChannelInternal) {
 //        this.oldChannel.channelIsForDownload = this.newChannel.channelIsForDownload;
-        if (this.oldChannel.URI == this.oldChannel.documentURI) {
+        if (this.oldChannel.URI === this.oldChannel.documentURI) {
             this.newChannel.documentURI = newURI;
         } else {
             this.newChannel.documentURI = this.oldChannel.documentURI;
         }
-        this.oldChannel.forceAllowThirdPartyCookie = this.newChannel.forceAllowThirdPartyCookie;
+//        this.oldChannel.forceAllowThirdPartyCookie = this.newChannel.forceAllowThirdPartyCookie;
+        try { this.oldChannel.forceAllowThirdPartyCookie = this.newChannel.forceAllowThirdPartyCookie; } catch (e) {}
     }
 
     // https://developer.mozilla.org/en-US/docs/XPCOM_Interface_Reference/nsIEncodedChannel
@@ -133,11 +133,9 @@ function YaripChannelReplace(oldChannel, newURI, callback)
         }
     }
 
-    this.runWhenPending(this.oldChannel, function()
-    {
+    this.runWhenPending(this.oldChannel, function() {
         new YaripRedirectStreamListener(ref.oldChannel, function() {
-            try
-            {
+            try {
                 var flags = Ci.nsIChannelEventSink.REDIRECT_INTERNAL;
 
                 var ces = Cc["@mozilla.org/netwerk/global-channel-event-sink;1"].getService(Ci.nsIChannelEventSink);
@@ -160,37 +158,33 @@ function YaripChannelReplace(oldChannel, newURI, callback)
         });
     });
 }
-YaripChannelReplace.prototype.runWhenPending = function(request, callback)
-{
+YaripChannelReplace.prototype.runWhenPending = function(request, callback) {
     if (request.isPending()) {
         callback();
     } else {
         new YaripLoadGroup(request, callback);
     }
 }
-YaripChannelReplace.prototype.redirectChannel = function(channelEventSink, oldChannel, newChannel, flags)
-{
+YaripChannelReplace.prototype.redirectChannel = function(channelEventSink, oldChannel, newChannel, flags) {
     if (!(channelEventSink instanceof Ci.nsIChannelEventSink)) return;
 
     channelEventSink.QueryInterface(Ci.nsIChannelEventSink);
     channelEventSink.asyncOnChannelRedirect(oldChannel, newChannel, flags, this.verifyRedirectCallback);
 }
 YaripChannelReplace.prototype.verifyRedirectCallback = {
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIAsyncVerifyRedirectCallback]),
+    "QueryInterface": XPCOMUtils.generateQI([Ci.nsIAsyncVerifyRedirectCallback]),
     // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIAsyncVerifyRedirectCallback#onRedirectVerifyCallback%28%29
-    onRedirectVerifyCallback: function(result) {
-    }
+    "onRedirectVerifyCallback": function(result) {}
 }
 
-function YaripLoadGroup(request, callback)
-{
+function YaripLoadGroup(request, callback) {
     this.request = request;
     this.callback = callback;
     this.loadGroup = request.loadGroup;
     request.loadGroup = this;
 }
 YaripLoadGroup.prototype = {
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsILoadGroup]),
+    "QueryInterface": XPCOMUtils.generateQI([Ci.nsILoadGroup]),
 
     // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsILoadGroup#Attributes
     get activeCount() { return this.loadGroup ? this.loadGroup.activeCount : 0; },
@@ -201,21 +195,16 @@ YaripLoadGroup.prototype = {
     set notificationCallbacks(value) { return this.loadGroup ? this.loadGroup.notificationCallbacks = value : value; },
     get notificationCallbacks() { return this.loadGroup ? this.loadGroup.notificationCallbacks : null; },
     get requests() { return this.loadGroup ? this.loadGroup.requests : {
-            QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator]),
+            "QueryInterface": XPCOMUtils.generateQI([Ci.nsISimpleEnumerator]),
             // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsISimpleEnumerator#getNext%28%29
-            getNext: function() {
-                return null;
-            },
+            "getNext": function() { return null; },
             // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsISimpleEnumerator#hasMoreElements%28%29
-            hasMoreElements: function() {
-                return false;
-            }
+            "hasMoreElements": function() { return false; }
         }
     }
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsILoadGroup#addRequest%28%29
-YaripLoadGroup.prototype.addRequest = function(request, context)
-{
+YaripLoadGroup.prototype.addRequest = function(request, context) {
     if (this.callback) {
         try {
             this.callback();
@@ -227,8 +216,7 @@ YaripLoadGroup.prototype.addRequest = function(request, context)
     }
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsILoadGroup#removeRequest%28%29
-YaripLoadGroup.prototype.removeRequest = function(request, context, status)
-{
+YaripLoadGroup.prototype.removeRequest = function(request, context, status) {
     if (this.loadGroup) {
         this.loadGroup.removeRequest(request, context, status);
     }

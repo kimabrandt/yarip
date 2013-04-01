@@ -112,3 +112,7 @@ menupopup#yarip-monitor-menupopup menuitem[class="managePages"]
 /*  list-style-image: url("moz-icon://stock/document-properties?size=menu");*/
 }
 
+label#yarip-status-label {
+    margin: 0 5px;
+}
+

@@ -58,33 +58,32 @@ YaripWebProgressListener.prototype.onStateChange = function(webProgress, request
     var location = yarip.getLocation(doc.location, request, doc);
     if (!location) return;
 
-    var isLink = location.isLink;
-    if (isLink && !yarip.privateBrowsing) return;
+    if (location.isLink && !yarip.privateBrowsing) return;
 
-    var contentLocation = yarip.getLocation(request.URI);
-    var addressObj = yarip.getAddressObjByLocation(location, true);
+    var content = yarip.getLocation(request.URI);
+    var addressObj = yarip.getAddressObjByLocation(location);
     if (!addressObj.found) {
-       yarip.logContent(STATUS_UNKNOWN, location, contentLocation);
+       yarip.logContent(STATUS_UNKNOWN, location, content);
        return;
     }
 
-    var statusObj = yarip.shouldBlacklist(addressObj, contentLocation.asciiHref, doc.defaultView, isLink ? DO_LINKS : DO_CONTENTS);
+    var statusObj = yarip.shouldBlacklist(addressObj, content, doc.defaultView, location.isLink ? DO_LINKS : DO_CONTENTS);
     switch (statusObj.status) {
     case STATUS_UNKNOWN:
         if (!location.isPage && (stateFlags & STATE_REDIRECTING) !== 0) {
-            yarip.logContent(STATUS_UNKNOWN, location, contentLocation);
+            yarip.logContent(STATUS_UNKNOWN, location, content);
         }
         break;
     case STATUS_WHITELISTED:
         if (!location.isPage && (stateFlags & STATE_REDIRECTING) !== 0) {
-            yarip.logContent(STATUS_WHITELISTED, location, contentLocation, null, statusObj.itemObj);
+            yarip.logContent(STATUS_WHITELISTED, location, content, null, statusObj.itemObj);
         }
         break;
     case STATUS_BLACKLISTED:
         request.cancel(Cr.NS_ERROR_ABORT);
-        var newLog = yarip.logContent(STATUS_BLACKLISTED, location, contentLocation, null, statusObj.itemObj);
+        var newLog = yarip.logContent(STATUS_BLACKLISTED, location, content, null, statusObj.itemObj);
         if (newLog && statusObj.itemObj.ruleType !== TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
-            yarip.showLinkNotification(doc, location, contentLocation, isLink);
+            yarip.showLinkNotification(doc, location, content);
         }
         break;
     }

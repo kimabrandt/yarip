@@ -88,7 +88,8 @@ function YaripPageStyleDialog()
 
         if (!this.doc) {
             this.pageMenulist.disabled = true;
-            document.getElementById("highlight").disabled = true;
+            var element = document.getElementById("highlight");
+            if (element) element.disabled = true;
             return;
         }
 

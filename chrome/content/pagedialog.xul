@@ -20,14 +20,17 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://yarip-os/skin/pagedialog.css" type="text/css"?>
 <!DOCTYPE dialog SYSTEM "chrome://yarip/locale/pagedialog.dtd">
-<dialog id="page-dialog"
+<dialog
+  id="page-dialog"
+  windowtype="yarip:pages"
   title="&dialog.title.managePages;"
   buttons="accept"
   buttonlabelaccept="&button.label.close;"
   onload="dialog.load()"
   ondialogaccept="dialog.unload()"
   ondialogcancel="dialog.unload()"
-  persist="screenX screenY width height"
+  persist="screenX screenY width height sizemode"
+  sizemode="maximized"
   width="800"
   height="600"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">

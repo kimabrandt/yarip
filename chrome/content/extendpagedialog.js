@@ -46,7 +46,7 @@ function YaripPageExtendDialog()
         document.getElementById("stream-checkbox").checked = this.obj.extItem.getDoStreams();
         document.getElementById("link-checkbox").checked = this.obj.extItem.getDoLinks();
 
-        var location = yarip.getLocation(this.obj.pageLocation);
+        var location = yarip.getLocation(this.obj.location);
         if (location) {
 //            var aMap = yarip.getAddressMap(location.asciiHref);
             var aMap = yarip.getAddressMap(location.asciiHref, true, { content: true });
@@ -57,12 +57,12 @@ function YaripPageExtendDialog()
             var createMenuitem = this.createMenuitem;
             aMap.tree.traverse(function(node) { if (node.value) createMenuitem(menupopup, node.value.getName()); });
         }
-        var contentLocation = yarip.getLocation(this.obj.contentLocation);
-        if (contentLocation) {
-            var aMap = yarip.getAddressMap(contentLocation.asciiHref, true, { content: true }, true /* reverse */);
-            aMap.add(new YaripPage(null, yarip.getPageName(contentLocation, MODE_PAGE)));
-            aMap.add(new YaripPage(null, yarip.getPageName(contentLocation, MODE_FQDN)));
-            aMap.add(new YaripPage(null, yarip.getPageName(contentLocation, MODE_SLD)));
+        var content = yarip.getLocation(this.obj.content);
+        if (content) {
+            var aMap = yarip.getAddressMap(content.asciiHref, true, { content: true }, true /* reverse */);
+            aMap.add(new YaripPage(null, yarip.getPageName(content, MODE_PAGE)));
+            aMap.add(new YaripPage(null, yarip.getPageName(content, MODE_FQDN)));
+            aMap.add(new YaripPage(null, yarip.getPageName(content, MODE_SLD)));
             var menupopup = document.getElementById("content-menupopup");
             var createMenuitem = this.createMenuitem;
             aMap.tree.traverse(function(node) { if (node.value) createMenuitem(menupopup, node.value.getName()); });

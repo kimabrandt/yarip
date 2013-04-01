@@ -25,7 +25,7 @@ function YaripMonitorDialog()
     this.stringbundle = null;
     this.tree = null;
     this.doScroll = true;
-    this.known = {};
+    this.knownContent = {};
 
     this.openLocation = function()
     {
@@ -61,9 +61,9 @@ function YaripMonitorDialog()
 
         var obj = {
             pageName: pageName,
-            itemLocation: item.location,
-            item: new YaripContentWhitelistItem(regExp),
-            itemContent: item.content
+            location: item.location,
+            content: item.content,
+            item: new YaripContentWhitelistItem(regExp)
         }
 
         window.openDialog("chrome://yarip/content/whitelistcontentdialog.xul", "whitelistcontentdialog", "chrome,modal,resizable", obj);
@@ -90,9 +90,9 @@ function YaripMonitorDialog()
 
         var obj = {
             pageName: pageName,
-            itemLocation: item.location,
-            item: new YaripContentBlacklistItem(regExp),
-            itemContent: item.content
+            location: item.location,
+            content: item.content,
+            item: new YaripContentBlacklistItem(regExp)
         }
 
         window.openDialog("chrome://yarip/content/blacklistcontentdialog.xul", "blacklistcontentdialog", "chrome,modal,resizable", obj);
@@ -116,8 +116,7 @@ function YaripMonitorDialog()
 
         var contentAddress = yarip.getFirstAddress(item.content.asciiHref, true);
         if (!contentAddress) {
-            var contentLocation = yarip.getLocation(item.content);
-            contentAddress = yarip.getPageName(contentLocation);
+            contentAddress = yarip.getPageName(item.content);
             if (!contentAddress) return;
         }
 
@@ -126,9 +125,9 @@ function YaripMonitorDialog()
 
         var obj = {
             pageName: pageName,
-            pageLocation: item.location,
+            location: item.location,
+            content: item.content,
             contentAddress: contentAddress,
-            contentLocation: item.content,
             extItem: extItem
         }
 
@@ -137,7 +136,7 @@ function YaripMonitorDialog()
         if (!obj.pageName || !obj.contentAddress || !obj.extItem) {
             if (pageExt.getTemporary()) yarip.map.remove(pageExt);
         } else {
-            yarip.extendPage(obj.pageLocation, obj.pageName, obj.contentLocation, obj.contentAddress, obj.extItem);
+            yarip.extendPage(obj.location, obj.pageName, obj.content, obj.contentAddress, obj.extItem);
         }
     }
 
@@ -154,29 +153,29 @@ function YaripMonitorDialog()
 
         var obj = {
             pageName: pageName,
-            pageLocation: item.location,
-            contentLocation: item.content
+            content: item.content,
+            location: item.location
         }
 
         window.openDialog("chrome://yarip/content/createpagedialog.xul", "createpagedialog", "chrome,modal,resizable", obj);
 
         if (!obj.pageName) return;
 
-        var page = yarip.createPage(obj.pageLocation, obj.pageName, null, true /* byUser */);
+        var page = yarip.createPage(obj.location, obj.pageName, null, true /* byUser */);
         yaripOverlay.managePages(page.getName());
     }
 
-    this.getPageLocation = function()
-    {
-        if (this.tree.currentIndex < 0) return;
+//    this.getPageLocation = function()
+//    {
+//        if (this.tree.currentIndex < 0) return null;
 
-        var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
-        return item.location;
-    }
+//        var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
+//        return item.location;
+//    }
 
     this.getPageName = function()
     {
-        if (this.tree.currentIndex < 0) return;
+        if (this.tree.currentIndex < 0) return null;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
         return yarip.getFirstAddress(item.location.asciiHref);
@@ -184,7 +183,7 @@ function YaripMonitorDialog()
 
     this.getContentPageName = function()
     {
-        if (this.tree.currentIndex < 0) return;
+        if (this.tree.currentIndex < 0) return null;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
         if (item.itemObj && item.itemObj.pageName) {
@@ -196,7 +195,7 @@ function YaripMonitorDialog()
 
     this.getType = function()
     {
-        if (this.tree.currentIndex < 0) return;
+        if (this.tree.currentIndex < 0) return null;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
         if (item.itemObj) {
@@ -208,7 +207,7 @@ function YaripMonitorDialog()
 
     this.getKey = function()
     {
-        if (this.tree.currentIndex < 0) return;
+        if (this.tree.currentIndex < 0) return null;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
         if (item.itemObj) {
@@ -227,51 +226,51 @@ function YaripMonitorDialog()
         if (regExp) CH.copyString(regExp);
     }
 
-    this.logContent = function(status, location, contentLocation, date, contentType, itemObj)
+    this.logContent = function(status, location, content, date, contentType, itemObj)
     {
-        if (!location || !contentLocation) return false;
+        if (!location || !content) return false;
         if (this.hidden && !yarip.logWhenClosed) return true;
 
-        var item = {
-            location: yarip.getLocation(location),
-            content: yarip.getLocation(contentLocation)
-        };
-        var knownKey = item.location.pageName + " " + item.content.asciiHref;
-        var logObj = this.known[knownKey];
-        if (logObj && status === logObj[0]) return false;
+        var key = location.pageName + " " + content.asciiHref;
+        if (status === this.knownContent[key]) return false;
 
         var hours = date.getHours();
         var minutes = date.getMinutes();
         var seconds = date.getSeconds();
         var milliseconds = date.getMilliseconds();
-        item.time = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds + "." + (milliseconds < 10 ? "00" : (milliseconds < 100 ? "0" : "")) + milliseconds;
-        item.dateTime = date.getTime();
-        item.itemObj = itemObj;
-        item.knownKey = knownKey;
-        item.status = status;
-        item.page = item.location.href;
-        item.asciiPage = item.location.asciiHref;
-        item.contentLocation = item.content.href;
-        item.asciiContentLocation = item.content.asciiHref;
-        item.contentType = contentType ? "(guess) " + contentType : null;
+        var item = {
+            "location": location,
+            "content": content,
+            "time": (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds + "." + (milliseconds < 10 ? "00" : (milliseconds < 100 ? "0" : "")) + milliseconds,
+            "dateTime": date.getTime(),
+            "itemObj": itemObj,
+            "key": key,
+            "status": status,
+            "locationHref": location.href,
+            "locationAsciiHref": location.asciiHref,
+            "contentHref": content.href,
+            "contentAsciiHref": content.asciiHref,
+            "contentType": contentType ? "(guess) " + contentType : null
+        };
         yaripMonitorTreeView.appendItem(item, this.doScroll, this.hidden);
-        this.known[knownKey] = [status];
+        this.knownContent[key] = status;
         return true;
     }
 
-    this.updateContentType = function(_status, location, contentLocation, contentType, statusCode)
+    this.updateContentType = function(_status, location, content, contentType, statusCode)
     {
-        if (!location || !contentLocation || !contentType && !statusCode) return;
+        if (!location || !content || !contentType && !statusCode) return;
 
-        contentType = contentType != "application/x-unknown-content-type" ? contentType : null;
-        yaripMonitorTreeView.updateContentType(location, contentLocation, contentType, statusCode, this.hidden);
+        contentType = contentType !== "application/x-unknown-content-type" ? contentType : null;
+        yaripMonitorTreeView.updateContentType(location, content, contentType, statusCode, this.hidden);
     }
 
     this.clear = function()
     {
         document.getElementById("yarip-filter-textbox").value = "";
         yaripMonitorTreeView.clearItems();
-        this.known = {};
+        this.knownContent = {};
+        yarip.resetKnown();
     }
 
     this.handleEvent = function(event)
@@ -352,7 +351,7 @@ function YaripMonitorDialog()
 
     this.filterStatus = function(status, event)
     {
-        yaripMonitorTreeView.applyFilterStatus(status, this.tree.currentIndex, event.target.getAttribute("checked") == "true");
+        yaripMonitorTreeView.applyFilterStatus(status, this.tree.currentIndex, event.target.getAttribute("checked") === "true");
     }
 }
 
@@ -374,7 +373,7 @@ var yaripMonitorTreeView = {
     cycleHeader: function(col) {},
     getCellProperties: function(row, col, properties)
     {
-        if (col.id != "status") return;
+        if (col.id !== "status") return;
         if (row < 0 || row >= this.visibleData.length) return;
 
         switch (this.visibleData[row].status) {
@@ -431,10 +430,10 @@ var yaripMonitorTreeView = {
 
     appendItem: function(item, doScroll, hidden)
     {
-        if (this.childDataObj[item.knownKey]) {
-            this.childDataObj[item.knownKey].push(item);
+        if (this.childDataObj[item.key]) {
+            this.childDataObj[item.key].push(item);
         } else {
-            this.childDataObj[item.knownKey] = [item];
+            this.childDataObj[item.key] = [item];
         }
 
         this.childData.push(item);
@@ -457,15 +456,15 @@ var yaripMonitorTreeView = {
         return item;
     },
 
-    updateContentType: function(location, contentLocation, contentType, statusCode, hidden)
+    updateContentType: function(location, content, contentType, statusCode, hidden)
     {
-        var knownKey = location.pageName + " " + contentLocation.asciiHref;
-        var items = this.childDataObj[knownKey];
+        var key = location.pageName + " " + content.asciiHref;
+        var items = this.childDataObj[key];
         if (!items) return;
 
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
-            if (!item.statusCode && item.status != STATUS_BLACKLISTED && item.status != STATUS_REDIRECTED) {
+            if (!item.statusCode && item.status !== STATUS_BLACKLISTED && item.status !== STATUS_REDIRECTED) {
                 if (contentType) item.contentType = contentType;
                 if (statusCode) item.statusCode = statusCode;
                 if (this.treebox && !hidden) {
@@ -497,7 +496,7 @@ var yaripMonitorTreeView = {
         var prevRowCount = tv.rowCount;
         var currentItem = tv.visibleData[currentIndex];
         if (!tv.dateTime && currentItem) tv.dateTime = currentItem.dateTime;
-        tv.filterString = value != "" ? value : null;
+        tv.filterString = value ? value : null;
         tv.filterRegExp = null;
         tv.filterError = false;
         tv.visibleData = [];
@@ -563,10 +562,10 @@ var yaripMonitorTreeView = {
             ) && (
                 !tv.filterRegExp
                 || tv.filterRegExp.test(item.time)
-                || tv.filterRegExp.test(item.asciiPage)
-                || tv.filterRegExp.test(item.asciiContentLocation)
+                || tv.filterRegExp.test(item.locationAsciiHref)
+                || tv.filterRegExp.test(item.contentAsciiHref)
                 || (item.contentType && tv.filterRegExp.test(item.contentType))
-                || (item.statusCode && tv.filterRegExp.test("" + item.statusCode))
+                || (item.statusCode && tv.filterRegExp.test(item.statusCode))
            );
     }
 }

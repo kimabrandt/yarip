@@ -270,7 +270,7 @@ function YaripHandler(doc, stopCallback, statusCallback)
         try {
             if (this.element && this.element.nodeType !== 2) {
                 this.element.style.outline = this.outline;
-                if (this.element.getAttribute("style") === "") {
+                if (!this.element.getAttribute("style")) {
                     this.element.removeAttribute("style");
                 }
             }

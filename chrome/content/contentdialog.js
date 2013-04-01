@@ -82,10 +82,10 @@ function YaripContentDialog()
         this.regExpTextbox.focus();
         this.regExpTextbox.select();
 
-        var location = "itemLocation" in this.obj ? yarip.getLocation(this.obj.itemLocation) : null;
+        var location = "location" in this.obj ? yarip.getLocation(this.obj.location) : null;
         if (location) {
-            var contentLocation = "itemContent" in this.obj ? yarip.getLocation(this.obj.itemContent) : null;
-            var aMap = yarip.getAddressMap(contentLocation ? [location.asciiHref, contentLocation.asciiHref] : location.asciiHref, true, { content: true });
+            var content = "content" in this.obj ? yarip.getLocation(this.obj.content) : null;
+            var aMap = yarip.getAddressMap(content ? [location.asciiHref, content.asciiHref] : location.asciiHref, true, { content: true });
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_PAGE)));
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_FQDN)));
             aMap.add(new YaripPage(null, yarip.getPageName(location, MODE_SLD)));

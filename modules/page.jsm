@@ -31,7 +31,6 @@ Cu.import("resource://yarip/object.jsm");
 Cu.import("resource://yarip/list.jsm");
 Cu.import("resource://yarip/item.jsm");
 
-//function YaripPage(id, name, elementWhitelist, elementBlacklist, elementAttributeList, elementScriptList, contentWhitelist, contentBlacklist, contentRequestHeaderList, contentResponseHeaderList, contentRedirectList, contentStreamList, pageStyleList, pageScriptList, pageRequestHeaderList, pageResponseHeaderList, pageRedirectList, pageStreamList, pageExtensionList, pageExtendedByList)
 function YaripPage(id, name, created, elementWhitelist, elementBlacklist, elementAttributeList, elementScriptList, contentWhitelist, contentBlacklist, contentRequestHeaderList, contentResponseHeaderList, contentRedirectList, contentStreamList, pageStyleList, pageScriptList, pageRequestHeaderList, pageResponseHeaderList, pageRedirectList, pageStreamList, pageExtensionList, pageExtendedByList)
 {
     this.id = null;
@@ -72,7 +71,7 @@ YaripPage.prototype.getKey = function()
 YaripPage.prototype.setId = function(id)
 {
     if (!id) id = this.newId();
-    this.id = "" + id;
+    this.id = String(id);
 }
 YaripPage.prototype.getId = function()
 {
@@ -81,7 +80,7 @@ YaripPage.prototype.getId = function()
 YaripPage.prototype.setName = function(value, init)
 {
     if (value) {
-        this.name = "" + value;
+        this.name = String(value);
         if (init) this.init();
     }
 }
@@ -167,7 +166,9 @@ YaripPage.prototype.hasStreams = function()
 }
 YaripPage.prototype.setTemporary = function(value)
 {
-    this.temporary = "" + value == "true";
+    var oldTemporary = this.temporary;
+    this.temporary = String(value) === "true";
+    return oldTemporary !== this.temporary;
 }
 YaripPage.prototype.getTemporary = function()
 {
@@ -178,9 +179,7 @@ YaripPage.prototype.clone = function(purge, pageName, id)
     return new this.constructor(
         id ? id : purge ? this.newId() : this.id,
         pageName ? pageName : this.name,
-//        this.created,
         purge ? Date.now() : this.created,
-//        id || purge ? Date.now() : this.created,
         this.elementWhitelist.clone(purge),
         this.elementBlacklist.clone(purge),
         this.elementAttributeList.clone(purge),
@@ -200,10 +199,10 @@ YaripPage.prototype.clone = function(purge, pageName, id)
         this.pageExtensionList.clone(),
         purge ? null : this.pageExtendedByList.clone());
 }
-YaripPage.prototype.merge = function(page)
+YaripPage.prototype.merge = function(page, ignoreTemporary, ignoreExtension)
 {
     if (!page) return;
-    if (this.getCreated() == -1 || page.getCreated() < this.getCreated()) this.setCreated(page.getCreated());
+    if (this.getCreated() === -1 || page.getCreated() < this.getCreated()) this.setCreated(page.getCreated());
     this.elementWhitelist.merge(page.elementWhitelist);
     this.elementBlacklist.merge(page.elementBlacklist);
     this.elementAttributeList.merge(page.elementAttributeList);
@@ -220,9 +219,13 @@ YaripPage.prototype.merge = function(page)
     this.pageResponseHeaderList.merge(page.pageResponseHeaderList);
     this.pageRedirectList.merge(page.pageRedirectList);
     this.pageStreamList.merge(page.pageStreamList);
-    this.pageExtensionList.merge(page.pageExtensionList);
-    this.pageExtendedByList.merge(page.pageExtendedByList);
-    this.setTemporary(this.getTemporary() && page.getTemporary());
+    if (!ignoreExtension) {
+        this.pageExtensionList.merge(page.pageExtensionList);
+        this.pageExtendedByList.merge(page.pageExtendedByList);
+    }
+    if (!ignoreTemporary) {
+        this.setTemporary(this.getTemporary() && page.getTemporary());
+    }
 }
 YaripPage.prototype.purge = function()
 {
@@ -386,7 +389,7 @@ YaripPage.prototype.generateXml = function()
         this.elementBlacklist.generateXml() +
         this.elementAttributeList.generateXml() +
         this.elementScriptList.generateXml();
-    if (tmpElement != "") {
+    if (tmpElement) {
         tmpElement = "\t\t<element>\n" + tmpElement + "\t\t</element>\n";
     }
 
@@ -394,10 +397,10 @@ YaripPage.prototype.generateXml = function()
         this.contentResponseHeaderList.generateXml();
     var tmpContent = this.contentWhitelist.generateXml() +
         this.contentBlacklist.generateXml() +
-        (tmpContentHeader != "" ? "\t\t\t<header>\n" + tmpContentHeader + "\t\t\t</header>\n" : "") +
+        (tmpContentHeader ? "\t\t\t<header>\n" + tmpContentHeader + "\t\t\t</header>\n" : "") +
         this.contentRedirectList.generateXml() +
         this.contentStreamList.generateXml();
-    if (tmpContent != "") {
+    if (tmpContent) {
         tmpContent = "\t\t<content>\n" + tmpContent + "\t\t</content>\n";
     }
 
@@ -405,17 +408,16 @@ YaripPage.prototype.generateXml = function()
         this.pageResponseHeaderList.generateXml();
     var tmpPage = this.pageStyleList.generateXml() +
         this.pageScriptList.generateXml() +
-        (tmpPageHeader != "" ? "\t\t\t<header>\n" + tmpPageHeader + "\t\t\t</header>\n" : "") +
+        (tmpPageHeader ? "\t\t\t<header>\n" + tmpPageHeader + "\t\t\t</header>\n" : "") +
         this.pageRedirectList.generateXml() +
         this.pageStreamList.generateXml() +
         this.pageExtensionList.generateXml();
-    if (tmpPage != "") {
+    if (tmpPage) {
         tmpPage = "\t\t<page>\n" + tmpPage + "\t\t</page>\n";
     }
 
     var tmp = tmpElement + tmpContent + tmpPage;
-//    return tmp != "" ? "\t<page id=\"" + this.id + "\" name=\"" + this.name + "\">\n" + tmp + "\t</page>\n" : "";
-    return tmp != "" ? "\t" +
+    return tmp ? "\t" +
         "<page" +
             " id=\"" + this.id + "\"" +
             " name=\"" + this.name + "\"" +

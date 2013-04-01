@@ -59,7 +59,7 @@ function YaripOverlay()
 
     this.start = function(event)
     {
-        if (event.button != 0) return;
+        if (event.button !== 0) return;
 
         var doc = content.document;
         if (this.active) {
@@ -130,9 +130,7 @@ function YaripOverlay()
         }
 
         window.openDialog("chrome://yarip/content/whitelistelementdialog.xul", "whitelistelementdialog", "chrome,modal,resizable", doc, obj);
-
-        if (!obj.pageName || obj.pageName === "") return;
-        if (!obj.item) return;
+        if (!obj.pageName || !obj.item) return;
 
         yarip.whitelistElementItem(doc, obj.pageName, obj.item, true, true);
     }
@@ -159,9 +157,7 @@ function YaripOverlay()
         }
 
         window.openDialog("chrome://yarip/content/blacklistelementdialog.xul", "blacklistelementdialog", "chrome,modal,resizable", doc, obj);
-
-        if (!obj.item) return;
-        if (!obj.pageName || obj.pageName === "") return;
+        if (!obj.pageName || !obj.item) return;
 
         yarip.blacklistElementItem(doc, obj.pageName, obj.item, true, true);
     }
@@ -223,10 +219,7 @@ function YaripOverlay()
         }
 
         window.openDialog("chrome://yarip/content/styledialog.xul", "styledialog", "chrome,modal,resizable", doc, obj);
-
-        if (!obj.pageName || obj.pageName === "") return;
-        if (!obj.item) return;
-        if (!obj.attrName || obj.attrName === "") return;
+        if (!obj.pageName || !obj.item || !obj.attrName) return;
 
         obj.item.setName(obj.attrName);
         obj.item.setValue(obj.attrValue);
@@ -258,9 +251,7 @@ function YaripOverlay()
         }
 
         window.openDialog("chrome://yarip/content/pagestyledialog.xul", "pagestyledialog", "chrome,modal,resizable", doc, obj);
-
-        if (!obj.pageName || obj.pageName === "") return;
-        if (!obj.item) return;
+        if (!obj.pageName || !obj.item) return;
 
         yarip.stylePage(doc, obj.pageName, obj.item, true);
     }
@@ -293,9 +284,7 @@ function YaripOverlay()
         }
 
         window.openDialog("chrome://yarip/content/scriptdialog.xul", "scriptdialog", "chrome,modal,resizable", doc, obj);
-
-        if (!obj.pageName || obj.pageName === "") return;
-        if (!obj.item) return;
+        if (!obj.pageName || !obj.item) return;
 
         yarip.scriptElementItem(doc, obj.pageName, obj.item, true);
     }
@@ -347,14 +336,13 @@ function YaripOverlay()
 
         var obj = {
             pageName: pageName,
-            pageLocation: location
+            location: location
         }
 
         window.openDialog("chrome://yarip/content/createpagedialog.xul", "createpagedialog", "chrome,modal,resizable", obj);
-
         if (!obj.pageName) return;
 
-        var page = yarip.createPage(obj.pageLocation, obj.pageName);
+        var page = yarip.createPage(obj.location, obj.pageName);
         this.managePages(page.getName());
     }
 
@@ -371,7 +359,7 @@ function YaripOverlay()
         window.openDialog("chrome://yarip/content/options.xul", "optionsdialog", "chrome,modal,resizable");
     }
 
-    this.manageContent = function(pageName, type, key)
+    this.managePages = function(pageName, type, key)
     {
         this.stop();
 
@@ -382,25 +370,13 @@ function YaripOverlay()
             pageName = yarip.getFirstAddress(location.asciiHref);
         }
 
-        if (!yarip.reloadPage(pageName, true /* selectItem */, true /* selectTab */, true /* resetFilter */, type, key)) {
-            window.openDialog("chrome://yarip/content/pagedialog.xul", "pagedialog", "chrome,resizable", pageName, type, key);
+        var win = Services.wm.getMostRecentWindow("yarip:pages");
+        if (win) {
+            yarip.reloadPage(pageName, true /* selectItem */, true /* selectTab */, true /* resetFilter */, type, key);
+        } else {
+            win = window.open("chrome://yarip/content/pagedialog.xul?page=" + escape(pageName) + (type ? "&type=" + escape(type) : "") + (key ? "&key=" + escape(key) : ""), "_blank", "chrome,resizable");
         }
-    }
-
-    this.managePages = function(pageName)
-    {
-        this.stop();
-
-        yarip.resetUndo();
-
-        if (!pageName) {
-            var location = yarip.getLocation(content.document.location);
-            pageName = yarip.getFirstAddress(location.asciiHref);
-        }
-
-        if (!yarip.reloadPage(pageName, true /* selectItem */, true /* selectTab */, true /* reset */)) {
-            window.openDialog("chrome://yarip/content/pagedialog.xul", "pagedialog", "chrome,resizable", pageName);
-        }
+        win.focus();
     }
 
     this.toggleEnabled = function(enabled, force)
@@ -410,7 +386,7 @@ function YaripOverlay()
         var enabledChanged = yarip.toggleEnabled(enabled) || force;
         this.enabledObserver.enable();
         if (enabledChanged) {
-            document.getElementById("yarip-enabled-menuitem").setAttribute("checked", "" + yarip.enabled);
+            document.getElementById("yarip-enabled-menuitem").setAttribute("checked", String(yarip.enabled));
             this.setYaripStatus(content.document, yarip.enabled ? "enabled" : "disabled");
         }
     }
@@ -430,7 +406,7 @@ function YaripOverlay()
         }
         this.flickerObserver.enable();
 
-        document.getElementById("yarip-flicker-menuitem").setAttribute("checked", "" + yarip.noFlicker);
+        document.getElementById("yarip-flicker-menuitem").setAttribute("checked", String(yarip.noFlicker));
     }
 
     this.updateNoFlicker = function()
@@ -447,7 +423,7 @@ function YaripOverlay()
         }
 
         this.logWhenClosedObserver.enable();
-        document.getElementById("yarip-logWhenClosed-checkbox").setAttribute("checked", "" + yarip.logWhenClosed);
+        document.getElementById("yarip-logWhenClosed-checkbox").setAttribute("checked", String(yarip.logWhenClosed));
     }
 
     this.updateLogWhenClosed = function()
@@ -771,11 +747,11 @@ function YaripOverlay()
 
         case "popupshowing":
             this.stop();
-            if (event.target.getAttribute("id") != this.contextMenuId) return;
+            if (event.target.getAttribute("id") !== this.contextMenuId) return;
 
             // YARIP-MENU
             var menu = this.yaripMenupopup.firstChild;
-            while (menu && menu.getAttribute("id") != "yarip-undo-menu-sep")
+            while (menu && menu.getAttribute("id") !== "yarip-undo-menu-sep")
             {
                 var next = menu.nextSibling;
                 menu.removeEventListener("DOMMenuItemActive", this, false);
@@ -818,7 +794,7 @@ function YaripOverlay()
 
                 // UNDO-MENU
                 var menuitem = undoMenu.firstChild;
-                while (menuitem && menuitem.localName != "menuseparator")
+                while (menuitem && menuitem.localName !== "menuseparator")
                 {
                     var next = menuitem.nextSibling;
                     undoMenu.removeChild(menuitem);
@@ -826,7 +802,7 @@ function YaripOverlay()
                 }
                 var found = false;
                 for each (var obj in yarip.undoObj) {
-                    if (!obj || obj.document != doc) continue;
+                    if (!obj || obj.document !== doc) continue;
 
                     var menuitem = document.createElement("menuitem");
                     menuitem.setAttribute("label", this.stringbundle.getFormattedString("undo-" + obj.type, [obj.text]));
@@ -867,6 +843,8 @@ function YaripOverlay()
                         break;
                     }
                 }
+
+                yarip.resetKnown();
             }
             break;
         }
@@ -887,16 +865,11 @@ function YaripOverlay()
         doc.defaultView.yaripMutationObserverTimeout = null;
 
         if (!yarip.enabled) return;
-//        if (!doc.body || !doc.location) return;
-//        if (!/^https?:$/.test(doc.location.protocol)) return;
-//        if (!/^(text\/html|application\/xhtml\+xml)$/.test(doc.contentType)) return;
 
         if (overlay.loader.load(doc, !noIncrement)) {
             overlay.setYaripStatus(doc, "found");
-            return true;
         } else {
             overlay.setYaripStatus(doc);
-            return false;
         }
     }
 
@@ -941,7 +914,7 @@ function YaripOverlay()
                 for (var i = 0; i < node.attributes.length; i++)
                 {
                     var attribute = node.attributes[i];
-                    if (!attribute || attribute.value === "") continue;
+                    if (!attribute || !attribute.value) continue;
 
                     switch (attribute.name) {
                     case "status": if (/^(whitelisted|blacklisted)$/.test(attribute.value)) continue;
@@ -979,7 +952,7 @@ function YaripOverlay()
             for (var i = 0; i < node.attributes.length; i++)
             {
                 var attribute = node.attributes[i];
-                if (!attribute || attribute.value === "") continue;
+                if (!attribute || !attribute.value) continue;
 
                 switch (attribute.name) {
                 case "status": if (/^(whitelisted|blacklisted)$/.test(attribute.value)) continue;
@@ -1022,6 +995,22 @@ function YaripOverlay()
         item.setAttribute("label", this.stringbundle.getString("menuitemStylePage"));
         item.addEventListener("command", function() { ref.stylePage(node.ownerDocument, node); }, false);
         menupopup.appendChild(item);
+
+        // ADD TO HISTORY
+        if (node.localName == "a") {
+            item = document.createElement("menuitem");
+            item.setAttribute("label", this.stringbundle.getString("menuitemAddToHistory"));
+            item.addEventListener("command", function() {
+                var loc = node.ownerDocument.location.href;
+                var href = node.getAttribute("href");
+                if (!/^\w+:\/+/.test(href)) {
+                    var path = node.ownerDocument.location.pathname;
+                    href = loc.substring(0, loc.indexOf(path)) + (!/^\//.test(href) ? "/" : "") + href;
+                }
+                GH.addURI(IOS.newURI(href, null, null), false, true, IOS.newURI(loc, null, null));
+            }, false);
+            menupopup.appendChild(item);
+        }
 
         // COPY XPATH
         item = document.createElement("menuitem");

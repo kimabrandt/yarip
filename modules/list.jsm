@@ -60,7 +60,7 @@ YaripList.prototype = new YaripObject;
 YaripList.prototype.constructor = YaripList;
 YaripList.prototype.setName = function(value)
 {
-    if (value) this.name = "" + value;
+    if (value) this.name = String(value);
 }
 YaripList.prototype.getName = function()
 {
@@ -68,7 +68,7 @@ YaripList.prototype.getName = function()
 }
 YaripList.prototype.setExclusive = function(value)
 {
-    this.exclusive = "" + value == "true";
+    this.exclusive = String(value) === "true";
     this.resetKnown();
 }
 YaripList.prototype.getExclusive = function()
@@ -100,7 +100,7 @@ YaripList.prototype.add = function(item, purge)
     if (existItem) {
         var key = existItem.getKey();
         existItem.merge(item);
-        if (key != existItem.getKey()) {
+        if (key !== existItem.getKey()) {
             this.sorted = false;
         }
         if (purge) existItem.purge();
@@ -216,7 +216,7 @@ YaripElementWhitelist.prototype.set = function(row, col, value)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case 0:
@@ -251,7 +251,7 @@ YaripElementWhitelist.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
@@ -309,7 +309,7 @@ YaripElementBlacklist.prototype.set = function(row, col, value)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case 0:
@@ -347,7 +347,7 @@ YaripElementBlacklist.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
@@ -405,7 +405,7 @@ YaripElementAttributeList.prototype.set = function(row, col, value)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case 0:
@@ -454,7 +454,7 @@ YaripElementAttributeList.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
@@ -513,7 +513,7 @@ YaripElementScriptList.prototype.set = function(row, col, value)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case 0:
@@ -554,7 +554,7 @@ YaripElementScriptList.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
@@ -614,7 +614,7 @@ YaripContentWhitelist.prototype.set = function(row, col, value)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case 0:
@@ -652,7 +652,7 @@ YaripContentWhitelist.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
@@ -708,7 +708,7 @@ YaripContentBlacklist.prototype.set = function(row, col, value)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case 0:
@@ -749,7 +749,7 @@ YaripContentBlacklist.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
@@ -806,7 +806,7 @@ YaripStreamReplaceList.prototype.set = function(row, col, value)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case 0:
@@ -860,7 +860,7 @@ YaripStreamReplaceList.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
@@ -918,7 +918,7 @@ YaripPageStyleList.prototype.set = function(row, col, value)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case 0:
@@ -956,7 +956,7 @@ YaripPageStyleList.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
@@ -1013,7 +1013,7 @@ YaripPageScriptList.prototype.set = function(row, col, value)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case 0:
@@ -1054,7 +1054,7 @@ YaripPageScriptList.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
@@ -1112,7 +1112,7 @@ YaripHeaderList.prototype.set = function(row, col, value)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case 0:
@@ -1164,7 +1164,7 @@ YaripHeaderList.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
@@ -1235,7 +1235,7 @@ YaripRedirectList.prototype.set = function(row, col, value)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case 0:
@@ -1276,7 +1276,7 @@ YaripRedirectList.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
@@ -1335,7 +1335,7 @@ YaripPageExtensionList.prototype.set = function(row, col, value)
     };
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         this.resetKnown();
 
@@ -1393,7 +1393,7 @@ YaripPageExtensionList.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
@@ -1504,7 +1504,7 @@ YaripPageExtendedByList.prototype.set = function(row, col, value)
     };
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case 2:
@@ -1549,7 +1549,7 @@ YaripPageExtendedByList.prototype.get = function(row, col)
     var i = 0;
     for each (var item in this.obj)
     {
-        if (i++ != row) continue;
+        if (i++ !== row) continue;
 
         switch (col) {
         case LIST_INDEX_KEY: return item.getKey();
