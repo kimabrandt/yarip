@@ -31,8 +31,7 @@ Cu.import("resource://yarip/object.jsm");
 Cu.import("resource://yarip/list.jsm");
 Cu.import("resource://yarip/item.jsm");
 
-function YaripPage(id, name, created, elementWhitelist, elementBlacklist, elementAttributeList, elementScriptList, contentWhitelist, contentBlacklist, contentRequestHeaderList, contentResponseHeaderList, contentRedirectList, contentStreamList, pageStyleList, pageScriptList, pageRequestHeaderList, pageResponseHeaderList, pageRedirectList, pageStreamList, pageExtensionList, pageExtendedByList)
-{
+function YaripPage(id, name, created, elementWhitelist, elementBlacklist, elementAttributeList, elementScriptList, contentWhitelist, contentBlacklist, contentRequestHeaderList, contentResponseHeaderList, contentRedirectList, contentStreamList, pageStyleList, pageScriptList, pageRequestHeaderList, pageResponseHeaderList, pageRedirectList, pageStreamList, pageExtensionList, pageExtendedByList) {
     this.id = null;
     this.name = "";
     this.created = -1;
@@ -64,32 +63,26 @@ function YaripPage(id, name, created, elementWhitelist, elementBlacklist, elemen
 }
 YaripPage.prototype = new YaripObject;
 YaripPage.prototype.constructor = YaripPage;
-YaripPage.prototype.getKey = function()
-{
+YaripPage.prototype.getKey = function() {
     return this.getId();
 }
-YaripPage.prototype.setId = function(id)
-{
+YaripPage.prototype.setId = function(id) {
     if (!id) id = this.newId();
     this.id = String(id);
 }
-YaripPage.prototype.getId = function()
-{
+YaripPage.prototype.getId = function() {
     return this.id;
 }
-YaripPage.prototype.setName = function(value, init)
-{
+YaripPage.prototype.setName = function(value, init) {
     if (value) {
         this.name = String(value);
         if (init) this.init();
     }
 }
-YaripPage.prototype.getName = function()
-{
+YaripPage.prototype.getName = function() {
     return this.name;
 }
-YaripPage.prototype.setCreated = function(value)
-{
+YaripPage.prototype.setCreated = function(value) {
     if (!value) return;
 
     value = Number(value);
@@ -97,20 +90,16 @@ YaripPage.prototype.setCreated = function(value)
         this.created = value;
     }
 }
-YaripPage.prototype.getCreated = function()
-{
+YaripPage.prototype.getCreated = function() {
     return this.created;
 }
-YaripPage.prototype.setType = function(value)
-{
+YaripPage.prototype.setType = function(value) {
     this.type = value;
 }
-YaripPage.prototype.getType = function()
-{
+YaripPage.prototype.getType = function() {
     return this.type;
 }
-YaripPage.prototype.isEmpty = function()
-{
+YaripPage.prototype.isEmpty = function() {
     return this.elementWhitelist.isEmpty() &&
         this.elementBlacklist.isEmpty() &&
         this.elementAttributeList.isEmpty() &&
@@ -130,52 +119,43 @@ YaripPage.prototype.isEmpty = function()
         this.pageExtensionList.isEmpty() &&
         this.pageExtendedByList.isEmpty();
 }
-YaripPage.prototype.hasElements = function()
-{
+YaripPage.prototype.hasElements = function() {
     return !this.elementWhitelist.isEmpty()
         || !this.elementBlacklist.isEmpty()
         || !this.elementAttributeList.isEmpty()
         || !this.pageStyleList.isEmpty();
 }
-YaripPage.prototype.hasContents = function()
-{
+YaripPage.prototype.hasContents = function() {
     return !this.contentWhitelist.isEmpty()
         || !this.contentBlacklist.isEmpty();
 }
-YaripPage.prototype.hasScripts = function()
-{
+YaripPage.prototype.hasScripts = function() {
     return !this.elementScriptList.isEmpty()
         || !this.pageScriptList.isEmpty();
 }
-YaripPage.prototype.hasHeaders = function()
-{
+YaripPage.prototype.hasHeaders = function() {
     return !this.contentRequestHeaderList.isEmpty()
         || !this.contentResponseHeaderList.isEmpty()
         || !this.pageRequestHeaderList.isEmpty()
         || !this.pageResponseHeaderList.isEmpty();
 }
-YaripPage.prototype.hasRedirects = function()
-{
+YaripPage.prototype.hasRedirects = function() {
     return !this.contentRedirectList.isEmpty()
         || !this.pageRedirectList.isEmpty();
 }
-YaripPage.prototype.hasStreams = function()
-{
+YaripPage.prototype.hasStreams = function() {
     return !this.contentStreamList.isEmpty()
         || !this.pageStreamList.isEmpty();
 }
-YaripPage.prototype.setTemporary = function(value)
-{
+YaripPage.prototype.setTemporary = function(value) {
     var oldTemporary = this.temporary;
     this.temporary = String(value) === "true";
     return oldTemporary !== this.temporary;
 }
-YaripPage.prototype.getTemporary = function()
-{
+YaripPage.prototype.getTemporary = function() {
     return this.temporary;
 }
-YaripPage.prototype.clone = function(purge, pageName, id)
-{
+YaripPage.prototype.clone = function(purge, pageName, id) {
     return new this.constructor(
         id ? id : purge ? this.newId() : this.id,
         pageName ? pageName : this.name,
@@ -199,8 +179,7 @@ YaripPage.prototype.clone = function(purge, pageName, id)
         this.pageExtensionList.clone(),
         purge ? null : this.pageExtendedByList.clone());
 }
-YaripPage.prototype.merge = function(page, ignoreTemporary, ignoreExtension)
-{
+YaripPage.prototype.merge = function(page, ignoreExtension, ignoreTemporary) {
     if (!page) return;
     if (this.getCreated() === -1 || page.getCreated() < this.getCreated()) this.setCreated(page.getCreated());
     this.elementWhitelist.merge(page.elementWhitelist);
@@ -227,8 +206,7 @@ YaripPage.prototype.merge = function(page, ignoreTemporary, ignoreExtension)
         this.setTemporary(this.getTemporary() && page.getTemporary());
     }
 }
-YaripPage.prototype.purge = function()
-{
+YaripPage.prototype.purge = function() {
     this.elementWhitelist.purge();
     this.elementBlacklist.purge();
     this.elementAttributeList.purge();
@@ -247,8 +225,7 @@ YaripPage.prototype.purge = function()
     this.pageStreamList.purge();
     this.setTemporary(false);
 }
-YaripPage.prototype.init = function()
-{
+YaripPage.prototype.init = function() {
     var matches = this.getName().match(URI_SIMPLE_RE);
 //if (/\b(example|localhost|yarip)\b/.test(this.getName())) {
 //    for (var i = 0; i < matches.length; i++) {
@@ -314,12 +291,10 @@ YaripPage.prototype.init = function()
 //    dump(" obj => "+JSON.stringify(this.obj)+"\n");
 //}
 }
-YaripPage.prototype.isScheme = function()
-{
+YaripPage.prototype.isScheme = function() {
     return this.getType() === PAGE_TYPE_SCHEME;
 }
-YaripPage.prototype.compare = function(b, rec)
-{
+YaripPage.prototype.compare = function(b, rec) {
     if (!b) return 1;
 //if (!rec && (/\b(example|localhost|yarip)\b/.test(this.getName()) || /\b(example|localhost|yarip)\b/.test(b.getName()))) {
 //    dump(this.getName()+".compare("+b.getName()+") => "+this.compare(b, true)+"\n");
@@ -330,8 +305,7 @@ YaripPage.prototype.compare = function(b, rec)
     if (aType < bType) return -1;
     if (aType > bType) return 1;
 
-    if (this.obj && b.obj)
-    {
+    if (this.obj && b.obj) {
         // Same types
         switch (aType) {
         case PAGE_TYPE_IP:
@@ -381,8 +355,7 @@ YaripPage.prototype.compare = function(b, rec)
     if (aName > bName) return 1;
     return 0;
 }
-YaripPage.prototype.generateXml = function()
-{
+YaripPage.prototype.generateXml = function() {
     if (this.temporary) return "";
 
     var tmpElement = this.elementWhitelist.generateXml() +
@@ -426,8 +399,7 @@ YaripPage.prototype.generateXml = function()
         tmp +
         "\t</page>\n" : "";
 }
-YaripPage.prototype.loadFromObject = function(obj)
-{
+YaripPage.prototype.loadFromObject = function(obj) {
     this.id = obj.id;
     this.name = obj.name;
     this.setCreated(obj.created);
@@ -450,10 +422,8 @@ YaripPage.prototype.loadFromObject = function(obj)
     this.pageExtensionList.loadFromObject(obj.pageExtensionList);
     this.pageExtendedByList.loadFromObject(obj.pageExtendedByList);
 }
-YaripPage.prototype.createPageExtensionItem = function(purge)
-{
-    if (!purge)
-    {
+YaripPage.prototype.createPageExtensionItem = function(purge) {
+    if (!purge) {
         var doElements = false;
         var doContents = false;
         var doScripts = false;

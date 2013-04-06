@@ -31,8 +31,7 @@ Cu.import("resource://yarip/item.jsm");
 
 const stringBundle = SB.createBundle("chrome://yarip/locale/map.properties");
 
-function YaripMap()
-{
+function YaripMap() {
     this.obj = {};
     this.objId = {};
     this.tree = new YaripAATree();
@@ -40,8 +39,7 @@ function YaripMap()
 }
 YaripMap.prototype = new YaripObject;
 YaripMap.prototype.constructor = YaripMap;
-YaripMap.prototype.add = function(page)
-{
+YaripMap.prototype.add = function(page) {
     if (!page) return;
 
     var oldPage = this.obj[page.getName()];
@@ -82,39 +80,38 @@ YaripMap.prototype.add = function(page)
 
     this.resetKnown();
 }
-YaripMap.prototype.remove = function(page)
-{
+YaripMap.prototype.remove = function(page, notExtension) {
     if (!page) return;
 
     if (page.getId()) {
-        this.removeById(page.getId());
+        this.removeById(page.getId(), notExtension);
     } else {
-        this.removeByName(page.getName());
+        this.removeByName(page.getName(), notExtension);
     }
 }
-YaripMap.prototype.get = function(pageName)
-{
-    return pageName in this.obj ? this.obj[pageName] : null;
+YaripMap.prototype.get = function(pageName) {
+    return this.obj[pageName];
 }
-YaripMap.prototype.getById = function(id)
-{
-    return id in this.objId ? this.objId[id] : null;
+YaripMap.prototype.getById = function(id) {
+    return this.objId[id];
 }
-YaripMap.prototype.removeById = function(id)
-{
-    if (!id || !this.objId[id]) return;
+YaripMap.prototype.removeById = function(id, notExtension) {
+    if (!(id in this.objId)) return;
 
     var page = this.objId[id];
 
-//    // Removing extensions.
-//    var list = page.pageExtensionList;
-//    for each (var item in list.obj) {
-//        this.removeExtension(page, item);
-//    }
-//    list = page.pageExtendedByList;
-//    for each (var item in list.obj) {
-//        this.removeExtension(item.getPage(), page.createPageExtensionItem(true));
-//    }
+    if (!notExtension) {
+        // Removing extensions.
+        var list = page.pageExtensionList;
+        for each (var item in list.obj) {
+            this.removeExtension(page, item);
+        }
+        list = page.pageExtendedByList;
+        var extItem = page.createPageExtensionItem(true);
+        for each (var item in list.obj) {
+            this.removeExtension(item.getPage(), extItem);
+        }
+    }
 
     this.tree.remove(page);
     delete this.obj[page.getName()];
@@ -122,15 +119,13 @@ YaripMap.prototype.removeById = function(id)
     this.length--;
     this.resetKnown();
 }
-YaripMap.prototype.removeByName = function(pageName)
-{
-    if (!pageName || !this.obj[pageName]) return;
+YaripMap.prototype.removeByName = function(pageName, notExtension) {
+    if (!(pageName in this.obj)) return;
 
     var page = this.obj[pageName];
-    this.removeById(page.getId());
+    this.removeById(page.getId(), notExtension);
 }
-YaripMap.prototype.addExtension = function(page, item)
-{
+YaripMap.prototype.addExtension = function(page, item) {
     if (!page || !item || page.getId() === item.getId()) return;
 
     var extPage = this.getById(item.getId());
@@ -140,8 +135,7 @@ YaripMap.prototype.addExtension = function(page, item)
         this.resetKnown();
     }
 }
-YaripMap.prototype.removeExtension = function(page, item)
-{
+YaripMap.prototype.removeExtension = function(page, item) {
     if (!page || !item) return;
 
     page.pageExtensionList.remove(item);
@@ -151,8 +145,7 @@ YaripMap.prototype.removeExtension = function(page, item)
         this.resetKnown();
     }
 }
-YaripMap.prototype.updateExtension = function(page, item)
-{
+YaripMap.prototype.updateExtension = function(page, item) {
     if (!page || !item) return;
 
     var extPage = this.getById(item.getId());
@@ -161,8 +154,7 @@ YaripMap.prototype.updateExtension = function(page, item)
         this.resetKnown();
     }
 }
-YaripMap.prototype.updateExtendedBy = function(page, item)
-{
+YaripMap.prototype.updateExtendedBy = function(page, item) {
     if (!page || !item) return;
 
     var extPage = this.getById(item.getId());
@@ -171,31 +163,27 @@ YaripMap.prototype.updateExtendedBy = function(page, item)
         this.resetKnown();
     }
 }
-YaripMap.prototype.clone = function()
-{
+YaripMap.prototype.clone = function() {
     var map = new this.constructor();
     for each (var page in this.obj) if (page) map.add(page.clone());
     return map;
 }
-YaripMap.prototype.replacePageId = function(map, oldPage, newId)
-{
+YaripMap.prototype.replacePageId = function(map, oldPage, newId) {
     if (!map || !oldPage || !newId) return;
 
     var oldId = oldPage.getId();
 
-    map.remove(oldPage);
+    map.remove(oldPage, true /* notExtension */);
     var newPage = oldPage.clone(null, null, newId);
     map.add(newPage);
 
     this.replaceExtensionIds(map, oldId, newId);
 }
-YaripMap.prototype.replaceExtensionIds = function(map, oldId, newId)
-{
+YaripMap.prototype.replaceExtensionIds = function(map, oldId, newId) {
     if (!map || !oldId || !newId) return;
 
     var arr = [];
-    for each (var page in map.obj)
-    {
+    for each (var page in map.obj) {
         var list = page.pageExtensionList;
         for each (var item in list.obj) {
             if (item.getId() === oldId) {
@@ -215,12 +203,10 @@ YaripMap.prototype.replaceExtensionIds = function(map, oldId, newId)
         map.addExtension(arr[i][0], arr[i][1]);
     }
 }
-YaripMap.prototype.merge = function(map)
-{
+YaripMap.prototype.merge = function(map) {
     if (!map) return;
 
-    for (var pageName in map.obj)
-    {
+    for (var pageName in map.obj) {
         var newPage = map.get(pageName);
         var oldPage = this.get(pageName);
         if (oldPage && newPage.getId() !== oldPage.getId()) { // same name, different id
@@ -229,7 +215,6 @@ YaripMap.prototype.merge = function(map)
         }
 
         oldPage = this.getById(newPage.getId());
-//        if (oldPage && newPage.getName() !== oldPage.getName()) { // same id, different name
         if (oldPage && newPage.getName() !== oldPage.getName() || String(newPage.getId()).length <= 13) { // same id, different name or old-style id
             this.replacePageId(map, newPage, this.newId()); // replace with new id
         }
@@ -239,12 +224,12 @@ YaripMap.prototype.merge = function(map)
         this.add(page);
     }
 }
-YaripMap.prototype.purge = function()
-{
-    for each (var page in this.obj) if (page) page.purge();
+YaripMap.prototype.purge = function() {
+    for each (var page in this.obj) {
+        if (page) page.purge();
+    }
 }
-YaripMap.prototype.generateXml = function(exporting)
-{
+YaripMap.prototype.generateXml = function(exporting) {
     var r = "<?xml version=\"1.0\" encoding=\"" + CHARSET + "\"?>\n";
     if (!exporting) {
         r += "<!--\n\tDo not edit this file.\n\n\tIf you make changes to this file while the application is running,\n\tthe changes will be overwritten when the application exits.\n-->\n";
@@ -254,8 +239,7 @@ YaripMap.prototype.generateXml = function(exporting)
     r += "</yarip>";
     return r;
 }
-YaripMap.prototype.loadFromObject = function(obj)
-{
+YaripMap.prototype.loadFromObject = function(obj) {
     var tree = new YaripAATree();
     tree.root = obj.tree.root;
     var ref = this;

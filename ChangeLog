@@ -1,16 +1,16 @@
 2013-04-01  Kim A. Brandt  <kimabrandt@gmx.de>
 
-    * modules/uri.jsm (TLD): Updated the top-level-domain regex.
+    * chrome/content/monitordialog.js (return null): Returning `null' in
+    some functions, which previously didn't return anything.
+
+    * chrome/content/overlay.js (ADD TO HISTORY): Allowing to add links to
+    the history (from the context-menu) without first having to visit them.
 
     * modules/stream.jsm (onStopRequest): Removed support for the
     `function (matches)'-style stream-feature. Instead the
     `function (match, p1, p2, ..., offset, string)'-style should be used.
 
-    * chrome/content/overlay.js (ADD TO HISTORY): Allowing to add links to
-    the history (from the context-menu) without first having to visit them.
-
-    * chrome/content/monitordialog.js (return null): Returning `null' in
-    some functions, which previously didn't return anything.
+    * modules/uri.jsm (TLD): Updated the TLD-regex.
 
     * modules/yarip.jsm (showLinkNotification): Preventing duplicate
     notifications.

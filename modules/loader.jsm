@@ -25,15 +25,13 @@ const Cu = Components.utils;
 const yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
 Cu.import("resource://yarip/constants.jsm");
 
-function YaripLoader()
-{
+function YaripLoader() {
     this.hasWhitelist = false;
     this.hasBlacklist = false;
     this.hasStyles = false;
     this.hasScripts = false;
 }
-YaripLoader.prototype.load = function(doc, increment)
-{
+YaripLoader.prototype.load = function(doc, increment) {
     if (!doc) return false;
 
     var pageName = yarip.getPageName(doc.location, MODE_PAGE);
@@ -57,15 +55,13 @@ YaripLoader.prototype.load = function(doc, increment)
         this.reset();
     }
 }
-YaripLoader.prototype.reset = function()
-{
+YaripLoader.prototype.reset = function() {
     this.hasWhitelist = false;
     this.hasBlacklist = false;
     this.hasStyles = false;
     this.hasScripts = false;
 }
-YaripLoader.prototype.doWhitelisting = function(doc, addressObj, increment)
-{
+YaripLoader.prototype.doWhitelisting = function(doc, addressObj, increment) {
     var ref = this;
     addressObj.root.traverse(function (eItem) {
         if (!eItem.getDoElements()) return;
@@ -83,8 +79,7 @@ YaripLoader.prototype.doWhitelisting = function(doc, addressObj, increment)
         }
     });
 }
-YaripLoader.prototype.doBlacklisting = function(doc, addressObj, increment)
-{
+YaripLoader.prototype.doBlacklisting = function(doc, addressObj, increment) {
     var ref = this;
     addressObj.root.traverse(function (eItem) {
         if (!eItem.getDoElements()) return;
@@ -102,8 +97,7 @@ YaripLoader.prototype.doBlacklisting = function(doc, addressObj, increment)
         }
     });
 }
-YaripLoader.prototype.doStyling = function(doc, addressObj, increment)
-{
+YaripLoader.prototype.doStyling = function(doc, addressObj, increment) {
     var ref = this;
     addressObj.root.traverse(function (eItem) {
         if (!eItem.getDoElements()) return;
@@ -152,8 +146,7 @@ YaripLoader.prototype.doStyling = function(doc, addressObj, increment)
         }
     });
 }
-YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
-{
+YaripLoader.prototype.doScripting = function(doc, addressObj, increment) {
     var arr = [];
     addressObj.root.traverse(function (eItem) {
         if (eItem.getDoScripts()) arr.push(eItem);
@@ -251,8 +244,7 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment)
         }
     }
 }
-YaripLoader.prototype.injectCascadingStyleSheet = function(doc, id, css, parent)
-{
+YaripLoader.prototype.injectCascadingStyleSheet = function(doc, id, css, parent) {
     var element = doc.getElementById(id);
     if (element) {
         if (element.getAttribute("status") !== "whitelisted") {
@@ -273,8 +265,7 @@ YaripLoader.prototype.injectCascadingStyleSheet = function(doc, id, css, parent)
     }
     this.hasStyles = true;
 }
-YaripLoader.prototype.injectJavaScript = function(doc, id, js, parent, reinject)
-{
+YaripLoader.prototype.injectJavaScript = function(doc, id, js, parent, reinject) {
     var element = doc.getElementById(id);
     if (element) {
         if (reinject || element.getAttribute("status") !== "whitelisted") {

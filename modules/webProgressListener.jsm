@@ -41,8 +41,7 @@ YaripWebProgressListener.prototype = {
     ])
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIWebProgressListener#onStateChange%28%29
-YaripWebProgressListener.prototype.onStateChange = function(webProgress, request, stateFlags, status)
-{
+YaripWebProgressListener.prototype.onStateChange = function(webProgress, request, stateFlags, status) {
     if (!yarip.enabled) return;
     if (!webProgress.isLoadingDocument) return;
     if (!(request instanceof Ci.nsIHttpChannel)) return;

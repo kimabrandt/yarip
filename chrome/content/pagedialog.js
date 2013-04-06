@@ -21,8 +21,7 @@
 Cu.import("resource://yarip/constants.jsm");
 Cu.import("resource://yarip/uri.jsm");
 
-function YaripPageDialog()
-{
+function YaripPageDialog() {
     this.sb = null;
     this.treePages = null;
     this.view = null;
@@ -40,8 +39,7 @@ function YaripPageDialog()
     this.page = null;
     this.doReload = true;
 
-    this.updateTab = function()
-    {
+    this.updateTab = function() {
         if (!this.tabbox) return;
 
         switch (this.tabbox.selectedIndex) {
@@ -86,23 +84,20 @@ function YaripPageDialog()
         }
     }
 
-    this.getPageByIndex = function(index)
-    {
+    this.getPageByIndex = function(index) {
         index = index >= 0 ? index : this.treePages.currentIndex;
         if (index < 0) return null;
 
         return this.view.getPageByIndex(index);
     }
 
-    this.getPageByName = function(pageName)
-    {
+    this.getPageByName = function(pageName) {
         if (!pageName) return null;
 
         return yarip.map.get(pageName);
     }
 
-    this.setValue = function(value)
-    {
+    this.setValue = function(value) {
         if (this.treePages.currentIndex < 0) return;
 
         switch (this.tab) {
@@ -130,8 +125,7 @@ function YaripPageDialog()
         }
     }
 
-    this.doCut = function()
-    {
+    this.doCut = function() {
         if (this.treePages.currentIndex < 0) return;
 
         switch (this.tab) {
@@ -185,8 +179,7 @@ function YaripPageDialog()
         }
     }
 
-    this.doCopy = function()
-    {
+    this.doCopy = function() {
         if (this.treePages.currentIndex < 0) return;
 
         switch (this.tab) {
@@ -227,8 +220,7 @@ function YaripPageDialog()
         }
     }
 
-    this.doPaste = function()
-    {
+    this.doPaste = function() {
         if (!this.page) return;
 
         var page = this.getPageByIndex();
@@ -239,13 +231,12 @@ function YaripPageDialog()
             yarip.map.addExtension(page, item);
         }
 
-        page.merge(this.page, null, true);
+        page.merge(this.page, true);
         this.refreshTab(null, true);
         if (page.setTemporary(false)) this.refreshExtMenulist(true);
     }
 
-    this.gotoPage = function(event)
-    {
+    this.gotoPage = function(event) {
         var currentIndex = this.tabs[this.tab].tree.currentIndex;
         if (currentIndex < 0) return;
 
@@ -264,16 +255,14 @@ function YaripPageDialog()
         }
     }
 
-    this.doSelectAll = function()
-    {
+    this.doSelectAll = function() {
         if (this.treePages.currentIndex < 0) return;
 
         this.tabs[this.tab].tree.focus();
         this.tabs[this.tab].tree.view.selection.selectAll();
     }
 
-    this.add = function()
-    {
+    this.add = function() {
         var page = this.getPageByIndex();
         if (!page) return;
 
@@ -515,8 +504,7 @@ function YaripPageDialog()
         if (page.setTemporary(false)) this.refreshExtMenulist(true);
     }
 
-    this.remove = function()
-    {
+    this.remove = function() {
         var tab = this.tabs[this.tab];
         if (tab.tree.currentIndex < 0) return;
 
@@ -540,8 +528,7 @@ function YaripPageDialog()
             var keys = {};
             var selection = tab.tree.view.selection;
             var rangeCount = selection.getRangeCount();
-            for (var i = 0; i < rangeCount; i++)
-            {
+            for (var i = 0; i < rangeCount; i++) {
                 var start = {};
                 var end = {};
                 selection.getRangeAt(i, start, end);
@@ -571,8 +558,7 @@ function YaripPageDialog()
         }
     }
 
-    this.removeAll = function()
-    {
+    this.removeAll = function() {
         if (this.treePages.currentIndex < 0) return;
 
         var tab = this.tabs[this.tab];
@@ -596,8 +582,7 @@ function YaripPageDialog()
 //        this.refreshExtMenulist();
     }
 
-    this.toggleExclusive = function()
-    {
+    this.toggleExclusive = function() {
 //        if (this.treePages.currentIndex < 0) return;
         var page = this.getPageByIndex();
         if (!page) return;
@@ -611,8 +596,7 @@ function YaripPageDialog()
         }
     }
 
-    this.addExtPage = function()
-    {
+    this.addExtPage = function() {
         var page = this.getPageByIndex();
         if (!page) return;
 
@@ -628,16 +612,14 @@ function YaripPageDialog()
         }
     }
 
-    this.copyPage = function()
-    {
+    this.copyPage = function() {
         var page = this.getPageByIndex();
         if (!page) return;
 
         this.renamePage(page);
     }
 
-    this.checkPageName = function(pageName)
-    {
+    this.checkPageName = function(pageName) {
         if (!pageName) return false;
 
         if (yarip.checkPageName(pageName)) {
@@ -648,8 +630,7 @@ function YaripPageDialog()
         }
     }
 
-    this.selectTab = function(page, type, key)
-    {
+    this.selectTab = function(page, type, key) {
         if (!page) return;
 
         var selectedIndex = 0;
@@ -808,8 +789,7 @@ function YaripPageDialog()
         }
     }
 
-    this.selectPageByIndex = function(index)
-    {
+    this.selectPageByIndex = function(index) {
         var rowCount = this.view.getRowCount();
         if (index >= rowCount) return;
 
@@ -826,8 +806,7 @@ function YaripPageDialog()
         return this.view.getPageByIndex(this.treePages.currentIndex);
     }
 
-    this.selectPageByName = function(pageName, noResetFilter)
-    {
+    this.selectPageByName = function(pageName, noResetFilter) {
         if (noResetFilter) {
             this.filterPages();
         } else {
@@ -853,8 +832,7 @@ function YaripPageDialog()
         return null;
     }
 
-    this.renamePage = function(page)
-    {
+    this.renamePage = function(page) {
         var oldName = null;
         if (!page) {
             page = this.getPageByIndex();
@@ -865,7 +843,7 @@ function YaripPageDialog()
         var pageName = prompt(this.sb.getString("enterNameOfPage"), page.getName());
         if (!this.checkPageName(pageName)) return false;
         if (oldName) {
-            yarip.map.remove(page);
+            yarip.map.remove(page, true /* notExtension */);
             page.setName(pageName, true);
         } else {
             page = page.clone(true, pageName);
@@ -878,8 +856,7 @@ function YaripPageDialog()
         return true;
     }
 
-    this.removePages = function()
-    {
+    this.removePages = function() {
         var currentIndex = this.treePages.currentIndex;
         if (currentIndex < 0) return;
 
@@ -887,36 +864,19 @@ function YaripPageDialog()
         var pageNames = {};
         var selection = this.view.selection;
         var rangeCount = selection.getRangeCount();
-        for (var i = 0; i < rangeCount; i++)
-        {
+        for (var i = 0; i < rangeCount; i++) {
             var start = {};
             var end = {};
             selection.getRangeAt(i, start, end);
             for (var j = start.value; j <= end.value; j++) {
-                pageNames[this.getPageByIndex(j).getName()] = true;
+                yarip.map.removeByName(this.getPageByIndex(j).getName());
             }
-        }
-        for (var pageName in pageNames) {
-            var page = yarip.map.get(pageName);
-
-            // Removing extensions.
-            var list = page.pageExtensionList;
-            for each (var item in list.obj) {
-                yarip.map.removeExtension(page, item);
-            }
-            list = page.pageExtendedByList;
-            for each (var item in list.obj) {
-                yarip.map.removeExtension(item.getPage(), page.createPageExtensionItem(true));
-            }
-
-            yarip.map.remove(page);
         }
 
         this.refreshPages(true);
     }
 
-    this.refreshPages = function(load, dontSelect)
-    {
+    this.refreshPages = function(load, dontSelect) {
         if (load) {
             if (!this.view) {
                 this.view = new YaripPageTreeView();
@@ -989,8 +949,7 @@ function YaripPageDialog()
         this.refreshExtMenulist(load);
     }
 
-    this.importFiles = function()
-    {
+    this.importFiles = function() {
         var nsIFilePicker = Components.interfaces.nsIFilePicker;
         var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
         fp.init(window, this.sb.getString("importPages"), nsIFilePicker.modeOpenMultiple);
@@ -1011,8 +970,7 @@ function YaripPageDialog()
         }
     }
 
-    this.getDateString = function()
-    {
+    this.getDateString = function() {
         var now = new Date();
         var year = now.getFullYear();
         var month = now.getMonth() + 1
@@ -1020,8 +978,7 @@ function YaripPageDialog()
         return year + "-" + (month < 10 ? "0" : "") + month + "-" + (day < 10 ? "0" : "") + day;
     }
 
-    this.exportPages = function()
-    {
+    this.exportPages = function() {
         if (this.treePages.currentIndex < 0) return;
 
         var addressObj = {
@@ -1070,8 +1027,7 @@ function YaripPageDialog()
         }
     }
 
-    this.exportAll = function()
-    {
+    this.exportAll = function() {
         var dateStr = this.getDateString();
         var nsIFilePicker = Components.interfaces.nsIFilePicker;
         var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
@@ -1079,8 +1035,7 @@ function YaripPageDialog()
         fp.appendFilters(nsIFilePicker.filterXML);
         fp.defaultString = dateStr + "_yarip.xml";
         var res = fp.show();
-        if (res === nsIFilePicker.returnOK || res === nsIFilePicker.returnReplace)
-        {
+        if (res === nsIFilePicker.returnOK || res === nsIFilePicker.returnReplace) {
             var map = yarip.map.clone();
             map.purge();
             var data = map.generateXml(true);
@@ -1088,15 +1043,12 @@ function YaripPageDialog()
         }
     }
 
-    this.save = function()
-    {
+    this.save = function() {
         yarip.save();
     }
 
-    this.refreshTab = function(tab, load, update, key)
-    {
-        if (!tab)
-        {
+    this.refreshTab = function(tab, load, update, key) {
+        if (!tab) {
             this.refreshTab("elementWhitelist", load);
             this.refreshTab("elementBlacklist", load);
             this.refreshTab("elementAttributeList", load);
@@ -1254,8 +1206,7 @@ function YaripPageDialog()
         }
     }
 
-    this.reloadPage = function(pageName, refreshPages, selectPage, selectTab, resetFilter, type, key)
-    {
+    this.reloadPage = function(pageName, refreshPages, selectPage, selectTab, resetFilter, type, key) {
         var page = this.getPageByIndex();
         var oldPageName = page ? page.getName() : null;
         if (refreshPages) {
@@ -1289,8 +1240,7 @@ function YaripPageDialog()
         }
     }
 
-    this.handleEvent = function(event)
-    {
+    this.handleEvent = function(event) {
         if (!event) return;
 
         switch(event.target.id) {
@@ -1345,8 +1295,7 @@ function YaripPageDialog()
         }
     }
 
-    this.initTab = function(tab)
-    {
+    this.initTab = function(tab) {
         if (!tab) return;
 
         switch (tab) {
@@ -1407,31 +1356,7 @@ function YaripPageDialog()
         }
     }
 
-//    this.refreshExtMenulist = function(load)
-//    {
-//        if (load) {
-//            var menupopup = document.createElement("menupopup");
-//            yarip.map.tree.traverse(function(node) {
-//                var page = node.value;
-//                if (page && !page.getTemporary()) {
-//                    var menuitem = document.createElement("menuitem");
-//                    menuitem.setAttribute("label", page.getName());
-//                    menuitem.setAttribute("value", page.getId());
-//                    menupopup.appendChild(menuitem);
-//                }
-//            });
-//            this.tabs["pageExtensionList"].menulist.replaceChild(menupopup, this.tabs["pageExtensionList"].menulist.firstChild);
-//        }
-
-//        if (this.tabs["pageExtensionList"].menulist.firstChild.childNodes.length > 0) {
-//            if (this.tabs["pageExtensionList"].menulist.selectedIndex < 0) {
-//                this.tabs["pageExtensionList"].menulist.selectedIndex = 0;
-//            }
-//            this.tabs["pageExtensionList"].item.setId(this.tabs["pageExtensionList"].menulist.selectedItem.getAttribute("value"));
-//        }
-//    }
-    this.refreshExtMenulist = function(load)
-    {
+    this.refreshExtMenulist = function(load) {
         var oldPageName = null;
         var childNodes = this.tabs["pageExtensionList"].menulist.firstChild.childNodes;
         if (childNodes.length > 0) {
@@ -1471,18 +1396,12 @@ function YaripPageDialog()
         }
     }
 
-    this.load = function()
-    {
+    this.load = function() {
         yarip.pageDialog = this;
 
         var pageName = null;
         var type = null;
         var key = null;
-//        if ("arguments" in window && window.arguments.length > 0) {
-//            pageName = window.arguments[0];
-//            type = window.arguments[1];
-//            key = window.arguments[2];
-//        }
         var query = location.search.substring(1);
         var params = query.split('&');
         for (var i = 0; i < params.length; i++) {
@@ -1573,8 +1492,7 @@ function YaripPageDialog()
         }
     }
 
-    this.unload = function()
-    {
+    this.unload = function() {
         yarip.pageDialog = null;
         yarip.save();
 
@@ -1598,23 +1516,20 @@ function YaripPageDialog()
         this.editMenupopup.removeEventListener("popupshowing", this, false);
     }
 
-    this.resetFilter = function()
-    {
+    this.resetFilter = function() {
         this.filterString = null;
         document.getElementById("yarip-pageFilter-textbox").value = "";
         this.filterPages();
     }
 
-    this.filterPages = function(event)
-    {
+    this.filterPages = function(event) {
         this.filterString = event ? event.target.value : this.filterString;
         this.view.applyFilterString(this.filterString, this.treePages.currentIndex);
         this.refreshTab(null, true);
     }
 }
 
-function YaripPageTreeView()
-{
+function YaripPageTreeView() {
     this.treebox = null;
     this.visibleData = [];
     this.filterString = null;
@@ -1653,7 +1568,7 @@ function YaripPageTreeView()
 
         var pageName = this.visibleData[row].getName();
         var page = yarip.map.get(pageName);
-        yarip.map.remove(page);
+        yarip.map.remove(page, true /* notExtension */);
         page.setName(value, true);
         yarip.map.add(page);
         var list = page.pageExtendedByList;
@@ -1671,15 +1586,13 @@ function YaripPageTreeView()
     }
     this.setTree = function(treebox) { this.treebox = treebox; }
 
-    this.getPageByIndex = function(index)
-    {
+    this.getPageByIndex = function(index) {
         if (index < 0 || index >= this.visibleData.length) return null;
 
         return this.visibleData[index];
     }
 
-    this.applyFilterString = function(value, currentIndex, treeView)
-    {
+    this.applyFilterString = function(value, currentIndex, treeView) {
         var tv = treeView ? treeView : this;
         var prevRowCount = tv.visibleData.length;
         var currentPage = currentIndex >= 0 ? tv.visibleData[currentIndex] : null;
@@ -1718,20 +1631,17 @@ function YaripPageTreeView()
         tv.treebox.invalidate();
     }
 
-    this.allowPage = function(page, treeView)
-    {
+    this.allowPage = function(page, treeView) {
         var tv = treeView ? treeView : this;
         return !tv.filterError && (!tv.filterRegExp || tv.filterRegExp.test(page.getName()));
     }
 
-    this.purge = function()
-    {
+    this.purge = function() {
         this.applyFilterString(null, -1);
     }
 }
 
-function YaripListTreeView(list)
-{
+function YaripListTreeView(list) {
     this.treebox = null;
     this.rowCount = list.length;
     this.getRowCount = function() { return this.rowCount; }

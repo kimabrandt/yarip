@@ -150,10 +150,8 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
                     } else {
                         var sandbox = new Cu.Sandbox(this.defaultView ? this.defaultView : this.location.asciiHref);
                         sandbox._source = responseSource;
-//                        sandbox._re = item.getStreamRegExpObj();
                         sandbox._pattern = item.getStreamRegExp();
                         sandbox._flags = item.getStreamFlags();
-//                        tmp = Cu.evalInSandbox("_source.replace(_re, " + item.getScript() + "\n);", sandbox);
                         tmp = Cu.evalInSandbox("_source.replace(new RegExp(_pattern, _flags), " + item.getScript() + "\n);", sandbox);
 
                         if (typeof tmp !== "string") {
@@ -162,7 +160,6 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
                         }
                     }
                 } else {
-//                    tmp = responseSource.replace(item.getStreamRegExpObj(), item.getScript());
                     tmp = responseSource.replace(new RegExp(item.getStreamRegExp(), item.getStreamFlags()), item.getScript());
                 }
 
@@ -207,7 +204,6 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
 
         arr = [];
         this.addressObj.root.traverse(function (item) {
-//            if (item.isSelf() || item.getDoElements() || item.getDoScripts()) arr.push(item);
             if (item.getDoElements() || item.getDoScripts()) arr.push(item);
         });
 

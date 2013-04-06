@@ -40,8 +40,7 @@ YaripContentPolicy.prototype = {
     ])
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIContentPolicy#shouldLoad%28%29
-YaripContentPolicy.prototype.shouldLoad = function(contentType, contentLocation, requestOrigin, context, mimeTypeGuess, extra)
-{
+YaripContentPolicy.prototype.shouldLoad = function(contentType, contentLocation, requestOrigin, context, mimeTypeGuess, extra) {
     if (!yarip.schemesRegExp) return ACCEPT;
     if (!context || !contentLocation || !requestOrigin) return ACCEPT;
     if (!yarip.schemesRegExp.test(contentLocation.scheme)) return ACCEPT;
@@ -80,18 +79,15 @@ YaripContentPolicy.prototype.shouldLoad = function(contentType, contentLocation,
     }
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIContentPolicy#shouldProcess%28%29
-YaripContentPolicy.prototype.shouldProcess = function(contentType, contentLocation, requestOrigin, context, mimeType, extra)
-{
+YaripContentPolicy.prototype.shouldProcess = function(contentType, contentLocation, requestOrigin, context, mimeType, extra) {
     return ACCEPT;
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIFactory#createInstance%28%29
-YaripContentPolicy.prototype.createInstance = function(outer, iid)
-{
+YaripContentPolicy.prototype.createInstance = function(outer, iid) {
     return this;
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIFactory#lockFactory%28%29
-YaripContentPolicy.prototype.lockFactory = function(lock)
-{
+YaripContentPolicy.prototype.lockFactory = function(lock) {
 }
 
 var wrappedJSObject = new YaripContentPolicy();

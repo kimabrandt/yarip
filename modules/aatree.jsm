@@ -21,28 +21,23 @@
 const EXPORTED_SYMBOLS = ["YaripAATree"];
 
 // http://en.wikipedia.org/wiki/AA_tree
-function YaripAATree()
-{
+function YaripAATree() {
     this.root = null;
 }
-YaripAATree.prototype.add = function (value)
-{
+YaripAATree.prototype.add = function (value) {
     if (!value) return;
 
     this.root = this.fun_insert(this.root, value);
 }
-YaripAATree.prototype.remove = function(value)
-{
+YaripAATree.prototype.remove = function(value) {
     this.root = this.fun_delete(this.root, value);
 }
-YaripAATree.prototype.toArray = function()
-{
+YaripAATree.prototype.toArray = function() {
     var tmp = [];
     this.traverse(function(node) { tmp.push(node.value); });
     return tmp;
 }
-YaripAATree.prototype.traverse = function(fun)
-{
+YaripAATree.prototype.traverse = function(fun) {
     var last = null;
     function inOrder(node) {
         if (node) {
@@ -53,8 +48,7 @@ YaripAATree.prototype.traverse = function(fun)
     }
     inOrder(this.root);
 }
-YaripAATree.prototype.fun_insert = function(T, X)
-{
+YaripAATree.prototype.fun_insert = function(T, X) {
     if (!T) {
         return {
             value: X,
@@ -77,8 +71,7 @@ YaripAATree.prototype.fun_insert = function(T, X)
     T = this.fun_split(T);
     return T;
 }
-YaripAATree.prototype.fun_delete = function(T, X)
-{
+YaripAATree.prototype.fun_delete = function(T, X) {
     if (!T) return null;
 
     var res = X.compare(T.value);
@@ -108,8 +101,7 @@ YaripAATree.prototype.fun_delete = function(T, X)
     T.right = this.fun_split(T.right);
     return T;
 }
-YaripAATree.prototype.fun_skew = function(T)
-{
+YaripAATree.prototype.fun_skew = function(T) {
     if (!T) return null;
 
     if (T.level === this.level(T.left)) {
@@ -121,8 +113,7 @@ YaripAATree.prototype.fun_skew = function(T)
         return T;
     }
 }
-YaripAATree.prototype.fun_split = function(T)
-{
+YaripAATree.prototype.fun_split = function(T) {
     if (!T) return null;
 
     if (T.right && T.level === this.level(T.right.right)) {
@@ -135,8 +126,7 @@ YaripAATree.prototype.fun_split = function(T)
         return T;
     }
 }
-YaripAATree.prototype.decrease_level = function(T)
-{
+YaripAATree.prototype.decrease_level = function(T) {
     var should_be = Math.min(this.level(T.left), this.level(T.right)) + 1;
     if (should_be < T.level) {
         T.level = should_be;
@@ -146,21 +136,18 @@ YaripAATree.prototype.decrease_level = function(T)
     }
     return T;
 }
-YaripAATree.prototype.level = function(T, new_level)
-{
+YaripAATree.prototype.level = function(T, new_level) {
     if (!T) return 0;
 
     if (new_level !== undefined) T.level = new_level;
     return T.level;
 }
-YaripAATree.prototype.predecessor = function(T)
-{
+YaripAATree.prototype.predecessor = function(T) {
     var P = T.left;
     while (P.right) P = P.right;
     return P.value;
 }
-YaripAATree.prototype.successor = function(T)
-{
+YaripAATree.prototype.successor = function(T) {
     var S = T.right;
     while (S.left) S = S.left;
     return S.value;

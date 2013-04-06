@@ -44,8 +44,7 @@ YaripObserver.prototype = {
     QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver])
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIObserver#observe%28%29
-YaripObserver.prototype.observe = function(subject, topic, data)
-{
+YaripObserver.prototype.observe = function(subject, topic, data) {
     if (!(subject instanceof Ci.nsIHttpChannel)) return;
 
     subject.QueryInterface(Ci.nsIHttpChannel);
@@ -61,13 +60,11 @@ YaripObserver.prototype.observe = function(subject, topic, data)
         break;
     }
 }
-YaripObserver.prototype.modifyRequest = function(channel)
-{
+YaripObserver.prototype.modifyRequest = function(channel) {
     if (!yarip.enabled) return;
     if (!yarip.schemesRegExp.test(channel.URI.scheme)) return;
 
-    try
-    {
+    try {
         var doc = null;
         try { doc = yarip.getInterface(channel, Ci.nsIDOMWindow).document; } catch(e) {}
         if (!doc) try { doc = yarip.getInterface(channel, Ci.nsIWebNavigation).document; } catch(e) {}
@@ -115,8 +112,7 @@ YaripObserver.prototype.modifyRequest = function(channel)
          * REQUEST HEADER
          */
 
-        for (var pageName in addressObj.ext)
-        {
+        for (var pageName in addressObj.ext) {
             var extItem = addressObj.ext[pageName];
             if (!extItem.getDoHeaders()) continue;
 
@@ -124,8 +120,7 @@ YaripObserver.prototype.modifyRequest = function(channel)
             var list = location.isPage ? page.pageRequestHeaderList : page.contentRequestHeaderList;
             if (list.length === 0) continue;
 
-            for each (var item in list.obj)
-            {
+            for each (var item in list.obj) {
                 if (!item.getRegExpObj().test(content.asciiHref)) continue;
 
                 var headerValue = null;
@@ -165,12 +160,10 @@ YaripObserver.prototype.modifyRequest = function(channel)
         yarip.logMessage(LOG_ERROR, e);
     }
 }
-YaripObserver.prototype.examineResponse = function(channel)
-{
+YaripObserver.prototype.examineResponse = function(channel) {
     if (!yarip.schemesRegExp.test(channel.URI.scheme)) return;
 
-    try
-    {
+    try {
         var defaultView = null;
         var doc = null;
 //        var location = null;
@@ -197,8 +190,7 @@ YaripObserver.prototype.examineResponse = function(channel)
          * RESPONSE HEADER
          */
 
-        for (var pageName in addressObj.ext)
-        {
+        for (var pageName in addressObj.ext) {
             var extItem = addressObj.ext[pageName];
             if (!extItem.getDoHeaders()) continue;
 
@@ -206,8 +198,7 @@ YaripObserver.prototype.examineResponse = function(channel)
             var list = location.isPage ? page.pageResponseHeaderList : page.contentResponseHeaderList;
             if (list.length === 0) continue;
 
-            for each (var item in list.obj)
-            {
+            for each (var item in list.obj) {
                 if (!item.getRegExpObj().test(content.asciiHref)) continue;
 
                 try {
@@ -246,11 +237,9 @@ YaripObserver.prototype.examineResponse = function(channel)
          * LOCATION HEADER REDIRECT
          */
 
-        if ((!location.isLink || yarip.privateBrowsing) && [300, 301, 302, 303, 305, 307].indexOf(channel.responseStatus) > -1)
-        {
+        if ((!location.isLink || yarip.privateBrowsing) && [300, 301, 302, 303, 305, 307].indexOf(channel.responseStatus) > -1) {
             var locationHeader = undefined;
-            try
-            {
+            try {
                 locationHeader = channel.getResponseHeader("Location");
                 locationHeader = locationHeader.replace(/^\s+|\s+$/g, "").match(URL_RE)[0];
                 var newURI = IOS.newURI(locationHeader, content.originCharset, null);
@@ -292,62 +281,6 @@ YaripObserver.prototype.examineResponse = function(channel)
          * STREAM REPLACING & PAGE SCRIPTING AND STYLING
          */
 
-////        var listenStream = location.isPage;
-////        if (!listenStream) for (var pageName in addressObj.ext)
-////        {
-////            var extItem = addressObj.ext[pageName];
-////            if (!extItem.getDoStreams()) continue;
-
-////            var page = extItem.getPage();
-////            var list = page.contentStreamList;
-////            if (list.length === 0) continue;
-
-////            for each (var item in list.obj) {
-////                if (item.getRegExpObj().test(content.asciiHref)) {
-////                    listenStream = true;
-////                    break;
-////                }
-////            }
-
-////            if (listenStream) break;
-////        }
-//        var listenStream = false;
-//        for (var pageName in addressObj.ext) {
-//            var extItem = addressObj.ext[pageName];
-//            var page = extItem.getPage();
-//            if (extItem.getDoStreams()) {
-//                var list = location.isPage ? page.pageStreamList : page.contentStreamList;
-//                for each (var item in list.obj) {
-//                    if (item.getRegExpObj().test(content.asciiHref)) {
-//                        listenStream = true;
-//                        break;
-//                    }
-//                }
-//                if (listenStream) break;
-//            }
-
-//            if (!location.isPage) continue;
-
-//            if (extItem.getDoElements()) {
-//                if (page.elementBlacklist.length > 0) {
-//                    listenStream = true;
-//                    break;
-//                }
-//            }
-//            if (extItem.getDoScripts()) {
-//                if (page.pageScriptList.length > 0) {
-//                    listenStream = true;
-//                    break;
-//                }
-//            }
-//            if (extItem.getDoStyles()) {
-//                if (page.pageStyleList.length > 0) {
-//                    listenStream = true;
-//                    break;
-//                }
-//            }
-//        }
-//        if (listenStream && /^(?:text\/.*|application\/(?:javascript|json|(?:\w+\+)?\bxml))$/.test(channel.contentType)) {
         if (/^(?:text\/.*|application\/(?:javascript|json|(?:\w+\+)?\bxml))$/.test(channel.contentType)) {
             new YaripResponseStreamListener(channel, addressObj, location, content, defaultView);
         }
@@ -355,16 +288,14 @@ YaripObserver.prototype.examineResponse = function(channel)
         yarip.logMessage(LOG_ERROR, e);
     }
 }
-YaripObserver.prototype.shouldRedirect = function(addressObj, location, content, defaultView, doFlag)
-{
+YaripObserver.prototype.shouldRedirect = function(addressObj, location, content, defaultView, doFlag) {
     var statusObj = {
         status: STATUS_UNKNOWN,
         newURI: null
     };
     if (!addressObj.found) return statusObj;
 
-    for (var pageName in addressObj.ext)
-    {
+    for (var pageName in addressObj.ext) {
         var extItem = addressObj.ext[pageName];
         if (!extItem.getDoRedirects()) continue;
 
@@ -372,15 +303,12 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, content,
         var list = location.isPage ? page.pageRedirectList : page.contentRedirectList;
         if (list.length === 0) continue;
 
-        for each (var item in list.obj)
-        {
+        for each (var item in list.obj) {
             if (!item.getRegExpObj().test(content.asciiHref)) continue;
 
-            try
-            {
+            try {
                 var newSpec = null; // object
-                if (/^\s*function\b/.test(item.getScript()))
-                {
+                if (/^\s*function\b/.test(item.getScript())) {
                     var sandbox = new Cu.Sandbox(defaultView ? defaultView : location.asciiHref);
                     if (/^\s*function\s*\(\s*url\s*\)/.test(item.getScript())) { // deprecated: script with asciiHref as parameter
                         yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_SCRIPT_DEPRECATED"))); // XXX
@@ -426,8 +354,7 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, content,
 
     return yarip.shouldBlacklist(addressObj, content, defaultView, doFlag);
 }
-YaripObserver.prototype.init = function()
-{
+YaripObserver.prototype.init = function() {
     var os = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
     os.addObserver(this, "http-on-modify-request", false);
     os.addObserver(this, "http-on-examine-response", false);

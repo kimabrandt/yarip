@@ -31,24 +31,19 @@ Cu.import("resource://yarip/uri.jsm");
 
 function YaripObject() {
 }
-YaripObject.prototype.newId = function()
-{
+YaripObject.prototype.newId = function() {
     return yarip.getId();
 }
-YaripObject.prototype.getPageById = function(id)
-{
+YaripObject.prototype.getPageById = function(id) {
     return yarip.map.getById(id);
 }
-YaripObject.prototype.checkXPath = function(value, allowEmpty)
-{
+YaripObject.prototype.checkXPath = function(value, allowEmpty) {
     return yarip.checkXPath(value, allowEmpty);
 }
-YaripObject.prototype.checkRegExp = function(value, allowEmpty)
-{
+YaripObject.prototype.checkRegExp = function(value, allowEmpty) {
     return yarip.checkRegExp(value, allowEmpty);
 }
-YaripObject.prototype.resetKnown = function()
-{
+YaripObject.prototype.resetKnown = function() {
     return yarip.resetKnown();
 }
 

@@ -31,8 +31,7 @@ Cu.import("resource://yarip/uri.jsm");
 
 const stringBundle = SB.createBundle("chrome://yarip/locale/yarip.properties");
 
-function Yarip()
-{
+function Yarip() {
     this.mode = null;
     this.enabled = null;
     this.noFlicker = null;
@@ -70,16 +69,14 @@ Yarip.prototype = {
     ])
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIObserver#observe%28%29
-Yarip.prototype.observe = function(subject, topic, data)
-{
+Yarip.prototype.observe = function(subject, topic, data) {
     switch (topic) {
     case "quit-application":
         this.save();
         break;
     }
 }
-Yarip.prototype.getLocation = function(obj, channel, doc)
-{
+Yarip.prototype.getLocation = function(obj, channel, doc) {
     if (!obj && !channel && !doc) return null;
     if (obj && obj.isLocation) return obj;
 
@@ -148,8 +145,7 @@ Yarip.prototype.getLocation = function(obj, channel, doc)
         isLocation: true
     }
 }
-Yarip.prototype.getPageName = function(location, mode)
-{
+Yarip.prototype.getPageName = function(location, mode) {
     if (!location || !this.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return null;
 
     var mode = Number(mode);
@@ -168,8 +164,7 @@ Yarip.prototype.getPageName = function(location, mode)
         return null;
     }
 }
-Yarip.prototype.init = function()
-{
+Yarip.prototype.init = function() {
     Cu.import("resource://yarip/map.jsm");
     Cu.import("resource://yarip/page.jsm");
     Cu.import("resource://yarip/list.jsm");
@@ -184,8 +179,7 @@ Yarip.prototype.init = function()
     this.initPreferences();
     if (!this.isMobile()) this.initContentPolicy();
 }
-Yarip.prototype.initMobile = function()
-{
+Yarip.prototype.initMobile = function() {
     this.setMobile(true);
 
     Cu.import("resource://yarip/map.jsm");
@@ -200,8 +194,7 @@ Yarip.prototype.initMobile = function()
     this.initPreferences();
     this.initContentPolicy();
 }
-Yarip.prototype.initPreferences = function()
-{
+Yarip.prototype.initPreferences = function() {
     this.toggleEnabled(this.getValue(PREF_ENABLED, true, DATA_TYPE_BOOLEAN));
     this.setMode(this.getValue(PREF_MODE, MODE_FQDN, DATA_TYPE_INTEGER));
     this.setElementsInContext(this.getValue(PREF_ELEMENTS, 4, DATA_TYPE_INTEGER));
@@ -214,8 +207,7 @@ Yarip.prototype.initPreferences = function()
     this.setTemplates(this.getValue(PREF_TEMPLATES, "", DATA_TYPE_STRING));
     this.toggleLogWhenClosed(this.getValue(PREF_LOG_WHEN_CLOSED, false, DATA_TYPE_BOOLEAN));
 }
-Yarip.prototype.initContentPolicy = function()
-{
+Yarip.prototype.initContentPolicy = function() {
     const yaripContentPolicy = Cu.import("resource://yarip/contentPolicy.jsm", null).wrappedJSObject;
     const componentRegistrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
     if (componentRegistrar.isContractIDRegistered(yaripContentPolicy.contractID)) return;
@@ -227,8 +219,7 @@ Yarip.prototype.initContentPolicy = function()
     }
     XPCOMUtils.categoryManager.addCategoryEntry("content-policy", yaripContentPolicy.classDescription, yaripContentPolicy.contractID, false, true);
 }
-Yarip.prototype.toggleEnabled = function(enabled)
-{
+Yarip.prototype.toggleEnabled = function(enabled) {
     if (enabled === this.enabled) return false;
 
     if (enabled !== true && enabled !== false) enabled = !this.enabled;
@@ -240,8 +231,7 @@ Yarip.prototype.toggleEnabled = function(enabled)
     this.setValue(PREF_ENABLED, enabled, DATA_TYPE_BOOLEAN); // notify
     return true;
 }
-Yarip.prototype.toggleNoFlicker = function(noFlicker, dontNotify, force)
-{
+Yarip.prototype.toggleNoFlicker = function(noFlicker, dontNotify, force) {
     if (noFlicker === this.noFlicker && !force) return false;
 
     if (noFlicker !== true && noFlicker !== false) noFlicker = !this.getValue(PREF_FLICKER, false, DATA_TYPE_BOOLEAN);
@@ -251,8 +241,7 @@ Yarip.prototype.toggleNoFlicker = function(noFlicker, dontNotify, force)
     if (!dontNotify) this.setValue(PREF_FLICKER, this.noFlicker, DATA_TYPE_BOOLEAN); // notify
     return true;
 }
-Yarip.prototype.setMode = function(mode)
-{
+Yarip.prototype.setMode = function(mode) {
     mode = Number(mode);
     if (!isNaN(mode)) {
         this.mode = mode;
@@ -262,51 +251,43 @@ Yarip.prototype.setMode = function(mode)
         return false;
     }
 }
-Yarip.prototype.setUseIndex = function(value)
-{
+Yarip.prototype.setUseIndex = function(value) {
     value = Number(value);
     if (!isNaN(value) && value >= 0 && value <= 2) {
         this.useIndex = value;
     }
 }
-Yarip.prototype.setElementsInContext = function(value)
-{
+Yarip.prototype.setElementsInContext = function(value) {
     var value = Number(value);
     if (!isNaN(value) && value >= 1 && value <= 20) {
         this.elementsInContext = value;
     }
 }
-Yarip.prototype.setPurgeInnerHTML = function(value)
-{
+Yarip.prototype.setPurgeInnerHTML = function(value) {
     if (typeof value === "boolean") this.purgeInnerHTML = value;
 }
-Yarip.prototype.setExclusiveOnCreation = function(value)
-{
+Yarip.prototype.setExclusiveOnCreation = function(value) {
     if (typeof value === "boolean") this.exclusiveOnCreation = value;
 }
-Yarip.prototype.setTemplates = function(value)
-{
+Yarip.prototype.setTemplates = function(value) {
     this.templates = [];
     if (!value) return;
 
     this.templates = value.split(" ", 50); // 50 = max templates
 }
-Yarip.prototype.setSchemes = function(value)
-{
+Yarip.prototype.setSchemes = function(value) {
     try {
         this.schemesRegExp = new RegExp(value);
-    } catch (e) {}
+    } catch (e) {
+    }
 }
-Yarip.prototype.setMatchAuthorityPort = function(value)
-{
+Yarip.prototype.setMatchAuthorityPort = function(value) {
     if (typeof value === "boolean") this.matchAuthorityPort = value;
 }
-Yarip.prototype.setPrivateBrowsing = function(value)
-{
+Yarip.prototype.setPrivateBrowsing = function(value) {
     if (typeof value === "boolean") this.privateBrowsing = value;
 }
-Yarip.prototype.toggleLogWhenClosed = function(logWhenClosed)
-{
+Yarip.prototype.toggleLogWhenClosed = function(logWhenClosed) {
     if (logWhenClosed === this.logWhenClosed) return false;
     if (logWhenClosed !== true && logWhenClosed !== false) {
         logWhenClosed = !this.getValue(PREF_LOG_WHEN_CLOSED, false, DATA_TYPE_BOOLEAN);
@@ -316,8 +297,7 @@ Yarip.prototype.toggleLogWhenClosed = function(logWhenClosed)
     /*if (!dontNotify)*/ this.setValue(PREF_LOG_WHEN_CLOSED, this.logWhenClosed, DATA_TYPE_BOOLEAN); // notify
     return true;
 }
-Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser)
-{
+Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser) {
 //    if (!pageName) return "^https?://([^/?#]+[.@])?example\\.net(:\\d+)?[/?#]";
     if (!pageName) return "^https?://([^/?#]+" + (this.matchAuthorityPort ? "[.@]" : "\\.") + ")?example\\.net" + (this.matchAuthorityPort ? "(:\\d+)?" : "") + "[/?#]";
 
@@ -343,8 +323,7 @@ Yarip.prototype.getPageRegExp = function(pageName, protocol, byUser)
         return "^https?://([^/?#]+" + (this.matchAuthorityPort ? "[.@]" : "\\.") + ")?example\\.net" + (this.matchAuthorityPort ? "(:\\d+)?" : "") + "[/?#]";
     }
 }
-Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
-{
+Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser) {
     var tmp = {
 //        regExp: "^http://([^/?#]+[.@])?example.net((:\\d+)?[/?#].*)",
         regExp: "^http://([^/?#]+" + (this.matchAuthorityPort ? "[.@]" : "\\.") + ")?example.net(" + (this.matchAuthorityPort ? "(:\\d+)?" : "") + "[/?#].*)",
@@ -387,8 +366,7 @@ Yarip.prototype.getPageRegExpObj = function(pageName, protocol, byUser)
             "}"
     };
 }
-Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUser)
-{
+Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUser) {
     if (!location) return null;
 
     location = this.getLocation(location);
@@ -418,7 +396,7 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUse
     if (!addressObj.found && this.templates.length > 0) {
         for (var i = 0; i < this.templates.length; i++) {
             var tmplPage = this.map.get(this.templates[i]);
-            page.merge(tmplPage, true /* ignoreTemporary */);
+            page.merge(tmplPage, null, true /* ignoreTemporary */);
             var list = tmplPage.pageExtensionList;
             for each (var item in list.obj) {
                 this.map.addExtension(page, item.clone());
@@ -430,12 +408,10 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUse
     this.pagesModified = true;
     return page;
 }
-Yarip.prototype.hasAddress = function(pageName)
-{
+Yarip.prototype.hasAddress = function(pageName) {
     return this.getFirstAddress(pageName) !== null;
 }
-Yarip.prototype.getAddressObjByLocation = function(location)
-{
+Yarip.prototype.getAddressObjByLocation = function(location) {
     var pageName = location ? location.pageName : null;
     if (!pageName) {
         return {
@@ -457,12 +433,10 @@ Yarip.prototype.getAddressObjByLocation = function(location)
     addressObj.pageName = pageName;
     return addressObj;
 }
-Yarip.prototype.getFirstAddress = function(pageName, notScheme)
-{
+Yarip.prototype.getFirstAddress = function(pageName, notScheme) {
     if (!pageName) return null;
 
     var pages = this.getPages(pageName);
-//    return pages.length > 0 ? pages[pages.length - 1].getName() : null;
     for (var i = pages.length - 1; i >= 0; i--) {
         var page = pages[i];
         if (!notScheme || !page.isScheme()) return page.getName();
@@ -470,8 +444,7 @@ Yarip.prototype.getFirstAddress = function(pageName, notScheme)
 
     return null;
 }
-Yarip.prototype.getAddressMap = function(reduceDomain, follow, matchObj, reverseExt)
-{
+Yarip.prototype.getAddressMap = function(reduceDomain, follow, matchObj, reverseExt) {
     var map = new YaripMap();
     if (typeof reduceDomain === "string") {
         var addressObj = this.getAddressObj(reduceDomain, follow, matchObj, reverseExt);
@@ -488,21 +461,17 @@ Yarip.prototype.getAddressMap = function(reduceDomain, follow, matchObj, reverse
     }
     return map;
 }
-Yarip.prototype.getPages = function(reduceDomain)
-{
+Yarip.prototype.getPages = function(reduceDomain) {
     var pages = [];
     var reduceDomain = reduceDomain.replace(/[?&#].*$/, "");
     var tmpDomain = "";
-    while (reduceDomain.length > 0 && reduceDomain.length !== tmpDomain.length)
-    {
+    while (reduceDomain.length > 0 && reduceDomain.length !== tmpDomain.length) {
         var reducePath = reduceDomain;
         var tmpPath = "";
-        while (reducePath.length > 0 && reducePath.length !== tmpPath.length)
-        {
+        while (reducePath.length > 0 && reducePath.length !== tmpPath.length) {
             var page = this.map.get(reducePath);
             if (page) pages.push(page);
             tmpPath = reducePath;
-//            reducePath = reducePath.replace(/(\/|[^/]+)$/, "");
             reducePath = reducePath.replace(/([/,;]|[^/,;]+)$/, "");
         }
         tmpDomain = reduceDomain;
@@ -513,8 +482,7 @@ Yarip.prototype.getPages = function(reduceDomain)
 
     return pages;
 }
-Yarip.prototype.getAddressObj = function(reduceDomain, follow, matchObj, reverseExt)
-{
+Yarip.prototype.getAddressObj = function(reduceDomain, follow, matchObj, reverseExt) {
     var addressObj = {
         ext: {},
         root: new YaripExtensionItem(null, null, true, true, true, true, true, true, true, null, true),
@@ -529,8 +497,7 @@ Yarip.prototype.getAddressObj = function(reduceDomain, follow, matchObj, reverse
     var key = null;
     var pages = this.getPages(reduceDomain);
     var allScheme = true;
-    for (var i = pages.length - 1; i >= 0; i--)
-    {
+    for (var i = pages.length - 1; i >= 0; i--) {
         var page = pages[i];
         if (allScheme) allScheme = page.isScheme();
         var pageName = page.getName();
@@ -565,8 +532,7 @@ Yarip.prototype.getAddressObj = function(reduceDomain, follow, matchObj, reverse
 
     return addressObj;
 }
-Yarip.prototype.getExtensionAddressObj = function(addressObj, matchObj, reverseExt)
-{
+Yarip.prototype.getExtensionAddressObj = function(addressObj, matchObj, reverseExt) {
     if (!addressObj) return false;
 
     var obj = {};
@@ -578,26 +544,21 @@ Yarip.prototype.getExtensionAddressObj = function(addressObj, matchObj, reverseE
         this.getRecursiveAddressArray(pageName, addressObj, parentItem, matchObj, reverseExt);
     }
 }
-Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parentItem, matchObj, reverseExt)
-{
+Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parentItem, matchObj, reverseExt) {
     if (!parentItem.doesSomething()) return;
 
     var listName = reverseExt ? "pageExtendedByList" : "pageExtensionList";
 
     var obj = {};
     var pages = this.getPages(pageName.replace(/[?&#].*$/, ""));
-    for (var i = pages.length - 1; i >= 0; i--)
-    {
+    for (var i = pages.length - 1; i >= 0; i--) {
         var page = pages[i];
         var list = page[listName];
-        for each (var item in list.obj)
-        {
+        for each (var item in list.obj) {
             var extPage = item.getPage();
-            if (extPage)
-            {
+            if (extPage) {
                 var extPageName = extPage.getName();
-                if (extPageName in addressObj.ext) // already added
-                {
+                if (extPageName in addressObj.ext) { // already added
                     var childItem = addressObj.ext[extPageName];
                     if (childItem.isSelf()) continue; // ignore self
 
@@ -607,13 +568,10 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parent
                             childItem.addFrom(parentItem);
                         }
                     }
-                }
-                else // not yet added
-                {
+                } else { // not yet added
                     var childItem = new YaripExtensionItem(extPage.getId());
                     childItem.updateDo(parentItem, item, matchObj);
-                    if (item.doesSomething())
-                    {
+                    if (item.doesSomething()) {
                         addressObj.ext[extPageName] = childItem;
                         if (parentItem.addTo(childItem)) {
                             childItem.addFrom(parentItem);
@@ -640,12 +598,10 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parent
         this.getRecursiveAddressArray(extPageName, addressObj, addressObj.ext[extPageName], matchObj, reverseExt);
     }
 }
-Yarip.prototype.resetUndo = function()
-{
+Yarip.prototype.resetUndo = function() {
     this.undoObj = {};
 }
-Yarip.prototype.resetOnAddress = function(obj)
-{
+Yarip.prototype.resetOnAddress = function(obj) {
     if (!obj) return false;
 
     var list = null;
@@ -687,17 +643,14 @@ Yarip.prototype.resetOnAddress = function(obj)
     delete this.undoObj[obj.type + " " + obj.key];
     return true;
 }
-Yarip.prototype.getIncrement = function(newIncrement, oldIncrement)
-{
+Yarip.prototype.getIncrement = function(newIncrement, oldIncrement) {
     return newIncrement > oldIncrement ? newIncrement : oldIncrement;
 }
-Yarip.prototype.resetKnown = function()
-{
+Yarip.prototype.resetKnown = function() {
     this.knownAddressObj = {};
     this.knownNotification = {};
 }
-Yarip.prototype.reloadPage = function(pageName, selectItem, selectTab, resetFilter, type, key)
-{
+Yarip.prototype.reloadPage = function(pageName, selectItem, selectTab, resetFilter, type, key) {
     if (this.pageDialog && pageName) {
         this.pageDialog.reloadPage(pageName, this.pagesModified, selectItem, selectTab, resetFilter, type, key);
         this.pagesModified = false;
@@ -706,13 +659,11 @@ Yarip.prototype.reloadPage = function(pageName, selectItem, selectTab, resetFilt
         return false;
     }
 }
-Yarip.prototype.removeAllExceptWhitelisted = function(doc)
-{
+Yarip.prototype.removeAllExceptWhitelisted = function(doc) {
     this.whitelistElementItem(doc, null, new YaripElementWhitelistItem("/html/head/descendant-or-self::*[not(@status='blacklisted')]")); // whitelist head and descendants
     this.blacklistElementItem(doc, null, new YaripElementBlacklistItem("//*[not(@status='whitelisted')]")); // blacklist all except whitelisted
 }
-Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, increment)
-{
+Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, increment) {
     if (!doc || !item) return false;
 
     var elements = this.getNodesByXPath(doc, item.getXPath(), ELEMENT_NODE);
@@ -778,8 +729,7 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
 
     return found;
 }
-Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, increment)
-{
+Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, increment) {
     if (!doc || !item) return false;
 
     var nodes = this.getNodesByXPath(doc, item.getXPath());
@@ -880,8 +830,7 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
 
     return found;
 }
-Yarip.prototype.whitelistContentItem = function(location, pageName, item)
-{
+Yarip.prototype.whitelistContentItem = function(location, pageName, item) {
     if (!pageName || !item) return false;
 
     var page = this.map.get(pageName);
@@ -894,8 +843,7 @@ Yarip.prototype.whitelistContentItem = function(location, pageName, item)
     this.reloadPage(pageName, false, true);
     return true;
 }
-Yarip.prototype.blacklistContentItem = function(location, pageName, item)
-{
+Yarip.prototype.blacklistContentItem = function(location, pageName, item) {
     if (!pageName || !item) return false;
 
     var page = this.map.get(pageName);
@@ -908,8 +856,7 @@ Yarip.prototype.blacklistContentItem = function(location, pageName, item)
     this.reloadPage(pageName, false, true);
     return true;
 }
-Yarip.prototype.extendPage = function(location, pageName, content, contentAddress, item)
-{
+Yarip.prototype.extendPage = function(location, pageName, content, contentAddress, item) {
     if (!pageName || !contentAddress) return false;
 
     var pageOwn = this.createPage(location, pageName);
@@ -924,8 +871,7 @@ Yarip.prototype.extendPage = function(location, pageName, content, contentAddres
     this.reloadPage(pageOwn.getName());
     return true;
 }
-Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, increment)
-{
+Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, increment) {
     if (!doc || !pageName) return false;
 
     var elements = this.getNodesByXPath(doc, item.getXPath() || "//*", ELEMENT_NODE);
@@ -991,8 +937,7 @@ Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, incremen
 
     return found;
 }
-Yarip.prototype.scriptElementItem = function(doc, pageName, item, isNew)
-{
+Yarip.prototype.scriptElementItem = function(doc, pageName, item, isNew) {
     if (!doc || !pageName) return false;
 
     var elements = this.getNodesByXPath(doc, item.getXPath(), ELEMENT_NODE);
@@ -1011,8 +956,7 @@ Yarip.prototype.scriptElementItem = function(doc, pageName, item, isNew)
 
     return found;
 }
-Yarip.prototype.stylePage = function(doc, pageName, item, isNew)
-{
+Yarip.prototype.stylePage = function(doc, pageName, item, isNew) {
     if (!doc || !pageName) return false;
 
     var elements = this.getNodesByXPath(doc, item.getXPath(), ELEMENT_NODE);
@@ -1031,8 +975,7 @@ Yarip.prototype.stylePage = function(doc, pageName, item, isNew)
 
     return found;
 }
-Yarip.prototype.createXPath = function(element, fullPath)
-{
+Yarip.prototype.createXPath = function(element, fullPath) {
     if (!element || !element.localName) return null;
 
     if (element.nodeType === ATTRIBUTE_NODE) {
@@ -1040,27 +983,22 @@ Yarip.prototype.createXPath = function(element, fullPath)
     }
 
     var xpath = "";
-    do
-    {
+    do {
         var attributes = "";
-        if (element.getAttribute("id"))
-        {
+        if (element.getAttribute("id")) {
             // ID
             attributes += "[@id='" + element.getAttribute("id") + "']";
             if (!fullPath) {
                 return "//" + element.localName + attributes + xpath; // shortest xpath
             }
-        }
-        else
-        {
+        } else {
             // ATTRIBUTES
             if (element.getAttribute("name")) attributes += "@name='" + element.getAttribute("name") + "'";
             if (element.getAttribute("class")) attributes += (attributes ? " and " : "") + "@class='" + element.getAttribute("class") + "'";
             if (attributes) attributes = "[" + attributes + "]";
 
             // INDEX
-            if (this.useIndex !== 2 /* never */ && !/^(html|head|title|body|thead|tbody|tfoot|frameset)$/.test(element.localName))
-            {
+            if (this.useIndex !== 2 /* never */ && !/^(html|head|title|body|thead|tbody|tfoot|frameset)$/.test(element.localName)) {
                 var index = 1;
                 var sibling = element.previousSibling;
                 while (sibling) {
@@ -1085,31 +1023,25 @@ Yarip.prototype.createXPath = function(element, fullPath)
 
     return xpath || null;
 }
-Yarip.prototype.createCssSelector = function(element, fullPath)
-{
+Yarip.prototype.createCssSelector = function(element, fullPath) {
     if (!element || !element.localName) return null;
 
     var cssSelector = "";
-    do
-    {
+    do {
         var attributes = "";
-        if (element.getAttribute("id"))
-        {
+        if (element.getAttribute("id")) {
             // ID
             attributes += "[id='" + element.getAttribute("id") + "']";
             if (!fullPath) {
                 return element.localName + attributes + (cssSelector ? " > " : "") + cssSelector; // shortest cssSelector
             }
-        }
-        else
-        {
+        } else {
             // ATTRIBUTES
             if (element.getAttribute("name")) attributes += "[name='" + element.getAttribute("name") + "']";
             if (element.getAttribute("class")) attributes += "[class='" + element.getAttribute("class") + "']";
 
             // INDEX
-            if (this.useIndex !== 2 /* never */ && !/^(html|head|title|body|thead|tbody|tfoot|frameset)$/.test(element.localName))
-            {
+            if (this.useIndex !== 2 /* never */ && !/^(html|head|title|body|thead|tbody|tfoot|frameset)$/.test(element.localName)) {
                 var index = 1;
                 var sibling = element.previousSibling;
                 while (sibling) {
@@ -1134,8 +1066,7 @@ Yarip.prototype.createCssSelector = function(element, fullPath)
 
     return cssSelector || null;
 }
-Yarip.prototype.getNodesByXPath = function(doc, xpath, nodeType)
-{
+Yarip.prototype.getNodesByXPath = function(doc, xpath, nodeType) {
     var arr = [];
     try {
         var nodes = doc.evaluate(xpath, doc.body, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -1154,17 +1085,14 @@ Yarip.prototype.getNodesByXPath = function(doc, xpath, nodeType)
         return arr;
     }
 }
-Yarip.prototype.generateRegExp = function(value)
-{
+Yarip.prototype.generateRegExp = function(value) {
     if (!value) return null;
     return "^" + value.replace(/([.*+?|()\[\]{}\\])/g, "\\$1") + "$";
 }
-Yarip.prototype.checkPageName = function(value)
-{
+Yarip.prototype.checkPageName = function(value) {
     return URI_SIMPLE_RE.test(value);
 }
-Yarip.prototype.checkXPath = function(value, allowEmpty)
-{
+Yarip.prototype.checkXPath = function(value, allowEmpty) {
     if (!value) return allowEmpty && typeof value === "string"; 
     try {
         var dp = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
@@ -1175,8 +1103,7 @@ Yarip.prototype.checkXPath = function(value, allowEmpty)
         return false;
     }
 }
-Yarip.prototype.checkRegExp = function(value, allowEmpty)
-{
+Yarip.prototype.checkRegExp = function(value, allowEmpty) {
     if (!value) return allowEmpty && typeof value === "string"; 
     try {
         new RegExp(value).test("");
@@ -1185,20 +1112,17 @@ Yarip.prototype.checkRegExp = function(value, allowEmpty)
         return false;
     }
 }
-Yarip.prototype.escapeCDEnd = function(value)
-{
+Yarip.prototype.escapeCDEnd = function(value) {
     return value.replace(/\]\]>/g, "]]]]><![CDATA[>");
 }
-Yarip.prototype.getElements = function(doc, xpath)
-{
+Yarip.prototype.getElements = function(doc, xpath) {
     try {
         return doc.evaluate(xpath, doc, null, UNORDERED_NODE_SNAPSHOT_TYPE, null);
     } catch (e) {
         return null;
     }
 }
-Yarip.prototype.highlight = function(doc, xpath)
-{
+Yarip.prototype.highlight = function(doc, xpath) {
     if (!doc || !xpath) return false;
     var elements = this.getElements(doc, xpath);
     if (!elements) return false;
@@ -1218,8 +1142,7 @@ Yarip.prototype.highlight = function(doc, xpath)
     }
     return true;
 }
-Yarip.prototype.unHighlight = function(doc, xpath)
-{
+Yarip.prototype.unHighlight = function(doc, xpath) {
     if (!doc || !xpath) return;
     var elements = this.getElements(doc, xpath);
     if (elements && elements.snapshotLength > 0) {
@@ -1241,14 +1164,12 @@ Yarip.prototype.unHighlight = function(doc, xpath)
         }
     }
 }
-Yarip.prototype.save = function()
-{
+Yarip.prototype.save = function() {
     var file = this.getFile(FILE);
     var data = this.map.generateXml();
     this.saveToFile(data, file);
 }
-Yarip.prototype.getValue = function(preference, defaultValue, type)
-{
+Yarip.prototype.getValue = function(preference, defaultValue, type) {
     try {
         switch (type) {
         case DATA_TYPE_BOOLEAN:
@@ -1266,8 +1187,7 @@ Yarip.prototype.getValue = function(preference, defaultValue, type)
     }
     return this.getValue(preference, null, type);
 }
-Yarip.prototype.setValue = function(preference, value, type)
-{
+Yarip.prototype.setValue = function(preference, value, type) {
     try {
         switch (type) {
         case DATA_TYPE_BOOLEAN:
@@ -1286,26 +1206,29 @@ Yarip.prototype.setValue = function(preference, value, type)
     } catch (e) {
     }
 }
-Yarip.prototype.deleteBranch = function(branch)
-{
+Yarip.prototype.deleteBranch = function(branch) {
     if (!branch) return;
 
     PB.deleteBranch(branch);
 }
-Yarip.prototype.injectCSS = function(uri, value)
-{
+Yarip.prototype.injectCSS = function(uri, value) {
     if (!uri) return;
 
     var uri = IOS.newURI(uri, CHARSET, null); // uri, charset, baseuri
     var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
-    if (value) { if (!sss.sheetRegistered(uri, sss.USER_SHEET)) sss.loadAndRegisterSheet(uri, sss.USER_SHEET); }
-    else { if (sss.sheetRegistered(uri, sss.USER_SHEET)) sss.unregisterSheet(uri, sss.USER_SHEET); }
+    if (value) {
+        if (!sss.sheetRegistered(uri, sss.USER_SHEET)) {
+            sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
+        }
+    } else {
+        if (sss.sheetRegistered(uri, sss.USER_SHEET)) {
+            sss.unregisterSheet(uri, sss.USER_SHEET);
+        }
+    }
 }
-Yarip.prototype.check = function()
-{
+Yarip.prototype.check = function() {
     var previous = this.getValue(PREF_VERSION, "", DATA_TYPE_STRING);
-    if (previous && previous !== VERSION)
-    {
+    if (previous && previous !== VERSION) {
         this.setValue(PREF_VERSION, VERSION, DATA_TYPE_STRING);
 
         var re = /^(0\.1\.[2-9]|0\.2(\.1)?)$/;
@@ -1329,8 +1252,7 @@ Yarip.prototype.check = function()
         }
 
         re = /^(0\.[12](\.\d)*|0\.3\.1)$/;
-        if (re.test(previous) && !re.test(VERSION))
-        {
+        if (re.test(previous) && !re.test(VERSION)) {
             // Re-introduced styles for xpaths.
             for (var p in this.map.obj) {
                 for (var x in this.map.get(p).elementBlacklist.obj) {
@@ -1353,8 +1275,7 @@ Yarip.prototype.check = function()
         }
 
         re = /^(0\.[12](\.\d)*|0\.3\.[1-3])$/;
-        if (re.test(previous) && !re.test(VERSION))
-        {
+        if (re.test(previous) && !re.test(VERSION)) {
             // Using UUIDs for page IDs, instead of a timestamp.
             var arr = [];
             for (var pageName in this.map.obj) arr.push(pageName);
@@ -1378,23 +1299,19 @@ Yarip.prototype.check = function()
         this.deleteBranch("extensions.yarip.contentRecurrence"); // deleted in v0.3.4
     }
 }
-Yarip.prototype.getId = function()
-{
+Yarip.prototype.getId = function() {
     return UUIDG.generateUUID().toString();
 }
-Yarip.prototype.addMonitorDialog = function(monitorDialog)
-{
+Yarip.prototype.addMonitorDialog = function(monitorDialog) {
     monitorDialog.id = Date.now();
     while (monitorDialog.id in this.monitorDialogues) monitorDialog.id++;
     this.monitorDialogues[String(monitorDialog.id)] = monitorDialog;
 }
-Yarip.prototype.removeMonitorDialog = function(monitorDialog)
-{
+Yarip.prototype.removeMonitorDialog = function(monitorDialog) {
     delete this.monitorDialogues[monitorDialog.id];
     monitorDialog.id = -1;
 }
-Yarip.prototype.load = function(file, imported)
-{
+Yarip.prototype.load = function(file, imported) {
     var doc = this.getDoc(file);
     if (!doc) {
         if (!imported) this.save();
@@ -1411,12 +1328,10 @@ Yarip.prototype.load = function(file, imported)
     if (!nYarip) return null;
 
     var version = nYarip.getAttribute("version");
-    if (!version)
-    {
+    if (!version) {
         var iPage = doc.evaluate("./page", nYarip, null, ORDERED_NODE_ITERATOR_TYPE, null);
         var nPage = iPage.iterateNext();
-        while (nPage)
-        {
+        while (nPage) {
             pageName = nPage.getAttribute("name");
             var pageId = nPage.getAttribute("id");
             var page = map.get(pageName);
@@ -1425,12 +1340,10 @@ Yarip.prototype.load = function(file, imported)
             // XPATH WHITELIST
             var iWhitelist = doc.evaluate("./whitelist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nWhitelist = iWhitelist.iterateNext();
-            if (nWhitelist)
-            {
+            if (nWhitelist) {
                 var iXPath = doc.evaluate("./xpath", nWhitelist, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nXPath = iXPath.iterateNext();
-                while (nXPath)
-                {
+                while (nXPath) {
                     page.elementWhitelist.add(new YaripElementWhitelistItem(
                         nXPath.getAttribute("value"),
                         null, // priority
@@ -1446,12 +1359,10 @@ Yarip.prototype.load = function(file, imported)
             // XPATH BLACKLIST
             var iBlacklist = doc.evaluate("./blacklist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nBlacklist = iBlacklist.iterateNext();
-            if (nBlacklist)
-            {
+            if (nBlacklist) {
                 var iXPath = doc.evaluate("./xpath", nBlacklist, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nXPath = iXPath.iterateNext();
-                while (nXPath)
-                {
+                while (nXPath) {
                     page.elementBlacklist.add(new YaripElementBlacklistItem(
                         nXPath.getAttribute("value"),
                         nXPath.getAttribute("style"),
@@ -1469,27 +1380,24 @@ Yarip.prototype.load = function(file, imported)
             map.add(page);
             nPage = iPage.iterateNext();
         }
-    }
-    else if (/^0\.2(\.[1-3])?$/.test(version))
-    {
+    } else if (/^0\.2(\.[1-3])?$/.test(version)) {
         var iPage = doc.evaluate("./page", nYarip, null, ORDERED_NODE_ITERATOR_TYPE, null);
         var nPage = iPage.iterateNext();
-        while (nPage)
-        {
+        while (nPage) {
             pageName = nPage.getAttribute("name");
             var pageId = nPage.getAttribute("id");
             var page = map.get(pageName);
-            if (!page) page = new YaripPage(pageId ? pageId : this.getId(), pageName);
+            if (!page) {
+                page = new YaripPage(pageId ? pageId : this.getId(), pageName);
+            }
 
             // ELEMENT BLACKLIST
             var iElementBlacklist = doc.evaluate("./elementBlacklist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nElementBlacklist = iElementBlacklist.iterateNext();
-            if (nElementBlacklist)
-            {
+            if (nElementBlacklist) {
                 var iElement = doc.evaluate("./element", nElementBlacklist, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nElement = iElement.iterateNext();
-                while (nElement)
-                {
+                while (nElement) {
                     var element = new YaripElementBlacklistItem(
                         nElement.getAttribute("xpath"),
                         nElement.getAttribute("style"),
@@ -1508,12 +1416,10 @@ Yarip.prototype.load = function(file, imported)
             // CONTENT BLACKLIST
             var iContentBlacklist = doc.evaluate("./contentBlacklist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nContent = iContentBlacklist.iterateNext();
-            if (nContent)
-            {
+            if (nContent) {
                 var iContent = doc.evaluate("./content", nContent, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nContent = iContent.iterateNext();
-                while (nContent)
-                {
+                while (nContent) {
                     page.contentBlacklist.add(new YaripContentBlacklistItem(
                         nContent.getAttribute("regexp"),
                         null, // flags
@@ -1532,8 +1438,7 @@ Yarip.prototype.load = function(file, imported)
 
         var iPage = doc.evaluate("./page", nYarip, null, ORDERED_NODE_ITERATOR_TYPE, null);
         var nPage = iPage.iterateNext();
-        while (nPage)
-        {
+        while (nPage) {
             pageName = nPage.getAttribute("name");
             var pageId = nPage.getAttribute("id");
             var page = map.get(pageName);
@@ -1542,12 +1447,10 @@ Yarip.prototype.load = function(file, imported)
             // ELEMENT WHITELIST
             var iElementWhitelist = doc.evaluate("./elementWhitelist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nElementWhitelist = iElementWhitelist.iterateNext();
-            if (nElementWhitelist)
-            {
+            if (nElementWhitelist) {
                 var iElement = doc.evaluate("./element", nElementWhitelist, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nElement = iElement.iterateNext();
-                while (nElement)
-                {
+                while (nElement) {
                     page.elementWhitelist.add(new YaripElementWhitelistItem(
                         nElement.getAttribute("xpath"),
                         null, // priority
@@ -1563,13 +1466,11 @@ Yarip.prototype.load = function(file, imported)
             // CONTENT WHITELIST
             var iContentWhitelist = doc.evaluate("./contentWhitelist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nContent = iContentWhitelist.iterateNext();
-            if (nContent)
-            {
+            if (nContent) {
                 page.contentWhitelist.setExclusive(nContent.getAttribute("exclusive"));
                 var iContent = doc.evaluate("./content", nContent, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nContent = iContent.iterateNext();
-                while (nContent)
-                {
+                while (nContent) {
                     page.contentWhitelist.add(new YaripContentWhitelistItem(
                         nContent.getAttribute("regexp"),
                         null, // flags
@@ -1583,12 +1484,10 @@ Yarip.prototype.load = function(file, imported)
             // STYLES
             var iStyles = doc.evaluate("./styles", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nStyles = iStyles.iterateNext();
-            if (nStyles)
-            {
+            if (nStyles) {
                 var iElement = doc.evaluate("./element", nStyles, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nElement = iElement.iterateNext();
-                while (nElement)
-                {
+                while (nElement) {
                     page.elementAttributeList.add(new YaripElementAttributeItem(
                         nElement.getAttribute("xpath"),
                         "style",
@@ -1607,12 +1506,10 @@ Yarip.prototype.load = function(file, imported)
             // ATTRIBUTES
             var iAttributes = doc.evaluate("./attributes", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nAttributes = iAttributes.iterateNext();
-            if (nAttributes)
-            {
+            if (nAttributes) {
                 var iElement = doc.evaluate("./element", nAttributes, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nElement = iElement.iterateNext();
-                while (nElement)
-                {
+                while (nElement) {
                     page.elementAttributeList.add(new YaripElementAttributeItem(
                         nElement.getAttribute("xpath"),
                         nElement.getAttribute("name"),
@@ -1633,8 +1530,7 @@ Yarip.prototype.load = function(file, imported)
 
         var iPage = doc.evaluate("./page", nYarip, null, ORDERED_NODE_ITERATOR_TYPE, null);
         var nPage = iPage.iterateNext();
-        while (nPage)
-        {
+        while (nPage) {
             pageName = nPage.getAttribute("name");
             var pageId = nPage.getAttribute("id");
             var page = map.get(pageName);
@@ -1642,15 +1538,12 @@ Yarip.prototype.load = function(file, imported)
             // EXTENSION
             var iExtension = doc.evaluate("./extension", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nExtension = iExtension.iterateNext();
-            if (nExtension)
-            {
+            if (nExtension) {
                 var iItem = doc.evaluate("./item", nExtension, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nItem = iItem.iterateNext();
-                while (nItem)
-                {
+                while (nItem) {
                     var value = nItem.getAttribute("value");
-                    if (value !== page.getId())
-                    {
+                    if (value !== page.getId()) {
                         map.addExtension(page, new YaripExtensionItem(
                             nItem.getAttribute("value"),
                             null, // priority
@@ -1669,13 +1562,10 @@ Yarip.prototype.load = function(file, imported)
 
             nPage = iPage.iterateNext();
         }
-    }
-    else if (/^0\.2\.4$/.test(version))
-    {
+    } else if (/^0\.2\.4$/.test(version)) {
         var iPage = doc.evaluate("./page", nYarip, null, ORDERED_NODE_ITERATOR_TYPE, null);
         var nPage = iPage.iterateNext();
-        while (nPage)
-        {
+        while (nPage) {
             pageName = nPage.getAttribute("name");
             var pageId = nPage.getAttribute("id");
             var page = map.get(pageName);
@@ -1684,16 +1574,13 @@ Yarip.prototype.load = function(file, imported)
             // ELEMENT WHITELIST
             var iElementWhitelist = doc.evaluate("./elementWhitelist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nElementWhitelist = iElementWhitelist.iterateNext();
-            if (nElementWhitelist)
-            {
+            if (nElementWhitelist) {
                 var iElement = doc.evaluate("./element", nElementWhitelist, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nElement = iElement.iterateNext();
-                while (nElement)
-                {
+                while (nElement) {
                     var iXPath = doc.evaluate("./xpath", nElement, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nXPath = iXPath.iterateNext();
-                    if (nXPath)
-                    {
+                    if (nXPath) {
                         var created = nElement.getAttribute("created");
                         page.elementWhitelist.add(new YaripElementWhitelistItem(
                             nXPath.textContent,
@@ -1711,18 +1598,15 @@ Yarip.prototype.load = function(file, imported)
             // ELEMENT BLACKLIST
             var iElementBlacklist = doc.evaluate("./elementBlacklist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nElementBlacklist = iElementBlacklist.iterateNext();
-            if (nElementBlacklist)
-            {
+            if (nElementBlacklist) {
                 var iElement = doc.evaluate("./element", nElementBlacklist, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nElement = iElement.iterateNext();
-                while (nElement)
-                {
+                while (nElement) {
                     var iXPath = doc.evaluate("./xpath", nElement, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nXPath = iXPath.iterateNext();
                     var iStyle = doc.evaluate("./style", nElement, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nStyle = iStyle.iterateNext();
-                    if (nXPath)
-                    {
+                    if (nXPath) {
                         var created = nElement.getAttribute("created");
                         page.elementBlacklist.add(new YaripElementBlacklistItem(
                             nXPath.textContent,
@@ -1742,17 +1626,14 @@ Yarip.prototype.load = function(file, imported)
             // CONTENT WHITELIST
             var iContentWhitelist = doc.evaluate("./contentWhitelist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nContent = iContentWhitelist.iterateNext();
-            if (nContent)
-            {
+            if (nContent) {
                 page.contentWhitelist.setExclusive(nContent.getAttribute("exclusive"));
                 var iContent = doc.evaluate("./content", nContent, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nContent = iContent.iterateNext();
-                while (nContent)
-                {
+                while (nContent) {
                     var iRegExp = doc.evaluate("./regexp", nContent, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nRegExp = iRegExp.iterateNext();
-                    if (nRegExp)
-                    {
+                    if (nRegExp) {
                         var created = nContent.getAttribute("created");
                         page.contentWhitelist.add(new YaripContentWhitelistItem(
                             nRegExp.textContent,
@@ -1768,16 +1649,13 @@ Yarip.prototype.load = function(file, imported)
             // CONTENT BLACKLIST
             var iContentBlacklist = doc.evaluate("./contentBlacklist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nContent = iContentBlacklist.iterateNext();
-            if (nContent)
-            {
+            if (nContent) {
                 var iContent = doc.evaluate("./content", nContent, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nContent = iContent.iterateNext();
-                while (nContent)
-                {
+                while (nContent) {
                     var iRegExp = doc.evaluate("./regexp", nContent, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nRegExp = iRegExp.iterateNext();
-                    if (nRegExp)
-                    {
+                    if (nRegExp) {
                         var created = nContent.getAttribute("created");
                         page.contentBlacklist.add(new YaripContentBlacklistItem(
                             nRegExp.textContent,
@@ -1795,20 +1673,17 @@ Yarip.prototype.load = function(file, imported)
             // ATTRIBUTES
             var iAttributes = doc.evaluate("./attributes", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nAttributes = iAttributes.iterateNext();
-            if (nAttributes)
-            {
+            if (nAttributes) {
                 var iElement = doc.evaluate("./element", nAttributes, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nElement = iElement.iterateNext();
-                while (nElement)
-                {
+                while (nElement) {
                     var iXPath = doc.evaluate("./xpath", nElement, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nXPath = iXPath.iterateNext();
                     var iName = doc.evaluate("./name", nElement, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nName = iName.iterateNext();
                     var iValue = doc.evaluate("./value", nElement, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nValue = iValue.iterateNext();
-                    if (nXPath && nName && nValue)
-                    {
+                    if (nXPath && nName && nValue) {
                         var created = nElement.getAttribute("created");
                         page.elementAttributeList.add(new YaripElementAttributeItem(
                             nXPath.textContent,
@@ -1828,8 +1703,7 @@ Yarip.prototype.load = function(file, imported)
             // SCRIPT
             var iScript = doc.evaluate("./script", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nScript = iScript.iterateNext();
-            if (nScript)
-            {
+            if (nScript) {
                   page.pageScriptList.add(new YaripPageScriptItem(
                       "/html/body",
                       nScript.textContent,
@@ -1844,8 +1718,7 @@ Yarip.prototype.load = function(file, imported)
 
         var iPage = doc.evaluate("./page", nYarip, null, ORDERED_NODE_ITERATOR_TYPE, null);
         var nPage = iPage.iterateNext();
-        while (nPage)
-        {
+        while (nPage) {
             pageName = nPage.getAttribute("name");
             var pageId = nPage.getAttribute("id");
             var page = map.get(pageName);
@@ -1853,15 +1726,12 @@ Yarip.prototype.load = function(file, imported)
             // EXTENSION
             var iExtension = doc.evaluate("./extension", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nExtension = iExtension.iterateNext();
-            if (nExtension)
-            {
+            if (nExtension) {
                 var iPageRef = doc.evaluate("./pageReference", nExtension, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageRef = iPageRef.iterateNext();
-                while (nPageRef)
-                {
+                while (nPageRef) {
                     var pageExtId = nPageRef.textContent;
-                    if (pageExtId && pageExtId !== page.getId())
-                    {
+                    if (pageExtId && pageExtId !== page.getId()) {
                         var created = nPageRef.getAttribute("created");
                         map.addExtension(page, new YaripExtensionItem(
                             pageExtId,
@@ -1881,13 +1751,10 @@ Yarip.prototype.load = function(file, imported)
 
             nPage = iPage.iterateNext();
         }
-    }
-    else // if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.[1-4])$/.test(version)) // XXX
-    {
+    } else { // if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.[1-4])$/.test(version)) // XXX
         var iPage = doc.evaluate("./page", nYarip, null, ORDERED_NODE_ITERATOR_TYPE, null);
         var nPage = iPage.iterateNext();
-        while (nPage)
-        {
+        while (nPage) {
             pageName = nPage.getAttribute("name");
             var pageId = nPage.getAttribute("id");
             var pageCreated = nPage.getAttribute("created");
@@ -1896,22 +1763,18 @@ Yarip.prototype.load = function(file, imported)
 
             var iElementChild = doc.evaluate("./element", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nElementChild = iElementChild.iterateNext();
-            if (nElementChild)
-            {
+            if (nElementChild) {
                 // ELEMENT WHITELIST
                 var iElementWhitelist = doc.evaluate("./whitelist", nElementChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nElementWhitelist = iElementWhitelist.iterateNext();
-                if (nElementWhitelist)
-                {
+                if (nElementWhitelist) {
                     page.elementWhitelist.setExclusive(nElementWhitelist.getAttribute("exclusive"));
                     var iItem = doc.evaluate("./item", nElementWhitelist, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iXPath = doc.evaluate("./xpath", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nXPath = iXPath.iterateNext();
-                        if (nXPath)
-                        {
+                        if (nXPath) {
                             var created = nItem.getAttribute("created");
                             page.elementWhitelist.add(new YaripElementWhitelistItem(
                                 nXPath.textContent,
@@ -1929,18 +1792,15 @@ Yarip.prototype.load = function(file, imported)
                 // ELEMENT BLACKLIST
                 var iElementBlacklist = doc.evaluate("./blacklist", nElementChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nElementBlacklist = iElementBlacklist.iterateNext();
-                if (nElementBlacklist)
-                {
+                if (nElementBlacklist) {
                     var iItem = doc.evaluate("./item", nElementBlacklist, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iXPath = doc.evaluate("./xpath", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nXPath = iXPath.iterateNext();
                         var iStyle = doc.evaluate("./style", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nStyle = iStyle.iterateNext();
-                        if (nXPath)
-                        {
+                        if (nXPath) {
                             var created = nItem.getAttribute("created");
                             var element = new YaripElementBlacklistItem(
                                 nXPath.textContent,
@@ -1971,7 +1831,6 @@ Yarip.prototype.load = function(file, imported)
                         var nName = iName.iterateNext();
                         var iValue = doc.evaluate("./value", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nValue = iValue.iterateNext();
-//                        if (nXPath && nName && nValue) {
                         if (nName) {
                             var created = nItem.getAttribute("created");
                             page.elementAttributeList.add(new YaripElementAttributeItem(
@@ -1992,18 +1851,15 @@ Yarip.prototype.load = function(file, imported)
                 // ELEMENT SCRIPT
                 var iElementScript = doc.evaluate("./script", nElementChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nElementScript = iElementScript.iterateNext();
-                if (nElementScript)
-                {
+                if (nElementScript) {
                     var iItem = doc.evaluate("./item", nElementScript, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iXPath = doc.evaluate("./xpath", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nXPath = iXPath.iterateNext();
                         var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nScript = iScript.iterateNext();
-                        if (nXPath)
-                        {
+                        if (nXPath) {
                             var created = nItem.getAttribute("created");
                             page.elementScriptList.add(new YaripScriptItem(
                                 nXPath.textContent,
@@ -2022,22 +1878,18 @@ Yarip.prototype.load = function(file, imported)
 
             var iContentChild = doc.evaluate("./content", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nContentChild = iContentChild.iterateNext();
-            if (nContentChild)
-            {
+            if (nContentChild) {
                 // CONTENT WHITELIST
                 var iContentWhitelist = doc.evaluate("./whitelist", nContentChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nContentWhitelist = iContentWhitelist.iterateNext();
-                if (nContentWhitelist)
-                {
+                if (nContentWhitelist) {
                     page.contentWhitelist.setExclusive(nContentWhitelist.getAttribute("exclusive"));
                     var iItem = doc.evaluate("./item", nContentWhitelist, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nRegExp = iRegExp.iterateNext();
-                        if (nRegExp)
-                        {
+                        if (nRegExp) {
                             var created = nItem.getAttribute("created");
                             page.contentWhitelist.add(new YaripContentWhitelistItem(
                                 nRegExp.textContent,
@@ -2053,16 +1905,13 @@ Yarip.prototype.load = function(file, imported)
                 // CONTENT BLACKLIST
                 var iContentBlacklist = doc.evaluate("./blacklist", nContentChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nContentBlacklist = iContentBlacklist.iterateNext();
-                if (nContentBlacklist)
-                {
+                if (nContentBlacklist) {
                     var iItem = doc.evaluate("./item", nContentBlacklist, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nRegExp = iRegExp.iterateNext();
-                        if (nRegExp)
-                        {
+                        if (nRegExp) {
                             var created = nItem.getAttribute("created");
                             page.contentBlacklist.add(new YaripContentBlacklistItem(
                                 nRegExp.textContent,
@@ -2079,17 +1928,14 @@ Yarip.prototype.load = function(file, imported)
 
                 var iContentHeader = doc.evaluate("./header", nContentChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nContentHeader = iContentHeader.iterateNext();
-                if (nContentHeader)
-                {
+                if (nContentHeader) {
                     // CONTENT REQUEST HEADER
                     var iContentRequestHeader = doc.evaluate("./request", nContentHeader, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nContentRequestHeader = iContentRequestHeader.iterateNext();
-                    if (nContentRequestHeader)
-                    {
+                    if (nContentRequestHeader) {
                         var iItem = doc.evaluate("./item", nContentRequestHeader, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nItem = iItem.iterateNext();
-                        while (nItem)
-                        {
+                        while (nItem) {
                             var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nRegExp = iRegExp.iterateNext();
                             var iName = doc.evaluate("./name", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
@@ -2113,12 +1959,10 @@ Yarip.prototype.load = function(file, imported)
                     // CONTENT RESPONSE HEADER
                     var iContentResponseHeader = doc.evaluate("./response", nContentHeader, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nContentResponseHeader = iContentResponseHeader.iterateNext();
-                    if (nContentResponseHeader)
-                    {
+                    if (nContentResponseHeader) {
                         var iItem = doc.evaluate("./item", nContentResponseHeader, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nItem = iItem.iterateNext();
-                        while (nItem)
-                        {
+                        while (nItem) {
                             var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nRegExp = iRegExp.iterateNext();
                             var iName = doc.evaluate("./name", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
@@ -2143,18 +1987,15 @@ Yarip.prototype.load = function(file, imported)
                 // CONTENT REDIRECT
                 var iContentRedirect = doc.evaluate("./redirect", nContentChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nContentRedirect = iContentRedirect.iterateNext();
-                if (nContentRedirect)
-                {
+                if (nContentRedirect) {
                     var iItem = doc.evaluate("./item", nContentRedirect, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nRegExp = iRegExp.iterateNext();
                         var iNewSubStr = doc.evaluate("./newsubstr", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nNewSubStr = iNewSubStr.iterateNext();
-                        if (nRegExp)
-                        {
+                        if (nRegExp) {
                             var created = nItem.getAttribute("created");
                             page.contentRedirectList.add(new YaripRedirectItem(
                                 nRegExp.textContent,
@@ -2171,20 +2012,17 @@ Yarip.prototype.load = function(file, imported)
                 // CONTENT STREAM
                 var iContentStream = doc.evaluate("./stream", nContentChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nContentStream = iContentStream.iterateNext();
-                if (nContentStream)
-                {
+                if (nContentStream) {
                     var iItem = doc.evaluate("./item", nContentStream, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nRegExp = iRegExp ? iRegExp.iterateNext() : null;
                         var iStreamRegExp = doc.evaluate("./stream_regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nStreamRegExp = iStreamRegExp.iterateNext();
                         var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nScript = iScript.iterateNext();
-                        if (nStreamRegExp)
-                        {
+                        if (nStreamRegExp) {
                             var created = nItem.getAttribute("created");
                             page.contentStreamList.add(new YaripStreamItem(
                                 nRegExp ? nRegExp.textContent : null,
@@ -2203,15 +2041,12 @@ Yarip.prototype.load = function(file, imported)
 
             var iPageChild = doc.evaluate("./page", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nPageChild = iPageChild.iterateNext();
-            if (nPageChild)
-            {
-if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.1)$/.test(version))
-{
+            if (nPageChild) {
+if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.1)$/.test(version)) {
                 // PAGE STYLE
                 var iPageStyle = doc.evaluate("./style", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageStyle = iPageStyle.iterateNext();
-                if (nPageStyle)
-                {
+                if (nPageStyle) {
                     page.pageStyleList.add(new YaripStyleItem(
                         "/html/head",
                         nPageStyle.textContent,
@@ -2222,8 +2057,7 @@ if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.1)$/.test(version))
                 // PAGE SCRIPT
                 var iPageScript = doc.evaluate("./script", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageScript = iPageScript.iterateNext();
-                if (nPageScript)
-                {
+                if (nPageScript) {
                     page.pageScriptList.add(new YaripPageScriptItem(
                         "/html/body",
                         nPageScript.textContent,
@@ -2231,24 +2065,19 @@ if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.1)$/.test(version))
                         null, // reinject
                         nPageScript.getAttribute("lastChanged")));
                 }
-}
-else // if (/^0\.3\.[2-4]$/.test(version)) // XXX
-{
+} else { // if (/^0\.3\.[2-4]$/.test(version)) // XXX
                 // PAGE STYLE
                 var iPageStyle = doc.evaluate("./style", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageStyle = iPageStyle.iterateNext();
-                if (nPageStyle)
-                {
+                if (nPageStyle) {
                     var iItem = doc.evaluate("./item", nPageStyle, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iXPath = doc.evaluate("./xpath", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nXPath = iXPath.iterateNext();
                         var iStyle = doc.evaluate("./style", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nStyle = iStyle.iterateNext();
-                        if (nXPath)
-                        {
+                        if (nXPath) {
                             var created = nItem.getAttribute("created");
                             page.pageStyleList.add(new YaripStyleItem(
                                 nXPath.textContent,
@@ -2266,18 +2095,15 @@ else // if (/^0\.3\.[2-4]$/.test(version)) // XXX
                 // PAGE SCRIPT
                 var iPageScript = doc.evaluate("./script", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageScript = iPageScript.iterateNext();
-                if (nPageScript)
-                {
+                if (nPageScript) {
                     var iItem = doc.evaluate("./item", nPageScript, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iXPath = doc.evaluate("./xpath", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nXPath = iXPath.iterateNext();
                         var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nScript = iScript.iterateNext();
-                        if (nXPath)
-                        {
+                        if (nXPath) {
                             var created = nItem.getAttribute("created");
                             page.pageScriptList.add(new YaripPageScriptItem(
                                 nXPath.textContent,
@@ -2296,17 +2122,14 @@ else // if (/^0\.3\.[2-4]$/.test(version)) // XXX
 
                 var iPageHeader = doc.evaluate("./header", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageHeader = iPageHeader.iterateNext();
-                if (nPageHeader)
-                {
+                if (nPageHeader) {
                     // PAGE REQUEST HEADER
                     var iPageRequestHeader = doc.evaluate("./request", nPageHeader, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nPageRequestHeader = iPageRequestHeader.iterateNext();
-                    if (nPageRequestHeader)
-                    {
+                    if (nPageRequestHeader) {
                         var iItem = doc.evaluate("./item", nPageRequestHeader, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nItem = iItem.iterateNext();
-                        while (nItem)
-                        {
+                        while (nItem) {
                             var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nRegExp = iRegExp.iterateNext();
                             var iName = doc.evaluate("./name", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
@@ -2330,12 +2153,10 @@ else // if (/^0\.3\.[2-4]$/.test(version)) // XXX
                     // PAGE RESPONSE HEADER
                     var iPageResponseHeader = doc.evaluate("./response", nPageHeader, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nPageResponseHeader = iPageResponseHeader.iterateNext();
-                    if (nPageResponseHeader)
-                    {
+                    if (nPageResponseHeader) {
                         var iItem = doc.evaluate("./item", nPageResponseHeader, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nItem = iItem.iterateNext();
-                        while (nItem)
-                        {
+                        while (nItem) {
                             var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                             var nRegExp = iRegExp.iterateNext();
                             var iName = doc.evaluate("./name", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
@@ -2357,17 +2178,14 @@ else // if (/^0\.3\.[2-4]$/.test(version)) // XXX
                     }
                 }
 
-if (/^0\.3\.[2-3]$/.test(version))
-{
+if (/^0\.3\.[2-3]$/.test(version)) {
                 // PAGE STREAM
                 var iPageStream = doc.evaluate("./stream", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageStream = iPageStream.iterateNext();
-                if (nPageStream)
-                {
+                if (nPageStream) {
                     var iItem = doc.evaluate("./item", nPageStream, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nRegExp = iRegExp.iterateNext();
                         var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
@@ -2387,26 +2205,21 @@ if (/^0\.3\.[2-3]$/.test(version))
                         nItem = iItem.iterateNext();
                     }
                 }
-}
-else // if (/^0\.3\.[4]$/.test(version)) // XXX
-{
+} else { // if (/^0\.3\.[4]$/.test(version)) // XXX
                 // PAGE STREAM
                 var iPageStream = doc.evaluate("./stream", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageStream = iPageStream.iterateNext();
-                if (nPageStream)
-                {
+                if (nPageStream) {
                     var iItem = doc.evaluate("./item", nPageStream, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nRegExp = iRegExp ? iRegExp.iterateNext() : null;
                         var iStreamRegExp = doc.evaluate("./stream_regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nStreamRegExp = iStreamRegExp.iterateNext();
                         var iScript = doc.evaluate("./script", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nScript = iScript.iterateNext();
-                        if (nStreamRegExp)
-                        {
+                        if (nStreamRegExp) {
                             var created = nItem.getAttribute("created");
                             page.pageStreamList.add(new YaripStreamItem(
                                 nRegExp ? nRegExp.textContent : null,
@@ -2426,18 +2239,15 @@ else // if (/^0\.3\.[4]$/.test(version)) // XXX
                 // PAGE REDIRECT
                 var iPageRedirect = doc.evaluate("./redirect", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageRedirect = iPageRedirect.iterateNext();
-                if (nPageRedirect)
-                {
+                if (nPageRedirect) {
                     var iItem = doc.evaluate("./item", nPageRedirect, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var iRegExp = doc.evaluate("./regexp", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nRegExp = iRegExp.iterateNext();
                         var iNewSubStr = doc.evaluate("./newsubstr", nItem, null, ORDERED_NODE_ITERATOR_TYPE, null);
                         var nNewSubStr = iNewSubStr.iterateNext();
-                        if (nRegExp)
-                        {
+                        if (nRegExp) {
                             var created = nItem.getAttribute("created");
                             page.pageRedirectList.add(new YaripRedirectItem(
                                 nRegExp.textContent,
@@ -2458,8 +2268,7 @@ else // if (/^0\.3\.[4]$/.test(version)) // XXX
 
         var iPage = doc.evaluate("./page", nYarip, null, ORDERED_NODE_ITERATOR_TYPE, null);
         var nPage = iPage.iterateNext();
-        while (nPage)
-        {
+        while (nPage) {
             pageName = nPage.getAttribute("name");
 //            var pageId = nPage.getAttribute("id");
             var pageCreated = nPage.getAttribute("created");
@@ -2467,20 +2276,16 @@ else // if (/^0\.3\.[4]$/.test(version)) // XXX
 
             var iPageChild = doc.evaluate("./page", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nPageChild = iPageChild.iterateNext();
-            if (nPageChild)
-            {
+            if (nPageChild) {
                 // PAGE EXTENSION
                 var iExtension = doc.evaluate("./extension", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nExtension = iExtension.iterateNext();
-                if (nExtension)
-                {
+                if (nExtension) {
                     var iItem = doc.evaluate("./item", nExtension, null, ORDERED_NODE_ITERATOR_TYPE, null);
                     var nItem = iItem.iterateNext();
-                    while (nItem)
-                    {
+                    while (nItem) {
                         var pageExtId = nItem.textContent;
-                        if (pageExtId && pageExtId !== page.getId())
-                        {
+                        if (pageExtId && pageExtId !== page.getId()) {
                             var created = nItem.getAttribute("created");
                             map.addExtension(page, new YaripExtensionItem(
                                 pageExtId,
@@ -2511,8 +2316,7 @@ else // if (/^0\.3\.[4]$/.test(version)) // XXX
 
     return pageName;
 }
-Yarip.prototype.getDoc = function(file)
-{
+Yarip.prototype.getDoc = function(file) {
     if (!file) return null;
 
     var data = this.getData(file);
@@ -2521,8 +2325,7 @@ Yarip.prototype.getDoc = function(file)
     var dp = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
     return dp.parseFromString(data, "application/xml");
 }
-Yarip.prototype.getData = function(file)
-{
+Yarip.prototype.getData = function(file) {
     if (!file) return "";
 
     var fis = null;
@@ -2545,8 +2348,7 @@ Yarip.prototype.getData = function(file)
     }
     return data ? data : "";
 }
-Yarip.prototype.getFile = function(path)
-{
+Yarip.prototype.getFile = function(path) {
     if (!path) return null;
 
     var file = Cc["@mozilla.org/file/directory_service;1"].
@@ -2565,8 +2367,7 @@ Yarip.prototype.getFile = function(path)
         return null;
     }
 }
-Yarip.prototype.saveToFile = function(data, file)
-{
+Yarip.prototype.saveToFile = function(data, file) {
     if (!data && data !== "" || !file) return;
 
     var fos = null;
@@ -2583,16 +2384,14 @@ Yarip.prototype.saveToFile = function(data, file)
         if (os) try { os.close(); } catch (e) {}
     }
 }
-Yarip.prototype.logMessage = function(flags, e)
-{
+Yarip.prototype.logMessage = function(flags, e) {
     if (!e) return;
 
     var scriptError = Cc["@mozilla.org/scripterror;1"].createInstance(Ci.nsIScriptError);
     scriptError.init("Yarip: " + e.message, e.fileName, null, e.lineNumber, e.columnNumber, flags, "chrome javascript");
     CS.logMessage(scriptError);
 }
-Yarip.prototype.logContent = function(status, location, content, mimeTypeGuess, itemObj)
-{
+Yarip.prototype.logContent = function(status, location, content, mimeTypeGuess, itemObj) {
     var newLog = false;
     var date = new Date();
     for each (var monitor in this.monitorDialogues) {
@@ -2602,14 +2401,12 @@ Yarip.prototype.logContent = function(status, location, content, mimeTypeGuess, 
     }
     return newLog;
 }
-Yarip.prototype.updateContentType = function(status, location, content, contentType, responseStatus)
-{
+Yarip.prototype.updateContentType = function(status, location, content, contentType, responseStatus) {
     for each (var monitor in this.monitorDialogues) {
         monitor.updateContentType(status, location, content, contentType, responseStatus);
     }
 }
-Yarip.prototype.shouldBlacklist = function(addressObj, content, defaultView, doFlag)
-{
+Yarip.prototype.shouldBlacklist = function(addressObj, content, defaultView, doFlag) {
     if (!doFlag) doFlag = DO_CONTENTS;
     var whitelisted = false;
     var statusObj = {
@@ -2618,8 +2415,7 @@ Yarip.prototype.shouldBlacklist = function(addressObj, content, defaultView, doF
     };
 
     // WHITELIST
-    for (var pageName in addressObj.ext)
-    {
+    for (var pageName in addressObj.ext) {
         if (whitelisted) break;
 
         var extPage = addressObj.ext[pageName];
@@ -2628,8 +2424,7 @@ Yarip.prototype.shouldBlacklist = function(addressObj, content, defaultView, doF
         var list = this.map.get(pageName).contentWhitelist;
         if (list.length === 0) continue;
 
-        for each (var item in list.obj)
-        {
+        for each (var item in list.obj) {
             if (!item.getRegExpObj().test(content.asciiHref)) continue;
 
             if (extPage.isSelf()) {
@@ -2650,16 +2445,14 @@ Yarip.prototype.shouldBlacklist = function(addressObj, content, defaultView, doF
     }
 
     // BLACKLIST
-    for (var pageName in addressObj.ext)
-    {
+    for (var pageName in addressObj.ext) {
         var extPage = addressObj.ext[pageName];
         if (!extPage.does(doFlag)) continue; // not doFlag
 
         var list = this.map.get(pageName).contentBlacklist;
         if (list.length === 0) continue;
 
-        for each (var item in list.obj)
-        {
+        for each (var item in list.obj) {
             if (!item.getRegExpObj().test(content.asciiHref)) continue;
             if (whitelisted && !item.getForce()) {
                 if (extPage.isSelf()) {
@@ -2695,8 +2488,7 @@ Yarip.prototype.shouldBlacklist = function(addressObj, content, defaultView, doF
 
     return statusObj;
 }
-Yarip.prototype.openLocation = function(url)
-{
+Yarip.prototype.openLocation = function(url) {
     try {
         var wm = Cc["@mozilla.org/appshell/window-mediator;1"].
             getService(Ci.nsIWindowMediator);
@@ -2710,8 +2502,7 @@ Yarip.prototype.openLocation = function(url)
     }
 }
 
-Yarip.prototype.getInterface = function(channel, iid)
-{
+Yarip.prototype.getInterface = function(channel, iid) {
     if (!channel) return null;
 
     if (channel.notificationCallbacks) {
@@ -2738,8 +2529,7 @@ Yarip.prototype.getInterface = function(channel, iid)
 
     return null;
 }
-Yarip.prototype.getYaripScript = function()
-{
+Yarip.prototype.getYaripScript = function() {
     return "" +
         "var yarip = {\n" +
         "    $: function(xpath) {\n" +
@@ -2759,8 +2549,7 @@ Yarip.prototype.getYaripScript = function()
         "    }\n" +
         "}";
 }
-Yarip.prototype.showLinkNotification = function(doc, location, content)
-{
+Yarip.prototype.showLinkNotification = function(doc, location, content) {
     location = this.getLocation(location ? location : doc.location);
     content = this.getLocation(content);
 
@@ -2848,16 +2637,6 @@ Yarip.prototype.showLinkNotification = function(doc, location, content)
                             if (!pageName) return;
                         }
 
-//                        var regExp = yarip.generateRegExp(content.asciiHref);
-//                        if (!regExp) return;
-
-//                        var obj = {
-//                            pageName: pageName,
-//                            location: location,
-//                            content: content,
-//                            item: new YaripContentBlacklistItem(regExp)
-//                        }
-
                         var contentAddress = yarip.getFirstAddress(content.asciiHref, true);
                         if (!contentAddress) {
                             contentAddress = yarip.getPageName(content);
@@ -2888,26 +2667,21 @@ Yarip.prototype.showLinkNotification = function(doc, location, content)
                 }, {
                     accessKey: stringBundle.GetStringFromName("STR_ACCESS_KEY_OPEN"),
                     callback: function() { openLocation(content.href); },
-//                    callback: function() { doc.location = content.href; },
                     label: stringBundle.GetStringFromName("STR_OPEN"),
                     popup: null
                 }];
-//            nb.removeAllNotifications(true);
             nb.appendNotification(message, "yarip-open-link", "chrome://browser/skin/Info.png", nb.PRIORITY_INFO_HIGH, buttons);
             return;
         }
     }
 }
-Yarip.prototype.setMobile = function(value)
-{
+Yarip.prototype.setMobile = function(value) {
     this._isMobile = value === true;
 }
-Yarip.prototype.isMobile = function()
-{
+Yarip.prototype.isMobile = function() {
     return this._isMobile;
 }
-//Yarip.prototype.dumpAddressObj = function(addressObj)
-//{
+//Yarip.prototype.dumpAddressObj = function(addressObj) {
 //    for (var pageName in addressObj.ext) {
 //        var extItem = addressObj.ext[pageName];
 //        dump("    * " + pageName + "\n");

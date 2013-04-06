@@ -44,8 +44,7 @@ Cu.import("resource://yarip/constants.jsm");
 Cu.import("resource://yarip/object.jsm");
 Cu.import("resource://yarip/item.jsm");
 
-function YaripList(name, exclusive)
-{
+function YaripList(name, exclusive) {
     this.name = "";
     this.obj = {};
     this.objId = {};
@@ -58,42 +57,33 @@ function YaripList(name, exclusive)
 }
 YaripList.prototype = new YaripObject;
 YaripList.prototype.constructor = YaripList;
-YaripList.prototype.setName = function(value)
-{
+YaripList.prototype.setName = function(value) {
     if (value) this.name = String(value);
 }
-YaripList.prototype.getName = function()
-{
+YaripList.prototype.getName = function() {
     return this.name;
 }
-YaripList.prototype.setExclusive = function(value)
-{
+YaripList.prototype.setExclusive = function(value) {
     this.exclusive = String(value) === "true";
     this.resetKnown();
 }
-YaripList.prototype.getExclusive = function()
-{
-//    return this.listLength > 0 && this.exclusive;
+YaripList.prototype.getExclusive = function() {
     return !this.isEmpty() && this.exclusive;
 }
-YaripList.prototype.isEmpty = function()
-{
+YaripList.prototype.isEmpty = function() {
     for (var k in this.obj) { return false; }
     return true;
 }
 YaripList.prototype.__defineGetter__("length", function() {
         return this.listLength;
     });
-YaripList.prototype.getByKey = function(key)
-{
+YaripList.prototype.getByKey = function(key) {
     return key in this.obj ? this.obj[key] : null;
 }
-YaripList.prototype.getById = function(id)
-{
+YaripList.prototype.getById = function(id) {
     return id in this.objId ? this.objId[id] : null;
 }
-YaripList.prototype.add = function(item, purge)
-{
+YaripList.prototype.add = function(item, purge) {
     if (!item) return false;
 
     var existItem = this.objId[item.getId()];
@@ -114,14 +104,12 @@ YaripList.prototype.add = function(item, purge)
 
     return true;
 }
-YaripList.prototype.remove = function(item)
-{
+YaripList.prototype.remove = function(item) {
     if (!item) return;
 
     this.removeById(item.getId());
 }
-YaripList.prototype.removeById = function(id)
-{
+YaripList.prototype.removeById = function(id) {
     if (!id || !(id in this.objId)) return;
 
     var item = this.objId[id];
@@ -129,29 +117,23 @@ YaripList.prototype.removeById = function(id)
     delete this.objId[id];
     this.listLength--;
 }
-YaripList.prototype.removeByKey = function(key)
-{
+YaripList.prototype.removeByKey = function(key) {
     if (!key || !(key in this.obj)) return;
 
     this.remove(this.obj[key]);
 }
-YaripList.prototype.update = function(item)
-{
+YaripList.prototype.update = function(item) {
 }
-YaripList.prototype.contains = function(item)
-{
+YaripList.prototype.contains = function(item) {
     return item.getKey() in this.obj;
-//    return item.getId() in this.objId;
 }
-YaripList.prototype.reset = function()
-{
+YaripList.prototype.reset = function() {
     this.obj = {};
     this.objId = {};
     this.listLength = 0;
     this.sorted = true;
 }
-YaripList.prototype.sort = function(purge)
-{
+YaripList.prototype.sort = function(purge) {
     if (this.sorted) return;
     var a = [];
     for each (var item in this.obj) a.push(item);
@@ -160,23 +142,19 @@ YaripList.prototype.sort = function(purge)
     for (var i = 0; i < a.length; i++) this.add(a[i], purge);
     this.sorted = true;
 }
-YaripList.prototype.purge = function()
-{
+YaripList.prototype.purge = function() {
     for each (var item in this.obj) if (item) item.purge();
 }
-YaripList.prototype.clone = function(purge)
-{
+YaripList.prototype.clone = function(purge) {
     var tmp = new this.constructor(this.name, this.exclusive);
     for each (var item in this.obj) if (item) tmp.add(item.clone(purge));
     return tmp;
 }
-YaripList.prototype.merge = function(list)
-{
+YaripList.prototype.merge = function(list) {
     this.setExclusive(this.getExclusive() || list.getExclusive());
     for each (var item in list.obj) this.add(item.clone());
 }
-YaripList.prototype.generateXml = function()
-{
+YaripList.prototype.generateXml = function() {
     var tmp = "";
     for each (var item in this.obj) if (item) tmp += item.generateXml();
     if (tmp) {
@@ -188,8 +166,7 @@ YaripList.prototype.generateXml = function()
         return "";
     }
 }
-YaripList.prototype.generateCSS = function()
-{
+YaripList.prototype.generateCSS = function() {
     var tmp = "";
     for each (var item in this.obj) {
         if (item) tmp += item.generateCSS();
@@ -197,8 +174,7 @@ YaripList.prototype.generateCSS = function()
     return tmp ? tmp.replace(/,\n$/, "") + " {\n\tdisplay: none !important;\n}" : "";
 }
 
-function YaripElementWhitelist(name, exclusive)
-{
+function YaripElementWhitelist(name, exclusive) {
     this.name = "whitelist";
     this.obj = {};
     this.objId = {};
@@ -211,11 +187,9 @@ function YaripElementWhitelist(name, exclusive)
 }
 YaripElementWhitelist.prototype = new YaripList;
 YaripElementWhitelist.prototype.constructor = YaripElementWhitelist;
-YaripElementWhitelist.prototype.set = function(row, col, value)
-{
+YaripElementWhitelist.prototype.set = function(row, col, value) {
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -245,12 +219,10 @@ YaripElementWhitelist.prototype.set = function(row, col, value)
     }
     return false;
 }
-YaripElementWhitelist.prototype.get = function(row, col)
-{
+YaripElementWhitelist.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -281,8 +253,7 @@ YaripElementWhitelist.prototype.get = function(row, col)
     }
     return "";
 }
-YaripElementWhitelist.prototype.loadFromObject = function(obj)
-{
+YaripElementWhitelist.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     this.setExclusive(obj.exclusive);
     for each (var itemObj in obj.obj) {
@@ -292,8 +263,7 @@ YaripElementWhitelist.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripElementBlacklist(name)
-{
+function YaripElementBlacklist(name) {
     this.name = "blacklist";
     this.obj = {};
     this.objId = {};
@@ -304,11 +274,9 @@ function YaripElementBlacklist(name)
 }
 YaripElementBlacklist.prototype = new YaripList;
 YaripElementBlacklist.prototype.constructor = YaripElementBlacklist;
-YaripElementBlacklist.prototype.set = function(row, col, value)
-{
+YaripElementBlacklist.prototype.set = function(row, col, value) {
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -341,12 +309,10 @@ YaripElementBlacklist.prototype.set = function(row, col, value)
     }
     return false;
 }
-YaripElementBlacklist.prototype.get = function(row, col)
-{
+YaripElementBlacklist.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -378,8 +344,7 @@ YaripElementBlacklist.prototype.get = function(row, col)
     }
     return "";
 }
-YaripElementBlacklist.prototype.loadFromObject = function(obj)
-{
+YaripElementBlacklist.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripElementBlacklistItem();
@@ -388,8 +353,7 @@ YaripElementBlacklist.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripElementAttributeList(name)
-{
+function YaripElementAttributeList(name) {
     this.name = "attribute";
     this.obj = {};
     this.objId = {};
@@ -400,11 +364,9 @@ function YaripElementAttributeList(name)
 }
 YaripElementAttributeList.prototype = new YaripList;
 YaripElementAttributeList.prototype.constructor = YaripElementAttributeList;
-YaripElementAttributeList.prototype.set = function(row, col, value)
-{
+YaripElementAttributeList.prototype.set = function(row, col, value) {
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -448,12 +410,10 @@ YaripElementAttributeList.prototype.set = function(row, col, value)
     }
     return false;
 }
-YaripElementAttributeList.prototype.get = function(row, col)
-{
+YaripElementAttributeList.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -486,8 +446,7 @@ YaripElementAttributeList.prototype.get = function(row, col)
     }
     return "";
 }
-YaripElementAttributeList.prototype.loadFromObject = function(obj)
-{
+YaripElementAttributeList.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripElementAttributeItem();
@@ -496,8 +455,7 @@ YaripElementAttributeList.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripElementScriptList(name)
-{
+function YaripElementScriptList(name) {
     this.name = "script";
     this.obj = {};
     this.objId = {};
@@ -508,11 +466,9 @@ function YaripElementScriptList(name)
 }
 YaripElementScriptList.prototype = new YaripList;
 YaripElementScriptList.prototype.constructor = YaripElementScriptList;
-YaripElementScriptList.prototype.set = function(row, col, value)
-{
+YaripElementScriptList.prototype.set = function(row, col, value) {
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -548,12 +504,10 @@ YaripElementScriptList.prototype.set = function(row, col, value)
     }
     return false;
 }
-YaripElementScriptList.prototype.get = function(row, col)
-{
+YaripElementScriptList.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -585,8 +539,7 @@ YaripElementScriptList.prototype.get = function(row, col)
     }
     return "";
 }
-YaripElementScriptList.prototype.loadFromObject = function(obj)
-{
+YaripElementScriptList.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripElementScriptItem();
@@ -595,8 +548,7 @@ YaripElementScriptList.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripContentWhitelist(name, exclusive)
-{
+function YaripContentWhitelist(name, exclusive) {
     this.name = "whitelist";
     this.obj = {};
     this.objId = {};
@@ -609,11 +561,9 @@ function YaripContentWhitelist(name, exclusive)
 }
 YaripContentWhitelist.prototype = new YaripList;
 YaripContentWhitelist.prototype.constructor = YaripContentWhitelist;
-YaripContentWhitelist.prototype.set = function(row, col, value)
-{
+YaripContentWhitelist.prototype.set = function(row, col, value) {
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -646,12 +596,10 @@ YaripContentWhitelist.prototype.set = function(row, col, value)
     }
     return false;
 }
-YaripContentWhitelist.prototype.get = function(row, col)
-{
+YaripContentWhitelist.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -680,8 +628,7 @@ YaripContentWhitelist.prototype.get = function(row, col)
     }
     return "";
 }
-YaripContentWhitelist.prototype.loadFromObject = function(obj)
-{
+YaripContentWhitelist.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     this.setExclusive(obj.exclusive);
     for each (var itemObj in obj.obj) {
@@ -691,8 +638,7 @@ YaripContentWhitelist.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripContentBlacklist(name)
-{
+function YaripContentBlacklist(name) {
     this.name = "blacklist";
     this.obj = {};
     this.objId = {};
@@ -703,11 +649,9 @@ function YaripContentBlacklist(name)
 }
 YaripContentBlacklist.prototype = new YaripList;
 YaripContentBlacklist.prototype.constructor = YaripContentBlacklist;
-YaripContentBlacklist.prototype.set = function(row, col, value)
-{
+YaripContentBlacklist.prototype.set = function(row, col, value) {
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -743,12 +687,10 @@ YaripContentBlacklist.prototype.set = function(row, col, value)
     }
     return false;
 }
-YaripContentBlacklist.prototype.get = function(row, col)
-{
+YaripContentBlacklist.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -779,8 +721,7 @@ YaripContentBlacklist.prototype.get = function(row, col)
     }
     return "";
 }
-YaripContentBlacklist.prototype.loadFromObject = function(obj)
-{
+YaripContentBlacklist.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripContentBlacklistItem();
@@ -789,8 +730,7 @@ YaripContentBlacklist.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripStreamReplaceList(name)
-{
+function YaripStreamReplaceList(name) {
     this.name = "replace";
     this.obj = {};
     this.objId = {};
@@ -801,11 +741,9 @@ function YaripStreamReplaceList(name)
 }
 YaripStreamReplaceList.prototype = new YaripList;
 YaripStreamReplaceList.prototype.constructor = YaripStreamReplaceList;
-YaripStreamReplaceList.prototype.set = function(row, col, value)
-{
+YaripStreamReplaceList.prototype.set = function(row, col, value) {
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -854,12 +792,10 @@ YaripStreamReplaceList.prototype.set = function(row, col, value)
     }
     return false;
 }
-YaripStreamReplaceList.prototype.get = function(row, col)
-{
+YaripStreamReplaceList.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -891,8 +827,7 @@ YaripStreamReplaceList.prototype.get = function(row, col)
     }
     return "";
 }
-YaripStreamReplaceList.prototype.loadFromObject = function(obj)
-{
+YaripStreamReplaceList.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripStreamItem();
@@ -901,8 +836,7 @@ YaripStreamReplaceList.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripPageStyleList(name)
-{
+function YaripPageStyleList(name) {
     this.name = "style";
     this.obj = {};
     this.objId = {};
@@ -913,11 +847,9 @@ function YaripPageStyleList(name)
 }
 YaripPageStyleList.prototype = new YaripList;
 YaripPageStyleList.prototype.constructor = YaripPageStyleList;
-YaripPageStyleList.prototype.set = function(row, col, value)
-{
+YaripPageStyleList.prototype.set = function(row, col, value) {
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -950,12 +882,10 @@ YaripPageStyleList.prototype.set = function(row, col, value)
     }
     return false;
 }
-YaripPageStyleList.prototype.get = function(row, col)
-{
+YaripPageStyleList.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -986,8 +916,7 @@ YaripPageStyleList.prototype.get = function(row, col)
     }
     return "";
 }
-YaripPageStyleList.prototype.loadFromObject = function(obj)
-{
+YaripPageStyleList.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripStyleItem();
@@ -996,8 +925,7 @@ YaripPageStyleList.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripPageScriptList(name)
-{
+function YaripPageScriptList(name) {
     this.name = "script";
     this.obj = {};
     this.objId = {};
@@ -1008,11 +936,9 @@ function YaripPageScriptList(name)
 }
 YaripPageScriptList.prototype = new YaripList;
 YaripPageScriptList.prototype.constructor = YaripPageScriptList;
-YaripPageScriptList.prototype.set = function(row, col, value)
-{
+YaripPageScriptList.prototype.set = function(row, col, value) {
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -1048,12 +974,10 @@ YaripPageScriptList.prototype.set = function(row, col, value)
     }
     return false;
 }
-YaripPageScriptList.prototype.get = function(row, col)
-{
+YaripPageScriptList.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -1085,8 +1009,7 @@ YaripPageScriptList.prototype.get = function(row, col)
     }
     return "";
 }
-YaripPageScriptList.prototype.loadFromObject = function(obj)
-{
+YaripPageScriptList.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripPageScriptItem();
@@ -1095,8 +1018,7 @@ YaripPageScriptList.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripHeaderList(name)
-{
+function YaripHeaderList(name) {
     this.name = "header";
     this.obj = {};
     this.objId = {};
@@ -1107,11 +1029,9 @@ function YaripHeaderList(name)
 }
 YaripHeaderList.prototype = new YaripList;
 YaripHeaderList.prototype.constructor = YaripHeaderList;
-YaripHeaderList.prototype.set = function(row, col, value)
-{
+YaripHeaderList.prototype.set = function(row, col, value) {
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -1158,12 +1078,10 @@ YaripHeaderList.prototype.set = function(row, col, value)
     }
     return false;
 }
-YaripHeaderList.prototype.get = function(row, col)
-{
+YaripHeaderList.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -1195,8 +1113,7 @@ YaripHeaderList.prototype.get = function(row, col)
     }
     return "";
 }
-YaripHeaderList.prototype.generateXml = function()
-{
+YaripHeaderList.prototype.generateXml = function() {
     var tmp = "";
     for each (var item in this.obj) if (item) tmp += item.generateXml();
     if (tmp) {
@@ -1208,8 +1125,7 @@ YaripHeaderList.prototype.generateXml = function()
         return "";
     }
 }
-YaripHeaderList.prototype.loadFromObject = function(obj)
-{
+YaripHeaderList.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripHeaderItem();
@@ -1218,8 +1134,7 @@ YaripHeaderList.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripRedirectList(name)
-{
+function YaripRedirectList(name) {
     this.name = "redirect";
     this.obj = {};
     this.objId = {};
@@ -1230,11 +1145,9 @@ function YaripRedirectList(name)
 }
 YaripRedirectList.prototype = new YaripList;
 YaripRedirectList.prototype.constructor = YaripRedirectList;
-YaripRedirectList.prototype.set = function(row, col, value)
-{
+YaripRedirectList.prototype.set = function(row, col, value) {
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -1270,12 +1183,10 @@ YaripRedirectList.prototype.set = function(row, col, value)
     }
     return false;
 }
-YaripRedirectList.prototype.get = function(row, col)
-{
+YaripRedirectList.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -1305,8 +1216,7 @@ YaripRedirectList.prototype.get = function(row, col)
     }
     return "";
 }
-YaripRedirectList.prototype.loadFromObject = function(obj)
-{
+YaripRedirectList.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripRedirectItem();
@@ -1315,8 +1225,7 @@ YaripRedirectList.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripPageExtensionList(name)
-{
+function YaripPageExtensionList(name) {
     this.name = "extension";
     this.obj = {};
     this.objId = {};
@@ -1327,14 +1236,12 @@ function YaripPageExtensionList(name)
 }
 YaripPageExtensionList.prototype = new YaripList;
 YaripPageExtensionList.prototype.constructor = YaripPageExtensionList;
-YaripPageExtensionList.prototype.set = function(row, col, value)
-{
+YaripPageExtensionList.prototype.set = function(row, col, value) {
     var i = 0;
     var obj = {
         isNew: false
     };
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         this.resetKnown();
@@ -1387,12 +1294,10 @@ YaripPageExtensionList.prototype.set = function(row, col, value)
     }
     return obj;
 }
-YaripPageExtensionList.prototype.get = function(row, col)
-{
+YaripPageExtensionList.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -1425,8 +1330,7 @@ YaripPageExtensionList.prototype.__defineGetter__("length", function() {
         for (var k in this.obj) { l++; }
         return l;
     });
-YaripPageExtensionList.prototype.add = function(item, purge)
-{
+YaripPageExtensionList.prototype.add = function(item, purge) {
     if (!item) return false;
 
     var existItem = this.objId[item.getId()];
@@ -1444,15 +1348,13 @@ YaripPageExtensionList.prototype.add = function(item, purge)
     this.resetKnown();
     return true;
 }
-YaripPageExtensionList.prototype.removeByKey = function(key)
-{
+YaripPageExtensionList.prototype.removeByKey = function(key) {
     if (!key || !(key in this.obj)) return;
 
     this.remove(this.obj[key]);
     this.resetKnown();
 }
-YaripPageExtensionList.prototype.update = function(item)
-{
+YaripPageExtensionList.prototype.update = function(item) {
     if (!item) return;
 
     var existItem = this.objId[item.getId()];
@@ -1460,22 +1362,19 @@ YaripPageExtensionList.prototype.update = function(item)
 
     this.resetKnown();
 }
-YaripPageExtensionList.prototype.reset = function()
-{
+YaripPageExtensionList.prototype.reset = function() {
     this.obj = {};
     this.objId = {};
     this.listLength = 0;
     this.sorted = true;
     this.resetKnown();
 }
-YaripPageExtensionList.prototype.clone = function()
-{
+YaripPageExtensionList.prototype.clone = function() {
     var tmp = new this.constructor(this.name);
     for each (var item in this.obj) if (item) tmp.add(item.clone());
     return tmp;
 }
-YaripPageExtensionList.prototype.loadFromObject = function(obj)
-{
+YaripPageExtensionList.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripExtensionItem();
@@ -1484,8 +1383,7 @@ YaripPageExtensionList.prototype.loadFromObject = function(obj)
     }
 }
 
-function YaripPageExtendedByList(name)
-{
+function YaripPageExtendedByList(name) {
     this.name = "extension";
     this.obj = {};
     this.objId = {};
@@ -1496,14 +1394,12 @@ function YaripPageExtendedByList(name)
 }
 YaripPageExtendedByList.prototype = new YaripList;
 YaripPageExtendedByList.prototype.constructor = YaripPageExtendedByList;
-YaripPageExtendedByList.prototype.set = function(row, col, value)
-{
+YaripPageExtendedByList.prototype.set = function(row, col, value) {
     var i = 0;
     var obj = {
         isExtendedBy: true
     };
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -1543,12 +1439,10 @@ YaripPageExtendedByList.prototype.set = function(row, col, value)
     }
     return obj;
 }
-YaripPageExtendedByList.prototype.get = function(row, col)
-{
+YaripPageExtendedByList.prototype.get = function(row, col) {
     if (!this.sorted) this.sort();
     var i = 0;
-    for each (var item in this.obj)
-    {
+    for each (var item in this.obj) {
         if (i++ !== row) continue;
 
         switch (col) {
@@ -1581,8 +1475,7 @@ YaripPageExtendedByList.prototype.__defineGetter__("length", function() {
         for (var k in this.obj) { l++; }
         return l;
     });
-YaripPageExtendedByList.prototype.add = function(item, purge)
-{
+YaripPageExtendedByList.prototype.add = function(item, purge) {
     if (!item) return false;
 
     var existItem = this.objId[item.getId()];
@@ -1599,28 +1492,24 @@ YaripPageExtendedByList.prototype.add = function(item, purge)
 
     return true;
 }
-YaripPageExtendedByList.prototype.update = function(item)
-{
+YaripPageExtendedByList.prototype.update = function(item) {
     if (!item) return;
 
     var existItem = this.objId[item.getId()];
     if (existItem) existItem.update(item);
 }
-YaripPageExtendedByList.prototype.reset = function()
-{
+YaripPageExtendedByList.prototype.reset = function() {
     this.obj = {};
     this.objId = {};
     this.listLength = 0;
     this.sorted = true;
 }
-YaripPageExtendedByList.prototype.clone = function()
-{
+YaripPageExtendedByList.prototype.clone = function() {
     var tmp = new this.constructor(this.name);
     for each (var item in this.obj) if (item) tmp.add(item.clone());
     return tmp;
 }
-YaripPageExtendedByList.prototype.loadFromObject = function(obj)
-{
+YaripPageExtendedByList.prototype.loadFromObject = function(obj) {
     this.setName(obj.name);
     for each (var itemObj in obj.obj) {
         var item = new YaripExtensionItem();
