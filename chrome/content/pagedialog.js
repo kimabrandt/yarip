@@ -1492,30 +1492,6 @@ function YaripPageDialog() {
         }
     }
 
-    this.unload = function() {
-        yarip.pageDialog = null;
-        yarip.save();
-
-        this.treePages.removeEventListener("select", this, false);
-        this.tabs["elementWhitelist"].tree.removeEventListener("select", this, false);
-        this.tabs["elementBlacklist"].tree.removeEventListener("select", this, false);
-        this.tabs["elementAttributeList"].tree.removeEventListener("select", this, false);
-        this.tabs["elementScriptList"].tree.removeEventListener("select", this, false);
-        this.tabs["contentWhitelist"].tree.removeEventListener("select", this, false);
-        this.tabs["contentBlacklist"].tree.removeEventListener("select", this, false);
-        this.tabs["contentRequestHeaderList"].tree.removeEventListener("select", this, false);
-        this.tabs["contentResponseHeaderList"].tree.removeEventListener("select", this, false);
-        this.tabs["contentRedirectList"].tree.removeEventListener("select", this, false);
-        this.tabs["contentStreamList"].tree.removeEventListener("select", this, false);
-        this.tabs["pageStyleList"].tree.removeEventListener("select", this, false);
-        this.tabs["pageScriptList"].tree.removeEventListener("select", this, false);
-        this.tabs["pageRequestHeaderList"].tree.removeEventListener("select", this, false);
-        this.tabs["pageResponseHeaderList"].tree.removeEventListener("select", this, false);
-        this.tabs["pageRedirectList"].tree.removeEventListener("select", this, false);
-        this.tabs["pageStreamList"].tree.removeEventListener("select", this, false);
-        this.editMenupopup.removeEventListener("popupshowing", this, false);
-    }
-
     this.resetFilter = function() {
         this.filterString = null;
         document.getElementById("yarip-pageFilter-textbox").value = "";

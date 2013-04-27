@@ -1,3 +1,10 @@
+2013-04-28  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/pagedialog.xul (window): Using a window instead of a
+    dialog for the page-manager, to allow persisting its attributes.
+
+    * modules/uri.jsm (TLD): Modified the `com' and `io' TLDs.
+
 2013-04-01  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/monitordialog.js (return null): Returning `null' in

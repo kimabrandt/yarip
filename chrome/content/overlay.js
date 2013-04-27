@@ -374,7 +374,8 @@ function YaripOverlay()
         if (win) {
             yarip.reloadPage(pageName, true /* selectItem */, true /* selectTab */, true /* resetFilter */, type, key);
         } else {
-            win = window.open("chrome://yarip/content/pagedialog.xul?page=" + escape(pageName) + (type ? "&type=" + escape(type) : "") + (key ? "&key=" + escape(key) : ""), "_blank", "chrome,resizable");
+//            win = window.open("chrome://yarip/content/pagedialog.xul?page=" + escape(pageName) + (type ? "&type=" + escape(type) : "") + (key ? "&key=" + escape(key) : ""), "_blank", "chrome,resizable");
+            win = window.open("chrome://yarip/content/pagedialog.xul?page=" + escape(pageName) + (type ? "&type=" + escape(type) : "") + (key ? "&key=" + escape(key) : ""), "page-dialog", "chrome,resizable");
         }
         win.focus();
     }

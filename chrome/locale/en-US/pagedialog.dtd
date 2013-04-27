@@ -6,6 +6,7 @@
 <!ENTITY key.key.goto                        "g">
 <!ENTITY key.key.selectAll                   "a">
 <!ENTITY key.keycode.remove                  "VK_DELETE">
+<!ENTITY key.keycode.close                   "VK_ESCAPE">
 
 <!ENTITY menuitem.label.cut                  "Cut">
 <!ENTITY menuitem.label.copy                 "Copy">
