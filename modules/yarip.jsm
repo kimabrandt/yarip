@@ -37,7 +37,10 @@ function Yarip() {
     this.noFlicker = null;
 
     this.monitorDialogues = {};
-    this.pageDialog = null;
+    this.pageDialog = {
+        "dialog": null,
+        "params": null
+    };
 
     this.elementsInContext = 4;
     this.useIndex = 1; // when needed
@@ -651,8 +654,8 @@ Yarip.prototype.resetKnown = function() {
     this.knownNotification = {};
 }
 Yarip.prototype.reloadPage = function(pageName, selectItem, selectTab, resetFilter, type, key) {
-    if (this.pageDialog && pageName) {
-        this.pageDialog.reloadPage(pageName, this.pagesModified, selectItem, selectTab, resetFilter, type, key);
+    if (this.pageDialog.dialog && pageName) {
+        this.pageDialog.dialog.reloadPage(pageName, this.pagesModified, selectItem, selectTab, resetFilter, type, key);
         this.pagesModified = false;
         return true;
     } else {

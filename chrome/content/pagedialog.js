@@ -1397,21 +1397,25 @@ function YaripPageDialog() {
     }
 
     this.load = function() {
-        yarip.pageDialog = this;
+        yarip.pageDialog.dialog = this;
 
-        var pageName = null;
-        var type = null;
-        var key = null;
-        var query = location.search.substring(1);
-        var params = query.split('&');
-        for (var i = 0; i < params.length; i++) {
-            var nameValue = params[i].split('=');
-            switch (decodeURIComponent(nameValue[0])) {
-            case "page": pageName = decodeURIComponent(nameValue[1]); break;
-            case "type": type = decodeURIComponent(nameValue[1]); break;
-            case "key": key = decodeURIComponent(nameValue[1]); break;
-            }
-        }
+//        var pageName = null;
+//        var type = null;
+//        var key = null;
+//        var query = location.search.substring(1);
+//        var params = query.split('&');
+//        for (var i = 0; i < params.length; i++) {
+//            var nameValue = params[i].split('=');
+//            switch (decodeURIComponent(nameValue[0])) {
+//            case "page": pageName = decodeURIComponent(nameValue[1]); break;
+//            case "type": type = decodeURIComponent(nameValue[1]); break;
+//            case "key": key = decodeURIComponent(nameValue[1]); break;
+//            }
+//        }
+        var params = yarip.pageDialog.params;
+        var pageName = params.page;
+        var type = params.type;
+        var key = params.key;
 
         this.sb = document.getElementById("page-dialog-stringbundle");
         this.treePages = document.getElementById("tree-pages");

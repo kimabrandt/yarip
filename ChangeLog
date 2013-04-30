@@ -1,3 +1,10 @@
+2013-04-30  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/{overlay,pagedialog}.js, modules/yarip.jsm (pageDialog):
+    Sharing the page-manager state (params) via the yarip-instance instead
+    of sending it via the dialog-URL, to allow persisting the page-manager
+    attributes.
+
 2013-04-28  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/pagedialog.xul (window): Using a window instead of a
