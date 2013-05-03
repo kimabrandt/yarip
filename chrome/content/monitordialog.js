@@ -121,7 +121,7 @@ function YaripMonitorDialog()
         }
 
         var pageExt = yarip.createPage(item.content, contentAddress, true /* privateBrowsing/temporary */, true /* byUser */);
-        var extItem = pageExt.createPageExtensionItem();
+        var extItem = yarip.createPageExtensionItem(pageExt);
 
         var obj = {
             pageName: pageName,
@@ -164,14 +164,6 @@ function YaripMonitorDialog()
         var page = yarip.createPage(obj.location, obj.pageName, null, true /* byUser */);
         yaripOverlay.managePages(page.getName());
     }
-
-//    this.getPageLocation = function()
-//    {
-//        if (this.tree.currentIndex < 0) return null;
-
-//        var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
-//        return item.location;
-//    }
 
     this.getPageName = function()
     {

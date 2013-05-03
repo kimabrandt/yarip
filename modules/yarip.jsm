@@ -554,15 +554,40 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parent
 
     var obj = {};
     var pages = this.getPages(pageName.replace(/[?&#].*$/, ""));
+
+    for (var i = pages.length - 1; i >= 0; i--) {
+        var page = pages[i];
+        if (!(page.getName() in addressObj.ext)) { // not yet added
+            var item = page.createPageExtensionItem();
+            if (item.doesSomething()) {
+                var childItem = new YaripExtensionItem(page.getId());
+                childItem.updateDo(parentItem, item, matchObj);
+                addressObj.ext[page.getName()] = childItem;
+                if (parentItem.addTo(childItem)) {
+                    childItem.addFrom(parentItem);
+                }
+                if (!addressObj.elementExclusive && page.elementWhitelist.getExclusive()) {
+                    addressObj.elementExclusive = true;
+                }
+                if (!addressObj.exclusive && page.contentWhitelist.getExclusive()) {
+                    addressObj.exclusive = true;
+                    addressObj.exclusivePageName = page.getName();
+                }
+                if (page[listName].length > 0) {
+                    obj[page.getName()] = true;
+                }
+            }
+        }
+    }
+
     for (var i = pages.length - 1; i >= 0; i--) {
         var page = pages[i];
         var list = page[listName];
         for each (var item in list.obj) {
             var extPage = item.getPage();
             if (extPage) {
-                var extPageName = extPage.getName();
-                if (extPageName in addressObj.ext) { // already added
-                    var childItem = addressObj.ext[extPageName];
+                if (extPage.getName() in addressObj.ext) { // already added
+                    var childItem = addressObj.ext[extPage.getName()];
                     if (childItem.isSelf()) continue; // ignore self
 
                     if (item.doesSomething()) {
@@ -571,24 +596,22 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parent
                             childItem.addFrom(parentItem);
                         }
                     }
-                } else { // not yet added
+                } else if (item.doesSomething()) { // not yet added and does something
                     var childItem = new YaripExtensionItem(extPage.getId());
                     childItem.updateDo(parentItem, item, matchObj);
-                    if (item.doesSomething()) {
-                        addressObj.ext[extPageName] = childItem;
-                        if (parentItem.addTo(childItem)) {
-                            childItem.addFrom(parentItem);
-                        }
-                        if (!addressObj.elementExclusive && extPage.elementWhitelist.getExclusive()) {
-                            addressObj.elementExclusive = true;
-                        }
-                        if (!addressObj.exclusive && extPage.contentWhitelist.getExclusive()) {
-                            addressObj.exclusive = true;
-                            addressObj.exclusivePageName = extPage.getName();
-                        }
-                        if (extPage[listName].length > 0) {
-                            obj[extPageName] = true;
-                        }
+                    addressObj.ext[extPage.getName()] = childItem;
+                    if (parentItem.addTo(childItem)) {
+                        childItem.addFrom(parentItem);
+                    }
+                    if (!addressObj.elementExclusive && extPage.elementWhitelist.getExclusive()) {
+                        addressObj.elementExclusive = true;
+                    }
+                    if (!addressObj.exclusive && extPage.contentWhitelist.getExclusive()) {
+                        addressObj.exclusive = true;
+                        addressObj.exclusivePageName = extPage.getName();
+                    }
+                    if (extPage[listName].length > 0) {
+                        obj[extPage.getName()] = true;
                     }
                 }
             } else {
@@ -600,6 +623,14 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parent
     for (var extPageName in obj) {
         this.getRecursiveAddressArray(extPageName, addressObj, addressObj.ext[extPageName], matchObj, reverseExt);
     }
+}
+Yarip.prototype.createPageExtensionItem = function(page) {
+    var item = page.createPageExtensionItem();
+    var pages = this.getPages(page.getName());
+    for (var i = 0; i < pages.length; i++) {
+        item.merge(pages[i].createPageExtensionItem());
+    }
+    return item;
 }
 Yarip.prototype.resetUndo = function() {
     this.undoObj = {};
@@ -867,7 +898,7 @@ Yarip.prototype.extendPage = function(location, pageName, content, contentAddres
     if (item) {
         item.setId(pageExt.getId());
     } else {
-        item = pageExt.createPageExtensionItem();
+        item = yarip.createPageExtensionItem(pageExt);
     }
     this.map.addExtension(pageOwn, item);
     this.pagesModified = true;
@@ -2647,7 +2678,7 @@ Yarip.prototype.showLinkNotification = function(doc, location, content) {
                         }
 
                         var pageExt = yarip.createPage(content, contentAddress, true /* privateBrowsing/temporary */);
-                        var extItem = pageExt.createPageExtensionItem();
+                        var extItem = yarip.createPageExtensionItem(pageExt);
 
                         var obj = {
                             pageName: pageName,

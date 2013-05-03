@@ -605,7 +605,7 @@ function YaripPageDialog() {
 
         var id = item.getId();
         if (id && id !== page.getId()) {
-            var item = yarip.map.getById(id).createPageExtensionItem();
+            var item = yarip.createPageExtensionItem(yarip.map.getById(id));
             yarip.map.addExtension(page, item);
             this.refreshTab(this.tab, true, null, item.getKey());
             if (page.setTemporary(false)) this.refreshExtMenulist(true);

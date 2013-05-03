@@ -1,3 +1,12 @@
+2013-05-04  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/{monitordialog,pagedialog}.js (createPageExtensionItem):
+    Allowing to create an extension-item from all related domains (e.g.
+    www.example.net and example.net).
+
+    * modules/yarip.jsm (getRecursiveAddressArray): Allowing to add the
+    rules of all related pages (e.g. www.example.net and example.net).
+
 2013-04-30  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/{overlay,pagedialog}.js, modules/yarip.jsm (pageDialog):
