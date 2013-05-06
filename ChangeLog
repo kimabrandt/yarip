@@ -1,5 +1,8 @@
 2013-05-06  Kim A. Brandt  <kimabrandt@gmx.de>
 
+    * modules/stream.jsm (onDataAvailable0): Reverted to use the
+    `onDataAvailable0'-method.
+
     * chrome/content/{monitordialog,pagedialog}.js (handleEvent): Updated
     the `popupshowing'-events.
 

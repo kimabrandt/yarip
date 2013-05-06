@@ -352,17 +352,15 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         } else {
             responseSource = headTopPart + headStyles + headScripts + headMidPart + headBodPart + bodyMidPart + bodyBotPart;
         }
-
-//        this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
-        var is = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
-        is.setData(responseSource, responseSource.length);
-        this.listener.onDataAvailable(request, context, is, 0, responseSource.length);
     } catch (e) {
         yarip.logMessage(LOG_ERROR, e);
     } finally {
-        request.loadFlags |= LOAD_FLAG_RESPONSE; // FIXME
-
-        this.listener.onStopRequest(request, context, statusCode);
+        try {
+            this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
+            this.listener.onStopRequest(request, context, statusCode);
+        } finally {
+            request.loadFlags |= LOAD_FLAG_RESPONSE; // FIXME
+        }
     }
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIStreamListener#onDataAvailable%28%29
@@ -373,11 +371,34 @@ YaripResponseStreamListener.prototype.onDataAvailable = function(request, contex
 }
 //YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count) {
 //    try {
-//        var is = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
-//        is.setData(data, data.length);
-//        this.listener.onDataAvailable(request, context, is, offset, count);
+//        var size = 8192; // 8 kb
+//        var beg = 0;
+//        var end = size;
+//        var tmpData = data.substring(beg, end);
+//        while (tmpData) {
+//            var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
+//            var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
+//            count = tmpData.length;
+//            ss.init(size, count, null);
+//            bos.setOutputStream(ss.getOutputStream(0));
+//            bos.writeBytes(tmpData, count);
+//            this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
+//            offset += count;
+//            beg = end;
+//            end += size;
+//            tmpData = data.substring(beg, end);
+//        }
 //    } catch (e) {
 //        yarip.logMessage(LOG_ERROR, e);
 //    }
 //}
+YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count) {
+    try {
+        var is = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
+        is.setData(data, data.length);
+        this.listener.onDataAvailable(request, context, is, offset, count);
+    } catch (e) {
+        yarip.logMessage(LOG_ERROR, e);
+    }
+}
 
