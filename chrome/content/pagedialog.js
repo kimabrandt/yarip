@@ -234,6 +234,8 @@ function YaripPageDialog() {
         page.merge(this.page, true);
         this.refreshTab(null, true);
         if (page.setTemporary(false)) this.refreshExtMenulist(true);
+        this.selectTab(page);
+//        this.selectTab(page, type, key); // TODO Pass the type and key!
     }
 
     this.gotoPage = function(event) {
@@ -1247,19 +1249,30 @@ function YaripPageDialog() {
         case "yarip-edit-menupopup":
             switch (event.type) {
             case "popupshowing":
-                var disabled = this.tabs[this.tab].tree.view.selection.getRangeCount() <= 0;
-                var rowCount = this.tabs[this.tab].tree.view.rowCount;
-                var gotoHidden = this.tab !== "pageExtensionList" && this.tab !== "pageExtendedByList";
-                document.getElementById("cmd_cut").setAttribute("disabled", String(disabled || this.tab === "pageExtendedByList"));
-                document.getElementById("cmd_copy").setAttribute("disabled", String(disabled || this.tab === "pageExtendedByList"));
-                document.getElementById("cmd_paste").setAttribute("disabled", String(!this.page));
-                document.getElementById("yarip-goto-menuseparator").setAttribute("hidden", String(gotoHidden));
-                document.getElementById("yarip-goto-menuitem").setAttribute("hidden", String(gotoHidden));
-                document.getElementById("yarip-goto-menuitem").setAttribute("disabled", String(disabled));
-                document.getElementById("yarip-goto-menuitem").disabled = disabled;
-                document.getElementById("cmd_goto").setAttribute("disabled", String(disabled));
-//                document.getElementById("cmd_selectall").setAttribute("disabled", String(rowCount > 0));
+                var disabled = this.tabs[this.tab].list.length === 0;
+                var listDisabled = String(disabled);
+                var editDisabled = String(disabled || this.tab === "pageExtendedByList");
+                var gotoHidden = String(this.tab !== "pageExtensionList" && this.tab !== "pageExtendedByList");
+                var pageDisabled = String(!this.page);
+                document.getElementById("cmd_cut").setAttribute("disabled", editDisabled);
+                document.getElementById("cmd_copy").setAttribute("disabled", editDisabled);
+                document.getElementById("cmd_paste").setAttribute("disabled", pageDisabled);
+                document.getElementById("cmd_goto").setAttribute("disabled", listDisabled);
+                document.getElementById("yarip-cut-menuitem").setAttribute("disabled", editDisabled);
+                document.getElementById("yarip-copy-menuitem").setAttribute("disabled", editDisabled);
+                document.getElementById("yarip-paste-menuitem").setAttribute("disabled", pageDisabled);
+                document.getElementById("yarip-goto-menuseparator").setAttribute("hidden", gotoHidden);
+                document.getElementById("yarip-goto-menuitem").setAttribute("hidden", gotoHidden);
+                document.getElementById("yarip-goto-menuitem").setAttribute("disabled", listDisabled);
             }
+            break;
+
+        case "popuphiding":
+                var editEnabled = String(false);
+                document.getElementById("cmd_cut").setAttribute("disabled", editEnabled);
+                document.getElementById("cmd_copy").setAttribute("disabled", editEnabled);
+                document.getElementById("cmd_paste").setAttribute("disabled", editEnabled);
+                document.getElementById("cmd_goto").setAttribute("disabled", editEnabled);
             break;
 
         case "tree-pages":

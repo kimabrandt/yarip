@@ -18,8 +18,7 @@
     along with yarip.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function YaripMonitorDialog()
-{
+function YaripMonitorDialog() {
     this.id = -1;
     this.hidden = true;
     this.stringbundle = null;
@@ -27,8 +26,7 @@ function YaripMonitorDialog()
     this.doScroll = true;
     this.knownContent = {};
 
-    this.openLocation = function()
-    {
+    this.openLocation = function() {
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
@@ -37,16 +35,14 @@ function YaripMonitorDialog()
         }
     }
 
-    this.copyLocation = function()
-    {
+    this.copyLocation = function() {
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
         if (item.content) CH.copyString(item.content.href);
     }
 
-    this.whitelistContent = function()
-    {
+    this.whitelistContent = function() {
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
@@ -74,8 +70,7 @@ function YaripMonitorDialog()
         yarip.whitelistContentItem(item.location, obj.pageName, obj.item);
     }
 
-    this.blacklistContent = function()
-    {
+    this.blacklistContent = function() {
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
@@ -103,8 +98,7 @@ function YaripMonitorDialog()
         yarip.blacklistContentItem(item.location, obj.pageName, obj.item);
     }
 
-    this.extendPage = function()
-    {
+    this.extendPage = function() {
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
@@ -140,8 +134,7 @@ function YaripMonitorDialog()
         }
     }
 
-    this.createPage = function()
-    {
+    this.createPage = function() {
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
@@ -165,16 +158,14 @@ function YaripMonitorDialog()
         yaripOverlay.managePages(page.getName());
     }
 
-    this.getPageName = function()
-    {
+    this.getPageName = function() {
         if (this.tree.currentIndex < 0) return null;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
         return yarip.getFirstAddress(item.location.asciiHref);
     }
 
-    this.getContentPageName = function()
-    {
+    this.getContentPageName = function() {
         if (this.tree.currentIndex < 0) return null;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
@@ -185,8 +176,7 @@ function YaripMonitorDialog()
         }
     }
 
-    this.getType = function()
-    {
+    this.getType = function() {
         if (this.tree.currentIndex < 0) return null;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
@@ -197,8 +187,7 @@ function YaripMonitorDialog()
         }
     }
 
-    this.getKey = function()
-    {
+    this.getKey = function() {
         if (this.tree.currentIndex < 0) return null;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
@@ -209,8 +198,7 @@ function YaripMonitorDialog()
         }
     }
 
-    this.copyRegExp = function()
-    {
+    this.copyRegExp = function() {
         if (this.tree.currentIndex < 0) return;
 
         var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
@@ -218,8 +206,7 @@ function YaripMonitorDialog()
         if (regExp) CH.copyString(regExp);
     }
 
-    this.logContent = function(status, location, content, date, contentType, itemObj)
-    {
+    this.logContent = function(status, location, content, date, contentType, itemObj) {
         if (!location || !content) return false;
         if (this.hidden && !yarip.logWhenClosed) return true;
 
@@ -249,38 +236,39 @@ function YaripMonitorDialog()
         return true;
     }
 
-    this.updateContentType = function(_status, location, content, contentType, statusCode)
-    {
+    this.updateContentType = function(_status, location, content, contentType, statusCode) {
         if (!location || !content || !contentType && !statusCode) return;
 
         contentType = contentType !== "application/x-unknown-content-type" ? contentType : null;
         yaripMonitorTreeView.updateContentType(location, content, contentType, statusCode, this.hidden);
     }
 
-    this.clear = function()
-    {
+    this.clear = function() {
         document.getElementById("yarip-filter-textbox").value = "";
         yaripMonitorTreeView.clearItems();
         this.knownContent = {};
         yarip.resetKnown();
     }
 
-    this.handleEvent = function(event)
-    {
+    this.handleEvent = function(event) {
         if (!event) return;
 
         switch(event.target.id) {
         case "yarip-monitor-menupopup":
             switch(event.type) {
             case "popupshowing":
-                var item = yaripMonitorTreeView.getItem(this.tree.currentIndex);
-                document.getElementById("yarip-openLocation-menuitem").disabled = !item;
-                document.getElementById("yarip-copyLocation-menuitem").disabled = !item;
-                document.getElementById("yarip-copyLocation-menuseparator").disabled = !item;
-                document.getElementById("yarip-whitelistContent-menuitem").disabled = !item;
-                document.getElementById("yarip-blacklistContent-menuitem").disabled = !item;
-                document.getElementById("yarip-copyRegExp-menuitem").disabled = !item;
-                document.getElementById("yarip-copyRegExp-menuseparator").disabled = !item;
+                var hidden = String(!yaripMonitorTreeView.getItem(this.tree.currentIndex));
+                document.getElementById("yarip-openLocation-menuitem").setAttribute("hidden", hidden);
+                document.getElementById("yarip-copyLocation-menuitem").setAttribute("hidden", hidden);
+                document.getElementById("yarip-copyLocation-menuseparator").setAttribute("hidden", hidden);
+                document.getElementById("yarip-whitelistContent-menuitem").setAttribute("hidden", hidden);
+                document.getElementById("yarip-blacklistContent-menuitem").setAttribute("hidden", hidden);
+                document.getElementById("yarip-extendPage-menuitem").setAttribute("hidden", hidden);
+                document.getElementById("yarip-copyRegExp-menuitem").setAttribute("hidden", hidden);
+                document.getElementById("yarip-copyRegExp-menuseparator").setAttribute("hidden", hidden);
+                document.getElementById("yarip-goto-menuitem").setAttribute("hidden", hidden);
+                document.getElementById("yarip-copyRegExp-menuitem").setAttribute("hidden", hidden);
+                document.getElementById("yarip-copyRegExp-menuseparator").setAttribute("hidden", hidden);
                 break;
             }
             break;
@@ -291,8 +279,7 @@ function YaripMonitorDialog()
         }
     }
 
-    this.load = function()
-    {
+    this.load = function() {
         this.stringbundle = document.getElementById("monitor-dialog-stringbundle");
         this.tree = document.getElementById("yarip-content-tree");
         this.tree.view = yaripMonitorTreeView;
@@ -300,8 +287,7 @@ function YaripMonitorDialog()
         yarip.addMonitorDialog(this);
     }
 
-    this.toggleShow = function()
-    {
+    this.toggleShow = function() {
         if (this.hidden) {
             this.show();
         } else {
@@ -309,40 +295,33 @@ function YaripMonitorDialog()
         }
     }
 
-    this.unload = function()
-    {
+    this.unload = function() {
         this.hide();
         this.tree.removeEventListener("select", this, false);
         yarip.removeMonitorDialog(this);
     }
 
-    this.show = function()
-    {
-        if (this.hidden)
-        {
+    this.show = function() {
+        if (this.hidden) {
             document.getElementById('yarip-monitor-splitter').hidden = false;
             document.getElementById('yarip-monitor').hidden = false;
             this.hidden = false;
         }
     }
 
-    this.hide = function()
-    {
-        if (!this.hidden)
-        {
+    this.hide = function() {
+        if (!this.hidden) {
             document.getElementById('yarip-monitor-splitter').hidden = true;
             document.getElementById('yarip-monitor').hidden = true;
             this.hidden = true;
         }
     }
 
-    this.filterContent = function(event)
-    {
+    this.filterContent = function(event) {
         yaripMonitorTreeView.applyFilterString(event.target.value, this.tree.currentIndex);
     }
 
-    this.filterStatus = function(status, event)
-    {
+    this.filterStatus = function(status, event) {
         yaripMonitorTreeView.applyFilterStatus(status, this.tree.currentIndex, event.target.getAttribute("checked") === "true");
     }
 }
@@ -363,8 +342,7 @@ var yaripMonitorTreeView = {
     get rowCount() { return this.visibleData.length; },
 
     cycleHeader: function(col) {},
-    getCellProperties: function(row, col, properties)
-    {
+    getCellProperties: function(row, col, properties) {
         if (col.id !== "status") return;
         if (row < 0 || row >= this.visibleData.length) return;
 
@@ -380,8 +358,7 @@ var yaripMonitorTreeView = {
             break;
         }
     },
-    getCellText: function(row, col)
-    {
+    getCellText: function(row, col) {
         var colid = col.id;
         if (colid === "status") return "";
         if (row < 0 || row >= this.visibleData.length) return "";
@@ -420,8 +397,7 @@ var yaripMonitorTreeView = {
     setTree: function(treebox) { this.treebox = treebox; },
     toggleOpenState: function(index) {},
 
-    appendItem: function(item, doScroll, hidden)
-    {
+    appendItem: function(item, doScroll, hidden) {
         if (this.childDataObj[item.key]) {
             this.childDataObj[item.key].push(item);
         } else {
@@ -441,15 +417,13 @@ var yaripMonitorTreeView = {
         }
     },
 
-    getItem: function(index, updateDateTime)
-    {
+    getItem: function(index, updateDateTime) {
         var item = this.visibleData[index];
         if (updateDateTime && item) this.dateTime = item.dateTime;
         return item;
     },
 
-    updateContentType: function(location, content, contentType, statusCode, hidden)
-    {
+    updateContentType: function(location, content, contentType, statusCode, hidden) {
         var key = location.pageName + " " + content.asciiHref;
         var items = this.childDataObj[key];
         if (!items) return;
@@ -467,8 +441,7 @@ var yaripMonitorTreeView = {
         }
     },
 
-    clearItems: function()
-    {
+    clearItems: function() {
         if (!this.treebox) return;
 
         var oldRows = this.rowCount;
@@ -482,8 +455,7 @@ var yaripMonitorTreeView = {
         this.dateTime = null;
     },
 
-    applyFilterString: function(value, currentIndex, treeView)
-    {
+    applyFilterString: function(value, currentIndex, treeView) {
         var tv = treeView ? treeView : this;
         var prevRowCount = tv.rowCount;
         var currentItem = tv.visibleData[currentIndex];
@@ -527,8 +499,7 @@ var yaripMonitorTreeView = {
     showBlacklisted: true,
     showOther: true,
 
-    applyFilterStatus: function(status, currentIndex, show)
-    {
+    applyFilterStatus: function(status, currentIndex, show) {
         switch (status) {
         case 1: // whitelisted
             this.showWhitelisted = show;
@@ -543,8 +514,7 @@ var yaripMonitorTreeView = {
         this.applyFilterString(this.filterString, currentIndex);
     },
 
-    allowItem: function(item, treeView)
-    {
+    allowItem: function(item, treeView) {
         var tv = treeView ? treeView : this;
         return !tv.filterError
             && (

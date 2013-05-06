@@ -1,3 +1,15 @@
+2013-05-06  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/{monitordialog,pagedialog}.js (handleEvent): Updated
+    the `popupshowing'-events.
+
+    * modules/observer.jsm (examineResponse): Ignoring stream-replacing,
+    scripting and styling via the response-stream-listener when the response
+    is a redirect.
+
+    * modules/stream.jsm (onStopRequest): Simplified the onDataAvailable-
+    logic by using a string-input-stream.
+
 2013-05-04  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/{monitordialog,pagedialog}.js (createPageExtensionItem):

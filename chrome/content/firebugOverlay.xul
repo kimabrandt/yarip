@@ -45,7 +45,7 @@ dump("initializeUI\n");
 dump("fbContextMenu="+fbContextMenu+"\n");
                   var weMenuitem = document.createElement("menuitem");
                   weMenuitem.setAttribute("label", "yarip");
-//                  weMenuitem.setAttribute("oncommand", "yaripOverlay.whitelistElement(this.node.ownerDocument, this.node)");
+//                  weMenuitem.setAttribute("oncommand", "yaripOverlay.whitelistElement(this.node.ownerDocument, this.node);");
 //                  weMenuitem.setAttribute("class", "whitelist");
                   fbContextMenu.appendChild(weMenuitem);
               }
@@ -71,7 +71,7 @@ dump("fbContextMenu="+fbContextMenu+"\n");
             <hbox id="myFirstSetOfButtons" insertafter="fbNetButtons">
                 <toolbarseparator/>
                 <toolbarbutton label="My Button" class="toolbar-text-button"
-                    oncommand="Firebug.MyFirstModule.onMyButton(FirebugContext)"/>
+                    oncommand="Firebug.MyFirstModule.onMyButton(FirebugContext);"/>
             </hbox>
         </hbox>
     </toolbar-->

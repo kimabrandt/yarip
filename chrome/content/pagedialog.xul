@@ -24,7 +24,7 @@
   id="page-dialog"
   title="&dialog.title.managePages;"
   windowtype="yarip:pages"
-  onload="dialog.load()"
+  onload="dialog.load();"
   persist="screenX screenY width height sizemode"
   sizemode="maximized"
   width="800"
@@ -89,7 +89,7 @@
         </menupopup>
       </popupset>
       <tabbox id="tabbox" flex="1">
-        <tabs onselect="dialog.updateTab()">
+        <tabs onselect="dialog.updateTab();">
           <tab id="element-tab" label="&tab.label.element;"/>
           <tab id="content-tab" label="&tab.label.content;"/>
           <tab id="page-tab" label="&tab.label.page;"/>
@@ -98,7 +98,7 @@
           <tabpanel id="element-tabpanel" flex="1">
             <vbox flex="1">
               <tabbox id="element-tabbox" flex="1">
-                <tabs onselect="dialog.updateTab()">
+                <tabs onselect="dialog.updateTab();">
                   <tab id="elementWhitelist-tab" label="&tab.label.whitelist;"/>
                   <tab id="elementBlacklist-tab" label="&tab.label.blacklist;"/>
                   <tab id="elementAttributeList-tab" label="&tab.label.attribute;"/>
@@ -126,9 +126,9 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <hbox align="center">
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                         <checkbox id="elementWhitelist-exclusive" label="&label.value.exclusive;" checked="false" tooltiptext="&label.tooltiptext.elementExclusive;" command="cmd_toggleExclusive" accesskey="&button.accesskey.exclusive;"/>
                       </hbox>
@@ -157,9 +157,9 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <hbox>
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>
@@ -189,9 +189,9 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <hbox>
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>
@@ -218,11 +218,11 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <splitter/>
-                      <textbox id="elementScriptList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
+                      <textbox id="elementScriptList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                       <hbox>
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>
@@ -234,7 +234,7 @@
           <tabpanel id="content-tabpanel" flex="1">
             <vbox flex="1">
               <tabbox id="content-tabbox" flex="1">
-                <tabs onselect="dialog.updateTab()">
+                <tabs onselect="dialog.updateTab();">
                   <tab id="contentWhitelist-tab" label="&tab.label.whitelist;"/>
                   <tab id="contentBlacklist-tab" label="&tab.label.blacklist;"/>
                   <tab id="contentHeader-tab" label="&tab.label.header;"/>
@@ -259,9 +259,9 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <hbox align="center">
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                         <checkbox id="contentWhitelist-exclusive" label="&label.value.exclusive;" checked="false" tooltiptext="&label.tooltiptext.exclusive;" command="cmd_toggleExclusive" accesskey="&button.accesskey.exclusive;"/>
                       </hbox>
@@ -288,9 +288,9 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <hbox>
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>
@@ -298,7 +298,7 @@
                   <tabpanel id="contentHeader" flex="1">
                     <vbox flex="1">
                       <tabbox id="content-header-tabbox" flex="1">
-                        <tabs onselect="dialog.updateTab()">
+                        <tabs onselect="dialog.updateTab();">
                           <tab id="contentRequestHeaderList-tab" label="&tab.label.request;"/>
                           <tab id="contentResponseHeaderList-tab" label="&tab.label.response;"/>
                         </tabs>
@@ -324,11 +324,11 @@
                                 <treechildren context="yarip-edit-menupopup"/>
                               </tree>
                               <splitter/>
-                              <textbox id="contentRequestHeaderList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
+                              <textbox id="contentRequestHeaderList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                               <hbox>
-                                <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                                <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                                <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                                <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                                <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                                <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                                 <spacer flex="1"/>
                               </hbox>
                             </vbox>
@@ -354,11 +354,11 @@
                                 <treechildren context="yarip-edit-menupopup"/>
                               </tree>
                               <splitter/>
-                              <textbox id="contentResponseHeaderList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
+                              <textbox id="contentResponseHeaderList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                               <hbox>
-                                <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                                <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                                <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                                <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                                <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                                <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                                 <spacer flex="1"/>
                               </hbox>
                             </vbox>
@@ -384,11 +384,11 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <splitter/>
-                      <textbox id="contentRedirectList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
+                      <textbox id="contentRedirectList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                       <hbox>
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>
@@ -414,11 +414,11 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <splitter/>
-                      <textbox id="contentStreamList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
+                      <textbox id="contentStreamList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                       <hbox align="center">
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>
@@ -430,7 +430,7 @@
           <tabpanel id="page-tabpanel" flex="1">
             <vbox flex="1">
               <tabbox id="page-tabbox" flex="1">
-                <tabs onselect="dialog.updateTab()">
+                <tabs onselect="dialog.updateTab();">
                   <tab id="pageStyleList-tab" label="&tab.label.style;"/>
                   <tab id="pageScriptList-tab" label="&tab.label.script;"/>
                   <tab id="pageHeader-tab" label="&tab.label.header;"/>
@@ -460,11 +460,11 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <splitter/>
-                      <textbox id="pageStyleList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
+                      <textbox id="pageStyleList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                       <hbox>
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>
@@ -491,11 +491,11 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <splitter/>
-                      <textbox id="pageScriptList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
+                      <textbox id="pageScriptList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                       <hbox>
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>
@@ -503,7 +503,7 @@
                   <tabpanel id="pageHeader" flex="1">
                     <vbox flex="1">
                       <tabbox id="page-header-tabbox" flex="1">
-                        <tabs onselect="dialog.updateTab()">
+                        <tabs onselect="dialog.updateTab();">
                           <tab id="pageRequestHeaderList-tab" label="&tab.label.request;"/>
                           <tab id="pageResponseHeaderList-tab" label="&tab.label.response;"/>
                         </tabs>
@@ -529,11 +529,11 @@
                                 <treechildren context="yarip-edit-menupopup"/>
                               </tree>
                               <splitter/>
-                              <textbox id="pageRequestHeaderList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
+                              <textbox id="pageRequestHeaderList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                               <hbox>
-                                <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                                <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                                <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                                <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                                <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                                <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                                 <spacer flex="1"/>
                               </hbox>
                             </vbox>
@@ -559,11 +559,11 @@
                                 <treechildren context="yarip-edit-menupopup"/>
                               </tree>
                               <splitter/>
-                              <textbox id="pageResponseHeaderList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
+                              <textbox id="pageResponseHeaderList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                               <hbox>
-                                <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                                <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                                <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                                <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                                <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                                <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                                 <spacer flex="1"/>
                               </hbox>
                             </vbox>
@@ -589,11 +589,11 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <splitter/>
-                      <textbox id="pageRedirectList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
+                      <textbox id="pageRedirectList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                       <hbox align="center">
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>
@@ -619,11 +619,11 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <splitter/>
-                      <textbox id="pageStreamList-textbox" multiline="true" oninput="dialog.setValue(this.value)" persist="height" flex="1"/>
+                      <textbox id="pageStreamList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                       <hbox align="center">
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add()" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>
@@ -632,10 +632,10 @@
                     <vbox flex="1">
                       <hbox align="center">
                         <label value="&treecol.label.page;:"/>
-                        <menulist id="pageExtensionList-menulist" oncommand="dialog.setValue(this.selectedItem.value)">
+                        <menulist id="pageExtensionList-menulist" oncommand="dialog.setValue(this.selectedItem.value);">
                           <menupopup/>
                         </menulist>
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.addExtPage()" accesskey="&button.accesskey.add;"/>
+                        <button icon="add" label="&button.label.add;" oncommand="dialog.addExtPage();" accesskey="&button.accesskey.add;"/>
                         <spacer flex="1"/>
                       </hbox>
                       <tree id="pageExtensionList-tree" editable="true" flex="1">
@@ -663,8 +663,8 @@
                         <treechildren context="yarip-edit-menupopup"/>
                       </tree>
                       <hbox>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove()"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll()"/>
+                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>
@@ -706,14 +706,14 @@
     </vbox>
   </hbox>
   <hbox>
-    <button label="&button.label.copyPage;" oncommand="dialog.copyPage()" accesskey="&button.accesskey.copyPage;"/>
-    <button icon="remove" label="&button.label.removePages;" oncommand="dialog.removePages()"/>
-    <textbox id="yarip-pageFilter-textbox" type="search" searchbutton="true" placeholder="&textbox.filter.placeholder;" oncommand="dialog.filterPages(event)"/>
+    <button label="&button.label.copyPage;" oncommand="dialog.copyPage();" accesskey="&button.accesskey.copyPage;"/>
+    <button icon="remove" label="&button.label.removePages;" oncommand="dialog.removePages();"/>
+    <textbox id="yarip-pageFilter-textbox" type="search" searchbutton="true" placeholder="&textbox.filter.placeholder;" oncommand="dialog.filterPages(event);"/>
     <spacer flex="1"/>
-    <button icon="open" label="&button.label.import;" oncommand="dialog.importFiles()" accesskey="&button.accesskey.import;"/>
-    <button icon="save" label="&button.label.exportPages;" oncommand="dialog.exportPages()" accesskey="&button.accesskey.exportPages;"/>
-    <button icon="save" label="&button.label.exportAll;" oncommand="dialog.exportAll()"/>
-    <button icon="save" label="&button.label.save;" oncommand="dialog.save()" accesskey="&button.accesskey.save;"/>
+    <button icon="open" label="&button.label.import;" oncommand="dialog.importFiles();" accesskey="&button.accesskey.import;"/>
+    <button icon="save" label="&button.label.exportPages;" oncommand="dialog.exportPages();" accesskey="&button.accesskey.exportPages;"/>
+    <button icon="save" label="&button.label.exportAll;" oncommand="dialog.exportAll();"/>
+    <button icon="save" label="&button.label.save;" oncommand="dialog.save();" accesskey="&button.accesskey.save;"/>
   </hbox>
   <hbox>
     <spacer flex="1"/>

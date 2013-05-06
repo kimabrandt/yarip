@@ -27,9 +27,9 @@
 <dialog id="pageStyleList-dialog"
   title="&dialog.title.editXPathStyle;"
   buttons="accept,cancel"
-  onload="dialog.load()"
-  ondialogaccept="dialog.accept()"
-  ondialogcancel="dialog.cancel()"
+  onload="dialog.load();"
+  ondialogaccept="dialog.accept();"
+  ondialogcancel="dialog.cancel();"
   persist="screenX screenY width height"
   width="560"
   height="200"
@@ -59,8 +59,8 @@
     </hbox>
     <hbox align="center">
       <label value="&label.value.xpath;:"/>
-      <textbox id="xpath" type="autocomplete" autocompletesearch="form-history" autocompletesearchparam="xpath" enablehistory="true" completedefaultindex="false" oninput="dialog.setXPath(this.value)" flex="1"/>
+      <textbox id="xpath" type="autocomplete" autocompletesearch="form-history" autocompletesearchparam="xpath" enablehistory="true" completedefaultindex="false" oninput="dialog.setXPath(this.value);" flex="1"/>
     </hbox>
-    <textbox id="style" multiline="true" oninput="dialog.setStyle(this.value)" persist="height" flex="1"/>
+    <textbox id="style" multiline="true" oninput="dialog.setStyle(this.value);" persist="height" flex="1"/>
   </vbox>
 </dialog>

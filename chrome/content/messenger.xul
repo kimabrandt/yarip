@@ -92,9 +92,9 @@
       <menuitem id="yarip-flicker-menuitem" label="&menuitem.label.flicker;" type="checkbox" command="cmd_yaripToggleNoFlicker"/>
       <menu label="&menu.label.mode;">
         <menupopup>
-          <menuitem id="yarip-page-menuitem" name="yarip-mode-radiogroup" label="&menuitem.label.page;" type="radio" oncommand="yaripOverlay.setMode(MODE_PAGE)"/>
-          <menuitem id="yarip-fqdn-menuitem" name="yarip-mode-radiogroup" label="&menuitem.label.fqdn;" type="radio" oncommand="yaripOverlay.setMode(MODE_FQDN)"/>
-          <menuitem id="yarip-sld-menuitem" name="yarip-mode-radiogroup" label="&menuitem.label.sld;" type="radio" oncommand="yaripOverlay.setMode(MODE_SLD)"/>
+          <menuitem id="yarip-page-menuitem" name="yarip-mode-radiogroup" label="&menuitem.label.page;" type="radio" oncommand="yaripOverlay.setMode(MODE_PAGE);"/>
+          <menuitem id="yarip-fqdn-menuitem" name="yarip-mode-radiogroup" label="&menuitem.label.fqdn;" type="radio" oncommand="yaripOverlay.setMode(MODE_FQDN);"/>
+          <menuitem id="yarip-sld-menuitem" name="yarip-mode-radiogroup" label="&menuitem.label.sld;" type="radio" oncommand="yaripOverlay.setMode(MODE_SLD);"/>
         </menupopup>
       </menu>
       <menuseparator/>
@@ -105,7 +105,7 @@
   </popupset>
 
   <toolbarpalette id="MailToolbarPalette">
-    <toolbarbutton id="yarip-toolbarbutton" class="toolbarbutton-1" label="Yarip" onclick="yaripOverlay.start(event)" context="yarip-status-menupopup"/>
+    <toolbarbutton id="yarip-toolbarbutton" class="toolbarbutton-1" label="Yarip" onclick="yaripOverlay.start(event);" context="yarip-status-menupopup"/>
   </toolbarpalette>
 
   <popup id="mailContext">
@@ -115,7 +115,7 @@
         <menu id="yarip-undo-menu" class="yarip-submenu" label="&menu.label.undo;" hidden="true">
           <menupopup id="yarip-undo-menupopup">
             <menuseparator/>
-            <menuitem label="&menuitem.label.all;" oncommand="yaripOverlay.undoAll(document.popupNode.ownerDocument)"/>
+            <menuitem label="&menuitem.label.all;" oncommand="yaripOverlay.undoAll(document.popupNode.ownerDocument);"/>
           </menupopup>
         </menu>
         <menuitem class="createPage" label="&menuitem.label.createPage;" command="cmd_yaripCreatePage"/>
@@ -163,22 +163,22 @@
             <splitter class="tree-splitter" resizeafter="farthest"/>
             <treecol id="statusCode" label="&treecol.label.statusCode;" hidden="true" persist="width hidden"/>
           </treecols>
-          <treechildren context="yarip-monitor-menupopup" ondblclick="yaripMonitor.openLocation()"/>
+          <treechildren context="yarip-monitor-menupopup" ondblclick="yaripMonitor.openLocation();"/>
         </tree>
       </hbox>
       <hbox align="center">
-        <button icon="clear" label="&button.label.clear;" oncommand="yaripMonitor.clear()" accesskey="&button.accesskey.clear;"/>
+        <button icon="clear" label="&button.label.clear;" oncommand="yaripMonitor.clear();" accesskey="&button.accesskey.clear;"/>
         <button label="&button.label.states;" type="menu">
           <menupopup>
-            <menuitem label="&menuitem.label.whitelisted;" oncommand="yaripMonitor.filterStatus(1, event)" type="checkbox" checked="true"/>
-            <menuitem label="&menuitem.label.blacklisted;" oncommand="yaripMonitor.filterStatus(2, event)" type="checkbox" checked="true"/>
-            <menuitem label="&menuitem.label.other;" oncommand="yaripMonitor.filterStatus(0, event)" type="checkbox" checked="true"/>
+            <menuitem label="&menuitem.label.whitelisted;" oncommand="yaripMonitor.filterStatus(1, event);" type="checkbox" checked="true"/>
+            <menuitem label="&menuitem.label.blacklisted;" oncommand="yaripMonitor.filterStatus(2, event);" type="checkbox" checked="true"/>
+            <menuitem label="&menuitem.label.other;" oncommand="yaripMonitor.filterStatus(0, event);" type="checkbox" checked="true"/>
           </menupopup>
         </button>
-        <textbox id="yarip-filter-textbox" type="search" searchbutton="true" placeholder="&textbox.filter.placeholder;" oncommand="yaripMonitor.filterContent(event)"/>
+        <textbox id="yarip-filter-textbox" type="search" searchbutton="true" placeholder="&textbox.filter.placeholder;" oncommand="yaripMonitor.filterContent(event);"/>
         <checkbox id="yarip-logWhenClosed-checkbox" label="&checkbox.label.logWhenClosed;" checked="false" command="cmd_yaripLogWhenClosed" accesskey="&button.accesskey.log;"/>
         <spacer flex="1"/>
-        <button icon="close" label="&button.label.close;" oncommand="yaripMonitor.hide()"/>
+        <button icon="close" label="&button.label.close;" oncommand="yaripMonitor.hide();"/>
       </hbox>
     </vbox>
   </vbox>

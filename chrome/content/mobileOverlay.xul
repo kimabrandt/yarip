@@ -51,7 +51,7 @@
   </stringbundleset>
 
   <hbox id="pageactions-container">
-    <pageaction id="yarip-pageaction" title="Yarip action" onclick="alert('Yarip action')"/>
+    <pageaction id="yarip-pageaction" title="Yarip action" onclick="alert('Yarip action');"/>
   </hbox>
 
 </overlay>

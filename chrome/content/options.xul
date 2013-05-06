@@ -60,11 +60,7 @@
 
     <vbox flex="1">
     <tabbox id="tabbox" flex="1">
-<!--      <tabs onselect="yaripPageDialog.updateTab()">-->
       <tabs>
-<!--        <tab id="general-tab" label="&tab.label.general;" oncommand="yaripPageDialog.setUserSelect()"/>-->
-<!--        <tab id="manager-tab" label="&tab.label.manager;" oncommand="yaripPageDialog.setUserSelect()"/>-->
-<!--        <tab id="monitor-tab" label="&tab.label.monitor;" oncommand="yaripPageDialog.setUserSelect()"/>-->
         <tab id="general-tab" label="&tab.label.general;"/>
         <tab id="manager-tab" label="&tab.label.manager;"/>
         <tab id="monitor-tab" label="&tab.label.monitor;"/>
@@ -118,7 +114,6 @@
           <vbox flex="1">
             <groupbox>
               <caption label="&caption.label.shortcut;"/>
-  <!--            <label value="&label.value.openPageManager;" class="text-link" href="https://developer.mozilla.org/en/XUL_Tutorial/Keyboard_Shortcuts"/>-->
               <label value="&label.value.openPageManager;"/>
               <hbox align="center">
                 <vbox flex="1">
@@ -136,7 +131,6 @@
           <vbox flex="1">
             <groupbox>
               <caption label="&caption.label.shortcut;"/>
-<!--              <label value="&label.value.shortcut;" class="text-link" href="https://developer.mozilla.org/en/XUL_Tutorial/Keyboard_Shortcuts"/>-->
               <label value="&label.value.openContentMonitor;"/>
               <hbox align="center">
                 <vbox flex="1">

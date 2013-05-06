@@ -237,7 +237,8 @@ YaripObserver.prototype.examineResponse = function(channel) {
          * LOCATION HEADER REDIRECT
          */
 
-        if ((!location.isLink || yarip.privateBrowsing) && [300, 301, 302, 303, 305, 307].indexOf(channel.responseStatus) > -1) {
+        var isRedirect = [300, 301, 302, 303, 305, 307].indexOf(channel.responseStatus) > -1;
+        if ((!location.isLink || yarip.privateBrowsing) && isRedirect) {
             var locationHeader = undefined;
             try {
                 locationHeader = channel.getResponseHeader("Location");
@@ -254,12 +255,13 @@ YaripObserver.prototype.examineResponse = function(channel) {
                     yarip.logContent(STATUS_WHITELISTED, location, newContent, null, itemObj);
                     break;
                 case STATUS_BLACKLISTED:
-                    channel.setResponseHeader("Pragma", "no-cache", true); // prevent caching
+                    // prevent caching
+                    channel.setResponseHeader("Pragma", "no-cache", true);
                     channel.setResponseHeader("Cache-Control", "no-cache, no-store, must-revalidate", true);
                     channel.setResponseHeader("Expires", "0", true);
                     channel.cancel(Cr.NS_ERROR_ABORT);
                     var newLog = yarip.logContent(STATUS_BLACKLISTED, location, newContent, null, itemObj);
-                    if (newLog && itemObj.ruleType !== TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
+                    if (newLog && itemObj.ruleType !== TYPE_CONTENT_BLACKLIST) { // new log and not content-blacklist-rule
                         yarip.showLinkNotification(doc, location, newContent);
                     }
                     return;
@@ -281,7 +283,7 @@ YaripObserver.prototype.examineResponse = function(channel) {
          * STREAM REPLACING & PAGE SCRIPTING AND STYLING
          */
 
-        if (/^(?:text\/.*|application\/(?:javascript|json|(?:\w+\+)?\bxml))$/.test(channel.contentType)) {
+        if (!isRedirect && /^(?:text\/.*|application\/(?:javascript|json|(?:\w+\+)?\bxml))$/.test(channel.contentType)) {
             new YaripResponseStreamListener(channel, addressObj, location, content, defaultView);
         }
     } catch (e) {
