@@ -234,7 +234,7 @@ function YaripPageDialog() {
         page.merge(this.page, true);
         this.refreshTab(null, true);
         if (page.setTemporary(false)) this.refreshExtMenulist(true);
-        this.selectTab(page);
+//        this.selectTab(page);
 //        this.selectTab(page, type, key); // TODO Pass the type and key!
     }
 
@@ -1611,17 +1611,19 @@ function YaripPageTreeView() {
             }
         }
         tv.rowCount = tv.visibleData.length;
-        tv.treebox.rowCountChanged(0, tv.rowCount - prevRowCount);
-        if (currentPage) {
-            for (var i = currentPage.index; i < tv.rowCount; i++) {
-                if (tv.visibleData[i] && tv.visibleData[i].index > -1) {
-                    tv.selection.select(tv.visibleData[i].index);
-                    tv.treebox.ensureRowIsVisible(tv.visibleData[i].index);
-                    break;
+        if (tv.treebox) {
+            tv.treebox.rowCountChanged(0, tv.rowCount - prevRowCount);
+            if (currentPage) {
+                for (var i = currentPage.index; i < tv.rowCount; i++) {
+                    if (tv.visibleData[i] && tv.visibleData[i].index > -1) {
+                        tv.selection.select(tv.visibleData[i].index);
+                        tv.treebox.ensureRowIsVisible(tv.visibleData[i].index);
+                        break;
+                    }
                 }
             }
+            tv.treebox.invalidate();
         }
-        tv.treebox.invalidate();
     }
 
     this.allowPage = function(page, treeView) {

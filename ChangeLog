@@ -1,3 +1,26 @@
+2013-06-28  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/monitordialog.js (getImageSrc): Using the `getImageSrc'-
+    function for showing the face-icons, instead of the deprecated
+    `getCellProperties'-function.
+
+    * chrome/content/overlay.js (yaripMutationObserver): Using a timeout on
+    repetitive domContentLoaded-events.
+
+    * chrome/content/overlay.js (updatePlaces): Using the `mozIAsyncHistory'-
+    interface for adding URLs to the history, instead of the deprecated
+    `nsIGlobalHistory2'-interface.
+
+    * modules/item.jsm (getStreamRegExpObj): Using a `getStreamRegExpObj'-
+    function which caches the `streamRegExpObj', similar to the `getRegExpObj'-
+    function.
+
+    * modules/{observer,stream}.jsm (evalInSandbox): Creating the `RegExp'-
+    object inside the `evalInSandbox'-function, instead of passing it in; from
+    outside.
+
+    * modules/uri.jsm (TLD): Modified the `com' TLD.
+
 2013-05-06  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * modules/stream.jsm (onDataAvailable0): Reverted to use the

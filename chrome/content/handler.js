@@ -18,8 +18,7 @@
     along with yarip.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function YaripHandler(doc, stopCallback, statusCallback)
-{
+function YaripHandler(doc, stopCallback, statusCallback) {
     this.doc = doc ? doc : null;
     this.stopCallback = stopCallback ? stopCallback : function() {};
     this.statusCallback = statusCallback ? statusCallback : function(status) {};
@@ -36,8 +35,7 @@ function YaripHandler(doc, stopCallback, statusCallback)
     this.hasBlacklist = false;
     this.selectStack = null;
 
-    this.start = function(doc)
-    {
+    this.start = function(doc) {
         if (doc) this.doc = doc;
 
         this.pageName = yarip.getPageName(this.doc.location);
@@ -46,8 +44,7 @@ function YaripHandler(doc, stopCallback, statusCallback)
         this.hasWhitelist = false;
         this.hasBlacklist = false;
 
-        if (this.doc && this.doc.nodeName === "#document" && this.pageName)
-        {
+        if (this.doc && this.doc.nodeName === "#document" && this.pageName) {
             this.doc.addEventListener("mouseover", this, false);
             this.doc.addEventListener("mouseout", this, false);
             this.doc.addEventListener("mousedown", this, false);
@@ -78,8 +75,7 @@ function YaripHandler(doc, stopCallback, statusCallback)
         return this.active;
     }
 
-    this.stop = function()
-    {
+    this.stop = function() {
         if (!this.active || !this.doc) return false;
 
         try {
@@ -100,15 +96,13 @@ function YaripHandler(doc, stopCallback, statusCallback)
         return this.changesMade;
     }
 
-    this.addHandler = function(handler)
-    {
+    this.addHandler = function(handler) {
         if (!handler) return;
 
         this.handlers[this.handlers.length] = handler;
     }
 
-    this.handleEvent = function(event)
-    {
+    this.handleEvent = function(event) {
         if (!event.target.localName || /^(frameset|i?frame)$/i.test(event.target.localName)) return; // ignore elements
 
         switch (event.type) {
@@ -199,8 +193,7 @@ function YaripHandler(doc, stopCallback, statusCallback)
         }
     }
 
-    this.switchWithAnchorAncestor = function()
-    {
+    this.switchWithAnchorAncestor = function() {
         if (!/^(abbr|acronym|b|basefont|bdo|big|br|button|cite|code|del|dfn|em|font|i|img|ins|kbd|label|map|q|samp|select|small|span|strong|sub|sup|textarea|tt|u|var)$/i.test(this.element.localName)) return; // lagal children of anchors
 
         var xpath = yarip.createXPath(this.element, true);
@@ -214,23 +207,25 @@ function YaripHandler(doc, stopCallback, statusCallback)
         this.xpath = yarip.createXPath(this.element);
     }
 
-    this.select = function(handler, noBackup)
-    {
-        if (!handler) handler = this;
-        if (!handler.element) return;
+    this.select = function(handler, noBackup) {
+        try {
+            if (!handler) handler = this;
+            if (!handler.element) return;
 
-        if (handler.element.nodeType !== 2) {
-            if (!noBackup) handler.outline = handler.element.style.outline;
-            if (/^whitelisted\b/.test(handler.element.getAttribute("status"))) handler.element.style.outline = "3px solid #990000";
-            else handler.element.style.outline = "3px solid #000099";
+            if (handler.element.nodeType !== 2) {
+                if (!noBackup) handler.outline = handler.element.style.outline;
+                if (/^whitelisted\b/.test(handler.element.getAttribute("status"))) handler.element.style.outline = "3px solid #990000";
+                else handler.element.style.outline = "3px solid #000099";
+            }
+
+            if (!handler.xpath) handler.xpath = yarip.createXPath(handler.element);
+            handler.statusCallback(handler.xpath);
+        } catch (e if e instanceof TypeError) {
+            // ignore (e.g. TypeError: can't access dead object)
         }
-
-        if (!handler.xpath) handler.xpath = yarip.createXPath(handler.element);
-        handler.statusCallback(handler.xpath);
     }
 
-    this.doWhitelisting = function(temporarily)
-    {
+    this.doWhitelisting = function(temporarily) {
         if (!this.element) return;
 
         if (!this.xpath) this.xpath = yarip.createXPath(this.element);
@@ -247,8 +242,7 @@ function YaripHandler(doc, stopCallback, statusCallback)
         }
     }
 
-    this.doBlacklisting = function(temporarily)
-    {
+    this.doBlacklisting = function(temporarily) {
         if (!this.element) return;
 
         if (!this.xpath) this.xpath = yarip.createXPath(this.element);
@@ -263,8 +257,7 @@ function YaripHandler(doc, stopCallback, statusCallback)
         this.reset();
     }
 
-    this.reset = function()
-    {
+    this.reset = function() {
         clearTimeout(this.timeout);
 
         try {

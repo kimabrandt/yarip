@@ -151,11 +151,14 @@ var EXPORTED_SYMBOLS = [
         "ATTRIBUTE_NODE",
         "TEXT_NODE",
 
+        // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsINavHistoryService
+        "TRANSITION_LINK",
+
         // Services
+        "AH",
         "CH",
         "CS",
         "FH",
-        "GH",
         "IDNS",
         "IOS",
         "OS",
@@ -302,16 +305,19 @@ const ELEMENT_NODE = Ci.nsIDOMHTMLElement.ELEMENT_NODE;
 const ATTRIBUTE_NODE = Ci.nsIDOMHTMLElement.ATTRIBUTE_NODE;
 const TEXT_NODE = Ci.nsIDOMHTMLElement.TEXT_NODE;
 
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsINavHistoryService
+const TRANSITION_LINK = Ci.nsINavHistoryService.TRANSITION_LINK;
+
 // Services
+const AH = Cc["@mozilla.org/browser/history;1"].getService(Ci.mozIAsyncHistory);
 const CH = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
 const CS = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
 const FH = Cc["@mozilla.org/satchel/form-history;1"].getService(Ci.nsIFormHistory2);
-const GH = Cc['@mozilla.org/browser/global-history;2'].getService(Ci.nsIGlobalHistory2);
 const IDNS = Cc["@mozilla.org/network/idn-service;1"].getService(Ci.nsIIDNService);
 const IOS = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
 const OS = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
 const PB = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
 const SB = Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService);
 const UUIDG = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
-const WP = Cc['@mozilla.org/docloaderservice;1'].getService(Ci.nsIWebProgress);
+const WP = Cc["@mozilla.org/docloaderservice;1"].getService(Ci.nsIWebProgress);
 

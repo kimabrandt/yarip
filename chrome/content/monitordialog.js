@@ -331,9 +331,6 @@ var yaripMonitorTreeView = {
     childData: [],
     childDataObj: {},
     visibleData: [],
-    whitelisted: Components.classes["@mozilla.org/atom-service;1"].getService(Components.interfaces.nsIAtomService).getAtom("whitelisted"),
-    blacklisted: Components.classes["@mozilla.org/atom-service;1"].getService(Components.interfaces.nsIAtomService).getAtom("blacklisted"),
-    redirected: Components.classes["@mozilla.org/atom-service;1"].getService(Components.interfaces.nsIAtomService).getAtom("redirected"),
     filterString: null,
     filterRegExp: null,
     filterError: false,
@@ -342,40 +339,34 @@ var yaripMonitorTreeView = {
     get rowCount() { return this.visibleData.length; },
 
     cycleHeader: function(col) {},
-    getCellProperties: function(row, col, properties) {
-        if (col.id !== "status") return;
-        if (row < 0 || row >= this.visibleData.length) return;
-
-        switch (this.visibleData[row].status) {
-        case STATUS_WHITELISTED:
-            properties.AppendElement(this.whitelisted);
-            break;
-        case STATUS_BLACKLISTED:
-            properties.AppendElement(this.blacklisted);
-            break;
-        case STATUS_REDIRECTED:
-            properties.AppendElement(this.redirected);
-            break;
-        }
-    },
+    getCellProperties: function(row, col) {},
     getCellText: function(row, col) {
         var colid = col.id;
         if (colid === "status") return "";
         if (row < 0 || row >= this.visibleData.length) return "";
 
-        var cellText = this.visibleData[row][colid];
-        if (cellText) {
-            return cellText;
-        } else {
-            return null;
-        }
+        return this.visibleData[row][colid];
     },
     canDrop: function(index, orientation) { return false; },
     cycleCell: function(row, col) {},
     drop: function(row, orientation) { return 0; },
     getCellValue: function(row, col) { return ""; },
     getColumnProperties: function(col, properties) {},
-    getImageSrc: function(row, col) { return ""; },
+    getImageSrc: function(row, col) {
+        if (col.id !== "status") return "";
+        if (row < 0 || row >= this.visibleData.length) return "";
+
+        switch (this.visibleData[row].status) {
+        case STATUS_WHITELISTED:
+            return "chrome://yarip/skin/face-smile-big.png";
+        case STATUS_BLACKLISTED:
+            return "chrome://yarip/skin/face-angry.png";
+        case STATUS_REDIRECTED:
+            return "chrome://yarip/skin/go-jump.png";
+        default:
+            return "chrome://yarip/skin/transparent.png";
+        }
+    },
     getLevel: function(index) { return 0; },
     getParentIndex: function(rowIndex) { return -1; },
     getProgressMode: function(row, col) { return false; },

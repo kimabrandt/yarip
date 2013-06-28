@@ -1,25 +1,3 @@
-tree#yarip-content-tree treechildren::-moz-tree-image(whitelisted)
-{
-/*  list-style-image: url("moz-icon://stock/face-smile-big?size=menu");*/
-  list-style-image: url("chrome://yarip/skin/faces.png");
-  -moz-image-region: rect(0px 16px 16px 0px);
-}
-
-tree#yarip-content-tree treechildren::-moz-tree-image(blacklisted)
-{
-/*  list-style-image: url("moz-icon://stock/face-angry?size=menu");*/
-  list-style-image: url("chrome://yarip/skin/faces.png");
-  -moz-image-region: rect(0px 32px 16px 16px);
-}
-
-tree#yarip-content-tree treechildren::-moz-tree-image(redirected)
-{
-/*  list-style-image: url("moz-icon://stock/face-smile-big?size=menu");*/
-/*  list-style-image: url("chrome://yarip/skin/faces.png");*/
-/*  -moz-image-region: rect(0px 16px 16px 0px);*/
-  list-style-image: url("chrome://yarip/skin/go-jump.png");
-}
-
 menu#yarip-tools-menu,
 menu#yarip-menu
 {

@@ -97,7 +97,8 @@ YaripResponseStreamListener.prototype.onStartRequest = function(request, context
     try {
         this.listener.onStartRequest(request, context);
     } catch (e) {
-        yarip.logMessage(LOG_ERROR, e);
+        // TODO Can the `Component returned failure code: 0x80004005 (NS_ERROR_FAILURE) [nsIStreamListener.onStartRequest]'-error be ignored?
+//        yarip.logMessage(LOG_ERROR, e);
     }
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIRequestObserver#onStopRequest%28%29
@@ -149,10 +150,10 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
                         continue;
                     } else {
                         var sandbox = new Cu.Sandbox(this.defaultView ? this.defaultView : this.location.asciiHref);
-                        sandbox._source = responseSource;
-                        sandbox._pattern = item.getStreamRegExp();
-                        sandbox._flags = item.getStreamFlags();
-                        tmp = Cu.evalInSandbox("_source.replace(new RegExp(_pattern, _flags), " + item.getScript() + "\n);", sandbox);
+                        sandbox.value = responseSource;
+                        sandbox.regex = item.getStreamRegExp();
+                        sandbox.flags = item.getStreamFlags();
+                        tmp = Cu.evalInSandbox("value.replace(new RegExp(regex, flags), " + item.getScript() + "\n);", sandbox);
 
                         if (typeof tmp !== "string") {
                             yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_VALUE_NOT_A_STRING2", [page.getName(), item.getStreamRegExp()], 2)));
@@ -160,7 +161,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
                         }
                     }
                 } else {
-                    tmp = responseSource.replace(new RegExp(item.getStreamRegExp(), item.getStreamFlags()), item.getScript());
+                    tmp = responseSource.replace(item.getStreamRegExpObj(), item.getScript());
                 }
 
                 if (responseSource !== tmp) {
@@ -369,36 +370,14 @@ YaripResponseStreamListener.prototype.onDataAvailable = function(request, contex
     bis.setInputStream(inputStream);
     this.receivedData.push(bis.readBytes(count));
 }
-//YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count) {
-//    try {
-//        var size = 8192; // 8 kb
-//        var beg = 0;
-//        var end = size;
-//        var tmpData = data.substring(beg, end);
-//        while (tmpData) {
-//            var ss = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
-//            var bos = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
-//            count = tmpData.length;
-//            ss.init(size, count, null);
-//            bos.setOutputStream(ss.getOutputStream(0));
-//            bos.writeBytes(tmpData, count);
-//            this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
-//            offset += count;
-//            beg = end;
-//            end += size;
-//            tmpData = data.substring(beg, end);
-//        }
-//    } catch (e) {
-//        yarip.logMessage(LOG_ERROR, e);
-//    }
-//}
 YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count) {
     try {
         var is = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
         is.setData(data, data.length);
         this.listener.onDataAvailable(request, context, is, offset, count);
     } catch (e) {
-        yarip.logMessage(LOG_ERROR, e);
+        // TODO Ignore the `instanceof NS_BINDING_ABORTED'-error!
+//        yarip.logMessage(LOG_ERROR, e);
     }
 }
 

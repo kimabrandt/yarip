@@ -725,6 +725,7 @@ function YaripStreamItem(regExp, flags, streamRegExp, streamFlags, script, prior
     this.regExpObj = null;
     this.flags = "i";
     this.streamRegExp = "";
+    this.streamRegExpObj = "";
     this.streamFlags = "gim";
     this.script = "";
     this.priority = 0;
@@ -753,6 +754,17 @@ YaripStreamItem.prototype.setStreamRegExp = function(value) {
 }
 YaripStreamItem.prototype.getStreamRegExp = function() {
     return this.streamRegExp;
+}
+YaripStreamItem.prototype.getStreamRegExpObj = function() {
+    if (!this.streamRegExpObj) {
+        try {
+            this.streamRegExpObj = new RegExp(this.streamRegExp, this.streamFlags);
+        } catch (e) {
+            this.streamRegExpObj = null;
+            yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_CREATE_REGEXP1", [this.streamRegExp], 1)));
+        }
+    }
+    return this.streamRegExpObj;
 }
 YaripStreamItem.prototype.setStreamFlags = function(value) {
     if (!value || !/^[gimy]*$/.test(value)) return;

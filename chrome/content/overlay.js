@@ -18,8 +18,7 @@
     along with yarip.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function YaripOverlay()
-{
+function YaripOverlay() {
     this.enabledObserver = null;
     this.flickerObserver = null;
     this.modeObserver = null;
@@ -57,8 +56,7 @@ function YaripOverlay()
     this.getContextMenuId = null;
     this.getTabContainer = null;
 
-    this.start = function(event)
-    {
+    this.start = function(event) {
         if (event.button !== 0) return;
 
         var doc = content.document;
@@ -84,8 +82,7 @@ function YaripOverlay()
         this.setYaripStatus(doc, "started");
     }
 
-    this.stop = function(doc, noStateChange, noSort)
-    {
+    this.stop = function(doc, noStateChange, noSort) {
         if (!this.active || !this.handler) return false;
 
         this.hideStatus();
@@ -108,8 +105,7 @@ function YaripOverlay()
         return true;
     }
 
-    this.whitelistElement = function(doc, node)
-    {
+    this.whitelistElement = function(doc, node) {
         this.toggleEnabled(true);
 
         if (!doc || !node) return;
@@ -135,8 +131,7 @@ function YaripOverlay()
         yarip.whitelistElementItem(doc, obj.pageName, obj.item, true, true);
     }
 
-    this.blacklistElement = function(doc, node)
-    {
+    this.blacklistElement = function(doc, node) {
         this.toggleEnabled(true);
 
         if (!doc || !node) return;
@@ -162,8 +157,7 @@ function YaripOverlay()
         yarip.blacklistElementItem(doc, obj.pageName, obj.item, true, true);
     }
 
-    this.whitelistTemporarily = function(doc, node)
-    {
+    this.whitelistTemporarily = function(doc, node) {
         this.toggleEnabled(true);
 
         if (!doc || !node) return;
@@ -175,8 +169,7 @@ function YaripOverlay()
         yarip.removeAllExceptWhitelisted(doc);
     }
 
-    this.removeTemporarily = function(doc, node)
-    {
+    this.removeTemporarily = function(doc, node) {
         this.toggleEnabled(true);
 
         if (!doc || !node) return;
@@ -187,8 +180,7 @@ function YaripOverlay()
         yarip.blacklistElementItem(doc, null, new YaripElementBlacklistItem(xpath, null, null, true));
     }
 
-    this.styleElement = function(doc, node, attrName)
-    {
+    this.styleElement = function(doc, node, attrName) {
         this.toggleEnabled(true);
 
         if (!doc || !node) return;
@@ -204,8 +196,7 @@ function YaripOverlay()
         if (!xpath) return;
 
         var attrValue = "";
-        if (attrName)
-        {
+        if (attrName) {
             attrValue = node.getAttribute(attrName);
             if (attrName === "style") attrValue = attrValue.replace(OUTLINE_END_RE, "");
         }
@@ -227,8 +218,7 @@ function YaripOverlay()
         yarip.styleElementItem(doc, obj.pageName, obj.item, true, true);
     }
 
-    this.stylePage = function(doc, node)
-    {
+    this.stylePage = function(doc, node) {
         this.toggleEnabled(true);
 
         if (!doc || !node) return;
@@ -256,8 +246,7 @@ function YaripOverlay()
         yarip.stylePage(doc, obj.pageName, obj.item, true);
     }
 
-    this.scriptElement = function(doc, node)
-    {
+    this.scriptElement = function(doc, node) {
         this.toggleEnabled(true);
 
         if (!doc || !node) return;
@@ -289,24 +278,21 @@ function YaripOverlay()
         yarip.scriptElementItem(doc, obj.pageName, obj.item, true);
     }
 
-    this.copyXPath = function(node)
-    {
+    this.copyXPath = function(node) {
         if (!node) return;
 
         var xpath = yarip.createXPath(node);
         if (xpath) CH.copyString(xpath);
     }
 
-    this.copyCssSelector = function(node)
-    {
+    this.copyCssSelector = function(node) {
         if (!node) return;
 
         var cssSelector = yarip.createCssSelector(node);
         if (cssSelector) CH.copyString(cssSelector);
     }
 
-    this.startHighlighting = function(node)
-    {
+    this.startHighlighting = function(node) {
         if (!node) return;
 
         this.stopHighlighting();
@@ -315,14 +301,12 @@ function YaripOverlay()
         this.handler.select();
     }
 
-    this.stopHighlighting = function()
-    {
+    this.stopHighlighting = function() {
         this.handler.doc = null;
         this.handler.reset();
     }
 
-    this.createPage = function(location)
-    {
+    this.createPage = function(location) {
         this.stop();
 
         yarip.resetUndo();
@@ -346,21 +330,18 @@ function YaripOverlay()
         this.managePages(page.getName());
     }
 
-    this.monitorContent = function()
-    {
+    this.monitorContent = function() {
         this.stop();
         yaripMonitor.show();
     }
 
-    this.managePreferences = function()
-    {
+    this.managePreferences = function() {
         this.stop();
 
         window.openDialog("chrome://yarip/content/options.xul", "optionsdialog", "chrome,modal,resizable");
     }
 
-    this.managePages = function(pageName, type, key)
-    {
+    this.managePages = function(pageName, type, key) {
         this.stop();
 
         yarip.resetUndo();
@@ -386,8 +367,7 @@ function YaripOverlay()
         win.focus();
     }
 
-    this.toggleEnabled = function(enabled, force)
-    {
+    this.toggleEnabled = function(enabled, force) {
         this.stop();
         this.enabledObserver.disable();
         var enabledChanged = yarip.toggleEnabled(enabled) || force;
@@ -398,16 +378,13 @@ function YaripOverlay()
         }
     }
 
-    this.updateEnabled = function()
-    {
+    this.updateEnabled = function() {
         this.toggleEnabled(yarip.getValue(PREF_ENABLED, true, DATA_TYPE_BOOLEAN), true);
     }
 
-    this.toggleNoFlicker = function(noFlicker, force)
-    {
+    this.toggleNoFlicker = function(noFlicker, force) {
         this.flickerObserver.disable();
-        if (!yarip.toggleNoFlicker(noFlicker) && !force)
-        {
+        if (!yarip.toggleNoFlicker(noFlicker) && !force) {
             this.flickerObserver.enable();
             return;
         }
@@ -416,13 +393,11 @@ function YaripOverlay()
         document.getElementById("yarip-flicker-menuitem").setAttribute("checked", String(yarip.noFlicker));
     }
 
-    this.updateNoFlicker = function()
-    {
+    this.updateNoFlicker = function() {
         this.toggleNoFlicker(yarip.getValue(PREF_FLICKER, false, DATA_TYPE_BOOLEAN), true);
     }
 
-    this.toggleLogWhenClosed = function(logWhenClosed, force)
-    {
+    this.toggleLogWhenClosed = function(logWhenClosed, force) {
         this.logWhenClosedObserver.disable();
         if (!yarip.toggleLogWhenClosed(logWhenClosed) && !force) {
             this.logWhenClosedObserver.enable();
@@ -433,18 +408,15 @@ function YaripOverlay()
         document.getElementById("yarip-logWhenClosed-checkbox").setAttribute("checked", String(yarip.logWhenClosed));
     }
 
-    this.updateLogWhenClosed = function()
-    {
+    this.updateLogWhenClosed = function() {
         this.toggleLogWhenClosed(yarip.getValue(PREF_LOG_WHEN_CLOSED, false, DATA_TYPE_BOOLEAN), true);
     }
 
-    this.updateNoFlicker = function()
-    {
+    this.updateNoFlicker = function() {
         this.toggleNoFlicker(yarip.getValue(PREF_FLICKER, false, DATA_TYPE_BOOLEAN), true);
     }
 
-    this.setMode = function(mode, clear, force, update)
-    {
+    this.setMode = function(mode, clear, force, update) {
         this.modeObserver.disable();
 
         if (!update) {
@@ -480,13 +452,11 @@ function YaripOverlay()
         }
     }
 
-    this.updateMode = function()
-    {
+    this.updateMode = function() {
         this.setMode(yarip.getValue(PREF_MODE, MODE_FQDN, DATA_TYPE_INTEGER), true, true, true);
     }
 
-    this.updateKey = function(id, modifiers, key, command)
-    {
+    this.updateKey = function(id, modifiers, key, command) {
         if (!/^((accel|access|alt|any|control|meta|shift)(\s+(accel|access|alt|any|control|meta|shift))*)+$/.test(modifiers)) return;
 //        if (!/^[\x20-\x7e]$/.test(key) && !/^(VK_[0-9]|VK_[A-Z]|VK_ADD|VK_ALT|VK_BACK|VK_BACK_QUOTE|VK_BACK_SLASH|VK_CANCEL|VK_CAPS_LOCK|VK_CLEAR|VK_CLOSE_BRACKET|VK_COMMA|VK_CONTROL|VK_DECIMAL|VK_DELETE|VK_DIVIDE|VK_DOWN|VK_END|VK_ENTER|VK_EQUALS|VK_ESCAPE|VK_F[1-9]|VK_F1[0-9]|VK_F2[0-4]|VK_HELP|VK_HOME|VK_INSERT|VK_LEFT|VK_MULTIPLY|VK_NUM_LOCK|VK_NUMPAD[0-9]|VK_OPEN_BRACKET|VK_PAGE_DOWN|VK_PAGE_UP|VK_PAUSE|VK_PERIOD|VK_PRINTSCREEN|VK_QUOTE|VK_RETURN|VK_RIGHT|VK_SCROLL_LOCK|VK_SEMICOLON|VK_SEPARATOR|VK_SHIFT|VK_SLASH|VK_SPACE|VK_SUBTRACT|VK_TAB|VK_UP)$/.test(key)) return;
 
@@ -539,8 +509,7 @@ function YaripOverlay()
         }
     }
 
-    this.handleEvent = function(event)
-    {
+    this.handleEvent = function(event) {
         var ref = this;
 
         switch(event.type) {
@@ -705,7 +674,7 @@ function YaripOverlay()
             yarip.resetUndo();
 
             var doc = event.originalTarget;
-            if (!doc || !doc.body || !doc.defaultView) break;
+            if (!doc || !doc.location || !doc.body || !doc.defaultView) break;
             if (!yarip.schemesRegExp.test(doc.location.protocol.replace(/:$/, ""))) break;
 
             doc.defaultView.yaripMutationObserver = new MutationObserver(function(mutations) {
@@ -718,14 +687,20 @@ function YaripOverlay()
 
                     for (var i = 0, n = mutation.addedNodes.length; i < n; i++) {
                         var node = mutation.addedNodes[i];
-                        if ("getAttribute" in node) {
-                            if (!node.parentNode) continue;
-                            if (/^(firebug|yarip)/.test(node.getAttribute("class"))) continue;
-                            if (/\b(blacklisted|highlighted|whitelisted)\b/.test(node.getAttribute("status"))) continue;
+                        if (!("getAttribute" in node)) continue;
+                        if (!node.parentNode) continue;
+                        if (/^(firebug|yarip)/.test(node.getAttribute("class"))) continue;
+                        if (/\b(blacklisted|highlighted|whitelisted)\b/.test(node.getAttribute("status"))) continue;
 
+                        // TODO Consider creating user-preferences for the milliseconds.
+                        if (!doc.defaultView.yaripDOMContentLoadedTime || doc.defaultView.yaripDOMContentLoadedTime < Date.now() - 250) {
+                            ref.domContentLoaded(doc, ref, true);
+                            doc.defaultView.yaripDOMContentLoadedTime = Date.now();
+                        } else {
                             doc.defaultView.yaripMutationObserverTimeout = setTimeout(function() { ref.domContentLoaded(doc, ref, true); }, 1000);
-                            return;
                         }
+
+                        return;
                     }
                 });
             });
@@ -758,8 +733,7 @@ function YaripOverlay()
 
             // YARIP-MENU
             var menu = this.yaripMenupopup.firstChild;
-            while (menu && menu.getAttribute("id") !== "yarip-undo-menu-sep")
-            {
+            while (menu && menu.getAttribute("id") !== "yarip-undo-menu-sep") {
                 var next = menu.nextSibling;
                 menu.removeEventListener("DOMMenuItemActive", this, false);
                 menu.removeEventListener("DOMMenuItemInactive", this, false);
@@ -770,16 +744,14 @@ function YaripOverlay()
             var doc = node.ownerDocument;
             var hasMenus = false;
             var location = yarip.getLocation(doc.location);
-            if (yarip.getPageName(location))
-            {
+            if (yarip.getPageName(location)) {
                 var undoMenuSep = document.getElementById("yarip-undo-menu-sep");
                 var undoMenu = document.getElementById("yarip-undo-menupopup");
                 undoMenuSep.hidden = false;
 
                 // ELEMENT-MENUES
                 var tmpNode = node;
-                for (var i = 0; i < yarip.elementsInContext && tmpNode && tmpNode.localName && !/^(html|body|frameset|frame)$/i.test(tmpNode.localName); i++)
-                {
+                for (var i = 0; i < yarip.elementsInContext && tmpNode && tmpNode.localName && !/^(html|body|frameset|frame)$/i.test(tmpNode.localName); i++) {
                     menu = this.createMenu(tmpNode);
                     if (menu) {
                         this.yaripMenupopup.insertBefore(menu, undoMenuSep);
@@ -790,8 +762,7 @@ function YaripOverlay()
 
                 // FRAME-MENU
                 var inFrame = gContextMenu && gContextMenu.inFrame || false;
-                if (inFrame)
-                {
+                if (inFrame) {
                     var frame = node.ownerDocument.defaultView.frameElement;
                     var frameMenu = this.createMenu(frame, true);
                     if (!yarip.getPageName(frame.ownerDocument.location)) frameMenu.setAttribute("disabled", true);
@@ -801,8 +772,7 @@ function YaripOverlay()
 
                 // UNDO-MENU
                 var menuitem = undoMenu.firstChild;
-                while (menuitem && menuitem.localName !== "menuseparator")
-                {
+                while (menuitem && menuitem.localName !== "menuseparator") {
                     var next = menuitem.nextSibling;
                     undoMenu.removeChild(menuitem);
                     menuitem = next;
@@ -835,8 +805,7 @@ function YaripOverlay()
             break;
 
         case "keypress":
-            if (event.keyCode === KeyEvent.DOM_VK_ESCAPE)
-            {
+            if (event.keyCode === KeyEvent.DOM_VK_ESCAPE) {
                 var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
                 var browserEnum = wm.getEnumerator("navigator:browser");
                 while (browserEnum.hasMoreElements()) {
@@ -857,31 +826,32 @@ function YaripOverlay()
         }
     }
 
-    this.resetCount = function (doc)
-    {
+    this.resetCount = function (doc) {
         if (doc && doc.defaultView && doc.defaultView.yarip) {
             doc.defaultView.yarip.resetTimeout = null;
             doc.defaultView.yarip.count = null;
         }
     }
 
-    this.domContentLoaded = function(doc, overlay, noIncrement)
-    {
-        if (!doc || !doc.defaultView) return;
+    this.domContentLoaded = function(doc, overlay, noIncrement) {
+        try {
+            if (!doc || !doc.defaultView) return;
 
-        doc.defaultView.yaripMutationObserverTimeout = null;
+            doc.defaultView.yaripMutationObserverTimeout = null;
 
-        if (!yarip.enabled) return;
+            if (!yarip.enabled) return;
 
-        if (overlay.loader.load(doc, !noIncrement)) {
-            overlay.setYaripStatus(doc, "found");
-        } else {
-            overlay.setYaripStatus(doc);
+            if (overlay.loader.load(doc, !noIncrement)) {
+                overlay.setYaripStatus(doc, "found");
+            } else {
+                overlay.setYaripStatus(doc);
+            }
+        } catch (e if e instanceof TypeError) {
+            // ignore (e.g. TypeError: can't access dead object)
         }
     }
 
-    this.createMenu = function(node, isFrame)
-    {
+    this.createMenu = function(node, isFrame) {
         var menu = document.createElement("menu");
         menu.node = node;
         menu.setAttribute("label", node.localName.toUpperCase());
@@ -910,16 +880,13 @@ function YaripOverlay()
         var tmpMenupopup = null;
 
         // BLACKLIST ATTRIBUTE
-        if (node.hasAttributes())
-        {
+        if (node.hasAttributes()) {
             var found = false;
             tmpMenu = document.createElement("menu");
             tmpMenu.setAttribute("label", this.stringbundle.getString("menuAttributeBlacklist"));
             tmpMenupopup = document.createElement("menupopup");
-            if (node.hasAttributes())
-            {
-                for (var i = 0; i < node.attributes.length; i++)
-                {
+            if (node.hasAttributes()) {
+                for (var i = 0; i < node.attributes.length; i++) {
                     var attribute = node.attributes[i];
                     if (!attribute || !attribute.value) continue;
 
@@ -956,8 +923,7 @@ function YaripOverlay()
         if (node.hasAttributes()) {
             var seMenuseparator = document.createElement("menuseparator");
             tmpMenupopup.insertBefore(seMenuseparator, item);
-            for (var i = 0; i < node.attributes.length; i++)
-            {
+            for (var i = 0; i < node.attributes.length; i++) {
                 var attribute = node.attributes[i];
                 if (!attribute || !attribute.value) continue;
 
@@ -1008,13 +974,18 @@ function YaripOverlay()
             item = document.createElement("menuitem");
             item.setAttribute("label", this.stringbundle.getString("menuitemAddToHistory"));
             item.addEventListener("command", function() {
-                var loc = node.ownerDocument.location.href;
+                var loc = node.ownerDocument.location;
                 var href = node.getAttribute("href");
                 if (!/^\w+:\/+/.test(href)) {
-                    var path = node.ownerDocument.location.pathname;
-                    href = loc.substring(0, loc.indexOf(path)) + (!/^\//.test(href) ? "/" : "") + href;
+                    href = loc.href.substring(0, loc.href.indexOf(loc.pathname)) + (!/^\//.test(href) ? "/" : "") + href;
                 }
-                GH.addURI(IOS.newURI(href, null, null), false, true, IOS.newURI(loc, null, null));
+                AH.updatePlaces({
+                    "uri": IOS.newURI(href, null, null),
+                    "visits": [{
+                        "visitDate": Date.now(),
+                        "transitionType": TRANSITION_LINK
+                    }]
+                });
             }, false);
             menupopup.appendChild(item);
         }
@@ -1033,12 +1004,13 @@ function YaripOverlay()
         item.setAttribute("class", "copyCssSelector");
         menupopup.appendChild(item);
 
+        // GOTO
+
         menu.appendChild(menupopup);
         return menu;
     }
 
-    this.undoOne = function(doc, key)
-    {
+    this.undoOne = function(doc, key) {
         if (!doc) return;
 
         var obj = yarip.undoObj[key];
@@ -1048,8 +1020,7 @@ function YaripOverlay()
         }
     }
 
-    this.undoAll = function(doc)
-    {
+    this.undoAll = function(doc) {
         if (!doc) return;
 
         var obj = null;
@@ -1060,35 +1031,30 @@ function YaripOverlay()
         if (obj) yarip.reloadPage(obj.pageName);
     }
 
-    this.undo = function(obj, noReload)
-    {
+    this.undo = function(obj, noReload) {
         if (!obj) return;
 
         yarip.resetOnAddress(obj);
         if (!noReload) yarip.reloadPage(obj.pageName);
     }
 
-    this.setStatus = function(status)
-    {
+    this.setStatus = function(status) {
         clearTimeout(this.statusTimeout);
         document.getElementById("yarip-status-label").value = status;
         document.getElementById("yarip-status").hidden = false;
     }
 
-    this.hideStatus = function()
-    {
+    this.hideStatus = function() {
         document.getElementById("yarip-status").hidden = true;
     }
 
-    this.hideStatusAfterTimeout = function()
-    {
+    this.hideStatusAfterTimeout = function() {
         clearTimeout(this.statusTimeout);
         var ref = this;
         this.statusTimeout = setTimeout(function() { ref.hideStatus(); }, 100);
     }
 
-    this.setYaripStatus = function(doc, status)
-    {
+    this.setYaripStatus = function(doc, status) {
         if (!doc) return;
 
         if (yarip.enabled) {
