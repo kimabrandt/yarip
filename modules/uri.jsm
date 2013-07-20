@@ -224,7 +224,7 @@ var TLD = "(" +
     "|(?:(?:(?:forgot\\.her|forgot\\.his)\\.)?name)" +
     "|(?:(?:(?:ca|cc|co|com|dr|in|info|mobi|mx|name|or|org|pro|school|tv|us|ws)\\.)?na)" +
     "|(?:(?:(?:asso)\\.)?nc)" +
-    "|(?:(?:(?:at-band-camp|blogdns|broke-it|buyshouses|cloudfront|dnsalias|dnsdojo|does-it|dontexist|dynalias|dynathome|endofinternet|from-az|from-co|from-la|from-ny|gb|gets-it|ham-radio-op|homeftp|homeip|homelinux|homeunix|hu|in-the-band|is-a-chef|is-a-geek|isa-geek|jp|kicks-ass|office-on-the|podzone|scrapper-site|se|selfip|sells-it|servebbs|serveftp|thruhere|uk|webhop|za)\\.)?net)" +
+    "|(?:(?:(?:at-band-camp|blogdns|broke-it|buyshouses|cloudfront|dnsalias|dnsdojo|does-it|dontexist|dynalias|dynathome|endofinternet|(?:(?:(?:(?:a|global)\\.)prod|(?:(?:a|b|global)\\.)ssl)\\.)fastly|from-az|from-co|from-la|from-ny|gb|gets-it|ham-radio-op|homeftp|homeip|homelinux|homeunix|hu|in-the-band|is-a-chef|is-a-geek|isa-geek|jp|kicks-ass|office-on-the|podzone|scrapper-site|se|selfip|sells-it|servebbs|serveftp|thruhere|uk|webhop|za)\\.)?net)" +
     "|(?:(?:(?:arts|com|firm|info|net|other|per|rec|store|web)\\.)?nf)" +
     "|(?:(?:(?:ac|com|edu|gov|net|org)\\.)?ng)" +
     "|(?:(?:(?:blogspot|bv|co)\\.)?nl)" +

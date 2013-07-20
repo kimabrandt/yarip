@@ -214,14 +214,14 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             var page = extItem.getPage();
             var pageName = page.getName();
 
-            // element-blacklist styling
-            var tmp = page.elementBlacklist.generateCSS();
-            if (tmp) {
-                headStyles += "\n<style id=\"yarip-page-style_" + pageName.replace(/\W/g, "-") + "\" type=\"text/css\" status=\"whitelisted\">" + tmp + "</style>";
-            }
-
-            // page styling
             if (extItem.getDoElements()) {
+                // element-blacklist styling
+                var tmp = page.elementBlacklist.generateCSS();
+                if (tmp) {
+                    headStyles += "\n<style id=\"yarip-page-style_" + pageName.replace(/\W/g, "-") + "\" type=\"text/css\" status=\"whitelisted\">" + tmp + "</style>";
+                }
+
+                // page styling
                 var list = page.pageStyleList;
                 if (list.length > 0) {
                     var idPrefix = "yarip-page-style_" + pageName.replace(/\W/g, "-") + "_";

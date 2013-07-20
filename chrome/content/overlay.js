@@ -180,7 +180,7 @@ function YaripOverlay() {
         yarip.blacklistElementItem(doc, null, new YaripElementBlacklistItem(xpath, null, null, true));
     }
 
-    this.styleElement = function(doc, node, attrName) {
+    this.styleElement = function(doc, node, attrName, remove) {
         this.toggleEnabled(true);
 
         if (!doc || !node) return;
@@ -196,14 +196,14 @@ function YaripOverlay() {
         if (!xpath) return;
 
         var attrValue = "";
-        if (attrName) {
+        if (!remove && attrName) {
             attrValue = node.getAttribute(attrName);
             if (attrName === "style") attrValue = attrValue.replace(OUTLINE_END_RE, "");
         }
 
         var obj = {
             pageName: pageName,
-            item: new YaripElementAttributeItem(xpath),
+            item: new YaripElementAttributeItem(xpath, null, null, null, remove),
             attrName: attrName ? attrName : "",
             attrValue: attrValue,
             node: node
@@ -896,10 +896,12 @@ function YaripOverlay() {
                     }
 
                     item = document.createElement("menuitem");
-                    item.attribute = attribute;
-                    item.setAttribute("label", attribute.name.toLowerCase());
-                    if (isFrame) item.addEventListener("command", function() { ref.blacklistElement(node.ownerDocument.defaultView.frameElement.ownerDocument, attribute); }, false);
-                    else item.addEventListener("command", function(e) { ref.blacklistElement(node.ownerDocument, e.target.attribute); }, false);
+                    item.attributeName = attribute.name.toLowerCase();
+                    item.setAttribute("label", item.attributeName);
+//                    if (isFrame) item.addEventListener("command", function() { ref.blacklistElement(node.ownerDocument.defaultView.frameElement.ownerDocument, e.target.attributeName); }, false);
+//                    else item.addEventListener("command", function(e) { ref.blacklistElement(node.ownerDocument, e.target.attributeName); }, false);
+                    if (isFrame) item.addEventListener("command", function(e) { ref.styleElement(node.ownerDocument.defaultView.frameElement.ownerDocument, node, e.target.attributeName, true /* remove */); }, false);
+                    else item.addEventListener("command", function(e) { ref.styleElement(node.ownerDocument, node, e.target.attributeName, true /* remove */); }, false);
                     tmpMenupopup.appendChild(item);
                     found = true;
                 }
@@ -933,10 +935,10 @@ function YaripOverlay() {
                 }
 
                 item = document.createElement("menuitem");
-                item.attribute = attribute;
-                item.setAttribute("label", attribute.name.toLowerCase());
-                if (isFrame) item.addEventListener("command", function() { ref.styleElement(node.ownerDocument.defaultView.frameElement.ownerDocument, node, attribute.name.toLowerCase()); }, false);
-                else item.addEventListener("command", function(e) { ref.styleElement(node.ownerDocument, node, e.target.attribute.name.toLowerCase()); }, false);
+                item.attributeName = attribute.name.toLowerCase();
+                item.setAttribute("label", item.attributeName);
+                if (isFrame) item.addEventListener("command", function(e) { ref.styleElement(node.ownerDocument.defaultView.frameElement.ownerDocument, node, e.target.attributeName); }, false);
+                else item.addEventListener("command", function(e) { ref.styleElement(node.ownerDocument, node, e.target.attributeName); }, false);
                 tmpMenupopup.insertBefore(item, seMenuseparator);
             }
         }
@@ -982,8 +984,8 @@ function YaripOverlay() {
                 AH.updatePlaces({
                     "uri": IOS.newURI(href, null, null),
                     "visits": [{
-                        "visitDate": Date.now(),
-                        "transitionType": TRANSITION_LINK
+                        "transitionType": TRANSITION_LINK,
+                        "visitDate": Date.now() * 1000
                     }]
                 });
             }, false);

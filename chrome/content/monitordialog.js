@@ -351,7 +351,7 @@ var yaripMonitorTreeView = {
     cycleCell: function(row, col) {},
     drop: function(row, orientation) { return 0; },
     getCellValue: function(row, col) { return ""; },
-    getColumnProperties: function(col, properties) {},
+    getColumnProperties: function(col) {},
     getImageSrc: function(row, col) {
         if (col.id !== "status") return "";
         if (row < 0 || row >= this.visibleData.length) return "";
@@ -370,7 +370,7 @@ var yaripMonitorTreeView = {
     getLevel: function(index) { return 0; },
     getParentIndex: function(rowIndex) { return -1; },
     getProgressMode: function(row, col) { return false; },
-    getRowProperties: function(index, properties) {},
+    getRowProperties: function(index) {},
     hasNextSibling: function(rowIndex, afterIndex) { return false; },
     isContainerEmpty: function(index) { return false; },
     isContainer: function(index) { return false; },

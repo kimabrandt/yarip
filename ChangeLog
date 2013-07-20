@@ -1,3 +1,19 @@
+2013-07-20  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/{monitordialog,pagedialog}.js (properties): Removing
+    deprecated function-arguments.
+
+    * chrome/content/overlay.js (styleElement): Using the style-element dialog
+    for removal of attributes.
+
+    * chrome/content/overlay.js (updatePlaces): Using microseconds for the
+    `visitDate'.
+
+    * modules/stream.jsm (onStopRequest): Moving the element-blacklist styling
+    into the `getDoElements'-check.
+
+    * modules/uri.jsm (TLD): Modified the `net' TLD.
+
 2013-06-28  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/monitordialog.js (getImageSrc): Using the `getImageSrc'-

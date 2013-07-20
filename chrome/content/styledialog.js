@@ -115,6 +115,10 @@ function YaripAttributeDialog()
             this.pageMenulist.disabled = true;
             return;
         }
+
+        if (this.obj.item.getRemove()) {
+            this.attrValueTextbox.disabled = true;
+        }
     }
 
     this.createMenuitem = function(menupopup, address)

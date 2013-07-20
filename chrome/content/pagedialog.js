@@ -1533,7 +1533,7 @@ function YaripPageTreeView() {
     this.getRowCount = function() { return this.visibleData.length; }
 
     this.cycleHeader = function(col) {}
-    this.getCellProperties = function(row, col, props) {}
+    this.getCellProperties = function(row, col) {}
     this.getCellText = function(row, col) {
         if (row < 0 || row >= this.visibleData.length) return "";
 
@@ -1546,10 +1546,10 @@ function YaripPageTreeView() {
         var cellText = this.visibleData[row].getName();
         return cellText ? cellText : null;
     }
-    this.getColumnProperties = function(colid, col, props) {}
+    this.getColumnProperties = function(colid, col) {}
     this.getImageSrc = function(row, col) { return null; }
     this.getLevel = function(row) { return 0; }
-    this.getRowProperties = function(row, props) {}
+    this.getRowProperties = function(row) {}
     this.isContainer = function(row) { return false; }
     this.isEditable = function(row, col) { return col.element.getAttribute("editable"); }
     this.isSeparator = function(row) { return false; }
@@ -1641,13 +1641,13 @@ function YaripListTreeView(list) {
     this.rowCount = list.length;
     this.getRowCount = function() { return this.rowCount; }
     this.cycleHeader = function(col) {}
-    this.getCellProperties = function(row, col, props) {}
+    this.getCellProperties = function(row, col) {}
     this.getCellText = function(row, col) { return list.get(row, col.index); }
     this.getCellValue = function(row, col) { return list.get(row, col.index); }
-    this.getColumnProperties = function(colid, col, props) {}
+    this.getColumnProperties = function(colid, col) {}
     this.getImageSrc = function(row, col) { return null; }
     this.getLevel = function(row) { return 0; }
-    this.getRowProperties = function(row, props) {}
+    this.getRowProperties = function(row) {}
     this.isContainer = function(row) { return false; }
     this.isEditable = function(row, col) { return col.element.getAttribute("editable"); }
     this.isSeparator = function(row) { return false; }
