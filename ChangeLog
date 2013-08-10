@@ -1,3 +1,7 @@
+2013-08-10  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.3.4.xpi
+
 2013-07-20  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * chrome/content/{monitordialog,pagedialog}.js (properties): Removing
