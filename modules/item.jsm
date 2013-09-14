@@ -1100,23 +1100,25 @@ YaripExtensionItem.prototype.does = function(flag) {
     }
 }
 YaripExtensionItem.prototype.updateDo = function(maskItem, extItem, matchObj) {
+    var changesMade = false;
     if (!matchObj) {
-        if (maskItem.getDoElements() && extItem.getDoElements()) this.setDoElements(true);
-        if (maskItem.getDoContents() && extItem.getDoContents()) this.setDoContents(true);
-        if (maskItem.getDoScripts() && extItem.getDoScripts()) this.setDoScripts(true);
-        if (maskItem.getDoHeaders() && extItem.getDoHeaders()) this.setDoHeaders(true);
-        if (maskItem.getDoRedirects() && extItem.getDoRedirects()) this.setDoRedirects(true);
-        if (maskItem.getDoStreams() && extItem.getDoStreams()) this.setDoStreams(true);
-        if (maskItem.getDoLinks() && extItem.getDoLinks()) this.setDoLinks(true);
+        if (!this.doElements && maskItem.getDoElements() && extItem.getDoElements()) { this.setDoElements(true); changesMade = true }
+        if (!this.doContents && maskItem.getDoContents() && extItem.getDoContents()) { this.setDoContents(true); changesMade = true }
+        if (!this.doScripts && maskItem.getDoScripts() && extItem.getDoScripts()) { this.setDoScripts(true); changesMade = true }
+        if (!this.doHeaders && maskItem.getDoHeaders() && extItem.getDoHeaders()) { this.setDoHeaders(true); changesMade = true }
+        if (!this.doRedirects && maskItem.getDoRedirects() && extItem.getDoRedirects()) { this.setDoRedirects(true); changesMade = true }
+        if (!this.doStreams && maskItem.getDoStreams() && extItem.getDoStreams()) { this.setDoStreams(true); changesMade = true }
+        if (!this.doLinks && maskItem.getDoLinks() && extItem.getDoLinks()) { this.setDoLinks(true); changesMade = true }
     } else {
-        if (matchObj.element && maskItem.getDoElements() && extItem.getDoElements()) this.setDoElements(true);
-        if (matchObj.content && maskItem.getDoContents() && extItem.getDoContents()) this.setDoContents(true);
-        if (matchObj.script && maskItem.getDoScripts() && extItem.getDoScripts()) this.setDoScripts(true);
-        if (matchObj.header && maskItem.getDoHeaders() && extItem.getDoHeaders()) this.setDoHeaders(true);
-        if (matchObj.redirect && maskItem.getDoRedirects() && extItem.getDoRedirects()) this.setDoRedirects(true);
-        if (matchObj.stream && maskItem.getDoStreams() && extItem.getDoStreams()) this.setDoStreams(true);
-        if (matchObj.link && maskItem.getDoLinks() && extItem.getDoLinks()) this.setDoLinks(true);
+        if (!this.doElements && matchObj.element && maskItem.getDoElements() && extItem.getDoElements()) { this.setDoElements(true); changesMade = true }
+        if (!this.doContents && matchObj.content && maskItem.getDoContents() && extItem.getDoContents()) { this.setDoContents(true); changesMade = true }
+        if (!this.doScripts && matchObj.script && maskItem.getDoScripts() && extItem.getDoScripts()) { this.setDoScripts(true); changesMade = true }
+        if (!this.doHeaders && matchObj.header && maskItem.getDoHeaders() && extItem.getDoHeaders()) { this.setDoHeaders(true); changesMade = true }
+        if (!this.doRedirects && matchObj.redirect && maskItem.getDoRedirects() && extItem.getDoRedirects()) { this.setDoRedirects(true); changesMade = true }
+        if (!this.doStreams && matchObj.stream && maskItem.getDoStreams() && extItem.getDoStreams()) { this.setDoStreams(true); changesMade = true }
+        if (!this.doLinks && matchObj.link && maskItem.getDoLinks() && extItem.getDoLinks()) { this.setDoLinks(true); changesMade = true }
     }
+    return changesMade;
 }
 YaripExtensionItem.prototype.setIsSelf = function(value) {
     this._isSelf = String(value) === "true";

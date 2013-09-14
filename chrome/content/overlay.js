@@ -714,7 +714,7 @@ function YaripOverlay() {
 
             this.domContentLoaded(doc, this);
 
-            /*if (yarip.noFlicker)*/ doc.body.setAttribute("status", "whitelisted");
+            doc.documentElement.setAttribute("status", "whitelisted");
             break;
 
         case "DOMMenuItemActive":

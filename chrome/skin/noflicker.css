@@ -1,7 +1,7 @@
 @-moz-document url-prefix(http://), url-prefix(https://) {
 
 /* Hiding the body if not whitelisted. */
-html > body:not([status~="whitelisted"]) {
+html[status="blacklisted"] {
     visibility: hidden !important;
 }
 

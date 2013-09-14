@@ -238,7 +238,7 @@ YaripObserver.prototype.examineResponse = function(channel) {
          */
 
         var isRedirect = [300, 301, 302, 303, 305, 307].indexOf(channel.responseStatus) > -1;
-        if ((!location.isLink || yarip.privateBrowsing) && isRedirect) {
+        if (isRedirect && (!location.isLink || yarip.privateBrowsing)) {
             var locationHeader = undefined;
             try {
                 locationHeader = channel.getResponseHeader("Location");
@@ -273,10 +273,16 @@ YaripObserver.prototype.examineResponse = function(channel) {
             } catch (e) {
                 if (locationHeader !== undefined) {
                     yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_REDIRECT_NOT_A_URL2", [content.asciiHref, locationHeader], 2)));
-                } else {
-                    yarip.logMessage(LOG_ERROR, e);
+//                } else { // NS_ERROR_NOT_AVAILABLE
+//                    yarip.logMessage(LOG_ERROR, e);
                 }
             }
+        }
+
+        // FIXME
+        if (channel.loadFlags === LOAD_NORMAL) {
+            yarip.logMessage(LOG_WARNING, new Error("Channel with `no special load flags' (loadFlags = 0). url=" + channel.URI.spec));
+            return;
         }
 
         /*
@@ -284,7 +290,7 @@ YaripObserver.prototype.examineResponse = function(channel) {
          */
 
         if (!isRedirect && /^(?:text\/.*|application\/(?:javascript|json|(?:\w+\+)?\bxml))$/.test(channel.contentType)) {
-            new YaripResponseStreamListener(channel, addressObj, location, content, defaultView);
+            new YaripResponseStreamListener(channel, addressObj, location, defaultView);
         }
     } catch (e) {
         yarip.logMessage(LOG_ERROR, e);

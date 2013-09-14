@@ -793,7 +793,7 @@ function YaripPageDialog() {
 
     this.selectPageByIndex = function(index) {
         var rowCount = this.view.getRowCount();
-        if (index >= rowCount) return;
+        if (index >= rowCount) return null;
 
         if (index < 0) {
             this.treePages.currentIndex = -1;

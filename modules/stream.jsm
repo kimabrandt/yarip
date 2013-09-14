@@ -29,6 +29,7 @@ const Cr = Components.results;
 const Cu = Components.utils;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+//Cu.import("resource://gre/modules/NetUtil.jsm");
 const yarip = Cu.import("resource://yarip/yarip.jsm", null).wrappedJSObject;
 Cu.import("resource://yarip/constants.jsm");
 
@@ -78,7 +79,7 @@ YaripRedirectStreamListener.prototype.onDataAvailable = function(request, contex
     this.listener.onDataAvailable(request, context, ss.newInputStream(0), offset, count);
 }
 
-function YaripResponseStreamListener(channel, addressObj, location, _content, defaultView) {
+function YaripResponseStreamListener(channel, addressObj, location, defaultView) {
     if (!(channel instanceof Ci.nsITraceableChannel)) return;
 
     channel.QueryInterface(Ci.nsITraceableChannel);
@@ -87,6 +88,7 @@ function YaripResponseStreamListener(channel, addressObj, location, _content, de
     this.addressObj = addressObj;
     this.location = location;
     this.defaultView = defaultView;
+    this.contentType = channel.contentType;
     this.receivedData = [];
 }
 YaripResponseStreamListener.prototype = {
@@ -97,8 +99,7 @@ YaripResponseStreamListener.prototype.onStartRequest = function(request, context
     try {
         this.listener.onStartRequest(request, context);
     } catch (e) {
-        // TODO Can the `Component returned failure code: 0x80004005 (NS_ERROR_FAILURE) [nsIStreamListener.onStartRequest]'-error be ignored?
-//        yarip.logMessage(LOG_ERROR, e);
+        yarip.logMessage(LOG_ERROR, e);
     }
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIRequestObserver#onStopRequest%28%29
@@ -106,6 +107,18 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
     var responseSource = this.receivedData.join("");
 
     try {
+        var htmlBegRegExp = /<\s*html\b[^>]*>/i;
+        var searchIndex = -1;
+
+        // Setting the `blacklisted'-status; used with the no-flicker-feature.
+        if (/^(text\/html|application\/(xhtml\+)?xml)$/.test(this.contentType)) {
+            searchIndex = responseSource.search(htmlBegRegExp);
+            if (searchIndex > -1) { // found HTML-begin
+                searchIndex += responseSource.substring(searchIndex).match(/<\s*html\b/i)[0].length;
+                responseSource = responseSource.substring(0, searchIndex) + " status=\"blacklisted\"" + responseSource.substring(searchIndex);
+            }
+        }
+
         request.QueryInterface(Ci.nsIChannel);
 
         if (request.loadFlags & LOAD_FLAG_RESPONSE) return; // FIXME
@@ -179,16 +192,16 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         }
 
         if (!this.location.isPage) return;
+        if (!/^(text\/html|application\/(xhtml\+)?xml)$/.test(this.contentType)) return;
 
         /*
          * PAGE SCRIPTING AND STYLING
          */
 
         // HTML-begin
-        var doctypeRegExp = /<!doctype\b[^>]*>/i;
-        var htmlBegRegExp = /<\s*html\b[^>]*>/i;
-        var searchIndex = responseSource.search(htmlBegRegExp);
+        searchIndex = responseSource.search(htmlBegRegExp);
         if (searchIndex === -1) { // no HTML-begin
+            var doctypeRegExp = /<!doctype\b[^>]*>/i;
             searchIndex = responseSource.search(doctypeRegExp);
             if (searchIndex === -1) { // no DOCTYPE
                 return;
@@ -333,13 +346,15 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         // BODY-end
         if (!isFrameset) {
             var bodyEndRegExp = /<\s*\/\s*body\b[^>]*>/i;
-            searchIndex = tmpSource.search(bodyEndRegExp);
-            if (searchIndex === -1) { // no BODY-end
-                bodyBotPart = "</body>" + tmpSource; // FIXME Can be misplaced!
-            } else {
-                bodyMidPart = tmpSource.substring(0, searchIndex);
-                bodyBotPart = tmpSource.substring(searchIndex);
+            searchIndex = 0;
+            var tmpSearchIndex = tmpSource.search(bodyEndRegExp);
+            while (tmpSearchIndex !== -1) {
+                searchIndex += tmpSearchIndex;
+                tmpSearchIndex = tmpSource.substring(searchIndex + 1).search(bodyEndRegExp);
+                if (tmpSearchIndex !== -1) tmpSearchIndex += 1;
             }
+            bodyMidPart = tmpSource.substring(0, searchIndex);
+            bodyBotPart = tmpSource.substring(searchIndex);
         } else {
             bodyBotPart = tmpSource;
         }
@@ -357,7 +372,10 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
         yarip.logMessage(LOG_ERROR, e);
     } finally {
         try {
-            this.onDataAvailable0(request, context, responseSource, 0, responseSource.length);
+            var count = responseSource.length;
+            var is = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
+            is.setData(responseSource, count);
+            this.listener.onDataAvailable(request, context, is, 0, count);
             this.listener.onStopRequest(request, context, statusCode);
         } finally {
             request.loadFlags |= LOAD_FLAG_RESPONSE; // FIXME
@@ -366,18 +384,18 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIStreamListener#onDataAvailable%28%29
 YaripResponseStreamListener.prototype.onDataAvailable = function(request, context, inputStream, offset, count) {
-    var bis = Cc["@mozilla.org/binaryinputstream;1"].createInstance(Ci.nsIBinaryInputStream);
-    bis.setInputStream(inputStream);
-    this.receivedData.push(bis.readBytes(count));
-}
-YaripResponseStreamListener.prototype.onDataAvailable0 = function(request, context, data, offset, count) {
     try {
-        var is = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
-        is.setData(data, data.length);
-        this.listener.onDataAvailable(request, context, is, offset, count);
+//        var bis = Cc["@mozilla.org/binaryinputstream;1"].createInstance(Ci.nsIBinaryInputStream);
+//        bis.setInputStream(inputStream);
+//        this.receivedData.push(bis.readBytes(count));
+
+        var sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
+        sis.init(inputStream);
+        this.receivedData.push(sis.readBytes(count));
+
+//        this.receivedData.push(NetUtil.readInputStreamToString(inputStream, count, { "charset": "UTF-8" }));
     } catch (e) {
-        // TODO Ignore the `instanceof NS_BINDING_ABORTED'-error!
-//        yarip.logMessage(LOG_ERROR, e);
+        yarip.logMessage(LOG_ERROR, e);
     }
 }
 

@@ -138,6 +138,10 @@ var EXPORTED_SYMBOLS = [
         "ORDERED_NODE_ITERATOR_TYPE",
         "UNORDERED_NODE_SNAPSHOT_TYPE",
 
+        // https://developer.mozilla.org/en/XPCOM_Interface_Reference/NsIRequest
+        "LOAD_NORMAL",
+
+        // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIWebProgress
         "NOTIFY_STATE_DOCUMENT",
         "NOTIFY_STATE_REQUEST",
 
@@ -290,6 +294,9 @@ const DOCUMENT_NODE = Ci.nsIDOMNode.DOCUMENT_NODE;
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIDOMXPathResult
 const ORDERED_NODE_ITERATOR_TYPE = Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE;
 const UNORDERED_NODE_SNAPSHOT_TYPE = Ci.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE;
+
+// https://developer.mozilla.org/en/XPCOM_Interface_Reference/NsIRequest
+const LOAD_NORMAL = Ci.nsIRequest.LOAD_NORMAL;
 
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIWebProgress
 const NOTIFY_STATE_DOCUMENT = Ci.nsIWebProgress.NOTIFY_STATE_DOCUMENT;

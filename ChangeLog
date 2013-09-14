@@ -1,6 +1,23 @@
-2013-08-10  Kim A. Brandt  <kimabrandt@gmx.de>
+2013-09-14  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * : RELEASE yarip-0.3.4.xpi
+
+    * modules/yarip.jsm (Yarip.getRecursiveAddressArray): Adding the extension-
+    item if the child-item has been updated.
+
+    * modules/uri.jsm (TLD, com): Updated the TLD.
+
+    * modules/stream.jsm (YaripResponseStreamListener.onStopRequest): Injecting
+    a `blacklisted'-status on the HTML-elements in the stream-listener; which
+    is used with the no-flicker-feature. Also modified the search for the BODY-
+    end.
+
+    * modules/observer.jsm (LOAD_NORMAL): Ignoring the stream-listener if a
+    channel has `no special load flags' (loadFlags = 0). Otherwise FF could
+    encounter a segmentation fault and crash :/
+
+    * modules/item.jsm (updateDo): Only setting the features if they haven't
+    been set before and returning true if something has been changed.
 
 2013-07-20  Kim A. Brandt  <kimabrandt@gmx.de>
 
@@ -301,7 +318,7 @@
     Getting pages by id instead of (falsely) by name.
 
     * modules/stream.jsm (responseSource.search): Only parsing through the
-    page-stream if some page-stream-rules do exist.
+    page-stream if some page-stream-rules exist.
 
     * modules/uri.jsm (TLD, br + ua): Updated the TLD.
 
@@ -326,9 +343,7 @@
     * chrome/content/pagedialog.xul, modules/item.jsm (flags): Allowing to
     set regular-expresion flags (e.g. `g', `i' and `m').
 
-    * modules/yarip.jsm (getPageRegExpObj),
-    modules/observer.jsm (shouldRedirect),
-    modules/stream.jsm (YaripResponseStreamListener.onStopRequest):
+    * modules/yarip.jsm (getPageRegExpObj), modules/observer.jsm (shouldRedirect), modules/stream.jsm (YaripResponseStreamListener.onStopRequest):
     Using `function (match, p1, p2, ..., offset, string)'-style instead of
     the deprecated `function (url)'-style in combination with regular-
     expression replacement.
@@ -345,7 +360,7 @@
     * modules/uri.jsm (TLD): Added some changes.
 
     * modules/yarip.jsm (getRecursiveAddressArray): Using rules from all
-    pages matching an given page-address (e.g. FQDN, SLD aso.).
+    pages matching a given page-address (e.g. FQDN, SLD aso.).
 
 2012-08-06  Kim A. Brandt  <kimabrandt@gmx.de>
 

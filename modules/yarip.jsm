@@ -543,15 +543,13 @@ Yarip.prototype.getExtensionAddressObj = function(addressObj, matchObj, reverseE
         obj[pageName] = true;
     }
     for (var pageName in obj) {
-        var parentItem = addressObj.root ? addressObj.root : addressObj.ext[pageName];
-        this.getRecursiveAddressArray(pageName, addressObj, parentItem, matchObj, reverseExt);
+        this.getRecursiveAddressArray(pageName, addressObj, addressObj.root || addressObj.ext[pageName], matchObj, reverseExt);
     }
 }
 Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parentItem, matchObj, reverseExt) {
     if (!parentItem.doesSomething()) return;
 
     var listName = reverseExt ? "pageExtendedByList" : "pageExtensionList";
-
     var obj = {};
     var pages = this.getPages(pageName.replace(/[?&#].*$/, ""));
 
@@ -591,7 +589,9 @@ Yarip.prototype.getRecursiveAddressArray = function(pageName, addressObj, parent
                     if (childItem.isSelf()) continue; // ignore self
 
                     if (item.doesSomething()) {
-                        childItem.updateDo(parentItem, item);
+                        if (childItem.updateDo(parentItem, item, matchObj)) {
+                            obj[extPage.getName()] = true;
+                        }
                         if (parentItem.addTo(childItem)) {
                             childItem.addFrom(parentItem);
                         }
@@ -2715,19 +2715,6 @@ Yarip.prototype.setMobile = function(value) {
 Yarip.prototype.isMobile = function() {
     return this._isMobile;
 }
-//Yarip.prototype.dumpAddressObj = function(addressObj) {
-//    for (var pageName in addressObj.ext) {
-//        var extItem = addressObj.ext[pageName];
-//        dump("    * " + pageName + "\n");
-//        if (extItem.getDoElements()) dump("        + elements\n");
-//        if (extItem.getDoContents()) dump("        + contents\n");
-//        if (extItem.getDoScripts()) dump("        + scripts\n");
-//        if (extItem.getDoHeaders()) dump("        + headers\n");
-//        if (extItem.getDoRedirects()) dump("        + redirects\n");
-//        if (extItem.getDoStreams()) dump("        + streams\n");
-//        if (extItem.getDoLinks()) dump("        + links\n");
-//    }
-//}
 
 var wrappedJSObject = new Yarip();
 
