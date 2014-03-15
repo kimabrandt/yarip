@@ -775,7 +775,10 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
         switch (node.nodeType) {
         case ELEMENT_NODE: // ELEMENT
             var element = node;
-            if (/^(html|body|frameset)$/.test(element.localName)) continue; // ignore root-elements
+            if (/^(html|body|frameset)$/.test(element.localName)) {
+                item.setStyle("");
+                continue; // ignore root-elements
+            }
 
             // Checking status.
             switch (element.getAttribute("status")) {

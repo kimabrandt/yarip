@@ -162,7 +162,7 @@ function YaripPageStyleDialog()
             }
         }
 
-        FH.addEntry("xpath", xpath);
+        FH.update({ "op": "add", fieldname: "xpath", "value": xpath }, null);
     }
 
     this.cancel = function()

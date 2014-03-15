@@ -1,11 +1,25 @@
-2013-09-14  Kim A. Brandt  <kimabrandt@gmx.de>
+2014-03-15  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * install.rdf (maxVersion): Updated supported versions.
+
+    * constants.jsm (FH): Using the `FormHistory'-module instead of the
+    deprecated `nsIFormHistory2'-service.
+
+    * modules/stream.jsm (logMessage): Catching and ignoring annoying
+    exceptions :/
+
+    * modules/uri.jsm (TLD, bd, bn, ck, cy, gg, id, im, ...): Updated the TLD.
+
+2013-11-08  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * : RELEASE yarip-0.3.4.xpi
+
+    * install.rdf (maxVersion): Updated supported versions.
 
     * modules/yarip.jsm (Yarip.getRecursiveAddressArray): Adding the extension-
     item if the child-item has been updated.
 
-    * modules/uri.jsm (TLD, com): Updated the TLD.
+    * modules/uri.jsm (TLD, com, is, ng, sv, us): Updated the TLD.
 
     * modules/stream.jsm (YaripResponseStreamListener.onStopRequest): Injecting
     a `blacklisted'-status on the HTML-elements in the stream-listener; which

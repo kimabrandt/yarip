@@ -57,7 +57,7 @@ YaripRedirectStreamListener.prototype.onStartRequest = function(request, context
 
         this.listener.onStartRequest(request, context);
     } catch (e) {
-        yarip.logMessage(LOG_ERROR, e);
+//        yarip.logMessage(LOG_ERROR, e);
     }
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIRequestObserver#onStopRequest%28%29
@@ -99,7 +99,7 @@ YaripResponseStreamListener.prototype.onStartRequest = function(request, context
     try {
         this.listener.onStartRequest(request, context);
     } catch (e) {
-        yarip.logMessage(LOG_ERROR, e);
+//        yarip.logMessage(LOG_ERROR, e);
     }
 }
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIRequestObserver#onStopRequest%28%29
@@ -369,7 +369,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             responseSource = headTopPart + headStyles + headScripts + headMidPart + headBodPart + bodyMidPart + bodyBotPart;
         }
     } catch (e) {
-        yarip.logMessage(LOG_ERROR, e);
+//        yarip.logMessage(LOG_ERROR, e);
     } finally {
         try {
             var count = responseSource.length;
@@ -377,6 +377,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             is.setData(responseSource, count);
             this.listener.onDataAvailable(request, context, is, 0, count);
             this.listener.onStopRequest(request, context, statusCode);
+        } catch (e) {
         } finally {
             request.loadFlags |= LOAD_FLAG_RESPONSE; // FIXME
         }
@@ -395,7 +396,7 @@ YaripResponseStreamListener.prototype.onDataAvailable = function(request, contex
 
 //        this.receivedData.push(NetUtil.readInputStreamToString(inputStream, count, { "charset": "UTF-8" }));
     } catch (e) {
-        yarip.logMessage(LOG_ERROR, e);
+//        yarip.logMessage(LOG_ERROR, e);
     }
 }
 

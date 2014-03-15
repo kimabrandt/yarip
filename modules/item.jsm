@@ -264,7 +264,7 @@ YaripItem.prototype.generateXml = function() {
 }
 YaripItem.prototype.createStyle = function(force) {
     if (this.force) {
-        if ((force || !this.style) && /^\/?(\/([a-z]\w*|\*)(\[(@[a-z]\w*='[^']*'|\d+)\])*)+$/i.test(this.xpath)) {
+        if ((force || (!this.style && typeof this.style !== "string")) && /^\/?(\/([a-z]\w*|\*)(\[(@[a-z]\w*='[^']*'|\d+)\])*)+$/i.test(this.xpath)) {
             this.style = this.xpath.
                     replace(/^\/+/, "").
                     replace(/((?:[a-z]\w*|\*)(?:\[(@[a-z]\w*='[^']*'|\d+)\])*)\//gi, "$1 > ").

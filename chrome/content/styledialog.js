@@ -154,9 +154,9 @@ function YaripAttributeDialog()
             }
         }
 
-        if (this.obj.item.getXPath()) FH.addEntry("xpath", this.obj.item.getXPath());
-        FH.addEntry("attribute_name", this.obj.attrName);
-        FH.addEntry("attribute_value", this.obj.attrValue);
+        if (this.obj.item.getXPath()) FH.update({ "op": "add", fieldname: "xpath", "value": this.obj.item.getXPath() }, null);
+        FH.update({ "op": "add", fieldname: "attribute_name", "value": this.obj.attrName }, null);
+        FH.update({ "op": "add", fieldname: "attribute_value", "value": this.obj.attrValue }, null);
 
         return;
     }

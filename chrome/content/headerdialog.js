@@ -144,8 +144,9 @@ function YaripHeaderDialog()
         this.obj.item.setRegExp(regExp);
         this.obj.item.setHeaderName(headerName);
         this.obj.pageName = pageName;
-        FH.addEntry("regexp", regExp);
-        FH.addEntry("header_name", headerName);
+
+        FH.update({ "op": "add", fieldname: "regexp", "value": regExp }, null);
+        FH.update({ "op": "add", fieldname: "header_name", "value": headerName }, null);
     }
 
     this.cancel = function()

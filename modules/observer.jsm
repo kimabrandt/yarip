@@ -273,23 +273,17 @@ YaripObserver.prototype.examineResponse = function(channel) {
             } catch (e) {
                 if (locationHeader !== undefined) {
                     yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_REDIRECT_NOT_A_URL2", [content.asciiHref, locationHeader], 2)));
-//                } else { // NS_ERROR_NOT_AVAILABLE
-//                    yarip.logMessage(LOG_ERROR, e);
+                } else {
+                    yarip.logMessage(LOG_ERROR, e);
                 }
             }
-        }
-
-        // FIXME
-        if (channel.loadFlags === LOAD_NORMAL) {
-            yarip.logMessage(LOG_WARNING, new Error("Channel with `no special load flags' (loadFlags = 0). url=" + channel.URI.spec));
-            return;
         }
 
         /*
          * STREAM REPLACING & PAGE SCRIPTING AND STYLING
          */
 
-        if (!isRedirect && /^(?:text\/.*|application\/(?:javascript|json|(?:\w+\+)?\bxml))$/.test(channel.contentType)) {
+        if (!isRedirect && channel.loadFlags !== LOAD_NORMAL && /^(?:text\/.*|application\/(?:javascript|json|(?:\w+\+)?\bxml))$/.test(channel.contentType)) {
             new YaripResponseStreamListener(channel, addressObj, location, defaultView);
         }
     } catch (e) {

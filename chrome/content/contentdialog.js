@@ -130,7 +130,8 @@ function YaripContentDialog()
 
         this.obj.item.setRegExp(regExp);
         this.obj.pageName = pageName;
-        FH.addEntry("regexp", regExp);
+
+        FH.update({ "op": "add", fieldname: "regexp", "value": regExp }, null);
     }
 
     this.cancel = function()
