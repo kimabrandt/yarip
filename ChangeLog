@@ -8,7 +8,10 @@
     * modules/stream.jsm (logMessage): Catching and ignoring annoying
     exceptions :/
 
-    * modules/uri.jsm (TLD, bd, bn, ck, cy, gg, id, im, ...): Updated the TLD.
+    * modules/uri.jsm (TLD, com, net, se, ...): Updated the TLD.
+
+    * modules/observer.jsm (shouldRedirect): Allowing multiple redirect-rules to
+    modify a content-location.
 
 2013-11-08  Kim A. Brandt  <kimabrandt@gmx.de>
 

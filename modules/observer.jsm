@@ -297,6 +297,8 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, content,
     };
     if (!addressObj.found) return statusObj;
 
+    var url = content.asciiHref;
+
     for (var pageName in addressObj.ext) {
         var extItem = addressObj.ext[pageName];
         if (!extItem.getDoRedirects()) continue;
@@ -306,7 +308,7 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, content,
         if (list.length === 0) continue;
 
         for each (var item in list.obj) {
-            if (!item.getRegExpObj().test(content.asciiHref)) continue;
+            if (!item.getRegExpObj().test(url)) continue;
 
             try {
                 var newSpec = null; // object
@@ -315,15 +317,15 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, content,
                     if (/^\s*function\s*\(\s*url\s*\)/.test(item.getScript())) { // deprecated: script with asciiHref as parameter
                         yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_SCRIPT_DEPRECATED"))); // XXX
 
-                        sandbox.url = content.asciiHref;
+                        sandbox.url = url;
                         newSpec = Cu.evalInSandbox("(" + item.getScript() + ")(url);", sandbox);
                     } else { // replace with function as parameter
-                        sandbox.url = content.asciiHref;
+                        sandbox.url = url;
                         sandbox.regex = item.getRegExp();
                         newSpec = Cu.evalInSandbox("url.replace(new RegExp(regex), " + item.getScript() + "\n);", sandbox);
                     }
                 } else {
-                    newSpec = content.asciiHref.replace(item.getRegExpObj(), item.getScript());
+                    newSpec = url.replace(item.getRegExpObj(), item.getScript());
                 }
 
                 if (typeof newSpec !== "string") {
@@ -331,22 +333,22 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, content,
                     continue;
                 }
 
-                if (newSpec === content.asciiHref) continue; // prevent loop
-
-                var newURI = IOS.newURI(newSpec, content.originCharset, null);
+                if (newSpec !== content.asciiHref) {
+                    url = newSpec;
+                } else {
+                    continue; // prevent redirect-loop
+                }
 
                 if (extItem.isSelf()) item.incrementLastFound();
-                if (defaultView) defaultView.yaripStatus = "found";
 
                 statusObj.itemObj = {
-                    pageName: pageName,
-                    ruleType: location.isPage ? TYPE_PAGE_REDIRECT : TYPE_CONTENT_REDIRECT,
-                    itemKey: item.getKey()
+                    "pageName": pageName,
+                    "ruleType": location.isPage ? TYPE_PAGE_REDIRECT : TYPE_CONTENT_REDIRECT,
+                    "itemKey": item.getKey()
                 };
 
                 statusObj.status = STATUS_REDIRECTED;
-                statusObj.newURI = newURI;
-                return statusObj;
+                statusObj.newURI = IOS.newURI(newSpec, content.originCharset, null);
             } catch (e) {
                 yarip.logMessage(LOG_ERROR, new Error(stringBundle.formatStringFromName("ERR_REDIRECT3", [pageName, item.getRegExp(), content.asciiHref], 3)));
                 yarip.logMessage(LOG_ERROR, e);
@@ -354,7 +356,12 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, content,
         }
     }
 
-    return yarip.shouldBlacklist(addressObj, content, defaultView, doFlag);
+    if (statusObj.status === STATUS_REDIRECTED) {
+        if (defaultView) defaultView.yaripStatus = "found";
+        return statusObj;
+    } else {
+        return yarip.shouldBlacklist(addressObj, content, defaultView, doFlag);
+    }
 }
 YaripObserver.prototype.init = function() {
     var os = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
