@@ -56,6 +56,7 @@
     <command id="cmd_selectAll" oncommand="dialog.doSelectAll();"/>
     <command id="cmd_remove" oncommand="dialog.remove();"/>
     <command id="cmd_toggleExclusive" oncommand="dialog.toggleExclusive();"/>
+    <command id="cmd_toggleAllowScript" oncommand="dialog.toggleAllowScript();"/>
     <command id="cmd_close" oncommand="window.close();"/>
   </commandset>
 
@@ -220,9 +221,9 @@
                       <splitter/>
                       <textbox id="elementScriptList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                       <hbox>
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
+                        <button id="elementScriptList-add" icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button id="elementScriptList-remove" icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button id="elementScriptList-clear" icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>
@@ -429,6 +430,7 @@
           </tabpanel>
           <tabpanel id="page-tabpanel" flex="1">
             <vbox flex="1">
+              <checkbox id="page-allow-script" label="&label.value.allowScript;" checked="true" tooltiptext="&label.tooltiptext.allowScript;" command="cmd_toggleAllowScript" accesskey="&button.accesskey.allowScript;"/>
               <tabbox id="page-tabbox" flex="1">
                 <tabs onselect="dialog.updateTab();">
                   <tab id="pageStyleList-tab" label="&tab.label.style;"/>
@@ -493,9 +495,9 @@
                       <splitter/>
                       <textbox id="pageScriptList-textbox" multiline="true" oninput="dialog.setValue(this.value);" persist="height" flex="1"/>
                       <hbox>
-                        <button icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
-                        <button icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
-                        <button icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
+                        <button id="pageScriptList-add" icon="add" label="&button.label.add;" oncommand="dialog.add();" accesskey="&button.accesskey.add;"/>
+                        <button id="pageScriptList-remove" icon="remove" label="&button.label.remove;" oncommand="dialog.remove();"/>
+                        <button id="pageScriptList-clear" icon="clear" label="&button.label.removeAll;" oncommand="dialog.removeAll();"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>

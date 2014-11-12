@@ -37,50 +37,51 @@ function YaripPageDialog() {
     this.tabs = null;
 
     this.page = null;
+    this.tmpPage = null;
     this.doReload = true;
 
     this.updateTab = function() {
         if (!this.tabbox) return;
 
         switch (this.tabbox.selectedIndex) {
-        case INDEX_TABBOX_ELEMENT:
-            switch (this.elementTabbox.selectedIndex) {
-            case INDEX_ELEMENT_WHITELIST: this.tab = "elementWhitelist"; break;
-            case INDEX_ELEMENT_BLACKLIST: this.tab = "elementBlacklist"; break;
-            case INDEX_ELEMENT_ATTRIBUTE: this.tab = "elementAttributeList"; break;
-            case INDEX_ELEMENT_SCRIPT: this.tab = "elementScriptList"; break;
-            }
-            break;
-        case INDEX_TABBOX_CONTENT:
-            switch (this.contentTabbox.selectedIndex) {
-            case INDEX_CONTENT_WHITELIST: this.tab = "contentWhitelist"; break;
-            case INDEX_CONTENT_BLACKLIST: this.tab = "contentBlacklist"; break;
-            case INDEX_CONTENT_HEADER:
-                switch (this.contentHeaderTabbox.selectedIndex) {
-                case INDEX_HEADER_REQUEST: this.tab = "contentRequestHeaderList"; break;
-                case INDEX_HEADER_RESPONSE: this.tab = "contentResponseHeaderList"; break;
+            case INDEX_TABBOX_ELEMENT:
+                switch (this.elementTabbox.selectedIndex) {
+                    case INDEX_ELEMENT_WHITELIST: this.tab = "elementWhitelist"; break;
+                    case INDEX_ELEMENT_BLACKLIST: this.tab = "elementBlacklist"; break;
+                    case INDEX_ELEMENT_ATTRIBUTE: this.tab = "elementAttributeList"; break;
+                    case INDEX_ELEMENT_SCRIPT: this.tab = "elementScriptList"; break;
                 }
                 break;
-            case INDEX_CONTENT_REDIRECT: this.tab = "contentRedirectList"; break;
-            case INDEX_CONTENT_STREAM: this.tab = "contentStreamList"; break;
-            }
-            break;
-        case INDEX_TABBOX_PAGE:
-            switch (this.pageTabbox.selectedIndex) {
-            case INDEX_PAGE_STYLE: this.tab = "pageStyleList"; break;
-            case INDEX_PAGE_SCRIPT: this.tab = "pageScriptList"; break;
-            case INDEX_PAGE_HEADER:
-                switch (this.pageHeaderTabbox.selectedIndex) {
-                case INDEX_HEADER_REQUEST: this.tab = "pageRequestHeaderList"; break;
-                case INDEX_HEADER_RESPONSE: this.tab = "pageResponseHeaderList"; break;
+            case INDEX_TABBOX_CONTENT:
+                switch (this.contentTabbox.selectedIndex) {
+                    case INDEX_CONTENT_WHITELIST: this.tab = "contentWhitelist"; break;
+                    case INDEX_CONTENT_BLACKLIST: this.tab = "contentBlacklist"; break;
+                    case INDEX_CONTENT_HEADER:
+                        switch (this.contentHeaderTabbox.selectedIndex) {
+                            case INDEX_HEADER_REQUEST: this.tab = "contentRequestHeaderList"; break;
+                            case INDEX_HEADER_RESPONSE: this.tab = "contentResponseHeaderList"; break;
+                        }
+                        break;
+                    case INDEX_CONTENT_REDIRECT: this.tab = "contentRedirectList"; break;
+                    case INDEX_CONTENT_STREAM: this.tab = "contentStreamList"; break;
                 }
                 break;
-            case INDEX_PAGE_REDIRECT: this.tab = "pageRedirectList"; break;
-            case INDEX_PAGE_STREAM: this.tab = "pageStreamList"; break;
-            case INDEX_PAGE_EXTENSION: this.tab = "pageExtensionList"; break;
-            case INDEX_PAGE_EXTENDED_BY: this.tab = "pageExtendedByList"; break;
-            }
-            break;
+            case INDEX_TABBOX_PAGE:
+                switch (this.pageTabbox.selectedIndex) {
+                    case INDEX_PAGE_STYLE: this.tab = "pageStyleList"; break;
+                    case INDEX_PAGE_SCRIPT: this.tab = "pageScriptList"; break;
+                    case INDEX_PAGE_HEADER:
+                        switch (this.pageHeaderTabbox.selectedIndex) {
+                            case INDEX_HEADER_REQUEST: this.tab = "pageRequestHeaderList"; break;
+                            case INDEX_HEADER_RESPONSE: this.tab = "pageResponseHeaderList"; break;
+                        }
+                        break;
+                    case INDEX_PAGE_REDIRECT: this.tab = "pageRedirectList"; break;
+                    case INDEX_PAGE_STREAM: this.tab = "pageStreamList"; break;
+                    case INDEX_PAGE_EXTENSION: this.tab = "pageExtensionList"; break;
+                    case INDEX_PAGE_EXTENDED_BY: this.tab = "pageExtendedByList"; break;
+                }
+                break;
         }
     }
 
@@ -101,27 +102,27 @@ function YaripPageDialog() {
         if (this.treePages.currentIndex < 0) return;
 
         switch (this.tab) {
-        case "elementScriptList":
-        case "contentRequestHeaderList":
-        case "contentResponseHeaderList":
-        case "contentRedirectList":
-        case "contentStreamList":
-        case "pageRequestHeaderList":
-        case "pageResponseHeaderList":
-        case "pageScriptList":
-        case "contentRedirectList":
-        case "pageRedirectList":
-        case "pageStreamList":
-            this.tabs[this.tab].item.setScript(value);
-            this.tabs[this.tab].list.set(this.tabs[this.tab].tree.currentIndex, 99, value);
-            break;
-        case "pageStyleList":
-            this.tabs[this.tab].item.setStyle(value);
-            this.tabs[this.tab].list.set(this.tabs[this.tab].tree.currentIndex, 99, value);
-            break;
-        case "pageExtensionList":
-            this.tabs[this.tab].item.setId(value);
-            break;
+            case "elementScriptList":
+            case "contentRequestHeaderList":
+            case "contentResponseHeaderList":
+            case "contentRedirectList":
+            case "contentStreamList":
+            case "pageRequestHeaderList":
+            case "pageResponseHeaderList":
+            case "pageScriptList":
+            case "contentRedirectList":
+            case "pageRedirectList":
+            case "pageStreamList":
+                this.tabs[this.tab].item.setScript(value);
+                this.tabs[this.tab].list.set(this.tabs[this.tab].tree.currentIndex, 99, value);
+                break;
+            case "pageStyleList":
+                this.tabs[this.tab].item.setStyle(value);
+                this.tabs[this.tab].list.set(this.tabs[this.tab].tree.currentIndex, 99, value);
+                break;
+            case "pageExtensionList":
+                this.tabs[this.tab].item.setId(value);
+                break;
         }
     }
 
@@ -129,53 +130,53 @@ function YaripPageDialog() {
         if (this.treePages.currentIndex < 0) return;
 
         switch (this.tab) {
-        case "elementWhitelist":
-        case "elementBlacklist":
-        case "elementAttributeList":
-        case "elementScriptList":
-        case "contentWhitelist":
-        case "contentBlacklist":
-        case "contentRequestHeaderList":
-        case "contentResponseHeaderList":
-        case "contentRedirectList":
-        case "contentStreamList":
-        case "pageStyleList":
-        case "pageScriptList":
-        case "pageRequestHeaderList":
-        case "pageResponseHeaderList":
-        case "pageRedirectList":
-        case "pageStreamList":
-        case "pageExtensionList":
-            var fromList = this.tabs[this.tab].list;
-            this.page = new YaripPage();
-            var toList = this.page[this.tab];
-            var selection = this.tabs[this.tab].tree.view.selection;
-            var rangeCount = selection.getRangeCount();
-            var keys = {};
-            var purge = this.tab !== "pageExtensionList" ? true : undefined;
-            for (var i = 0; i < rangeCount; i++) {
-                var start = {};
-                var end = {};
-                selection.getRangeAt(i, start, end);
-                for (var j = start.value; j <= end.value; j++) {
-                    var key = fromList.get(j, LIST_INDEX_KEY);
-                    keys[key] = true;
-                    toList.add(fromList.getByKey(key).clone(purge));
+            case "elementWhitelist":
+            case "elementBlacklist":
+            case "elementAttributeList":
+            case "elementScriptList":
+            case "contentWhitelist":
+            case "contentBlacklist":
+            case "contentRequestHeaderList":
+            case "contentResponseHeaderList":
+            case "contentRedirectList":
+            case "contentStreamList":
+            case "pageStyleList":
+            case "pageScriptList":
+            case "pageRequestHeaderList":
+            case "pageResponseHeaderList":
+            case "pageRedirectList":
+            case "pageStreamList":
+            case "pageExtensionList":
+                var fromList = this.tabs[this.tab].list;
+                this.tmpPage = new YaripPage();
+                var toList = this.tmpPage[this.tab];
+                var selection = this.tabs[this.tab].tree.view.selection;
+                var rangeCount = selection.getRangeCount();
+                var keys = {};
+                var purge = this.tab !== "pageExtensionList" ? true : undefined;
+                for (var i = 0; i < rangeCount; i++) {
+                    var start = {};
+                    var end = {};
+                    selection.getRangeAt(i, start, end);
+                    for (var j = start.value; j <= end.value; j++) {
+                        var key = fromList.get(j, LIST_INDEX_KEY);
+                        keys[key] = true;
+                        toList.add(fromList.getByKey(key).clone(purge));
+                    }
                 }
-            }
-            if (this.tab !== "pageExtensionList") {
-                for (var key in keys) fromList.removeByKey(key);
-            } else {
-                var page = this.getPageByIndex();
-                for (var key in keys) {
-                    var item = page.pageExtensionList.getByKey(key);
-                    yarip.map.removeExtension(page, item);
+                if (this.tab !== "pageExtensionList") {
+                    for (var key in keys) fromList.removeByKey(key);
+                } else {
+//                    var page = this.getPageByIndex();
+                    for (var key in keys) {
+                        var item = this.page.pageExtensionList.getByKey(key);
+                        yarip.map.removeExtension(this.page, item);
+                    }
                 }
-            }
-            this.refreshTab(this.tab, true);
-            break;
-        default:
-            return;
+                this.refreshTab(this.tab, true);
+                break;
+            default:
+                return;
         }
     }
 
@@ -183,59 +184,60 @@ function YaripPageDialog() {
         if (this.treePages.currentIndex < 0) return;
 
         switch (this.tab) {
-        case "elementWhitelist":
-        case "elementBlacklist":
-        case "elementAttributeList":
-        case "elementScriptList":
-        case "contentWhitelist":
-        case "contentBlacklist":
-        case "contentRequestHeaderList":
-        case "contentResponseHeaderList":
-        case "contentRedirectList":
-        case "contentStreamList":
-        case "pageStyleList":
-        case "pageScriptList":
-        case "pageRequestHeaderList":
-        case "pageResponseHeaderList":
-        case "pageRedirectList":
-        case "pageStreamList":
-        case "pageExtensionList":
-            var fromList = this.tabs[this.tab].list;
-            this.page = new YaripPage();
-            var toList = this.page[this.tab];
-            var selection = this.tabs[this.tab].tree.view.selection;
-            var rangeCount = selection.getRangeCount();
-            var purge = this.tab !== "pageExtensionList" ? true : undefined;
-            for (var i = 0; i < rangeCount; i++) {
-                var start = {};
-                var end = {};
-                selection.getRangeAt(i, start, end);
-                for (var j = start.value; j <= end.value; j++) {
-                    var key = fromList.get(j, LIST_INDEX_KEY);
-                    toList.add(fromList.getByKey(key).clone(purge));
+            case "elementWhitelist":
+            case "elementBlacklist":
+            case "elementAttributeList":
+            case "elementScriptList":
+            case "contentWhitelist":
+            case "contentBlacklist":
+            case "contentRequestHeaderList":
+            case "contentResponseHeaderList":
+            case "contentRedirectList":
+            case "contentStreamList":
+            case "pageStyleList":
+            case "pageScriptList":
+            case "pageRequestHeaderList":
+            case "pageResponseHeaderList":
+            case "pageRedirectList":
+            case "pageStreamList":
+            case "pageExtensionList":
+                var fromList = this.tabs[this.tab].list;
+                this.tmpPage = new YaripPage();
+                var toList = this.tmpPage[this.tab];
+                var selection = this.tabs[this.tab].tree.view.selection;
+                var rangeCount = selection.getRangeCount();
+                var purge = this.tab !== "pageExtensionList" ? true : undefined;
+                for (var i = 0; i < rangeCount; i++) {
+                    var start = {};
+                    var end = {};
+                    selection.getRangeAt(i, start, end);
+                    for (var j = start.value; j <= end.value; j++) {
+                        var key = fromList.get(j, LIST_INDEX_KEY);
+                        toList.add(fromList.getByKey(key).clone(purge));
+                    }
                 }
-            }
-        default:
-            return;
+            default:
+                return;
         }
     }
 
     this.doPaste = function() {
         if (!this.page) return;
+        if (!this.tmpPage) return;
 
-        var page = this.getPageByIndex();
-        if (!page) return;
+//        var page = this.getPageByIndex();
+//        if (!page) return;
 
-        var list = this.page.pageExtensionList;
+        var list = this.tmpPage.pageExtensionList;
         for each (var item in list.obj) {
-            yarip.map.addExtension(page, item);
+            yarip.map.addExtension(this.page, item);
         }
 
-        page.merge(this.page, true);
+        this.page.merge(this.tmpPage, true);
         this.refreshTab(null, true);
-        if (page.setTemporary(false)) this.refreshExtMenulist(true);
-//        this.selectTab(page);
-//        this.selectTab(page, type, key); // TODO Pass the type and key!
+        if (this.page.setTemporary(false)) this.refreshExtMenulist(true);
+//        this.selectTab(this.page);
+//        this.selectTab(this.page, type, key); // TODO Pass the type and key!
     }
 
     this.gotoPage = function(event) {
@@ -246,14 +248,14 @@ function YaripPageDialog() {
         var toPageName = this.tabs[this.tab].list.get(currentIndex, 0);
 
         switch (oldTab) {
-        case "pageExtensionList":
-            var key = this.getPageByName(toPageName).pageExtendedByList.getById(this.getPageByIndex().getId()).getKey();
-            this.reloadPage(toPageName, false, true, true, true, TYPE_PAGE_EXTENDED_BY, key);
-            break;
-        case "pageExtendedByList":
-            var key = this.getPageByName(toPageName).pageExtensionList.getById(this.getPageByIndex().getId()).getKey();
-            this.reloadPage(toPageName, false, true, true, true, TYPE_PAGE_EXTENSION, key);
-            break;
+            case "pageExtensionList":
+                var key = this.getPageByName(toPageName).pageExtendedByList.getById(this.getPageByIndex().getId()).getKey();
+                this.reloadPage(toPageName, false, true, true, true, TYPE_PAGE_EXTENDED_BY, key);
+                break;
+            case "pageExtendedByList":
+                var key = this.getPageByName(toPageName).pageExtensionList.getById(this.getPageByIndex().getId()).getKey();
+                this.reloadPage(toPageName, false, true, true, true, TYPE_PAGE_EXTENSION, key);
+                break;
         }
     }
 
@@ -265,245 +267,245 @@ function YaripPageDialog() {
     }
 
     this.add = function() {
-        var page = this.getPageByIndex();
-        if (!page) return;
+//        var page = this.getPageByIndex();
+        if (!this.page) return;
 
         var obj = null;
 
         switch (this.tab) {
-        case "elementWhitelist":
-            obj = {
-                item: new YaripElementWhitelistItem("//div[@class='useful']/descendant-or-self::*"),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/whitelistelementdialog.xul", "whitelistelementdialog", "chrome,modal,resizable", null, obj);
-            if (!obj.item) return;
+            case "elementWhitelist":
+                obj = {
+                    item: new YaripElementWhitelistItem("//div[@class='useful']/descendant-or-self::*"),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/whitelistelementdialog.xul", "whitelistelementdialog", "chrome,modal,resizable", null, obj);
+                if (!obj.item) return;
 
-            page.elementWhitelist.add(obj.item);
-            break;
+                this.page.elementWhitelist.add(obj.item);
+                break;
 
-        case "elementBlacklist":
-            obj = {
-                item: new YaripElementBlacklistItem("//iframe"),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/blacklistelementdialog.xul", "blacklistelementdialog", "chrome,modal,resizable", null, obj);
-            if (!obj.item) return;
+            case "elementBlacklist":
+                obj = {
+                    item: new YaripElementBlacklistItem("//iframe"),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/blacklistelementdialog.xul", "blacklistelementdialog", "chrome,modal,resizable", null, obj);
+                if (!obj.item) return;
 
-            page.elementBlacklist.add(obj.item);
-            break;
+                this.page.elementBlacklist.add(obj.item);
+                break;
 
-        // TODO Create a better example, since this can be done with styles!
-        case "elementAttributeList":
-            obj = {
-                item: new YaripElementAttributeItem("//div[@class='narrow']", "style", "width: auto;"),
-                attrName: "style",
-                attrValue: "width: auto;",
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/styledialog.xul", "styledialog", "chrome,modal,resizable", null, obj);
-            if (!obj.item || !obj.attrName) return;
+            // TODO Create a better example, since this can be done with styles!
+            case "elementAttributeList":
+                obj = {
+                    item: new YaripElementAttributeItem("//div[@class='narrow']", "style", "width: auto;"),
+                    attrName: "style",
+                    attrValue: "width: auto;",
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/styledialog.xul", "styledialog", "chrome,modal,resizable", null, obj);
+                if (!obj.item || !obj.attrName) return;
 
-            obj.item.setName(obj.attrName);
-            obj.item.setValue(obj.attrValue);
-            page.elementAttributeList.add(obj.item);
-            break;
+                obj.item.setName(obj.attrName);
+                obj.item.setValue(obj.attrValue);
+                this.page.elementAttributeList.add(obj.item);
+                break;
 
-        case "elementScriptList":
-            obj = {
-                item: new YaripScriptItem("//input[translate(@autocomplete,'FO','fo')='off']",
-                        "function (array) {\n" +
-                        "    for (var i = 0; i < array.length; i++) {\n" +
-                        "        var element = array[i];\n" +
-                        "        element.setAttribute(\"autocomplete\", \"on\");\n" +
-                        "        console.debug(\"Found element:\", element);\n" +
-                        "    }\n" +
-                        "}"),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/scriptdialog.xul", "scriptdialog", "chrome,modal,resizable", null, obj);
-            if (!obj.item) return;
+            case "elementScriptList":
+                obj = {
+                    item: new YaripScriptItem("//input[translate(@autocomplete,'FO','fo')='off']",
+                            "function (array) {\n" +
+                            "    for (var i = 0; i < array.length; i++) {\n" +
+                            "        var element = array[i];\n" +
+                            "        element.setAttribute(\"autocomplete\", \"on\");\n" +
+                            "        console.debug(\"Found element:\", element);\n" +
+                            "    }\n" +
+                            "}"),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/scriptdialog.xul", "scriptdialog", "chrome,modal,resizable", null, obj);
+                if (!obj.item) return;
 
-            page.elementScriptList.add(obj.item);
-            break;
+                this.page.elementScriptList.add(obj.item);
+                break;
 
-        case "contentWhitelist":
-            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
-            obj = {
-                item: new YaripContentWhitelistItem(re),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/whitelistcontentdialog.xul", "whitelistcontentdialog", "chrome,modal,resizable", obj);
-            if (!obj.item) return;
+            case "contentWhitelist":
+                var re = yarip.getPageRegExp(this.page.getName(), null, true /* byUser */);
+                obj = {
+                    item: new YaripContentWhitelistItem(re),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/whitelistcontentdialog.xul", "whitelistcontentdialog", "chrome,modal,resizable", obj);
+                if (!obj.item) return;
 
-            page.contentWhitelist.add(obj.item);
-            break;
+                this.page.contentWhitelist.add(obj.item);
+                break;
 
-        case "contentBlacklist":
-            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
-            obj = {
-                item: new YaripContentBlacklistItem(re),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/blacklistcontentdialog.xul", "blacklistcontentdialog", "chrome,modal,resizable", obj);
-            if (!obj.item) return;
+            case "contentBlacklist":
+                var re = yarip.getPageRegExp(this.page.getName(), null, true /* byUser */);
+                obj = {
+                    item: new YaripContentBlacklistItem(re),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/blacklistcontentdialog.xul", "blacklistcontentdialog", "chrome,modal,resizable", obj);
+                if (!obj.item) return;
 
-            page.contentBlacklist.add(obj.item);
-            break;
+                this.page.contentBlacklist.add(obj.item);
+                break;
 
-        case "contentRequestHeaderList":
-            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
-            obj = {
-                item: new YaripHeaderItem(re, null, "Cookie",
-                        "function (value) {\n" +
-                        "    return \"\";\n" +
-                        "}", false),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/headerdialog.xul", "headerdialog", "chrome,modal,resizable", obj);
-            if (!obj.item) return;
+            case "contentRequestHeaderList":
+                var re = yarip.getPageRegExp(this.page.getName(), null, true /* byUser */);
+                obj = {
+                    item: new YaripHeaderItem(re, null, "Cookie",
+                            "function (value) {\n" +
+                            "    return \"\";\n" +
+                            "}", false),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/headerdialog.xul", "headerdialog", "chrome,modal,resizable", obj);
+                if (!obj.item) return;
 
-            page.contentRequestHeaderList.add(obj.item);
-            break;
+                this.page.contentRequestHeaderList.add(obj.item);
+                break;
 
-        case "contentResponseHeaderList":
-            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
-            obj = {
-                item: new YaripHeaderItem(re, null, "Set-Cookie",
-                        "function (value) {\n" +
-                        "    return \"\";\n" +
-                        "}", false),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/headerdialog.xul", "headerdialog", "chrome,modal,resizable", obj);
-            if (!obj.item) return;
+            case "contentResponseHeaderList":
+                var re = yarip.getPageRegExp(this.page.getName(), null, true /* byUser */);
+                obj = {
+                    item: new YaripHeaderItem(re, null, "Set-Cookie",
+                            "function (value) {\n" +
+                            "    return \"\";\n" +
+                            "}", false),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/headerdialog.xul", "headerdialog", "chrome,modal,resizable", obj);
+                if (!obj.item) return;
 
-            page.contentResponseHeaderList.add(obj.item);
-            break;
+                this.page.contentResponseHeaderList.add(obj.item);
+                break;
 
-        case "contentRedirectList":
-            var reObj = yarip.getPageRegExpObj(page.getName(), null, true /* byUser */);
-            obj = {
-                item: new YaripRedirectItem(reObj.regExp, null, reObj.script),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/redirectdialog.xul", "redirectdialog", "chrome,modal,resizable", obj);
-            if (!obj.item) return;
+            case "contentRedirectList":
+                var reObj = yarip.getPageRegExpObj(this.page.getName(), null, true /* byUser */);
+                obj = {
+                    item: new YaripRedirectItem(reObj.regExp, null, reObj.script),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/redirectdialog.xul", "redirectdialog", "chrome,modal,resizable", obj);
+                if (!obj.item) return;
 
-            page.contentRedirectList.add(obj.item);
-            break;
+                this.page.contentRedirectList.add(obj.item);
+                break;
 
-        case "contentStreamList":
-            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
-            obj = {
-                // TODO Change the example!
-                item: new YaripStreamItem(re, null, "<script\\b[^>]*>(.|\\s)*?</script>", null,
-                        "function (match, p1, offset, string) {\n" +
-                        "    return \"\";\n" +
-                        "}"),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/replacedialog.xul", "replacedialog", "chrome,modal,resizable", obj);
-            if (!obj.item) return;
+            case "contentStreamList":
+                var re = yarip.getPageRegExp(this.page.getName(), null, true /* byUser */);
+                obj = {
+                    // TODO Change the example!
+                    item: new YaripStreamItem(re, null, "<script\\b[^>]*>(.|\\s)*?</script>", null,
+                            "function (match, p1, offset, string) {\n" +
+                            "    return \"\";\n" +
+                            "}"),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/replacedialog.xul", "replacedialog", "chrome,modal,resizable", obj);
+                if (!obj.item) return;
 
-            page.contentStreamList.add(obj.item);
-            break;
+                this.page.contentStreamList.add(obj.item);
+                break;
 
-        case "pageStyleList":
-            obj = {
-                item: new YaripStyleItem("/html/head",
-                        "a:visited,\n" +
-                        "a:visited span {\n" +
-                        "    color: -moz-visitedhyperlinktext !important;\n" +
-                        "}\n" +
-                        "\n" +
-                        "a:link img {\n" +
-                        "    outline: 4px solid -moz-nativehyperlinktext !important;\n" +
-                        "}\n" +
-                        "\n" +
-                        "a:visited img {\n" +
-                        "    outline-color: -moz-visitedhyperlinktext !important;\n" +
-                        "}"),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/pagestyledialog.xul", "pagestyledialog", "chrome,modal,resizable", null, obj);
-            if (!obj.item) return;
+            case "pageStyleList":
+                obj = {
+                    item: new YaripStyleItem("/html/head",
+                            "a:visited,\n" +
+                            "a:visited span {\n" +
+                            "    color: -moz-visitedhyperlinktext !important;\n" +
+                            "}\n" +
+                            "\n" +
+                            "a:link img {\n" +
+                            "    outline: 4px solid -moz-nativehyperlinktext !important;\n" +
+                            "}\n" +
+                            "\n" +
+                            "a:visited img {\n" +
+                            "    outline-color: -moz-visitedhyperlinktext !important;\n" +
+                            "}"),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/pagestyledialog.xul", "pagestyledialog", "chrome,modal,resizable", null, obj);
+                if (!obj.item) return;
 
-            page.pageStyleList.add(obj.item);
-            break;
+                this.page.pageStyleList.add(obj.item);
+                break;
 
-        case "pageScriptList":
-            obj = {
-                item: new YaripPageScriptItem("/html/body", "console.log(\"Insert script!\");"),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/scriptdialog.xul", "scriptdialog", "chrome,modal,resizable", null, obj);
-            if (!obj.item) return;
+            case "pageScriptList":
+                obj = {
+                    item: new YaripPageScriptItem("/html/body", "console.log(\"Insert script!\");"),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/scriptdialog.xul", "scriptdialog", "chrome,modal,resizable", null, obj);
+                if (!obj.item) return;
 
-            page.pageScriptList.add(obj.item);
-            break;
+                this.page.pageScriptList.add(obj.item);
+                break;
 
-        case "pageRequestHeaderList":
-            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
-            obj = {
-                item: new YaripHeaderItem(re, null, "Cookie",
-                        "function (value) {\n" +
-                        "    return \"\";\n" +
-                        "}", false),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/headerdialog.xul", "headerdialog", "chrome,modal,resizable", obj);
-            if (!obj.item) return;
+            case "pageRequestHeaderList":
+                var re = yarip.getPageRegExp(this.page.getName(), null, true /* byUser */);
+                obj = {
+                    item: new YaripHeaderItem(re, null, "Cookie",
+                            "function (value) {\n" +
+                            "    return \"\";\n" +
+                            "}", false),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/headerdialog.xul", "headerdialog", "chrome,modal,resizable", obj);
+                if (!obj.item) return;
 
-            page.pageRequestHeaderList.add(obj.item);
-            break;
+                this.page.pageRequestHeaderList.add(obj.item);
+                break;
 
-        case "pageResponseHeaderList":
-            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
-            obj = {
-                item: new YaripHeaderItem(re, null, "Set-Cookie",
-                        "function (value) {\n" +
-                        "    return \"\";\n" +
-                        "}", false),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/headerdialog.xul", "headerdialog", "chrome,modal,resizable", obj);
-            if (!obj.item) return;
+            case "pageResponseHeaderList":
+                var re = yarip.getPageRegExp(this.page.getName(), null, true /* byUser */);
+                obj = {
+                    item: new YaripHeaderItem(re, null, "Set-Cookie",
+                            "function (value) {\n" +
+                            "    return \"\";\n" +
+                            "}", false),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/headerdialog.xul", "headerdialog", "chrome,modal,resizable", obj);
+                if (!obj.item) return;
 
-            page.pageResponseHeaderList.add(obj.item);
-            break;
+                this.page.pageResponseHeaderList.add(obj.item);
+                break;
 
-        case "pageRedirectList":
-            var reObj = yarip.getPageRegExpObj(page.getName(), null, true /* byUser */);
-            obj = {
-                item: new YaripRedirectItem(reObj.regExp, null, reObj.script),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/redirectdialog.xul", "redirectdialog", "chrome,modal,resizable", obj);
-            if (!obj.item) return;
+            case "pageRedirectList":
+                var reObj = yarip.getPageRegExpObj(this.page.getName(), null, true /* byUser */);
+                obj = {
+                    item: new YaripRedirectItem(reObj.regExp, null, reObj.script),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/redirectdialog.xul", "redirectdialog", "chrome,modal,resizable", obj);
+                if (!obj.item) return;
 
-            page.pageRedirectList.add(obj.item);
-            break;
+                this.page.pageRedirectList.add(obj.item);
+                break;
 
-        case "pageStreamList":
-            var re = yarip.getPageRegExp(page.getName(), null, true /* byUser */);
-            obj = {
-                item: new YaripStreamItem(re, null, "<script\\b[^>]*>(.|\\s)*?</script>", null,
-                        "function (match, p1, offset, string) {\n" +
-                        "    return \"\";\n" +
-                        "}"),
-                pageName: page.getName()
-            }
-            window.openDialog("chrome://yarip/content/replacedialog.xul", "replacedialog", "chrome,modal,resizable", obj);
-            if (!obj.item) return;
+            case "pageStreamList":
+                var re = yarip.getPageRegExp(this.page.getName(), null, true /* byUser */);
+                obj = {
+                    item: new YaripStreamItem(re, null, "<script\\b[^>]*>(.|\\s)*?</script>", null,
+                            "function (match, p1, offset, string) {\n" +
+                            "    return \"\";\n" +
+                            "}"),
+                    pageName: this.page.getName()
+                }
+                window.openDialog("chrome://yarip/content/replacedialog.xul", "replacedialog", "chrome,modal,resizable", obj);
+                if (!obj.item) return;
 
-            page.pageStreamList.add(obj.item);
-            break;
+                this.page.pageStreamList.add(obj.item);
+                break;
         }
 
         var key = obj && obj.item ? obj.item.getKey() : null;
         this.refreshTab(this.tab, true, null, key);
-        if (page.setTemporary(false)) this.refreshExtMenulist(true);
+        if (this.page.setTemporary(false)) this.refreshExtMenulist(true);
     }
 
     this.remove = function() {
@@ -511,52 +513,52 @@ function YaripPageDialog() {
         if (tab.tree.currentIndex < 0) return;
 
         switch (this.tab) {
-        case "elementWhitelist":
-        case "elementBlacklist":
-        case "elementAttributeList":
-        case "elementScriptList":
-        case "contentWhitelist":
-        case "contentBlacklist":
-        case "contentRequestHeaderList":
-        case "contentResponseHeaderList":
-        case "contentRedirectList":
-        case "contentStreamList":
-        case "pageStyleList":
-        case "pageScriptList":
-        case "pageRequestHeaderList":
-        case "pageResponseHeaderList":
-        case "pageRedirectList":
-        case "pageStreamList":
-            var keys = {};
-            var selection = tab.tree.view.selection;
-            var rangeCount = selection.getRangeCount();
-            for (var i = 0; i < rangeCount; i++) {
-                var start = {};
-                var end = {};
-                selection.getRangeAt(i, start, end);
-                for (var j = start.value; j <= end.value; j++) keys[tab.list.get(j, LIST_INDEX_KEY)] = true;
-            }
-            for (var key in keys) tab.list.removeByKey(key);
-            this.refreshTab(this.tab, true);
-            break;
-        case "pageExtensionList":
-//        case "pageExtendedByList":
-            var keys = {};
-            var selection = tab.tree.view.selection;
-            var rangeCount = selection.getRangeCount();
-            for (var i = 0; i < rangeCount; i++) {
-                var start = {};
-                var end = {};
-                selection.getRangeAt(i, start, end);
-                for (var j = start.value; j <= end.value; j++) keys[tab.list.get(j, LIST_INDEX_KEY)] = true;
-            }
-            var page = this.getPageByIndex();
-            for (var key in keys) {
-                var item = page.pageExtensionList.getByKey(key);
-                yarip.map.removeExtension(page, item);
-            }
-            this.refreshTab(this.tab, true);
-            break;
+            case "elementWhitelist":
+            case "elementBlacklist":
+            case "elementAttributeList":
+            case "elementScriptList":
+            case "contentWhitelist":
+            case "contentBlacklist":
+            case "contentRequestHeaderList":
+            case "contentResponseHeaderList":
+            case "contentRedirectList":
+            case "contentStreamList":
+            case "pageStyleList":
+            case "pageScriptList":
+            case "pageRequestHeaderList":
+            case "pageResponseHeaderList":
+            case "pageRedirectList":
+            case "pageStreamList":
+                var keys = {};
+                var selection = tab.tree.view.selection;
+                var rangeCount = selection.getRangeCount();
+                for (var i = 0; i < rangeCount; i++) {
+                    var start = {};
+                    var end = {};
+                    selection.getRangeAt(i, start, end);
+                    for (var j = start.value; j <= end.value; j++) keys[tab.list.get(j, LIST_INDEX_KEY)] = true;
+                }
+                for (var key in keys) tab.list.removeByKey(key);
+                this.refreshTab(this.tab, true);
+                break;
+            case "pageExtensionList":
+//            case "pageExtendedByList":
+                var keys = {};
+                var selection = tab.tree.view.selection;
+                var rangeCount = selection.getRangeCount();
+                for (var i = 0; i < rangeCount; i++) {
+                    var start = {};
+                    var end = {};
+                    selection.getRangeAt(i, start, end);
+                    for (var j = start.value; j <= end.value; j++) keys[tab.list.get(j, LIST_INDEX_KEY)] = true;
+                }
+//                var page = this.getPageByIndex();
+                for (var key in keys) {
+                    var item = this.page.pageExtensionList.getByKey(key);
+                    yarip.map.removeExtension(this.page, item);
+                }
+                this.refreshTab(this.tab, true);
+                break;
         }
     }
 
@@ -567,17 +569,17 @@ function YaripPageDialog() {
         if (!tab.list || tab.list.isEmpty()) return;
 
         switch (this.tab) {
-        case "pageExtensionList":
-//        case "pageExtendedByList":
-            var page = this.getPageByIndex();
-            var list = page.pageExtensionList;
-            for each (var item in list.obj) {
-                yarip.map.removeExtension(page, item);
-            }
-            break;
-        default:
-            tab.list.reset();
-            break;
+            case "pageExtensionList":
+//            case "pageExtendedByList":
+//                var page = this.getPageByIndex();
+                var list = this.page.pageExtensionList;
+                for each (var item in list.obj) {
+                    yarip.map.removeExtension(this.page, item);
+                }
+                break;
+            default:
+                tab.list.reset();
+                break;
         }
 
         this.refreshTab(this.tab, true);
@@ -586,39 +588,49 @@ function YaripPageDialog() {
 
     this.toggleExclusive = function() {
 //        if (this.treePages.currentIndex < 0) return;
-        var page = this.getPageByIndex();
-        if (!page) return;
+//        var page = this.getPageByIndex();
+        if (!this.page) return;
 
         switch (this.tab) {
-        case "elementWhitelist":
-        case "contentWhitelist":
-            this.tabs[this.tab].list.setExclusive(this.tabs[this.tab].exclusiveMenulist.checked);
-            if (page.setTemporary(false)) this.refreshExtMenulist(true);
-            break;
+            case "elementWhitelist":
+            case "contentWhitelist":
+                this.tabs[this.tab].list.setExclusive(this.tabs[this.tab].exclusiveMenulist.checked);
+                if (this.page.setTemporary(false)) this.refreshExtMenulist(true);
+                break;
         }
     }
 
+    this.toggleAllowScript = function() {
+//        var page = this.getPageByIndex();
+        if (!this.page) return;
+
+        this.page.setAllowScript(this.allowScript.checked);
+        this.page.setTemporary(false);
+        this.refreshTab("elementScriptList");
+        this.refreshTab("pageScriptList");
+    }
+
     this.addExtPage = function() {
-        var page = this.getPageByIndex();
-        if (!page) return;
+//        var page = this.getPageByIndex();
+        if (!this.page) return;
 
         var item = this.tabs[this.tab].item;
         if (!item) return;
 
         var id = item.getId();
-        if (id && id !== page.getId()) {
+        if (id && id !== this.page.getId()) {
             var item = yarip.createPageExtensionItem(yarip.map.getById(id));
-            yarip.map.addExtension(page, item);
+            yarip.map.addExtension(this.page, item);
             this.refreshTab(this.tab, true, null, item.getKey());
-            if (page.setTemporary(false)) this.refreshExtMenulist(true);
+            if (this.page.setTemporary(false)) this.refreshExtMenulist(true);
         }
     }
 
     this.copyPage = function() {
-        var page = this.getPageByIndex();
-        if (!page) return;
+//        var page = this.getPageByIndex();
+        if (!this.page) return;
 
-        this.renamePage(page);
+        this.renamePage(this.page);
     }
 
     this.checkPageName = function(pageName) {
@@ -737,41 +749,41 @@ function YaripPageDialog() {
         var tab = null;
 
         switch (type) {
-        case TYPE_CONTENT_WHITELIST:
-            tab = "contentWhitelist";
-            this.contentTabbox.selectedIndex = INDEX_CONTENT_WHITELIST;
-            selectedIndex = INDEX_TABBOX_CONTENT;
-            if (!key) {
-                var tree = this.tabs[tab].tree;
-                tree.view.selection.clearSelection();
-                document.getElementById("contentWhitelist-exclusive").focus();
-            }
-            break;
-        case TYPE_CONTENT_BLACKLIST:
-            tab = "contentBlacklist";
-            this.contentTabbox.selectedIndex = INDEX_CONTENT_BLACKLIST;
-            selectedIndex = INDEX_TABBOX_CONTENT;
-            break;
-        case TYPE_CONTENT_REDIRECT:
-            tab = "contentRedirectList";
-            this.contentTabbox.selectedIndex = INDEX_CONTENT_REDIRECT;
-            selectedIndex = INDEX_TABBOX_CONTENT;
-            break;
-        case TYPE_PAGE_REDIRECT:
-            tab = "pageRedirectList";
-            this.pageTabbox.selectedIndex = INDEX_PAGE_REDIRECT;
-            selectedIndex = INDEX_TABBOX_PAGE;
-            break;
-        case TYPE_PAGE_EXTENSION:
-            tab = "pageExtensionList";
-            this.pageTabbox.selectedIndex = INDEX_PAGE_EXTENSION;
-            selectedIndex = INDEX_TABBOX_PAGE;
-            break;
-        case TYPE_PAGE_EXTENDED_BY:
-            tab = "pageExtendedByList";
-            this.pageTabbox.selectedIndex = INDEX_PAGE_EXTENDED_BY;
-            selectedIndex = INDEX_TABBOX_PAGE;
-            break;
+            case TYPE_CONTENT_WHITELIST:
+                tab = "contentWhitelist";
+                this.contentTabbox.selectedIndex = INDEX_CONTENT_WHITELIST;
+                selectedIndex = INDEX_TABBOX_CONTENT;
+                if (!key) {
+                    var tree = this.tabs[tab].tree;
+                    tree.view.selection.clearSelection();
+                    document.getElementById("contentWhitelist-exclusive").focus();
+                }
+                break;
+            case TYPE_CONTENT_BLACKLIST:
+                tab = "contentBlacklist";
+                this.contentTabbox.selectedIndex = INDEX_CONTENT_BLACKLIST;
+                selectedIndex = INDEX_TABBOX_CONTENT;
+                break;
+            case TYPE_CONTENT_REDIRECT:
+                tab = "contentRedirectList";
+                this.contentTabbox.selectedIndex = INDEX_CONTENT_REDIRECT;
+                selectedIndex = INDEX_TABBOX_CONTENT;
+                break;
+            case TYPE_PAGE_REDIRECT:
+                tab = "pageRedirectList";
+                this.pageTabbox.selectedIndex = INDEX_PAGE_REDIRECT;
+                selectedIndex = INDEX_TABBOX_PAGE;
+                break;
+            case TYPE_PAGE_EXTENSION:
+                tab = "pageExtensionList";
+                this.pageTabbox.selectedIndex = INDEX_PAGE_EXTENSION;
+                selectedIndex = INDEX_TABBOX_PAGE;
+                break;
+            case TYPE_PAGE_EXTENDED_BY:
+                tab = "pageExtendedByList";
+                this.pageTabbox.selectedIndex = INDEX_PAGE_EXTENDED_BY;
+                selectedIndex = INDEX_TABBOX_PAGE;
+                break;
         }
 
         this.tabbox.selectedIndex = selectedIndex;
@@ -904,6 +916,7 @@ function YaripPageDialog() {
         if (!dontSelect) this.selectPageByIndex(currentIndex);
 
         this.dialogheaderPage.setAttribute("title", page.getName());
+        this.page = page;
         this.tabs["elementWhitelist"].list = page.elementWhitelist;
         this.tabs["elementBlacklist"].list = page.elementBlacklist;
         this.tabs["elementAttributeList"].list = page.elementAttributeList;
@@ -946,6 +959,8 @@ function YaripPageDialog() {
         if (load) {
             this.tabs["pageExtensionList"].item = new YaripExtensionItem();
         }
+
+        this.allowScript.checked = page.getAllowScript();
 
         this.refreshTab(null, true);
         this.refreshExtMenulist(load);
@@ -1110,65 +1125,12 @@ function YaripPageDialog() {
         var list = this.tabs[tab].list;
 
         switch (tab) {
-        case "elementWhitelist":
-        case "elementBlacklist":
-        case "elementAttributeList":
-        case "elementScriptList":
-        case "contentWhitelist":
-        case "contentBlacklist":
-        case "contentRequestHeaderList":
-        case "contentResponseHeaderList":
-        case "contentRedirectList":
-        case "contentStreamList":
-        case "pageStyleList":
-        case "pageScriptList":
-        case "pageRequestHeaderList":
-        case "pageResponseHeaderList":
-        case "pageRedirectList":
-        case "pageStreamList":
-            if (load) {
-                tree.view = new YaripListTreeView(list);
-            }
-            if (load || tree.currentIndex < 0) {
-                switch (tab) {
-                case "elementWhitelist": this.tabs[tab].item = new YaripElementWhitelistItem(); break;
-                case "elementBlacklist": this.tabs[tab].item = new YaripElementBlacklistItem(); break;
-                case "elementAttributeList": this.tabs[tab].item = new YaripElementAttributeItem(); break;
-                case "elementScriptList": this.tabs[tab].item = new YaripScriptItem(); break;
-                case "contentWhitelist": this.tabs[tab].item = new YaripContentWhitelistItem(); break;
-                case "contentBlacklist": this.tabs[tab].item = new YaripContentBlacklistItem(); break;
-                case "contentRequestHeaderList": this.tabs[tab].item = new YaripHeaderItem(); break;
-                case "contentResponseHeaderList": this.tabs[tab].item = new YaripHeaderItem(); break;
-                case "contentRedirectList": this.tabs[tab].item = new YaripRedirectItem(); break;
-                case "contentStreamList": this.tabs[tab].item = new YaripStreamItem(); break;
-                case "pageStyleList": this.tabs[tab].item = new YaripStyleItem(); break;
-                case "pageScriptList": this.tabs[tab].item = new YaripPageScriptItem(); break;
-                case "pageRedirectList": this.tabs[tab].item = new YaripRedirectItem(); break;
-                case "pageStreamList": this.tabs[tab].item = new YaripStreamItem(); break;
-                case "pageRequestHeaderList": this.tabs[tab].item = new YaripHeaderItem(); break;
-                case "pageResponseHeaderList": this.tabs[tab].item = new YaripHeaderItem(); break;
-                }
-                if (!key) {
-                    tree.currentIndex = 0;
-                    tree.view.selection.select(0);
-                }
-                update = true;
-            } else {
-                var tmpKey = list.get(tree.currentIndex, LIST_INDEX_KEY);
-                if (tmpKey) this.tabs[tab].item = list.getByKey(tmpKey).clone();
-            }
-
-            this.tabs[tab].tab.setAttribute("label", this.sb.getFormattedString(tab + "-tab", [list.length]));
-
-            switch (tab) {
             case "elementWhitelist":
-            case "contentWhitelist":
-                this.tabs[tab].exclusiveMenulist.checked = list.getExclusive();
-                break;
-            }
-
-            switch (tab) {
+            case "elementBlacklist":
+            case "elementAttributeList":
             case "elementScriptList":
+            case "contentWhitelist":
+            case "contentBlacklist":
             case "contentRequestHeaderList":
             case "contentResponseHeaderList":
             case "contentRedirectList":
@@ -1179,20 +1141,89 @@ function YaripPageDialog() {
             case "pageResponseHeaderList":
             case "pageRedirectList":
             case "pageStreamList":
-                if (load || update) {
-                    this.tabs[tab].textbox.value = list.get(tree.currentIndex, 99);
+                if (load) {
+                    tree.view = new YaripListTreeView(list);
+                }
+                if (load || tree.currentIndex < 0) {
+                    switch (tab) {
+                        case "elementWhitelist": this.tabs[tab].item = new YaripElementWhitelistItem(); break;
+                        case "elementBlacklist": this.tabs[tab].item = new YaripElementBlacklistItem(); break;
+                        case "elementAttributeList": this.tabs[tab].item = new YaripElementAttributeItem(); break;
+                        case "elementScriptList": this.tabs[tab].item = new YaripScriptItem(); break;
+                        case "contentWhitelist": this.tabs[tab].item = new YaripContentWhitelistItem(); break;
+                        case "contentBlacklist": this.tabs[tab].item = new YaripContentBlacklistItem(); break;
+                        case "contentRequestHeaderList": this.tabs[tab].item = new YaripHeaderItem(); break;
+                        case "contentResponseHeaderList": this.tabs[tab].item = new YaripHeaderItem(); break;
+                        case "contentRedirectList": this.tabs[tab].item = new YaripRedirectItem(); break;
+                        case "contentStreamList": this.tabs[tab].item = new YaripStreamItem(); break;
+                        case "pageStyleList": this.tabs[tab].item = new YaripStyleItem(); break;
+                        case "pageScriptList": this.tabs[tab].item = new YaripPageScriptItem(); break;
+                        case "pageRedirectList": this.tabs[tab].item = new YaripRedirectItem(); break;
+                        case "pageStreamList": this.tabs[tab].item = new YaripStreamItem(); break;
+                        case "pageRequestHeaderList": this.tabs[tab].item = new YaripHeaderItem(); break;
+                        case "pageResponseHeaderList": this.tabs[tab].item = new YaripHeaderItem(); break;
+                    }
+                    if (!key) {
+                        tree.currentIndex = 0;
+                        tree.view.selection.select(0);
+                    }
+                    update = true;
+                } else {
+                    var tmpKey = list.get(tree.currentIndex, LIST_INDEX_KEY);
+                    if (tmpKey) this.tabs[tab].item = list.getByKey(tmpKey).clone();
+                }
+
+                this.tabs[tab].tab.setAttribute("label", this.sb.getFormattedString(tab + "-tab", [list.length]));
+
+                switch (tab) {
+                    case "elementWhitelist":
+                    case "contentWhitelist":
+                        this.tabs[tab].exclusiveMenulist.checked = list.getExclusive();
+                        break;
+                    case "elementScriptList":
+                        var allow = this.page.getAllowScript();
+                        tree.disabled = !allow;
+                        this.tabs[tab].textbox.disabled = !allow;
+                        this.tabs[tab].addButton.disabled = !allow;
+                        this.tabs[tab].removeButton.disabled = !allow;
+                        this.tabs[tab].clearButton.disabled = !allow;
+                        break;
+                    case "pageScriptList":
+                        var allow = this.page.getAllowScript();
+                        tree.disabled = !allow;
+                        this.tabs[tab].textbox.disabled = !allow;
+                        this.tabs[tab].addButton.disabled = !allow;
+                        this.tabs[tab].removeButton.disabled = !allow;
+                        this.tabs[tab].clearButton.disabled = !allow;
+                        break;
+                }
+
+                switch (tab) {
+                    case "elementScriptList":
+                    case "contentRequestHeaderList":
+                    case "contentResponseHeaderList":
+                    case "contentRedirectList":
+                    case "contentStreamList":
+                    case "pageStyleList":
+                    case "pageScriptList":
+                    case "pageRequestHeaderList":
+                    case "pageResponseHeaderList":
+                    case "pageRedirectList":
+                    case "pageStreamList":
+                        if (load || update) {
+                            this.tabs[tab].textbox.value = list.get(tree.currentIndex, 99);
+                        }
+                        break;
                 }
                 break;
-            }
-            break;
-        case "pageExtensionList":
-        case "pageExtendedByList":
-            if (load) {
-                tree.view = new YaripListTreeView(list);
-            }
+            case "pageExtensionList":
+            case "pageExtendedByList":
+                if (load) {
+                    tree.view = new YaripListTreeView(list);
+                }
 
-            this.tabs[tab].tab.setAttribute("label", this.sb.getFormattedString(tab + "-tab", [list.length]));
-            break;
+                this.tabs[tab].tab.setAttribute("label", this.sb.getFormattedString(tab + "-tab", [list.length]));
+                break;
         }
 
         if (key && (load || update)) {
@@ -1209,8 +1240,8 @@ function YaripPageDialog() {
     }
 
     this.reloadPage = function(pageName, refreshPages, selectPage, selectTab, resetFilter, type, key) {
-        var page = this.getPageByIndex();
-        var oldPageName = page ? page.getName() : null;
+//        var page = this.getPageByIndex();
+        var oldPageName = this.page ? this.page.getName() : null;
         if (refreshPages) {
             if (!selectPage && oldPageName) {
                 pageName = oldPageName;
@@ -1246,65 +1277,66 @@ function YaripPageDialog() {
         if (!event) return;
 
         switch(event.target.id) {
-        case "yarip-edit-menupopup":
-            switch (event.type) {
-            case "popupshowing":
-                var disabled = this.tabs[this.tab].list.length === 0;
-                var listDisabled = String(disabled);
-                var editDisabled = String(disabled || this.tab === "pageExtendedByList");
-                var gotoHidden = String(this.tab !== "pageExtensionList" && this.tab !== "pageExtendedByList");
-                var pageDisabled = String(!this.page);
-                document.getElementById("cmd_cut").setAttribute("disabled", editDisabled);
-                document.getElementById("cmd_copy").setAttribute("disabled", editDisabled);
-                document.getElementById("cmd_paste").setAttribute("disabled", pageDisabled);
-                document.getElementById("cmd_goto").setAttribute("disabled", listDisabled);
-                document.getElementById("yarip-cut-menuitem").setAttribute("disabled", editDisabled);
-                document.getElementById("yarip-copy-menuitem").setAttribute("disabled", editDisabled);
-                document.getElementById("yarip-paste-menuitem").setAttribute("disabled", pageDisabled);
-                document.getElementById("yarip-goto-menuseparator").setAttribute("hidden", gotoHidden);
-                document.getElementById("yarip-goto-menuitem").setAttribute("hidden", gotoHidden);
-                document.getElementById("yarip-goto-menuitem").setAttribute("disabled", listDisabled);
-            }
-            break;
+            case "yarip-edit-menupopup":
+                switch (event.type) {
+                    case "popupshowing":
+                        var disabled = this.tabs[this.tab].list.length === 0;
+                        var listDisabled = String(disabled);
+                        var editDisabled = String(disabled || this.tab === "pageExtendedByList");
+                        var gotoHidden = String(this.tab !== "pageExtensionList" && this.tab !== "pageExtendedByList");
+                        var pageDisabled = String(!this.tmpPage);
+                        document.getElementById("cmd_cut").setAttribute("disabled", editDisabled);
+                        document.getElementById("cmd_copy").setAttribute("disabled", editDisabled);
+                        document.getElementById("cmd_paste").setAttribute("disabled", pageDisabled);
+                        document.getElementById("cmd_goto").setAttribute("disabled", listDisabled);
+                        document.getElementById("yarip-cut-menuitem").setAttribute("disabled", editDisabled);
+                        document.getElementById("yarip-copy-menuitem").setAttribute("disabled", editDisabled);
+                        document.getElementById("yarip-paste-menuitem").setAttribute("disabled", pageDisabled);
+                        document.getElementById("yarip-goto-menuseparator").setAttribute("hidden", gotoHidden);
+                        document.getElementById("yarip-goto-menuitem").setAttribute("hidden", gotoHidden);
+                        document.getElementById("yarip-goto-menuitem").setAttribute("disabled", listDisabled);
+                        break;
+                }
+                break;
 
-        case "popuphiding":
+            case "popuphiding":
                 var editEnabled = String(false);
                 document.getElementById("cmd_cut").setAttribute("disabled", editEnabled);
                 document.getElementById("cmd_copy").setAttribute("disabled", editEnabled);
                 document.getElementById("cmd_paste").setAttribute("disabled", editEnabled);
                 document.getElementById("cmd_goto").setAttribute("disabled", editEnabled);
-            break;
+                break;
 
-        case "tree-pages":
-            if (this.tabs[this.tab].tree) {
-                this.tabs[this.tab].tree.stopEditing(false);
-            }
-            this.refreshPages(null, true);
-            break;
+            case "tree-pages":
+                if (this.tabs[this.tab].tree) {
+                    this.tabs[this.tab].tree.stopEditing(false);
+                }
+                this.refreshPages(null, true);
+                break;
 
-        case "elementWhitelist-tree":
-        case "elementBlacklist-tree":
-        case "elementAttributeList-tree":
-        case "contentWhitelist-tree":
-        case "contentBlacklist-tree":
-        case "pageExtensionList-tree":
-        case "pageExtendedByList-tree":
-            this.refreshTab(this.tab);
-            break;
+            case "elementWhitelist-tree":
+            case "elementBlacklist-tree":
+            case "elementAttributeList-tree":
+            case "contentWhitelist-tree":
+            case "contentBlacklist-tree":
+            case "pageExtensionList-tree":
+            case "pageExtendedByList-tree":
+                this.refreshTab(this.tab);
+                break;
 
-        case "elementScriptList-tree":
-        case "contentRequestHeaderList-tree":
-        case "contentResponseHeaderList-tree":
-        case "contentRedirectList-tree":
-        case "contentStreamList-tree":
-        case "pageStyleList-tree":
-        case "pageScriptList-tree":
-        case "pageRequestHeaderList-tree":
-        case "pageResponseHeaderList-tree":
-        case "pageRedirectList-tree":
-        case "pageStreamList-tree":
-            this.refreshTab(this.tab, null, true);
-            break;
+            case "elementScriptList-tree":
+            case "contentRequestHeaderList-tree":
+            case "contentResponseHeaderList-tree":
+            case "contentRedirectList-tree":
+            case "contentStreamList-tree":
+            case "pageStyleList-tree":
+            case "pageScriptList-tree":
+            case "pageRequestHeaderList-tree":
+            case "pageResponseHeaderList-tree":
+            case "pageRedirectList-tree":
+            case "pageStreamList-tree":
+                this.refreshTab(this.tab, null, true);
+                break;
         }
     }
 
@@ -1312,60 +1344,67 @@ function YaripPageDialog() {
         if (!tab) return;
 
         switch (tab) {
-        case "contentHeader":
-        case "pageHeader":
-            this.tabs[tab] = {};
-            this.tabs[tab].tab = document.getElementById(tab + "-tab");
-            break;
-
-        case "elementWhitelist":
-        case "elementBlacklist":
-        case "elementAttributeList":
-        case "elementScriptList":
-        case "contentWhitelist":
-        case "contentBlacklist":
-        case "contentRequestHeaderList":
-        case "contentResponseHeaderList":
-        case "contentRedirectList":
-        case "contentStreamList":
-        case "pageStyleList":
-        case "pageScriptList":
-        case "pageRequestHeaderList":
-        case "pageResponseHeaderList":
-        case "pageRedirectList":
-        case "pageStreamList":
-        case "pageExtensionList":
-        case "pageExtendedByList":
-            this.tabs[tab] = {};
-            this.tabs[tab].tab = document.getElementById(tab + "-tab");
-            this.tabs[tab].tree = document.getElementById(tab + "-tree");
-            this.tabs[tab].tree.addEventListener("select", this, false);
-            break;
+            case "contentHeader":
+            case "pageHeader":
+                this.tabs[tab] = {};
+                this.tabs[tab].tab = document.getElementById(tab + "-tab");
+                break;
+            case "elementWhitelist":
+            case "elementBlacklist":
+            case "elementAttributeList":
+            case "elementScriptList":
+            case "contentWhitelist":
+            case "contentBlacklist":
+            case "contentRequestHeaderList":
+            case "contentResponseHeaderList":
+            case "contentRedirectList":
+            case "contentStreamList":
+            case "pageStyleList":
+            case "pageScriptList":
+            case "pageRequestHeaderList":
+            case "pageResponseHeaderList":
+            case "pageRedirectList":
+            case "pageStreamList":
+            case "pageExtensionList":
+            case "pageExtendedByList":
+                this.tabs[tab] = {};
+                this.tabs[tab].tab = document.getElementById(tab + "-tab");
+                this.tabs[tab].tree = document.getElementById(tab + "-tree");
+                this.tabs[tab].tree.addEventListener("select", this, false);
+                break;
         }
 
         switch (tab) {
-        case "elementScriptList":
-        case "contentRequestHeaderList":
-        case "contentResponseHeaderList":
-        case "contentRedirectList":
-        case "contentStreamList":
-        case "pageStyleList":
-        case "pageScriptList":
-        case "pageRequestHeaderList":
-        case "pageResponseHeaderList":
-        case "pageRedirectList":
-        case "pageStreamList":
-            this.tabs[tab].textbox = document.getElementById(tab + "-textbox");
-            break;
-
-        case "elementWhitelist":
-        case "contentWhitelist":
-            this.tabs[tab].exclusiveMenulist = document.getElementById(tab + "-exclusive");
-            break;
-
-        case "pageExtensionList":
-            this.tabs[tab].menulist = document.getElementById(tab + "-menulist");
-            break;
+            case "contentRequestHeaderList":
+            case "contentResponseHeaderList":
+            case "contentRedirectList":
+            case "contentStreamList":
+            case "pageStyleList":
+            case "pageRequestHeaderList":
+            case "pageResponseHeaderList":
+            case "pageRedirectList":
+            case "pageStreamList":
+                this.tabs[tab].textbox = document.getElementById(tab + "-textbox");
+                break;
+            case "elementWhitelist":
+            case "contentWhitelist":
+                this.tabs[tab].exclusiveMenulist = document.getElementById(tab + "-exclusive");
+                break;
+            case "elementScriptList":
+                this.tabs[tab].textbox = document.getElementById(tab + "-textbox");
+                this.tabs[tab].addButton = document.getElementById(tab + "-add");
+                this.tabs[tab].removeButton = document.getElementById(tab + "-remove");
+                this.tabs[tab].clearButton = document.getElementById(tab + "-clear");
+                break;
+            case "pageScriptList":
+                this.tabs[tab].textbox = document.getElementById(tab + "-textbox");
+                this.tabs[tab].addButton = document.getElementById(tab + "-add");
+                this.tabs[tab].removeButton = document.getElementById(tab + "-remove");
+                this.tabs[tab].clearButton = document.getElementById(tab + "-clear");
+                break;
+            case "pageExtensionList":
+                this.tabs[tab].menulist = document.getElementById(tab + "-menulist");
+                break;
         }
     }
 
@@ -1420,9 +1459,9 @@ function YaripPageDialog() {
 //        for (var i = 0; i < params.length; i++) {
 //            var nameValue = params[i].split('=');
 //            switch (decodeURIComponent(nameValue[0])) {
-//            case "page": pageName = decodeURIComponent(nameValue[1]); break;
-//            case "type": type = decodeURIComponent(nameValue[1]); break;
-//            case "key": key = decodeURIComponent(nameValue[1]); break;
+//                case "page": pageName = decodeURIComponent(nameValue[1]); break;
+//                case "type": type = decodeURIComponent(nameValue[1]); break;
+//                case "key": key = decodeURIComponent(nameValue[1]); break;
 //            }
 //        }
         var params = yarip.pageDialog.params;
@@ -1440,6 +1479,7 @@ function YaripPageDialog() {
         this.pageTabbox = document.getElementById("page-tabbox");
         this.pageHeaderTabbox = document.getElementById("page-header-tabbox");
         this.editMenupopup = document.getElementById("yarip-edit-menupopup");
+        this.allowScript = document.getElementById("page-allow-script");
 
         this.treePages.addEventListener("select", this, false);
         this.editMenupopup.addEventListener("popupshowing", this, false);
@@ -1467,33 +1507,33 @@ function YaripPageDialog() {
         this.initTab("pageExtensionList");
         this.initTab("pageExtendedByList");
 
-        // Bug 708196: https://bugzilla.mozilla.org/show_bug.cgi?id=708196
-        var fun = function (treeId) {
-                document.getElementById(treeId).inputField.addEventListener("keypress", function (event) {
-                        if (event.keyCode >= event.DOM_VK_PAGE_UP && event.keyCode <= event.DOM_VK_DOWN) {
-                            event.stopPropagation();
-                        }
-                    }, false);
-            };
-        fun("tree-pages");
-        fun("elementWhitelist-tree");
-        fun("elementBlacklist-tree");
-        fun("elementAttributeList-tree");
-        fun("elementScriptList-tree");
-        fun("contentWhitelist-tree");
-        fun("contentBlacklist-tree");
-        fun("contentRequestHeaderList-tree");
-        fun("contentResponseHeaderList-tree");
-        fun("contentRedirectList-tree");
-        fun("contentStreamList-tree");
-        fun("pageStyleList-tree");
-        fun("pageScriptList-tree");
-        fun("pageRequestHeaderList-tree");
-        fun("pageResponseHeaderList-tree");
-        fun("pageRedirectList-tree");
-        fun("pageStreamList-tree");
-        fun("pageExtensionList-tree");
-        fun("pageExtendedByList-tree");
+//        // Bug 708196: https://bugzilla.mozilla.org/show_bug.cgi?id=708196
+//        var fun = function (treeId) {
+//                document.getElementById(treeId).inputField.addEventListener("keypress", function (event) {
+//                        if (event.keyCode >= event.DOM_VK_PAGE_UP && event.keyCode <= event.DOM_VK_DOWN) {
+//                            event.stopPropagation();
+//                        }
+//                    }, false);
+//            };
+//        fun("tree-pages");
+//        fun("elementWhitelist-tree");
+//        fun("elementBlacklist-tree");
+//        fun("elementAttributeList-tree");
+//        fun("elementScriptList-tree");
+//        fun("contentWhitelist-tree");
+//        fun("contentBlacklist-tree");
+//        fun("contentRequestHeaderList-tree");
+//        fun("contentResponseHeaderList-tree");
+//        fun("contentRedirectList-tree");
+//        fun("contentStreamList-tree");
+//        fun("pageStyleList-tree");
+//        fun("pageScriptList-tree");
+//        fun("pageRequestHeaderList-tree");
+//        fun("pageResponseHeaderList-tree");
+//        fun("pageRedirectList-tree");
+//        fun("pageStreamList-tree");
+//        fun("pageExtensionList-tree");
+//        fun("pageExtendedByList-tree");
 
         this.refreshPages(true);
 
@@ -1656,35 +1696,35 @@ function YaripListTreeView(list) {
     this.setCellValue = function(row, col, value) {
         var page = dialog.getPageByIndex();
         switch (list.getName()) {
-        case "extension":
-            var obj = list.set(row, col.index, value);
-            if (obj.isNew) {
-                yarip.map.removeExtension(page, obj.oldItem);
-                yarip.map.addExtension(page, obj.newItem);
-                this.treebox.invalidate();
-                dialog.refreshTab(dialog.tab, null, true, obj.newItem.getKey());
-                if (page.setTemporary(false)) dialog.refreshExtMenulist(true);
-            } else if (obj.item) {
-                if (obj.isExtendedBy) {
-                    yarip.map.updateExtendedBy(page, obj.item);
-                    if (obj.item.getPage().setTemporary(false)) dialog.refreshExtMenulist(true);
-                } else {
-                    yarip.map.updateExtension(page, obj.item);
+            case "extension":
+                var obj = list.set(row, col.index, value);
+                if (obj.isNew) {
+                    yarip.map.removeExtension(page, obj.oldItem);
+                    yarip.map.addExtension(page, obj.newItem);
+                    this.treebox.invalidate();
+                    dialog.refreshTab(dialog.tab, null, true, obj.newItem.getKey());
                     if (page.setTemporary(false)) dialog.refreshExtMenulist(true);
+                } else if (obj.item) {
+                    if (obj.isExtendedBy) {
+                        yarip.map.updateExtendedBy(page, obj.item);
+                        if (obj.item.getPage().setTemporary(false)) dialog.refreshExtMenulist(true);
+                    } else {
+                        yarip.map.updateExtension(page, obj.item);
+                        if (page.setTemporary(false)) dialog.refreshExtMenulist(true);
+                    }
+                    this.treebox.invalidateCell(row, col);
                 }
-                this.treebox.invalidateCell(row, col);
-            }
-            break;
-        default:
-            var key = list.set(row, col.index, value);
-            if (key) {
-                this.treebox.invalidate();
-                dialog.refreshTab(dialog.tab, null, true, key);
-            } else {
-                this.treebox.invalidateCell(row, col);
-            }
-            if (page.setTemporary(false)) dialog.refreshExtMenulist(true);
-            break;
+                break;
+            default:
+                var key = list.set(row, col.index, value);
+                if (key) {
+                    this.treebox.invalidate();
+                    dialog.refreshTab(dialog.tab, null, true, key);
+                } else {
+                    this.treebox.invalidateCell(row, col);
+                }
+                if (page.setTemporary(false)) dialog.refreshExtMenulist(true);
+                break;
         }
     }
     this.setTree = function(treebox) { this.treebox = treebox; }

@@ -41,26 +41,42 @@ YaripObserver.prototype = {
     classID: Components.ID("{edbc2d9b-769c-45b4-9153-4559e6077ea8}"),
     contractID: "@yarip.mozdev.org/observer;1",
     _xpcom_categories: [],
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver])
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver, Ci.nsISupportsWeakReference])
 }
-// https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIObserver#observe%28%29
+// https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIObserver#observe%28%29
 YaripObserver.prototype.observe = function(subject, topic, data) {
-    if (!(subject instanceof Ci.nsIHttpChannel)) return;
-
-    subject.QueryInterface(Ci.nsIHttpChannel);
-
     switch (topic) {
-    case "http-on-modify-request":
-        this.modifyRequest(subject);
-        break;
-    case "http-on-examine-response":
-    case "http-on-examine-cached-response":
-    case "http-on-examine-merged-response":
-        this.examineResponse(subject);
-        break;
+        case "content-document-global-created":
+            this.documentCreated(subject);
+            break;
+        case "http-on-modify-request":
+            this.modifyRequest(subject);
+            break;
+        case "http-on-examine-response":
+        case "http-on-examine-cached-response":
+        case "http-on-examine-merged-response":
+            this.examineResponse(subject);
+            break;
+    }
+}
+YaripObserver.prototype.documentCreated = function(window) {
+    if (!yarip.enabled) return;
+
+    var location = yarip.getLocation(window.document.location);
+    var pageName = yarip.getFirstAddress(location.asciiHref);
+    if (!pageName) return;
+
+    var page = yarip.map.get(pageName);
+    if (!page.getAllowScript()) {
+        Cu.blockScriptForGlobal(window);
+        yarip.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_BLOCK_SCRIPT2", [pageName, location.asciiHref], 2)));
     }
 }
 YaripObserver.prototype.modifyRequest = function(channel) {
+    if (!(channel instanceof Ci.nsIHttpChannel)) return;
+
+    channel.QueryInterface(Ci.nsIHttpChannel);
+
     if (!yarip.enabled) return;
     if (!yarip.schemesRegExp.test(channel.URI.scheme)) return;
 
@@ -80,25 +96,25 @@ YaripObserver.prototype.modifyRequest = function(channel) {
         var statusObj = this.shouldRedirect(addressObj, location, content, defaultView, location.isLink ? DO_LINKS : DO_CONTENTS);
         var itemObj = statusObj.itemObj;
         switch (statusObj.status) {
-        case STATUS_UNKNOWN:
-            if (!location.isPage) yarip.logContent(STATUS_UNKNOWN, location, content, null, itemObj);
-            break;
-        case STATUS_WHITELISTED:
-            if (!location.isPage) yarip.logContent(STATUS_WHITELISTED, location, content, null, itemObj);
-            break;
-        case STATUS_BLACKLISTED:
-            channel.cancel(Cr.NS_ERROR_ABORT);
-            var newLog = yarip.logContent(STATUS_BLACKLISTED, location, content, null, itemObj);
-            if (newLog && itemObj.ruleType !== TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
-                yarip.showLinkNotification(doc, location, content);
-            }
-            return;
-        case STATUS_REDIRECTED:
-            channel.cancel(Cr.NS_ERROR_ABORT);
-            new YaripChannelReplace(channel, statusObj.newURI, function(oldChannel, newChannel) {
-                    yarip.logContent(STATUS_REDIRECTED, location, yarip.getLocation(newChannel.URI), null, itemObj);
-                });
-            return;
+            case STATUS_UNKNOWN:
+                if (!location.isPage) yarip.logContent(STATUS_UNKNOWN, location, content, null, itemObj);
+                break;
+            case STATUS_WHITELISTED:
+                if (!location.isPage) yarip.logContent(STATUS_WHITELISTED, location, content, null, itemObj);
+                break;
+            case STATUS_BLACKLISTED:
+                channel.cancel(Cr.NS_ERROR_ABORT);
+                var newLog = yarip.logContent(STATUS_BLACKLISTED, location, content, null, itemObj);
+                if (newLog && itemObj.ruleType !== TYPE_CONTENT_BLACKLIST) { // not blacklisted-rule
+                    yarip.showLinkNotification(doc, location, content);
+                }
+                return;
+            case STATUS_REDIRECTED:
+                channel.cancel(Cr.NS_ERROR_ABORT);
+                new YaripChannelReplace(channel, statusObj.newURI, function(oldChannel, newChannel) {
+                        yarip.logContent(STATUS_REDIRECTED, location, yarip.getLocation(newChannel.URI), null, itemObj);
+                    });
+                return;
         }
 
         if (location.isLink) {
@@ -161,6 +177,10 @@ YaripObserver.prototype.modifyRequest = function(channel) {
     }
 }
 YaripObserver.prototype.examineResponse = function(channel) {
+    if (!(channel instanceof Ci.nsIHttpChannel)) return;
+
+    channel.QueryInterface(Ci.nsIHttpChannel);
+
     if (!yarip.schemesRegExp.test(channel.URI.scheme)) return;
 
     try {
@@ -248,27 +268,27 @@ YaripObserver.prototype.examineResponse = function(channel) {
                 var statusObj = this.shouldRedirect(addressObj, location, newContent, defaultView, DO_LINKS);
                 var itemObj = statusObj.itemObj;
                 switch (statusObj.status) {
-                case STATUS_UNKNOWN:
-                    yarip.logContent(STATUS_UNKNOWN, location, newContent, null, itemObj);
-                    break;
-                case STATUS_WHITELISTED:
-                    yarip.logContent(STATUS_WHITELISTED, location, newContent, null, itemObj);
-                    break;
-                case STATUS_BLACKLISTED:
-                    // prevent caching
-                    channel.setResponseHeader("Pragma", "no-cache", true);
-                    channel.setResponseHeader("Cache-Control", "no-cache, no-store, must-revalidate", true);
-                    channel.setResponseHeader("Expires", "0", true);
-                    channel.cancel(Cr.NS_ERROR_ABORT);
-                    var newLog = yarip.logContent(STATUS_BLACKLISTED, location, newContent, null, itemObj);
-                    if (newLog && itemObj.ruleType !== TYPE_CONTENT_BLACKLIST) { // new log and not content-blacklist-rule
-                        yarip.showLinkNotification(doc, location, newContent);
-                    }
-                    return;
-                case STATUS_REDIRECTED:
-                    channel.setResponseHeader("Location", statusObj.newURI.spec, false);
-                    yarip.logContent(STATUS_REDIRECTED, location, yarip.getLocation(statusObj.newURI), null, itemObj);
-                    return;
+                    case STATUS_UNKNOWN:
+                        yarip.logContent(STATUS_UNKNOWN, location, newContent, null, itemObj);
+                        break;
+                    case STATUS_WHITELISTED:
+                        yarip.logContent(STATUS_WHITELISTED, location, newContent, null, itemObj);
+                        break;
+                    case STATUS_BLACKLISTED:
+                        // prevent caching
+                        channel.setResponseHeader("Pragma", "no-cache", true);
+                        channel.setResponseHeader("Cache-Control", "no-cache, no-store, must-revalidate", true);
+                        channel.setResponseHeader("Expires", "0", true);
+                        channel.cancel(Cr.NS_ERROR_ABORT);
+                        var newLog = yarip.logContent(STATUS_BLACKLISTED, location, newContent, null, itemObj);
+                        if (newLog && itemObj.ruleType !== TYPE_CONTENT_BLACKLIST) { // new log and not content-blacklist-rule
+                            yarip.showLinkNotification(doc, location, newContent);
+                        }
+                        return;
+                    case STATUS_REDIRECTED:
+                        channel.setResponseHeader("Location", statusObj.newURI.spec, false);
+                        yarip.logContent(STATUS_REDIRECTED, location, yarip.getLocation(statusObj.newURI), null, itemObj);
+                        return;
                 }
             } catch (e) {
                 if (locationHeader !== undefined) {
@@ -333,9 +353,11 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, content,
                     continue;
                 }
 
+                // TODO Ensure newSpec is an asciiHref!
                 if (newSpec !== content.asciiHref) {
                     url = newSpec;
                 } else {
+                    // TODO Log redirect-loop!
                     continue; // prevent redirect-loop
                 }
 
@@ -364,11 +386,14 @@ YaripObserver.prototype.shouldRedirect = function(addressObj, location, content,
     }
 }
 YaripObserver.prototype.init = function() {
-    var os = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
-    os.addObserver(this, "http-on-modify-request", false);
-    os.addObserver(this, "http-on-examine-response", false);
-    os.addObserver(this, "http-on-examine-cached-response", false);
-    os.addObserver(this, "http-on-examine-merged-response", false);
+    // https://developer.mozilla.org/en/docs/Observer_Notifications#Documents
+    OS.addObserver(this, "content-document-global-created", true);
+
+    //https://developer.mozilla.org/en/docs/Observer_Notifications#HTTP_requests
+    OS.addObserver(this, "http-on-modify-request", false);
+    OS.addObserver(this, "http-on-examine-response", false);
+    OS.addObserver(this, "http-on-examine-cached-response", false);
+    OS.addObserver(this, "http-on-examine-merged-response", false);
 }
 
 var wrappedJSObject = new YaripObserver();

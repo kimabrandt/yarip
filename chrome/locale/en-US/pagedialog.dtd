@@ -59,8 +59,10 @@
 <!ENTITY treecol.label.notFound              "Not found">
 <!ENTITY treecol.label.ignored               "Ignored">
 <!ENTITY label.value.exclusive               "Exclusive">
+<!ENTITY label.value.allowScript             "Allow script execution">
 <!ENTITY label.tooltiptext.elementExclusive  "Only allow whitelisted elements.">
 <!ENTITY label.tooltiptext.exclusive         "Only allow whitelisted contents.">
+<!ENTITY label.tooltiptext.allowScript       "Allow script execution.">
 <!ENTITY treecol.label.page                  "Page">
 <!ENTITY treecol.label.element               "Element">
 <!ENTITY treecol.label.content               "Content">
@@ -88,6 +90,7 @@
 <!ENTITY button.label.remove                 "Remove">
 <!ENTITY button.label.removeAll              "Remove all">
 <!ENTITY button.accesskey.exclusive          "X">
+<!ENTITY button.accesskey.allowScript        "L">
 
 <!ENTITY button.label.copyPage               "Copy page">
 <!ENTITY button.accesskey.copyPage           "C">

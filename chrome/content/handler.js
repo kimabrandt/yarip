@@ -38,7 +38,8 @@ function YaripHandler(doc, stopCallback, statusCallback) {
     this.start = function(doc) {
         if (doc) this.doc = doc;
 
-        this.pageName = yarip.getPageName(this.doc.location);
+        var location = yarip.getLocation(this.doc.location);
+        this.pageName = yarip.getPageName(location);
         this.active = false;
         this.changesMade = false;
         this.hasWhitelist = false;

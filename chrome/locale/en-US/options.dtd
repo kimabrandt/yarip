@@ -16,14 +16,14 @@
 <!ENTITY caption.label.regex                "Regular expression">
 <!ENTITY checkbox.label.matchAuthorityPort  "Match authority and port">
 
+<!ENTITY checkbox.label.allowScript         "Allow script execution">
+
 <!ENTITY caption.label.pageLoad             "Page load">
 <!ENTITY checkbox.label.privateBrowsing     "Create page">
 <!ENTITY checkbox.label.purgeInnerHTML      "Purge innerHTML">
-<!ENTITY label.value.matchScheme            "Match schemes (regular expression):">
 
 <!ENTITY caption.label.pageCreation         "Page creation">
 <!ENTITY checkbox.label.exclWhitelist       "Exclusively whitelist">
-<!ENTITY label.value.inheritFromPages       "Inherit from pages (space separated list):">
 
 <!ENTITY tab.label.manager                  "Page manager">
 

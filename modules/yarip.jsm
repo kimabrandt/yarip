@@ -48,6 +48,7 @@ function Yarip() {
     this.privateBrowsing = false;
     this.purgeInnerHTML = false;
     this.schemesRegExp = null;
+    this.allowScript = true;
     this.exclusiveOnCreation = false;
     this.templates = [];
     this.logWhenClosed = false;
@@ -55,6 +56,7 @@ function Yarip() {
     this._isMobile = false;
 
     this.map = null;
+    this.error = false;
     this.undoObj = {};
     this.pagesModified = false;
     this.knownAddressObj = {};
@@ -74,9 +76,9 @@ Yarip.prototype = {
 // https://developer.mozilla.org/en/XPCOM_Interface_Reference/nsIObserver#observe%28%29
 Yarip.prototype.observe = function(subject, topic, data) {
     switch (topic) {
-    case "quit-application":
-        this.save();
-        break;
+        case "quit-application":
+            this.save();
+            break;
     }
 }
 Yarip.prototype.getLocation = function(obj, channel, doc) {
@@ -101,6 +103,7 @@ Yarip.prototype.getLocation = function(obj, channel, doc) {
     var scheme = "";
     var protocol = "";
     var host = "";
+    var hostPort = "";
     var port = -1;
     var href = "";
     var pathname = "";
@@ -109,19 +112,24 @@ Yarip.prototype.getLocation = function(obj, channel, doc) {
     var pageName = "";
     var originCharset = "";
 
-    if ("assign" in obj) { // https://developer.mozilla.org/en/DOM/window.location
-        try { host = obj.host.replace(/\.+(:\d+)?$/, "$1"); } catch(e) {}
+    if ("assign" in obj) { // https://developer.mozilla.org/en-US/docs/Web/API/Location
+        try { host = obj.host.replace(/^(\.+?)(?::\d+)?$/, "$1"); } catch(e) {}
+        try { hostPort = obj.host; } catch(e) {}
         try { pathname = obj.pathname; } catch(e) {}
         try { port = obj.port; } catch(e) {}
         try { protocol = obj.protocol; } catch(e) {}
         try { scheme = obj.protocol.replace(/:$/, ""); } catch(e) {}
-        try { href = protocol + "//" + host + pathname + obj.search + obj.hash; } catch(e) {}
-        try { asciiHost = IDNS.convertUTF8toACE(host).replace(/\.+(:\d+)?$/, "$1"); } catch(e) {}
-        try { pageName = protocol + "//" + asciiHost + pathname; } catch(e) {}
+        try { href = protocol + "//" + hostPort + pathname + obj.search + obj.hash; } catch(e) {}
+//        try { asciiHost = IDNS.convertUTF8toACE(host).replace(/\.+?(:\d+)?$/, "$1"); } catch(e) {}
+//        try { asciiHost = IDNS.convertUTF8toACE(host); } catch(e) {}
+        try { asciiHost = IDNS.convertUTF8toACE(hostPort); } catch(e) {}
+        try { pageName = protocol + "//" + IDNS.convertUTF8toACE(hostPort) + pathname; } catch(e) {}
         try { asciiHref = pageName + obj.search + obj.hash; } catch(e) {}
-    } else { // https://developer.mozilla.org/en/nsIURI
+    } else { // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIURI
         try { scheme = obj.scheme; } catch (e) {}
-        try { host = obj.hostPort.replace(/\.+(:\d+)?$/, "$1"); } catch (e) {}
+//        try { host = obj.hostPort.replace(/\.+(:\d+)?$/, "$1"); } catch (e) {}
+        try { host = obj.host; } catch (e) {}
+        try { hostPort = obj.hostPort; } catch (e) {}
         try { href = obj.spec; } catch (e) {}
         try { pathname = obj.path.replace(/[?&#].*$/, ""); } catch(e) {}
         try { port = obj.port; } catch (e) {}
@@ -136,12 +144,13 @@ Yarip.prototype.getLocation = function(obj, channel, doc) {
         scheme: scheme,
         protocol: protocol,
         host: host,
+        hostPort: hostPort,
         port: port,
         href: href,
         pathname: pathname,
         asciiHost: asciiHost,
         asciiHref: asciiHref,
-        pageName: pageName.replace(/[/]*$/, ""),
+        pageName: pageName.replace(/\/+$/, ""),
         originCharset: originCharset,
         isPage: isPage,
         isLink: isLink,
@@ -149,7 +158,7 @@ Yarip.prototype.getLocation = function(obj, channel, doc) {
     }
 }
 Yarip.prototype.getPageName = function(location, mode) {
-    if (!location || !this.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return null;
+    if (!location || !this.schemesRegExp.test(location.scheme)) return null;
 
     var mode = Number(mode);
     if (isNaN(mode)) mode = this.mode;
@@ -157,11 +166,11 @@ Yarip.prototype.getPageName = function(location, mode) {
     location = this.getLocation(location);
     try {
         switch (mode) {
-        case MODE_PAGE: return location.pageName;
-        case MODE_FQDN: return location.asciiHost;
-        case MODE_SLD:
-            var sld = location.asciiHost.match(FIND_SLD_RE);
-            return sld ? sld[0] : null;
+            case MODE_PAGE: return location.pageName;
+            case MODE_FQDN: return location.asciiHost;
+            case MODE_SLD:
+                var sld = location.asciiHost.match(FIND_SLD_RE) || location.asciiHost.match(DOMAIN_RE);
+                return sld ? sld[0] : null;
         }
     } catch (e) {
         return null;
@@ -206,6 +215,7 @@ Yarip.prototype.initPreferences = function() {
     this.setPrivateBrowsing(this.getValue(PREF_PRIVATE, false, DATA_TYPE_BOOLEAN));
     this.setPurgeInnerHTML(this.getValue(PREF_PURGE, false, DATA_TYPE_BOOLEAN));
     this.setSchemes(this.getValue(PREF_SCHEMES, "^https?$", DATA_TYPE_STRING));
+    this.setAllowScript(this.getValue(PREF_SCRIPT, true, DATA_TYPE_BOOLEAN));
     this.setExclusiveOnCreation(this.getValue(PREF_EXCLUSIVE, false, DATA_TYPE_BOOLEAN));
     this.setTemplates(this.getValue(PREF_TEMPLATES, "", DATA_TYPE_STRING));
     this.toggleLogWhenClosed(this.getValue(PREF_LOG_WHEN_CLOSED, false, DATA_TYPE_BOOLEAN));
@@ -268,6 +278,9 @@ Yarip.prototype.setElementsInContext = function(value) {
 }
 Yarip.prototype.setPurgeInnerHTML = function(value) {
     if (typeof value === "boolean") this.purgeInnerHTML = value;
+}
+Yarip.prototype.setAllowScript = function(value) {
+    if (typeof value === "boolean") this.allowScript = value;
 }
 Yarip.prototype.setExclusiveOnCreation = function(value) {
     if (typeof value === "boolean") this.exclusiveOnCreation = value;
@@ -374,18 +387,18 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUse
 
     location = this.getLocation(location);
     if (!pageName) pageName = this.getPageName(location, this.mode);
-    if (!pageName) throw new Error(stringBundle.formatStringFromName("ERR_NO_PAGE_NAME2", [location.href, this.mode], 2));
-//    if (!pageName) return null;
+//    if (!pageName) throw new Error(stringBundle.formatStringFromName("ERR_NO_PAGE_NAME2", [location.href, this.mode], 2));
+    if (!pageName) return null;
 
-    // Creating the page.
     var page = this.map.get(pageName);
     if (page) {
         page.setTemporary(false);
         return page;
-    } else {
-        page = new YaripPage(this.getId(), pageName);
-        if (privateBrowsing) page.setTemporary(true);
     }
+
+    // Creating the page.
+    page = new YaripPage(this.getId(), pageName, this.allowScript);
+    if (privateBrowsing) page.setTemporary(true);
 
     // Adding the default WhitelistContent.
     if (this.exclusiveOnCreation || privateBrowsing) {
@@ -395,8 +408,9 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUse
     }
 
     // Merging with templates.
-    var addressObj = this.getAddressObj(pageName, false);
-    if (!addressObj.found && this.templates.length > 0) {
+//    var addressObj = this.getAddressObj(pageName, false);
+//    if (!addressObj.found && this.templates.length > 0) {
+    if (this.templates.length > 0) {
         for (var i = 0; i < this.templates.length; i++) {
             var tmplPage = this.map.get(this.templates[i]);
             page.merge(tmplPage, null, true /* ignoreTemporary */);
@@ -414,23 +428,50 @@ Yarip.prototype.createPage = function(location, pageName, privateBrowsing, byUse
 Yarip.prototype.hasAddress = function(pageName) {
     return this.getFirstAddress(pageName) !== null;
 }
-Yarip.prototype.getAddressObjByLocation = function(location) {
+//Yarip.prototype.getAddressObjByLocation = function(location) {
+//    var pageName = location ? location.pageName : null;
+//    if (!pageName) {
+//        return {
+//            obj: {},
+//            elementExclusive: false,
+//            exclusive: false,
+//            found: false,
+//            pageName: null
+//        };
+//    }
+
+//    var addressObj = this.getAddressObj(pageName, true);
+//    if (this.privateBrowsing && (!addressObj.found || (addressObj.allScheme && !addressObj.exclusive))) {
+//        var page = this.createPage(location, null, true);
+//        this.reloadPage(page.getName());
+//        addressObj = this.getAddressObj(pageName, true);
+//    }
+
+//    addressObj.pageName = pageName;
+//    return addressObj;
+//}
+Yarip.prototype.getAddressObjByLocation = function(location, follow) {
     var pageName = location ? location.pageName : null;
+    var tmpPage = {
+        obj: {},
+        elementExclusive: false,
+        exclusive: false,
+        found: false,
+        pageName: null
+    };
     if (!pageName) {
-        return {
-            obj: {},
-            elementExclusive: false,
-            exclusive: false,
-            found: false,
-            pageName: null
-        };
+        return tmpPage;
     }
 
-    var addressObj = this.getAddressObj(pageName, true);
+    var addressObj = this.getAddressObj(pageName, follow !== false);
     if (this.privateBrowsing && (!addressObj.found || (addressObj.allScheme && !addressObj.exclusive))) {
         var page = this.createPage(location, null, true);
+        if (!page) {
+            return tmpPage;
+        }
+
         this.reloadPage(page.getName());
-        addressObj = this.getAddressObj(pageName, true);
+        addressObj = this.getAddressObj(pageName, follow !== false);
     }
 
     addressObj.pageName = pageName;
@@ -505,7 +546,7 @@ Yarip.prototype.getAddressObj = function(reduceDomain, follow, matchObj, reverse
         if (allScheme) allScheme = page.isScheme();
         var pageName = page.getName();
         if (!addressObj.found && !matchObj) { // first-/entry-page (highest type)
-            key = !!follow + " " + pageName;
+            key = (follow !== false) + " " + pageName;
             var knownObj = this.knownAddressObj[key];
             if (knownObj) return knownObj;
         }
@@ -525,7 +566,7 @@ Yarip.prototype.getAddressObj = function(reduceDomain, follow, matchObj, reverse
 
     addressObj.allScheme = allScheme;
 
-    if (follow) {
+    if (follow !== false) {
         this.getExtensionAddressObj(addressObj, matchObj, reverseExt);
     }
 
@@ -641,33 +682,33 @@ Yarip.prototype.resetOnAddress = function(obj) {
     var list = null;
 
     switch (obj.type) {
-    case TYPE_WHITELIST:
-        list = this.map.get(obj.pageName) ? this.map.get(obj.pageName).elementWhitelist : null;
-        break;
-    case TYPE_BLACKLIST:
-        list = this.map.get(obj.pageName) ? this.map.get(obj.pageName).elementBlacklist : null;
-        break;
-    case TYPE_ATTRIBUTE:
-        list = this.map.get(obj.pageName) ? this.map.get(obj.pageName).elementAttributeList : null;
-        break;
+        case TYPE_WHITELIST:
+            list = this.map.get(obj.pageName) ? this.map.get(obj.pageName).elementWhitelist : null;
+            break;
+        case TYPE_BLACKLIST:
+            list = this.map.get(obj.pageName) ? this.map.get(obj.pageName).elementBlacklist : null;
+            break;
+        case TYPE_ATTRIBUTE:
+            list = this.map.get(obj.pageName) ? this.map.get(obj.pageName).elementAttributeList : null;
+            break;
     }
 
     switch (obj.type) {
-    case TYPE_WHITELIST:
-    case TYPE_BLACKLIST:
-        var elements = this.getNodesByXPath(obj.document, obj.xpath, ELEMENT_NODE);
-        if (elements.length === 0) break;
+        case TYPE_WHITELIST:
+        case TYPE_BLACKLIST:
+            var elements = this.getNodesByXPath(obj.document, obj.xpath, ELEMENT_NODE);
+            if (elements.length === 0) break;
 
-        for (var i = 0; i < elements.length; i++) {
-            var element = elements[i];
-            switch (element.getAttribute("status")) {
-            case "whitelisted":
-            case "blacklisted":
-                element.removeAttribute("status");
-                break;
+            for (var i = 0; i < elements.length; i++) {
+                var element = elements[i];
+                switch (element.getAttribute("status")) {
+                    case "whitelisted":
+                    case "blacklisted":
+                        element.removeAttribute("status");
+                        break;
+                }
             }
-        }
-        break;
+            break;
     }
 
     if (list) {
@@ -707,10 +748,10 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
     for (var i = 0; i < elements.length; i++) {
         var element = elements[i];
         switch (element.getAttribute("status")) {
-        case "whitelisted":
-        case "blacklisted":
-            incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
-            continue;
+            case "whitelisted":
+            case "blacklisted":
+                incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
+                continue;
         }
 
         if (isNew) {
@@ -729,15 +770,15 @@ Yarip.prototype.whitelistElementItem = function(doc, pageName, item, isNew, incr
 
     if (increment) {
         switch (incrementType) {
-        case INCREMENT_FOUND:
-            item.incrementFound();
-            break;
-        case INCREMENT_NOT_FOUND:
-            item.incrementNotFound();
-            break;
-        case INCREMENT_IGNORED:
-            item.incrementIgnored();
-            break;
+            case INCREMENT_FOUND:
+                item.incrementFound();
+                break;
+            case INCREMENT_NOT_FOUND:
+                item.incrementNotFound();
+                break;
+            case INCREMENT_IGNORED:
+                item.incrementIgnored();
+                break;
         }
     }
 
@@ -773,57 +814,57 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
     for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
         switch (node.nodeType) {
-        case ELEMENT_NODE: // ELEMENT
-            var element = node;
-            if (/^(html|body|frameset)$/.test(element.localName)) {
-                item.setStyle("");
-                continue; // ignore root-elements
-            }
+            case ELEMENT_NODE: // ELEMENT
+                var element = node;
+                if (/^(html|body|frameset)$/.test(element.localName)) {
+                    item.setStyle("");
+                    continue; // ignore root-elements
+                }
 
-            // Checking status.
-            switch (element.getAttribute("status")) {
-            case "whitelisted":
-                if (!item.getForce()) {
-                  incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
-                  continue;
+                // Checking status.
+                switch (element.getAttribute("status")) {
+                    case "whitelisted":
+                        if (!item.getForce()) {
+                          incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
+                          continue;
+                        }
+                        break;
+                    case "blacklisted":
+                      incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
+                      continue;
+                }
+
+                element.setAttribute("status", "blacklisted");
+                if (this.purgeInnerHTML && !isNew) {
+                    switch (element.localName) {
+                        case "audio":
+                        case "embed":
+                        case "iframe":
+                        case "script":
+                        case "video":
+                            element.setAttribute("src", "");
+                            break;
+                        case "frame":
+                            if (element.parentNode.localName !== "frameset") {
+                                element.setAttribute("src", "");
+                            }
+                            break;
+                        case "object":
+                            element.setAttribute("data", "");
+                            break;
+                    }
+                    element.innerHTML = "";
                 }
                 break;
-            case "blacklisted":
-              incrementType = this.getIncrement(INCREMENT_IGNORED, incrementType);
-              continue;
-            }
-
-            element.setAttribute("status", "blacklisted");
-            if (this.purgeInnerHTML && !isNew) {
-                switch (element.localName) {
-                case "audio":
-                case "embed":
-                case "iframe":
-                case "script":
-                case "video":
-                    element.setAttribute("src", "");
-                    break;
-                case "frame":
-                    if (element.parentNode.localName !== "frameset") {
-                        element.setAttribute("src", "");
-                    }
-                    break;
-                case "object":
-                    element.setAttribute("data", "");
-                    break;
-                }
-                element.innerHTML = "";
-            }
-            break;
-        case ATTRIBUTE_NODE:
-            if (i === 0) this.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_ATTRIBUTE_DEPRECATED2", [pageName, item.getXPath()], 2))); // XXX
-            if (node.ownerElement) node.ownerElement.removeAttribute(node.name);
-            break;
-        case TEXT_NODE:
-            if (node.parentNode) node.parentNode.removeChild(node);
-            break;
-        default:
-            continue;
+            case ATTRIBUTE_NODE:
+                if (i === 0) this.logMessage(LOG_WARNING, new Error(stringBundle.formatStringFromName("WARN_ATTRIBUTE_DEPRECATED2", [pageName, item.getXPath()], 2))); // XXX
+                if (node.ownerElement) node.ownerElement.removeAttribute(node.name);
+                break;
+            case TEXT_NODE:
+                if (node.parentNode) node.parentNode.removeChild(node);
+                break;
+            default:
+                continue;
         }
 
         incrementType = INCREMENT_FOUND;
@@ -833,15 +874,15 @@ Yarip.prototype.blacklistElementItem = function(doc, pageName, item, isNew, incr
 
     if (increment) {
         switch (incrementType) {
-        case INCREMENT_FOUND:
-            item.incrementFound();
-            break;
-        case INCREMENT_NOT_FOUND:
-            item.incrementNotFound();
-            break;
-        case INCREMENT_IGNORED:
-            item.incrementIgnored();
-            break;
+            case INCREMENT_FOUND:
+                item.incrementFound();
+                break;
+            case INCREMENT_NOT_FOUND:
+                item.incrementNotFound();
+                break;
+            case INCREMENT_IGNORED:
+                item.incrementIgnored();
+                break;
         }
     }
 
@@ -921,19 +962,19 @@ Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, incremen
             element.removeAttribute(item.getName());
         } else {
             switch (item.getName()) {
-            case "style":
-                var style = element.getAttribute(item.getName());
-                if (style) {
-                    if (style.indexOf(item.getValue()) === -1) {
-                        element.setAttribute(item.getName(), style + item.getValue());
+                case "style":
+                    var style = element.getAttribute(item.getName());
+                    if (style) {
+                        if (style.indexOf(item.getValue()) === -1) {
+                            element.setAttribute(item.getName(), style + item.getValue());
+                        }
+                    } else {
+                        element.setAttribute(item.getName(), item.getValue());
                     }
-                } else {
+                    break;
+                default:
                     element.setAttribute(item.getName(), item.getValue());
-                }
-                break;
-            default:
-                element.setAttribute(item.getName(), item.getValue());
-                break;
+                    break;
             }
         }
 
@@ -944,12 +985,12 @@ Yarip.prototype.styleElementItem = function(doc, pageName, item, isNew, incremen
 
     if (increment) {
         switch (incrementType) {
-        case INCREMENT_FOUND:
-            item.incrementFound();
-            break;
-        case INCREMENT_NOT_FOUND:
-            item.incrementNotFound();
-            break;
+            case INCREMENT_FOUND:
+                item.incrementFound();
+                break;
+            case INCREMENT_NOT_FOUND:
+                item.incrementNotFound();
+                break;
         }
     }
 
@@ -1166,7 +1207,7 @@ Yarip.prototype.highlight = function(doc, xpath) {
     if (elements.snapshotLength > 0) {
         for (var i = 0; i < elements.snapshotLength; i++) {
             var element = elements.snapshotItem(i);
-            if (element.nodeType === ATTRIBUTE_NODE) element = element.ownerElement;
+            if (element && element.nodeType === ATTRIBUTE_NODE) element = element.ownerElement;
             if (element && element.getAttribute) {
                 var status = element.getAttribute("status");
                 if (!status) {
@@ -1185,7 +1226,7 @@ Yarip.prototype.unHighlight = function(doc, xpath) {
     if (elements && elements.snapshotLength > 0) {
         for (var i = 0; i < elements.snapshotLength; i++) {
             var element = elements.snapshotItem(i);
-            if (element.nodeType === ATTRIBUTE_NODE) element = element.ownerElement;
+            if (element && element.nodeType === ATTRIBUTE_NODE) element = element.ownerElement;
             if (element && element.getAttribute) {
                 var status = element.getAttribute("status");
                 if (status && /\bhighlighted\b/.test(status)) {
@@ -1197,7 +1238,6 @@ Yarip.prototype.unHighlight = function(doc, xpath) {
                     }
                 }
             }
-
         }
     }
 }
@@ -1206,15 +1246,22 @@ Yarip.prototype.save = function() {
     var data = this.map.generateXml();
     this.saveToFile(data, file);
 }
+//Yarip.prototype.save = function() {
+//    if (this.error) return;
+
+//    var file = this.getFile(FILE);
+//    var data = JSON.stringify(this.map);
+//    this.saveToFile(data, file);
+//}
 Yarip.prototype.getValue = function(preference, defaultValue, type) {
     try {
         switch (type) {
-        case DATA_TYPE_BOOLEAN:
-            return PB.getBoolPref(preference);
-        case DATA_TYPE_INTEGER:
-            return PB.getIntPref(preference);
-        case DATA_TYPE_STRING:
-            return PB.getCharPref(preference);
+            case DATA_TYPE_BOOLEAN:
+                return PB.getBoolPref(preference);
+            case DATA_TYPE_INTEGER:
+                return PB.getIntPref(preference);
+            case DATA_TYPE_STRING:
+                return PB.getCharPref(preference);
         }
     } catch (e) {
         if (defaultValue !== false && (typeof defaultValue !== "number" || isNaN(defaultValue)) && !defaultValue) {
@@ -1227,18 +1274,18 @@ Yarip.prototype.getValue = function(preference, defaultValue, type) {
 Yarip.prototype.setValue = function(preference, value, type) {
     try {
         switch (type) {
-        case DATA_TYPE_BOOLEAN:
-            PB.setBoolPref(preference, String(value) === "true");
-            break;
-        case DATA_TYPE_INTEGER:
-            PB.setIntPref(preference, value);
-            break;
-        case DATA_TYPE_STRING:
-            PB.setCharPref(preference, value);
-            break;
-        case DATA_TYPE_RESET:
-            PB.clearUserPref(preference);
-            break;
+            case DATA_TYPE_BOOLEAN:
+                PB.setBoolPref(preference, String(value) === "true");
+                break;
+            case DATA_TYPE_INTEGER:
+                PB.setIntPref(preference, value);
+                break;
+            case DATA_TYPE_STRING:
+                PB.setCharPref(preference, value);
+                break;
+            case DATA_TYPE_RESET:
+                PB.clearUserPref(preference);
+                break;
         }
     } catch (e) {
     }
@@ -1279,7 +1326,7 @@ Yarip.prototype.check = function() {
         re = /^0\.2(\.[1-3])?$/;
         if (re.test(previous) && !re.test(VERSION)) {
             // Changed style-/attribute-feature.
-            FH.removeEntriesForName("style");
+            FormHistory.removeEntriesForName("style");
         }
 
         re = /^0\.2\.4$/;
@@ -1372,7 +1419,9 @@ Yarip.prototype.load = function(file, imported) {
             pageName = nPage.getAttribute("name");
             var pageId = nPage.getAttribute("id");
             var page = map.get(pageName);
-            if (!page) page = new YaripPage(pageId ? pageId : this.getId(), pageName);
+            if (!page) {
+                page = new YaripPage(pageId ? pageId : this.getId(), pageName, this.allowScript);
+            }
 
             // XPATH WHITELIST
             var iWhitelist = doc.evaluate("./whitelist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
@@ -1425,7 +1474,7 @@ Yarip.prototype.load = function(file, imported) {
             var pageId = nPage.getAttribute("id");
             var page = map.get(pageName);
             if (!page) {
-                page = new YaripPage(pageId ? pageId : this.getId(), pageName);
+                page = new YaripPage(pageId ? pageId : this.getId(), pageName, this.allowScript);
             }
 
             // ELEMENT BLACKLIST
@@ -1479,7 +1528,9 @@ Yarip.prototype.load = function(file, imported) {
             pageName = nPage.getAttribute("name");
             var pageId = nPage.getAttribute("id");
             var page = map.get(pageName);
-            if (!page) page = new YaripPage(pageId ? pageId : this.getId(), pageName);
+            if (!page) {
+                page = new YaripPage(pageId ? pageId : this.getId(), pageName, this.allowScript);
+            }
 
             // ELEMENT WHITELIST
             var iElementWhitelist = doc.evaluate("./elementWhitelist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
@@ -1606,7 +1657,9 @@ Yarip.prototype.load = function(file, imported) {
             pageName = nPage.getAttribute("name");
             var pageId = nPage.getAttribute("id");
             var page = map.get(pageName);
-            if (!page) page = new YaripPage(pageId ? pageId : this.getId(), pageName);
+            if (!page) {
+                page = new YaripPage(pageId ? pageId : this.getId(), pageName, this.allowScript);
+            }
 
             // ELEMENT WHITELIST
             var iElementWhitelist = doc.evaluate("./elementWhitelist", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
@@ -1788,15 +1841,18 @@ Yarip.prototype.load = function(file, imported) {
 
             nPage = iPage.iterateNext();
         }
-    } else { // if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.[1-4])$/.test(version)) // XXX
+    } else { // if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.[1-5])$/.test(version)) // XXX
         var iPage = doc.evaluate("./page", nYarip, null, ORDERED_NODE_ITERATOR_TYPE, null);
         var nPage = iPage.iterateNext();
         while (nPage) {
             pageName = nPage.getAttribute("name");
             var pageId = nPage.getAttribute("id");
+            var allowScript = nPage.getAttribute("allowScript");
             var pageCreated = nPage.getAttribute("created");
             var page = map.get(pageName);
-            if (!page) page = new YaripPage(pageId ? pageId : this.getId(), pageName, pageCreated);
+            if (!page) {
+                page = new YaripPage(pageId ? pageId : this.getId(), pageName, allowScript, pageCreated);
+            }
 
             var iElementChild = doc.evaluate("./element", nPage, null, ORDERED_NODE_ITERATOR_TYPE, null);
             var nElementChild = iElementChild.iterateNext();
@@ -2102,7 +2158,7 @@ if (/^(0\.2\.[5-6](\.\d+)?)|(0\.3\.1)$/.test(version)) {
                         null, // reinject
                         nPageScript.getAttribute("lastChanged")));
                 }
-} else { // if (/^0\.3\.[2-4]$/.test(version)) // XXX
+} else { // if (/^0\.3\.[2-5]$/.test(version)) // XXX
                 // PAGE STYLE
                 var iPageStyle = doc.evaluate("./style", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageStyle = iPageStyle.iterateNext();
@@ -2242,7 +2298,7 @@ if (/^0\.3\.[2-3]$/.test(version)) {
                         nItem = iItem.iterateNext();
                     }
                 }
-} else { // if (/^0\.3\.[4]$/.test(version)) // XXX
+} else { // if (/^0\.3\.[4-5]$/.test(version)) // XXX
                 // PAGE STREAM
                 var iPageStream = doc.evaluate("./stream", nPageChild, null, ORDERED_NODE_ITERATOR_TYPE, null);
                 var nPageStream = iPageStream.iterateNext();
@@ -2353,6 +2409,21 @@ if (/^0\.3\.[2-3]$/.test(version)) {
 
     return pageName;
 }
+//Yarip.prototype.load = function(file, imported) {
+//    var pageName = null;
+//    try {
+//        var json = JSON.parse(this.getData(file));
+//        var map = YaripMap.fromJSON(json);
+//        if (imported) {
+//            this.map.merge(map);
+//        } else {
+//            this.map = map;
+//        }
+//    } catch (e) {
+//        this.error = true; // prevent save
+//    }
+//    return pageName;
+//}
 Yarip.prototype.getDoc = function(file) {
     if (!file) return null;
 
@@ -2377,7 +2448,7 @@ Yarip.prototype.getData = function(file) {
         data = sis.read(sis.available());
         var suc = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Ci.nsIScriptableUnicodeConverter);
         suc.charset = CHARSET;
-        var data = suc.ConvertToUnicode(data);
+        data = suc.ConvertToUnicode(data);
     } catch (e) {
     } finally {
         if (sis) try { sis.close(); } catch (e) {}

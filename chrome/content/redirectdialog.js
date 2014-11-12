@@ -136,7 +136,7 @@ function YaripRedirectDialog()
         this.obj.item.setScript(newSubStr);
         this.obj.pageName = pageName;
 
-        FH.update({ "op": "add", fieldname: "regexp", "value": regExp }, null);
+        FormHistory.update({ "op": "add", fieldname: "regexp", "value": regExp }, null);
     }
 
     this.cancel = function()

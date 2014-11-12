@@ -148,8 +148,8 @@ function YaripReplaceDialog()
         this.obj.item.setRegExp(regExp);
         this.obj.item.setStreamRegExp(streamRegExp);
         this.obj.pageName = pageName;
-        FH.update({ "op": "add", fieldname: "regexp", "value": regExp }, null);
-        FH.update({ "op": "add", fieldname: "stream-regexp", "value": streamRegExp }, null);
+        FormHistory.update({ "op": "add", fieldname: "regexp", "value": regExp }, null);
+        FormHistory.update({ "op": "add", fieldname: "stream-regexp", "value": streamRegExp }, null);
     }
 
     this.cancel = function()

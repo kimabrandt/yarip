@@ -7,6 +7,7 @@ pref("extensions.yarip.matchAuthorityPort.value", true);               /* true=m
 pref("extensions.yarip.privateBrowsing.value", false);                 /* true=only allow content from visited page, false=allow all content (default) */
 pref("extensions.yarip.purgeInnerHTML.value", false);                  /* true=purge innerHTML of elements, false=no purge (default) */
 pref("extensions.yarip.schemesRegExp.value", "^https?$");              /* tells yarip, on which pages/shemes to run */
+pref("extensions.yarip.allowScript.value", true);                      /* true=allow JavaScript on pages (default), false=deny */
 pref("extensions.yarip.exclusiveOnCreation.value", false);             /* true=whitelist exclusively newly created pages, false=nothing (default) */
 pref("extensions.yarip.templatesList.value", "");                      /* space separated list of pages from which to inherit */
 

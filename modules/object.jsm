@@ -46,4 +46,3 @@ YaripObject.prototype.checkRegExp = function(value, allowEmpty) {
 YaripObject.prototype.resetKnown = function() {
     return yarip.resetKnown();
 }
-

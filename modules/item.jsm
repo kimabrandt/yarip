@@ -91,7 +91,7 @@ YaripItem.prototype.getXPath = function() {
 }
 YaripItem.prototype.setRegExp = function(value) {
     if (typeof value !== "string") return; // allow empty
-    this.regExp = value;
+    this.regExp = String(value);
     this.setCreated(Date.now());
     this.setLastFound(-1);
 }
@@ -119,14 +119,14 @@ YaripItem.prototype.getFlags = function() {
 }
 YaripItem.prototype.setStyle = function(value) {
     if (typeof value !== "string") return; // allow empty
-    this.style = value;
+    this.style = String(value);
 }
 YaripItem.prototype.getStyle = function() {
     return this.style;
 }
 YaripItem.prototype.setScript = function(value) {
     if (typeof value !== "string") return; // allow empty
-    this.script = value;
+    this.script = String(value);
 }
 YaripItem.prototype.getScript = function() {
     return this.script;
@@ -262,6 +262,31 @@ YaripItem.prototype.generateXml = function() {
         (this.script ? "\t\t\t\t\t<script><![CDATA[" + yarip.escapeCDEnd(this.script) + "]]></script>\n" : "") +
         "\t\t\t\t</item>\n";
 }
+YaripItem.prototype.toJSON = function() {
+    var r = {
+        "xpath": this.xpath,
+        "style": this.style,
+        "script": this.script,
+        "priority": this.priority,
+        "force": this.force,
+        "created": this.created,
+        "lastFound": this.lastFound,
+        "found": this.found,
+        "notFound": this.notFound,
+        "ignored": this.ignored
+    };
+    if (typeof r.xpath !== "string") delete r.xpath;
+    if (typeof r.style !== "string") delete r.style;
+    if (typeof r.script !== "string") delete r.script;
+    if (r.priority === 0) delete r.priority;
+    if (typeof r.force !== "boolean") delete r.force;
+    if (r.created === -1) delete r.created;
+    if (r.lastFound === -1) delete r.lastFound;
+    if (r.found === 0) delete r.found;
+    if (r.notFound === 0) delete r.notFound;
+    if (r.ignored === 0) delete r.ignored;
+    return r;
+}
 YaripItem.prototype.createStyle = function(force) {
     if (this.force) {
         if ((force || (!this.style && typeof this.style !== "string")) && /^\/?(\/([a-z]\w*|\*)(\[(@[a-z]\w*='[^']*'|\d+)\])*)+$/i.test(this.xpath)) {
@@ -340,6 +365,25 @@ YaripElementWhitelistItem.prototype.generateXml = function() {
         "\t\t\t\t\t<xpath><![CDATA[" + yarip.escapeCDEnd(this.xpath) + "]]></xpath>\n" +
         "\t\t\t\t</item>\n";
 }
+YaripElementWhitelistItem.prototype.toJSON = function() {
+    var r = {
+        "xpath": this.xpath,
+        "priority": this.priority,
+        "created": this.created,
+        "lastFound": this.lastFound,
+        "found": this.found,
+        "notFound": this.notFound,
+        "ignored": this.ignored
+    };
+    if (typeof r.xpath !== "string") delete r.xpath;
+    if (r.priority === 0) delete r.priority;
+    if (r.created === -1) delete r.created;
+    if (r.lastFound === -1) delete r.lastFound;
+    if (r.found === 0) delete r.found;
+    if (r.notFound === 0) delete r.notFound;
+    if (r.ignored === 0) delete r.ignored;
+    return r;
+}
 
 function YaripElementBlacklistItem(xpath, style, priority, force, created, lastFound, found, notFound, ignored) {
     this.xpath = "";
@@ -404,6 +448,29 @@ YaripElementBlacklistItem.prototype.generateXml = function() {
         "\t\t\t\t\t<xpath><![CDATA[" + yarip.escapeCDEnd(this.xpath) + "]]></xpath>\n" +
         (this.style ? "\t\t\t\t\t<style><![CDATA[" + yarip.escapeCDEnd(this.style) + "]]></style>\n" : "") +
         "\t\t\t\t</item>\n";
+}
+YaripElementBlacklistItem.prototype.toJSON = function() {
+    var r = {
+        "xpath": this.xpath,
+        "style": this.style,
+        "priority": this.priority,
+        "force": this.force,
+        "created": this.created,
+        "lastFound": this.lastFound,
+        "found": this.found,
+        "notFound": this.notFound,
+        "ignored": this.ignored
+    };
+    if (typeof r.xpath !== "string") delete r.xpath;
+    if (typeof r.style !== "string") delete r.style;
+    if (r.priority === 0) delete r.priority;
+    if (typeof r.force !== "boolean") delete r.force;
+    if (r.created === -1) delete r.created;
+    if (r.lastFound === -1) delete r.lastFound;
+    if (r.found === 0) delete r.found;
+    if (r.notFound === 0) delete r.notFound;
+    if (r.ignored === 0) delete r.ignored;
+    return r;
 }
 
 function YaripElementAttributeItem(xpath, name, value, priority, remove, created, lastFound, found, notFound) {
@@ -488,6 +555,29 @@ YaripElementAttributeItem.prototype.generateXml = function() {
         "\t\t\t\t</item>\n";
     return tmp;
 }
+YaripElementAttributeItem.prototype.toJSON = function() {
+    var r = {
+        "xpath": this.xpath,
+        "name": this.name,
+        "value": this.value,
+        "priority": this.priority,
+        "remove": this.remove,
+        "created": this.created,
+        "lastFound": this.lastFound,
+        "found": this.found,
+        "notFound": this.notFound
+    };
+    if (typeof r.xpath !== "string") delete r.xpath;
+    if (typeof r.name !== "string") delete r.name;
+    if (typeof r.value !== "string") delete r.value;
+    if (r.priority === 0) delete r.priority;
+    if (typeof r.remove !== "boolean") delete r.remove;
+    if (r.created === -1) delete r.created;
+    if (r.lastFound === -1) delete r.lastFound;
+    if (r.found === 0) delete r.found;
+    if (r.notFound === 0) delete r.notFound;
+    return r;
+}
 YaripElementAttributeItem.prototype.loadFromObject = function(obj) {
     this.setXPath(obj.xpath);
     this.setName(obj.name);
@@ -553,6 +643,27 @@ YaripScriptItem.prototype.generateXml = function() {
         "\t\t\t\t\t<script><![CDATA[" + yarip.escapeCDEnd(this.script) + "]]></script>\n" +
         "\t\t\t\t</item>\n";
 }
+YaripScriptItem.prototype.toJSON = function() {
+    var r = {
+        "xpath": this.xpath,
+        "script": this.script,
+        "priority": this.priority,
+        "reinject": this.reinject,
+        "created": this.created,
+        "lastFound": this.lastFound,
+        "found": this.found,
+        "notFound": this.notFound
+    };
+    if (typeof r.xpath !== "string") delete r.xpath;
+    if (typeof r.script !== "string") delete r.script;
+    if (r.priority === 0) delete r.priority;
+    if (typeof r.reinject !== "boolean") delete r.reinject;
+    if (r.created === -1) delete r.created;
+    if (r.lastFound === -1) delete r.lastFound;
+    if (r.found === 0) delete r.found;
+    if (r.notFound === 0) delete r.notFound;
+    return r;
+}
 
 function YaripPageScriptItem(xpath, script, priority, reinject, created, lastFound, found, notFound) {
     this.xpath = "";
@@ -604,6 +715,27 @@ YaripPageScriptItem.prototype.generateXml = function() {
         "\t\t\t\t\t<script><![CDATA[" + yarip.escapeCDEnd(this.script) + "]]></script>\n" +
         "\t\t\t\t</item>\n";
 }
+YaripPageScriptItem.prototype.toJSON = function() {
+    var r = {
+        "xpath": this.xpath,
+        "script": this.script,
+        "priority": this.priority,
+        "reinject": this.reinject,
+        "created": this.created,
+        "lastFound": this.lastFound,
+        "found": this.found,
+        "notFound": this.notFound
+    };
+    if (typeof r.xpath !== "string") delete r.xpath;
+    if (typeof r.script !== "string") delete r.script;
+    if (r.priority === 0) delete r.priority;
+    if (typeof r.reinject !== "boolean") delete r.reinject;
+    if (r.created === -1) delete r.created;
+    if (r.lastFound === -1) delete r.lastFound;
+    if (r.found === 0) delete r.found;
+    if (r.notFound === 0) delete r.notFound;
+    return r;
+}
 
 function YaripContentItem(regExp, flags, priority, force, created, lastFound, ignored) {
     this.regExp = "";
@@ -654,6 +786,25 @@ YaripContentItem.prototype.generateXml = function() {
         "><![CDATA[" + yarip.escapeCDEnd(this.regExp) + "]]></regexp>\n" +
         "\t\t\t\t</item>\n";
 }
+YaripContentItem.prototype.toJSON = function() {
+    var r = {
+        "regexp": this.regExp,
+        "flags": this.flags,
+        "priority": this.priority,
+        "force": this.force,
+        "created": this.created,
+        "lastFound": this.lastFound,
+        "ignored": this.ignored
+    };
+    if (typeof r.regExp !== "string") delete r.regExp;
+    if (typeof r.flags !== "string") delete r.flags;
+    if (r.priority === 0) delete r.priority;
+    if (typeof r.force !== "boolean") delete r.force;
+    if (r.created === -1) delete r.created;
+    if (r.lastFound === -1) delete r.lastFound;
+    if (r.ignored === 0) delete r.ignored;
+    return r;
+}
 YaripContentItem.prototype.loadFromObject = function(obj) {
     this.setRegExp(obj.regExp);
     this.setFlags(obj.flags);
@@ -697,6 +848,21 @@ YaripContentWhitelistItem.prototype.generateXml = function() {
             (this.flags ? " flags=\"" + this.flags + "\"" : "") +
         "><![CDATA[" + yarip.escapeCDEnd(this.regExp) + "]]></regexp>\n" +
         "\t\t\t\t</item>\n";
+}
+YaripContentWhitelistItem.prototype.toJSON = function() {
+    var r = {
+        "regexp": this.regExp,
+        "flags": this.flags,
+        "priority": this.priority,
+        "created": this.created,
+        "lastFound": this.lastFound
+    };
+    if (typeof r.regexp !== "string") delete r.regExp;
+    if (typeof r.flags !== "string") delete r.flags;
+    if (r.priority === 0) delete r.priority;
+    if (r.created === -1) delete r.created;
+    if (r.lastFound === -1) delete r.lastFound;
+    return r;
 }
 
 function YaripContentBlacklistItem(regExp, flags, priority, force, created, lastFound, ignored) {
@@ -800,6 +966,27 @@ YaripStreamItem.prototype.generateXml = function() {
         "\t\t\t\t\t<script><![CDATA[" + yarip.escapeCDEnd(this.script) + "]]></script>\n" +
         "\t\t\t\t</item>\n";
 }
+YaripStreamItem.prototype.toJSON = function() {
+    var r = {
+        "regexp": this.regExp,
+        "flags": this.flags,
+        "stream_regexp": this.streamRegExp,
+        "stream_flags": this.streamFlags,
+        "script": this.script,
+        "priority": this.priority,
+        "created": this.created,
+        "lastFound": this.lastFound
+    };
+    if (typeof r.regExp !== "string") delete r.regExp;
+    if (typeof r.flags !== "string") delete r.flags;
+    if (typeof r.streamRegExp !== "string") delete r.streamRegExp;
+    if (typeof r.streamFlags !== "string") delete r.streamFlags;
+    if (typeof r.script !== "string") delete r.script;
+    if (r.priority === 0) delete r.priority;
+    if (r.created === -1) delete r.created;
+    if (r.lastFound === -1) delete r.lastFound;
+    return r;
+}
 YaripStreamItem.prototype.loadFromObject = function(obj) {
     this.setRegExp(obj.regExp);
     this.setFlags(obj.flags);
@@ -856,6 +1043,25 @@ YaripStyleItem.prototype.generateXml = function() {
         "\t\t\t\t\t<xpath><![CDATA[" + yarip.escapeCDEnd(this.xpath) + "]]></xpath>\n" +
         "\t\t\t\t\t<style><![CDATA[" + yarip.escapeCDEnd(this.style) + "]]></style>\n" +
         "\t\t\t\t</item>\n";
+}
+YaripStyleItem.prototype.toJSON = function() {
+    var r = {
+        "xpath": this.xpath,
+        "style": this.style,
+        "priority": this.priority,
+        "created": this.created,
+        "lastFound": this.lastFound,
+        "found": this.found,
+        "notFound": this.notFound
+    };
+    if (typeof r.xpath !== "string") delete r.xpath;
+    if (typeof r.style !== "string") delete r.style;
+    if (r.priority === 0) delete r.priority;
+    if (r.created === -1) delete r.created;
+    if (r.lastFound === -1) delete r.lastFound;
+    if (r.found === 0) delete r.found;
+    if (r.notFound === 0) delete r.notFound;
+    return r;
 }
 
 function YaripHeaderItem(regExp, flags, headerName, script, priority, merge, created, lastFound) {
@@ -926,6 +1132,27 @@ YaripHeaderItem.prototype.generateXml = function() {
         "\t\t\t\t\t\t<script><![CDATA[" + yarip.escapeCDEnd(this.script) + "]]></script>\n" +
         "\t\t\t\t\t</item>\n";
 }
+YaripHeaderItem.prototype.toJSON = function() {
+    var r = {
+        "regexp": this.regExp,
+        "flags": this.flags,
+        "name": this.headerName,
+        "script": this.script,
+        "priority": this.priority,
+        "merge": this._merge,
+        "created": this.created,
+        "lastFound": this.lastFound
+    };
+    if (typeof r.regExp !== "string") delete r.regExp;
+    if (typeof r.flags !== "string") delete r.flags;
+    if (typeof r.name !== "string") delete r.name;
+    if (typeof r.script !== "string") delete r.script;
+    if (r.priority === 0) delete r.priority;
+    if (typeof r.merge !== "boolean") delete r.merge;
+    if (r.created === -1) delete r.created;
+    if (r.lastFound === -1) delete r.lastFound;
+    return r;
+}
 YaripHeaderItem.prototype.loadFromObject = function(obj) {
     this.setRegExp(obj.regExp);
     this.setFlags(obj.flags);
@@ -960,8 +1187,7 @@ YaripRedirectItem.prototype.getId = function() {
 }
 YaripRedirectItem.prototype.setScript = function(value) {
     if (typeof value !== "string") return; // allow empty
-
-    this.newsubstr = value;
+    this.newsubstr = String(value);
 }
 YaripRedirectItem.prototype.getScript = function() {
     return this.newsubstr;
@@ -989,6 +1215,23 @@ YaripRedirectItem.prototype.generateXml = function() {
         "><![CDATA[" + yarip.escapeCDEnd(this.regExp) + "]]></regexp>\n" +
         (this.newsubstr ? "\t\t\t\t\t<newsubstr><![CDATA[" + yarip.escapeCDEnd(this.newsubstr) + "]]></newsubstr>\n" : "") +
         "\t\t\t\t</item>\n";
+}
+YaripRedirectItem.prototype.toJSON = function() {
+    var r = {
+        "regexp": this.regExp,
+        "flags": this.flags,
+        "newsubstr": this.newsubstr,
+        "priority": this.priority,
+        "created": this.created,
+        "lastFound": this.lastFound
+    };
+    if (typeof r.regExp !== "string") delete r.regExp;
+    if (typeof r.flags !== "string") delete r.flags;
+    if (typeof r.newsubstr !== "string") delete r.newsubstr;
+    if (r.priority === 0) delete r.priority;
+    if (r.created === -1) delete r.created;
+    if (r.lastFound === -1) delete r.lastFound;
+    return r;
 }
 YaripRedirectItem.prototype.loadFromObject = function(obj) {
     this.setRegExp(obj.regExp);
@@ -1219,6 +1462,31 @@ YaripExtensionItem.prototype.generateXml = function() {
             " doLinks=\"" + this.doLinks + "\"" +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
         ">" + this.id + "</item>\n";
+}
+YaripExtensionItem.prototype.toJSON = function() {
+    var r = {
+        "id": this.id,
+        "priority": this.priority,
+        "doElements": this.doElements,
+        "doContents": this.doContents,
+        "doScripts": this.doScripts,
+        "doHeaders": this.doHeaders,
+        "doRedirects": this.doRedirects,
+        "doStreams": this.doStreams,
+        "doLinks": this.doLinks,
+        "created": this.created
+    };
+    if (typeof r.id !== "string") delete r.id;
+    if (typeof r.doElements !== "boolean") delete r.doElements;
+    if (typeof r.doContents !== "boolean") delete r.doContents;
+    if (typeof r.doScripts !== "boolean") delete r.doScripts;
+    if (typeof r.doHeaders !== "boolean") delete r.doHeaders;
+    if (typeof r.doRedirects !== "boolean") delete r.doRedirects;
+    if (typeof r.doStreams !== "boolean") delete r.doStreams;
+    if (typeof r.doLinks !== "boolean") delete r.doLinks;
+    if (r.priority === 0) delete r.priority;
+    if (r.created === -1) delete r.created;
+    return r;
 }
 YaripExtensionItem.prototype.loadFromObject = function(obj) {
     this.setId(obj.value);

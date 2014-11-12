@@ -166,6 +166,15 @@ YaripList.prototype.generateXml = function() {
         return "";
     }
 }
+YaripList.prototype.toJSON = function() {
+    var r = {
+        "exclusive": this.exclusive,
+        "items": []
+    };
+    if (!r.exclusive) delete r.exclusive;
+    for each (var item in this.obj) if (item) r.items.push(item);
+    return r;
+}
 YaripList.prototype.generateCSS = function() {
     var tmp = "";
     for each (var item in this.obj) {

@@ -53,7 +53,7 @@ YaripContentPolicy.prototype.shouldLoad = function(contentType, contentLocation,
     if (!location || !yarip.schemesRegExp.test(location.protocol.replace(/:$/, ""))) return ACCEPT;
 
     location = yarip.getLocation(location);
-    content = yarip.getLocation(contentLocation);
+    var content = yarip.getLocation(contentLocation);
 
     if (!yarip.enabled) {
         yarip.logContent(STATUS_UNKNOWN, location, content, mimeTypeGuess);

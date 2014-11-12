@@ -34,7 +34,8 @@ function YaripLoader() {
 YaripLoader.prototype.load = function(doc, increment) {
     if (!doc) return false;
 
-    var pageName = yarip.getPageName(doc.location, MODE_PAGE);
+    var location = yarip.getLocation(doc.location);
+    var pageName = yarip.getPageName(location, MODE_PAGE);
     if (!pageName) return false;
 
     var addressObj = yarip.getAddressObj(pageName, true);
@@ -52,14 +53,11 @@ YaripLoader.prototype.load = function(doc, increment) {
     try {
         return this.hasWhitelist || this.hasBlacklist || this.hasStyles || this.hasScripts;
     } finally {
-        this.reset();
+        this.hasWhitelist = false;
+        this.hasBlacklist = false;
+        this.hasStyles = false;
+        this.hasScripts = false;
     }
-}
-YaripLoader.prototype.reset = function() {
-    this.hasWhitelist = false;
-    this.hasBlacklist = false;
-    this.hasStyles = false;
-    this.hasScripts = false;
 }
 YaripLoader.prototype.doWhitelisting = function(doc, addressObj, increment) {
     var ref = this;
@@ -127,6 +125,7 @@ YaripLoader.prototype.doStyling = function(doc, addressObj, increment) {
                     if (increment && isSelf) {
                         item.incrementFound();
                     }
+                    ref.hasStyles = true;
                 } else {
                     if (increment && isSelf) {
                         item.incrementNotFound();
@@ -158,15 +157,17 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment) {
     // page scripting
     for (var i = arr.length - 1; i >= 0; i--) {
         var extItem = arr[i];
+        var isSelf = extItem.isSelf();
         var page = extItem.getPage();
+        if (i === 0 && isSelf && !page.getAllowScript()) return;
+
         var list = page.pageScriptList;
         if (list.length === 0) continue;
 
         var pageName = page.getName();
-        var isSelf = extItem.isSelf();
+
         var idPrefix = "yarip-page-script_" + pageName.replace(/\W/g, "-") + "_";
         var counter = 0;
-
         for each (var item in list.obj) {
             var s = item.getScript();
             if (!s) continue;
@@ -203,8 +204,8 @@ YaripLoader.prototype.doScripting = function(doc, addressObj, increment) {
         var list = page.elementScriptList;
         if (list.length === 0) continue;
 
-        var pageName = page.getName();
         var isSelf = extItem.isSelf();
+        var pageName = page.getName();
         var idPrefix = "yarip-element-script_" + pageName.replace(/\W/g, "-") + "_";
         var counter = 0;
 

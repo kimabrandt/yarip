@@ -52,10 +52,9 @@
 
       <preference id="prefPrivateBrowsing" name="extensions.yarip.privateBrowsing.value" type="bool"/>
       <preference id="prefPurgeInnerHTML" name="extensions.yarip.purgeInnerHTML.value" type="bool"/>
-      <preference id="prefSchemesList" name="extensions.yarip.schemesRegExp.value" type="string"/>
 
+      <preference id="prefAllowScript" name="extensions.yarip.allowScript.value" type="bool"/>
       <preference id="prefExclusiveOnCreation" name="extensions.yarip.exclusiveOnCreation.value" type="bool"/>
-      <preference id="prefTemplatesList" name="extensions.yarip.templatesList.value" type="string"/>
     </preferences>
 
     <vbox flex="1">
@@ -92,21 +91,28 @@
               <checkbox id="checkboxMatchAuthorityPort" label="&checkbox.label.matchAuthorityPort;" preference="prefMatchAuthorityPort"/>
             </groupbox>
 
+            <!--groupbox>
+              <caption label="&caption.label.script;"/>
+              <checkbox id="checkboxAllowScript" label="&checkbox.label.allowScript;" preference="prefAllowScript"/>
+            </groupbox-->
+
             <groupbox>
               <caption label="&caption.label.pageLoad;"/>
               <checkbox id="checkboxPrivateBrowsing" label="&checkbox.label.privateBrowsing;" preference="prefPrivateBrowsing"/>
               <checkbox id="checkboxPurgeInnerHTML" label="&checkbox.label.purgeInnerHTML;" preference="prefPurgeInnerHTML"/>
               <separator class="thin"/>
-              <label value="&label.value.matchScheme;"/>
-              <textbox id="textboxSchemesList" preference="prefSchemesList"/>
+              <!--label value="&label.value.matchScheme;"/>
+              <textbox id="textboxSchemesList" preference="prefSchemesList"/-->
             </groupbox>
 
             <groupbox>
               <caption label="&caption.label.pageCreation;"/>
+              <checkbox id="checkboxAllowScript" label="&checkbox.label.allowScript;" preference="prefAllowScript"/>
+              <separator class="thin"/>
               <checkbox id="checkboxExclusiveOnCreation" label="&checkbox.label.exclWhitelist;" preference="prefExclusiveOnCreation"/>
               <separator class="thin"/>
-              <label value="&label.value.inheritFromPages;"/>
-              <textbox id="textboxTemplatesList" preference="prefTemplatesList"/>
+              <!--label value="&label.value.inheritFromPages;"/>
+              <textbox id="textboxTemplatesList" preference="prefTemplatesList"/-->
             </groupbox>
           </vbox>
         </tabpanel>

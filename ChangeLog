@@ -1,3 +1,28 @@
+2014-08-24  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * : RELEASE yarip-0.3.5.xpi
+
+    * chrome.manifest, install.rdf (pale moon): Added Pale Moon app-id.
+
+2014-08-24  Kim A. Brandt  <kimabrandt@gmx.de>
+
+    * chrome/content/overlay.js (addToHistory): Using an XPath together with the
+    `Add to history'-feature, to allow adding multiple links at once.
+
+    * modules/{observer,page}.jsm (documentCreated, allowScript): Allow blocking
+    of scripts.
+
+    * chrome/content/options.xul (schemes, templates): Removed the schemes- and
+    templates-options, which can still be modified through the `about:config'-
+    dialog (e.g. `extensions.yarip.schemesRegExp.value' and
+    `extensions.yarip.templatesList.value'). Also added the `allowScript'-
+    option, which allows newly created pages to execute scripts.
+
+    * modules/{map,page,list,item}.jsm (toJSON): Experimenting with saving to
+    JSON.
+
+    * modules/uri.jsm (TLD, et, vu, ...): Updated the TLD.
+
 2014-03-15  Kim A. Brandt  <kimabrandt@gmx.de>
 
     * install.rdf (maxVersion): Updated supported versions.

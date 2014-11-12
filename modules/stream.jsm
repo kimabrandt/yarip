@@ -211,6 +211,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             }
         }
 
+        var blockScripts = false;
         var headStyles = "";
         var headScripts = "";
         var bodyStyles = "";
@@ -263,7 +264,11 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             }
 
             // page scripting
-            if (extItem.getDoScripts()) {
+            if (extItem.getDoScripts() && !blockScripts) {
+                if (i === 0 && extItem.isSelf() && !page.getAllowScript()) {
+                    blockScripts = true;
+                    continue;
+                }
                 var list = page.pageScriptList;
                 if (list.length > 0) {
                     var idPrefix = "yarip-page-script_" + pageName.replace(/\W/g, "-") + "_";
@@ -336,7 +341,7 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             headBodPart = tmpSource.substring(0, searchIndex) + "<body>";
         } else {
             var matches = tmpSource.substring(searchIndex).match(bodyBegRegExp);
-            isFrameset = !!matches[1];
+            isFrameset = matches[1] !== null;
             searchIndex += matches[0].length;
             headBodPart = tmpSource.substring(0, searchIndex);
         }
@@ -359,7 +364,10 @@ YaripResponseStreamListener.prototype.onStopRequest = function(request, context,
             bodyBotPart = tmpSource;
         }
 
-        if (headScripts || bodyScripts) {
+        if (blockScripts) {
+            headScripts = "";
+            bodyScripts = "";
+        } else if (headScripts || bodyScripts) {
             headScripts = "\n<script id=\"yarip-default-script\" type=\"text/javascript\" status=\"whitelisted\">" + yarip.getYaripScript() + "</script>" + headScripts;
         }
 

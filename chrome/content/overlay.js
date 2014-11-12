@@ -25,6 +25,7 @@ function YaripOverlay() {
     this.useIndexObserver = null;
     this.elementsInContextObserver = null;
     this.purgeInnerHTMLObserver = null;
+    this.allowScriptObserver = null;
     this.exclusiveOnCreationObserver = null;
     this.templatesObserver = null;
     this.schemesObserver = null;
@@ -244,6 +245,50 @@ function YaripOverlay() {
         if (!obj.pageName || !obj.item) return;
 
         yarip.stylePage(doc, obj.pageName, obj.item, true);
+    }
+
+    this.addToHistory = function(doc, node) {
+        this.toggleEnabled(true);
+
+        if (!doc || !node) return;
+
+        var location = yarip.getLocation(doc.location);
+        var pageName = yarip.getFirstAddress(location.asciiHref, true);
+        if (!pageName) {
+            pageName = yarip.getPageName(location);
+            if (!pageName) return;
+        }
+
+        var xpath = yarip.createXPath(node);
+        if (!xpath) return;
+
+        var obj = {
+            pageName: pageName,
+            item: new YaripElementBlacklistItem(xpath)
+        }
+
+        window.openDialog("chrome://yarip/content/blacklistelementdialog.xul", "blacklistelementdialog", "chrome,modal,resizable", doc, obj);
+        if (!obj.pageName || !obj.item) return;
+
+        var elements = yarip.getElements(doc, obj.item.getXPath());
+        if (elements && elements.snapshotLength > 0) {
+            for (var i = 0; i < elements.snapshotLength; i++) {
+                var element = elements.snapshotItem(i);
+                if (element && element.nodeType === ELEMENT_NODE) {
+                    var href = element.getAttribute("href");
+                    if (!/^\w+:\/+/.test(href)) {
+                        href = location.href.substring(0, location.href.indexOf(location.pathname)) + (!/^\//.test(href) ? "/" : "") + href;
+                    }
+                    AH.updatePlaces({
+                        "uri": IOS.newURI(href, null, null),
+                        "visits": [{
+                            "transitionType": TRANSITION_LINK,
+                            "visitDate": Date.now() * 1000
+                        }]
+                    });
+                }
+            }
+        }
     }
 
     this.scriptElement = function(doc, node) {
@@ -549,6 +594,12 @@ function YaripOverlay() {
                     yarip.setPurgeInnerHTML(yarip.getValue(PREF_PURGE, false, DATA_TYPE_BOOLEAN));
                 }
             );
+            this.allowScriptObserver = new YaripPreferenceObserver(
+                PREF_SCRIPT,
+                function() {
+                    yarip.setAllowScript(yarip.getValue(PREF_SCRIPT, true, DATA_TYPE_BOOLEAN));
+                }
+            );
             this.exclusiveOnCreationObserver = new YaripPreferenceObserver(
                 PREF_EXCLUSIVE,
                 function() {
@@ -654,6 +705,7 @@ function YaripOverlay() {
             this.useIndexObserver.unregister();
             this.elementsInContextObserver.unregister();
             this.purgeInnerHTMLObserver.unregister();
+            this.allowScriptObserver.unregister();
             this.exclusiveOnCreationObserver.unregister();
             this.templatesObserver.unregister();
             this.schemesObserver.unregister();
@@ -765,7 +817,8 @@ function YaripOverlay() {
                 if (inFrame) {
                     var frame = node.ownerDocument.defaultView.frameElement;
                     var frameMenu = this.createMenu(frame, true);
-                    if (!yarip.getPageName(frame.ownerDocument.location)) frameMenu.setAttribute("disabled", true);
+                    var ownerLocation = yarip.getLocation(frame.ownerDocument.location);
+                    if (!yarip.getPageName(ownerLocation)) frameMenu.setAttribute("disabled", true);
                     this.yaripMenupopup.insertBefore(frameMenu, undoMenuSep);
                 }
                 hasMenus = hasMenus || inFrame;
@@ -975,20 +1028,21 @@ function YaripOverlay() {
         if (node.localName == "a") {
             item = document.createElement("menuitem");
             item.setAttribute("label", this.stringbundle.getString("menuitemAddToHistory"));
-            item.addEventListener("command", function() {
-                var loc = node.ownerDocument.location;
-                var href = node.getAttribute("href");
-                if (!/^\w+:\/+/.test(href)) {
-                    href = loc.href.substring(0, loc.href.indexOf(loc.pathname)) + (!/^\//.test(href) ? "/" : "") + href;
-                }
-                AH.updatePlaces({
-                    "uri": IOS.newURI(href, null, null),
-                    "visits": [{
-                        "transitionType": TRANSITION_LINK,
-                        "visitDate": Date.now() * 1000
-                    }]
-                });
-            }, false);
+//            item.addEventListener("command", function() {
+//                var loc = node.ownerDocument.location;
+//                var href = node.getAttribute("href");
+//                if (!/^\w+:\/+/.test(href)) {
+//                    href = loc.href.substring(0, loc.href.indexOf(loc.pathname)) + (!/^\//.test(href) ? "/" : "") + href;
+//                }
+//                AH.updatePlaces({
+//                    "uri": IOS.newURI(href, null, null),
+//                    "visits": [{
+//                        "transitionType": TRANSITION_LINK,
+//                        "visitDate": Date.now() * 1000
+//                    }]
+//                });
+//            }, false);
+            item.addEventListener("command", function() { ref.addToHistory(node.ownerDocument, node); }, false);
             menupopup.appendChild(item);
         }
 

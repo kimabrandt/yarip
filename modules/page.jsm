@@ -31,9 +31,10 @@ Cu.import("resource://yarip/object.jsm");
 Cu.import("resource://yarip/list.jsm");
 Cu.import("resource://yarip/item.jsm");
 
-function YaripPage(id, name, created, elementWhitelist, elementBlacklist, elementAttributeList, elementScriptList, contentWhitelist, contentBlacklist, contentRequestHeaderList, contentResponseHeaderList, contentRedirectList, contentStreamList, pageStyleList, pageScriptList, pageRequestHeaderList, pageResponseHeaderList, pageRedirectList, pageStreamList, pageExtensionList, pageExtendedByList) {
+function YaripPage(id, name, allowScript, created, elementWhitelist, elementBlacklist, elementAttributeList, elementScriptList, contentWhitelist, contentBlacklist, contentRequestHeaderList, contentResponseHeaderList, contentRedirectList, contentStreamList, pageStyleList, pageScriptList, pageRequestHeaderList, pageResponseHeaderList, pageRedirectList, pageStreamList, pageExtensionList, pageExtendedByList) {
     this.id = null;
     this.name = "";
+    this.allowScript = true;
     this.created = -1;
     this.type = PAGE_TYPE_UNKNOWN;
     this.obj = null;
@@ -59,6 +60,7 @@ function YaripPage(id, name, created, elementWhitelist, elementBlacklist, elemen
 
     this.setId(id);
     this.setName(name, true);
+    this.setAllowScript(allowScript);
     this.setCreated(created ? created : Date.now());
 }
 YaripPage.prototype = new YaripObject;
@@ -81,6 +83,12 @@ YaripPage.prototype.setName = function(value, init) {
 }
 YaripPage.prototype.getName = function() {
     return this.name;
+}
+YaripPage.prototype.setAllowScript = function(value) {
+    this.allowScript = String(value) !== "false";
+}
+YaripPage.prototype.getAllowScript = function() {
+    return this.allowScript;
 }
 YaripPage.prototype.setCreated = function(value) {
     if (!value) return;
@@ -159,6 +167,7 @@ YaripPage.prototype.clone = function(purge, pageName, id) {
     return new this.constructor(
         id ? id : purge ? this.newId() : this.id,
         pageName ? pageName : this.name,
+        this.allowScript,
         purge ? Date.now() : this.created,
         this.elementWhitelist.clone(purge),
         this.elementBlacklist.clone(purge),
@@ -181,6 +190,7 @@ YaripPage.prototype.clone = function(purge, pageName, id) {
 }
 YaripPage.prototype.merge = function(page, ignoreExtension, ignoreTemporary) {
     if (!page) return;
+    this.setAllowScript(this.getAllowScript() && page.getAllowScript());
     if (this.getCreated() === -1 || page.getCreated() < this.getCreated()) this.setCreated(page.getCreated());
     this.elementWhitelist.merge(page.elementWhitelist);
     this.elementBlacklist.merge(page.elementBlacklist);
@@ -394,14 +404,105 @@ YaripPage.prototype.generateXml = function() {
         "<page" +
             " id=\"" + this.id + "\"" +
             " name=\"" + this.name + "\"" +
+            " allowScript=\"" + this.allowScript + "\"" +
             (this.created > -1 ? " created=\"" + this.created + "\"" : "") +
         ">\n" +
         tmp +
         "\t</page>\n" : "";
 }
+YaripPage.prototype.toJSON = function() {
+    var r = {
+        "id": this.id,
+        "name": this.name,
+        "allowScript": this.allowScript,
+        "created": this.created,
+        "element": {
+            "whitelist": this.elementWhitelist,
+            "blacklist": this.elementBlacklist,
+            "attribute": this.elementAttributeList,
+            "script": this.elementScriptList
+        },
+        "content": {
+            "whitelist": this.contentWhitelist,
+            "blacklist": this.contentBlacklist,
+            "header": {
+                "request": this.contentRequestHeaderList,
+                "response": this.contentResponseHeaderList
+            },
+            "redirect": this.contentRedirectList,
+            "stream": this.contentStreamList
+        },
+        "page": {
+            "style": this.pageStyleList,
+            "script": this.pageScriptList,
+            "header": {
+                "request": this.pageRequestHeaderList,
+                "response": this.pageResponseHeaderList
+            },
+            "redirect": this.pageRedirectList,
+            "stream": this.pageStreamList,
+            "extension": this.pageExtensionList
+        }
+    };
+    if (r.element.whitelist.length === 0) delete r.element.whitelist;
+    if (r.element.blacklist.length === 0) delete r.element.blacklist;
+    if (r.element.attribute.length === 0) delete r.element.attribute;
+    if (r.element.script.length === 0) delete r.element.script;
+    if (!r.element.whitelist && !r.element.blacklist && !r.element.attribute && !r.element.script) delete r.element;
+    if (r.content.whitelist.length === 0) delete r.content.whitelist;
+    if (r.content.blacklist.length === 0) delete r.content.blacklist;
+    if (r.content.header.request.length === 0) delete r.content.header.request;
+    if (r.content.header.response.length === 0) delete r.content.header.response;
+    if (!r.content.header.request && !r.content.header.response) delete r.content.header;
+    if (r.content.redirect.length === 0) delete r.content.redirect;
+    if (r.content.stream.length === 0) delete r.content.stream;
+    if (!r.content.whitelist && !r.content.blacklist && !r.content.header && !r.content.redirect && !r.content.stream) delete r.content;
+    if (r.page.style.length === 0) delete r.page.style;
+    if (r.page.script.length === 0) delete r.page.script;
+    if (r.page.header.request.length === 0) delete r.page.header.request;
+    if (r.page.header.response.length === 0) delete r.page.header.response;
+    if (!r.page.header.request && !r.page.header.response) delete r.page.header;
+    if (r.page.redirect.length === 0) delete r.page.redirect;
+    if (r.page.stream.length === 0) delete r.page.stream;
+    if (r.page.extension.length === 0) delete r.page.extension;
+    if (!r.page.style && !r.page.script && !r.page.header && !r.page.redirect && !r.page.stream && !r.page.extension) delete r.page;
+    return r;
+}
+//YaripPage.prototype.fromJSON = function(pageObj) {
+//    pageObj = pageObj || {};
+//    pageObj.element = pageObj.element || {};
+//    pageObj.content = pageObj.content || {};
+//    pageObj.content.header = pageObj.content.header || {};
+//    pageObj.page = pageObj.page || {};
+//    pageObj.page.header = pageObj.page.header || {};
+//    var page = new YaripPage(
+//        pageObj.id,
+//        pageObj.name,
+//        pageObj.allowScript,
+//        pageObj.created,
+//        YaripElementWhitelist.fromJSON(pageObj.element.whitelist),
+//        YaripElementBlacklist.fromJSON(pageObj.element.blacklist),
+//        YaripElementAttributeList.fromJSON(pageObj.element.attribute),
+//        YaripElementScriptList.fromJSON(pageObj.element.script),
+//        YaripContentWhitelist.fromJSON(pageObj.content.whitelist),
+//        YaripContentBlacklist.fromJSON(pageObj.content.blacklist),
+//        YaripHeaderList.fromJSON(pageObj.content.header.request),
+//        YaripHeaderList.fromJSON(pageObj.content.header.response),
+//        YaripRedirectList.fromJSON(pageObj.content.redirect),
+//        YaripStreamReplaceList.fromJSON(pageObj.content.stream),
+//        YaripPageStyleList.fromJSON(pageObj.page.style),
+//        YaripPageScriptList.fromJSON(pageObj.page.script),
+//        YaripHeaderList.fromJSON(pageObj.page.header.request),
+//        YaripHeaderList.fromJSON(pageObj.page.header.response),
+//        YaripRedirectList.fromJSON(pageObj.page.redirect),
+//        YaripStreamReplaceList.fromJSON(pageObj.page.stream),
+//        YaripPageExtensionList.fromJSON(pageObj.page.extension)
+//    );
+//}
 YaripPage.prototype.loadFromObject = function(obj) {
     this.id = obj.id;
     this.name = obj.name;
+    this.setAllowScript(obj.allowScript);
     this.setCreated(obj.created);
     this.elementWhitelist.loadFromObject(obj.elementWhitelist);
     this.elementBlacklist.loadFromObject(obj.elementBlacklist);

@@ -68,6 +68,7 @@ var EXPORTED_SYMBOLS = [
         "PREF_PRIVATE",
         "PREF_PURGE",
         "PREF_SCHEMES",
+        "PREF_SCRIPT",
         "PREF_EXCLUSIVE",
         "PREF_TEMPLATES",
         "PREF_PAGES_MODIFIERS",
@@ -162,22 +163,29 @@ var EXPORTED_SYMBOLS = [
         "AH",
         "CH",
         "CS",
-        "FH",
         "IDNS",
         "IOS",
         "OS",
         "PB",
         "SB",
+        "SS",
+        "SSM",
         "UUIDG",
-        "WP"
+        "WP",
+
+        // Modules
+        "FileUtils",
+        "FormHistory",
+        "Services"
     ];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
-const VERSION = "0.3.4";
+const VERSION = "0.3.5";
 const FILE = "yarip.xml";
+//const FILE = "yarip.json";
 const CHARSET = "UTF-8";
 
 const MODE_PAGE = 0;
@@ -224,6 +232,7 @@ const PREF_MATCH = "extensions.yarip.matchAuthorityPort.value";
 const PREF_PRIVATE = "extensions.yarip.privateBrowsing.value";
 const PREF_PURGE = "extensions.yarip.purgeInnerHTML.value";
 const PREF_SCHEMES = "extensions.yarip.schemesRegExp.value";
+const PREF_SCRIPT = "extensions.yarip.allowScript.value";
 const PREF_EXCLUSIVE = "extensions.yarip.exclusiveOnCreation.value";
 const PREF_TEMPLATES = "extensions.yarip.templatesList.value";
 const PREF_PAGES_MODIFIERS = "extensions.yarip.managePagesModifiersList.value";
@@ -325,9 +334,13 @@ const IOS = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
 const OS = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
 const PB = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
 const SB = Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService);
+const SS = Cc["@mozilla.org/storage/service;1"].getService(Ci.mozIStorageService);
+const SSM = Cc["@mozilla.org/scriptsecuritymanager;1"].getService(Ci.nsIScriptSecurityManager);
 const UUIDG = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
 const WP = Cc["@mozilla.org/docloaderservice;1"].getService(Ci.nsIWebProgress);
 
+// Modules
+Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/FormHistory.jsm");
-const FH = FormHistory;
+Cu.import("resource://gre/modules/Services.jsm");
 

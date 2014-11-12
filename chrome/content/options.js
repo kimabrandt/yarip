@@ -28,6 +28,7 @@ function YaripOptionsPrefwindow()
         yarip.setValue(PREF_PRIVATE, null, DATA_TYPE_RESET);
         yarip.setValue(PREF_PURGE, null, DATA_TYPE_RESET);
         yarip.setValue(PREF_SCHEMES, null, DATA_TYPE_RESET);
+        yarip.setValue(PREF_SCRIPT, null, DATA_TYPE_RESET);
         yarip.setValue(PREF_EXCLUSIVE, null, DATA_TYPE_RESET);
         yarip.setValue(PREF_TEMPLATES, null, DATA_TYPE_RESET);
 
