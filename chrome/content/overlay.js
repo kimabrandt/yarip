@@ -656,6 +656,7 @@ function YaripOverlay() {
             var appInfo = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
             switch (appInfo.ID) {
             case "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}": // Firefox
+            case "{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}": // Palemoon
                 this.getAppcontent = function() { return document.getElementById("appcontent"); };
                 this.getBrowser = function() { return gBrowser; };
                 this.getContextMenuId = function() { return "contentAreaContextMenu"; };
